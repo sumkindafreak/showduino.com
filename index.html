@@ -68,14 +68,15 @@
       box-shadow: 0 0 10px #ff0040;
     }
 
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding: 2rem;
-      position: relative;
-      z-index: 2;
-    }
+   .features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
 
     .feature-card {
       background-color: #1a1a1a;
@@ -157,7 +158,7 @@
       width: 100vw;
       height: 100vh;
       z-index: 1;
-      opacity: 0.20;
+      opacity: 0.50;
       pointer-events: none;
     }
 

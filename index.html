@@ -105,12 +105,12 @@
 
   <!-- Features Section -->
   <section id="features" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">System Features</h2>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem;">
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
-        <p>Sleek on-device control interface powered by ESP32.</p>
-      </div>
+  <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+  <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
+  <p>Sleek on-device control interface powered by ESP32.</p>
+  <button onclick="document.getElementById('touchscreen-ui').scrollIntoView({behavior: 'smooth'})"
+          style="margin-top: 0.5rem;">Learn More</button>
+</div>
       <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
         <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
         <p>Multi-zone RGB lighting with real-time brightness control.</p>
@@ -180,6 +180,15 @@
       });
     });
   </script>
-
+<!-- === TOUCHSCREEN UI FEATURE DETAIL === -->
+<section id="touchscreen-ui" style="padding: 4rem 2rem; background-color: #0c0c0c; text-align: center;">
+  <h2 style="color: #ff0040;">Touchscreen UI</h2>
+  <p style="max-width: 800px; margin: auto; font-size: 1.1rem; line-height: 1.7;">
+    Experience the future of show control with Showduino's intuitive touchscreen user interface. Navigate effortlessly through your lighting and FX settings with just a fingertip.
+    Our responsive design ensures that you can make quick adjustments on the fly, allowing for real-time changes during performances.
+    Whether you're in the heat of a haunted house show or orchestrating a chilling ambiance for a scare, the touchscreen UI puts complete control at your fingertips.
+    Enjoy a user-friendly experience that simplifies complex operations and enhances your creative expression in any haunted attraction.
+  </p>
+</section>
 </body>
 </html>

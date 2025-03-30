@@ -1,12 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Toby Brandon – Master of FX</title>
-
+  <!-- All styles and glitch effects go here -->
   <style>
-    /* === Base Styles === */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,7 +15,6 @@
       overflow-x: hidden;
       position: relative;
     }
-
     header {
       background-color: #111;
       text-align: center;
@@ -24,7 +23,6 @@
       position: relative;
       z-index: 2;
     }
-
     header img {
       max-width: 300px;
       display: block;
@@ -32,12 +30,10 @@
       filter: drop-shadow(0 0 20px #ff0040);
       transition: all 0.2s ease-in-out;
     }
-
     header h1 {
       font-size: 3rem;
       text-shadow: 0 0 10px #ff0040;
     }
-
     .hero {
       padding: 3rem 1rem;
       background: radial-gradient(#111, #000);
@@ -45,12 +41,10 @@
       position: relative;
       z-index: 2;
     }
-
     .hero h2 {
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-
     .hero button {
       padding: 1rem 2rem;
       margin: 0.5rem;
@@ -63,12 +57,9 @@
       box-shadow: 0 0 10px #ff0040;
       transition: transform 0.2s ease;
     }
-
     .hero button:hover {
       transform: scale(1.05);
     }
-
-    /* === Glitch Animation for Logo === */
     @keyframes glitch {
       0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
       20% { transform: translate(-2px, 2px); filter: hue-rotate(30deg); }
@@ -77,31 +68,24 @@
       80% { transform: translate(1px, -2px); filter: hue-rotate(120deg); }
       100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
     }
-
     .glitch {
       animation: glitch 0.15s linear;
     }
   </style>
 </head>
-
 <body>
 
-  <!-- === AUDIO FILE FOR GLITCH SOUND === -->
-  <!-- Place "glitch-sfx.mp3" in the same folder as this HTML file -->
+  <!-- Glitch sound on button hover -->
   <audio id="glitchAudio">
     <source src="glitch-sfx.mp3" type="audio/mpeg" />
-    Your browser does not support the audio element.
   </audio>
 
-  <!-- === HEADER / LOGO SECTION === -->
   <header>
-    <!-- Replace this image with your uploaded Showduino logo -->
     <img src="showduino._logo.png" alt="Showduino Logo" />
     <h1>Toby Brandon</h1>
     <p>Master of FX – Built for Haunt Engineers</p>
   </header>
 
-  <!-- === HERO SECTION WITH BUTTONS === -->
   <section class="hero">
     <h2>Take Control of Your Horror Experience</h2>
     <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
@@ -109,60 +93,48 @@
     <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
   </section>
 
-<!-- === FEATURES SECTION WITH FX CARDS === -->
-<section id="features" style="padding: 3rem; text-align: center;">
-  <h2 style="color: #ff0040;">System Features</h2>
-
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem;">
-    
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
-      <p>Sleek on-device control interface powered by ESP32.</p>
+  <!-- Features section with 6 FX cards -->
+  <section id="features" style="padding: 3rem; text-align: center;">
+    <h2 style="color: #ff0040;">System Features</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem;">
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
+        <p>Sleek on-device control interface powered by ESP32.</p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
+        <p>Multi-zone RGB lighting with real-time brightness control.</p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
+        <p>Wireless scene selection and diagnostics updates.</p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
+        <p>Old-school meets new-school with IR-based menu navigation.</p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
+        <p>Manual and automatic system checks to ensure peak performance.</p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
+        <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
+        <p>Brains and brawn combined in one unstoppable system.</p>
+      </div>
     </div>
+  </section>
 
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
-      <p>Multi-zone RGB lighting with real-time brightness control.</p>
-    </div>
-
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
-      <p>Wireless scene selection and diagnostics updates.</p>
-    </div>
-
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
-      <p>Old-school meets new-school with IR-based menu navigation.</p>
-    </div>
-
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
-      <p>Manual and automatic system checks to ensure peak performance.</p>
-    </div>
-
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-      <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
-      <p>Brains and brawn combined in one unstoppable system.</p>
-    </div>
-
-  </div>
-</section>
-
-
-  <!-- === ABOUT SECTION === -->
   <section id="about" style="padding: 3rem; text-align: center;">
     <h2 style="color: #ff0040;">About Me</h2>
     <p style="max-width: 600px; margin: auto;">I'm Toby Brandon, haunted tech maker, FX wizard, and horror systems engineer. Showduino is my Frankenstein’s monster — and it’s alive.</p>
   </section>
 
-  <!-- === COLLABORATION SECTION === -->
   <section id="collab" style="padding: 3rem; text-align: center; background-color: #111;">
     <h2 style="color: #ff0040;">Collaborate</h2>
     <p style="max-width: 600px; margin: auto;">Got a project that needs sound, lighting, or creepy control systems? Let's build nightmares together.</p>
     <a href="#contact" style="display: inline-block; margin-top: 1rem; background-color: #ff0040; padding: 0.75rem 1.5rem; color: white; border-radius: 8px; text-decoration: none;">Let’s Talk</a>
   </section>
 
-  <!-- === CONTACT SECTION === -->
   <section id="contact" style="padding: 3rem; text-align: center;">
     <h2 style="color: #ff0040;">Contact Me</h2>
     <form action="https://formsubmit.co/showduino38@gmail.com" method="POST" style="max-width: 400px; margin: auto; display: flex; flex-direction: column;">
@@ -175,12 +147,10 @@
     </form>
   </section>
 
-  <!-- === FOOTER === -->
   <footer style="padding: 2rem; text-align: center; background-color: #0a0a0a; color: #888;">
     <p>Website by Showduino | Not responsible for unexplained hauntings.</p>
   </footer>
 
-  <!-- === GLITCH SCRIPT ON HOVER === -->
   <script>
     const glitchAudio = document.getElementById('glitchAudio');
     const logo = document.querySelector('header img');
@@ -188,16 +158,12 @@
 
     buttons.forEach(button => {
       button.addEventListener('mouseenter', () => {
-        // Rewind and play glitch sound
         glitchAudio.currentTime = 0;
         glitchAudio.play();
-
-        // Trigger logo animation
         logo.classList.add('glitch');
         setTimeout(() => logo.classList.remove('glitch'), 150);
       });
     });
   </script>
-
 </body>
 </html>

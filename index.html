@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Toby Brandon – Master of FX</title>
   <style>
+    /* Base Styles */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,6 +15,7 @@
       position: relative;
     }
 
+    /* Header Section with Fade-in Logo */
     header {
       background-color: #111;
       text-align: center;
@@ -43,6 +45,7 @@
       text-shadow: 0 0 10px #ff0040;
     }
 
+    /* Hero Section with Scroll Buttons */
     .hero {
       padding: 3rem 1rem;
       background: radial-gradient(#111, #000);
@@ -58,6 +61,7 @@
 
     .hero button {
       padding: 1rem 2rem;
+      margin: 0.5rem;
       background-color: #ff0040;
       color: white;
       border: none;
@@ -67,6 +71,7 @@
       box-shadow: 0 0 10px #ff0040;
     }
 
+    /* Feature Grid */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -93,13 +98,20 @@
       color: #ff0040;
     }
 
-    .contact-section {
-      padding: 2rem;
-      background-color: #111;
+    /* Shared Section Styles */
+    section {
+      padding: 3rem 1rem;
       text-align: center;
     }
 
-    .contact-section h2 {
+    /* Contact Form */
+    .contact-section {
+      background-color: #111;
+    }
+
+    .contact-section h2,
+    #about h2,
+    #collab h2 {
       color: #ff0040;
     }
 
@@ -128,6 +140,7 @@
       cursor: pointer;
     }
 
+    /* Call to Action Button */
     .buy-now {
       margin-top: 3rem;
       text-align: center;
@@ -143,6 +156,7 @@
       box-shadow: 0 0 10px #ff0040;
     }
 
+    /* Fog Overlay */
     .fog {
       background: url('https://upload.wikimedia.org/wikipedia/commons/6/6a/Spinning_fog.gif') repeat;
       position: fixed;
@@ -155,6 +169,7 @@
       pointer-events: none;
     }
 
+    /* Footer */
     footer {
       text-align: center;
       padding: 1rem;
@@ -168,19 +183,32 @@
   </style>
 </head>
 <body>
+
+  <!-- Glitch Sound (Autoplays & Loops) -->
+  <audio id="glitchAudio" autoplay loop>
+    <source src="https://freesound.org/data/previews/524/524006_6640014-lq.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Fog Overlay -->
   <div class="fog"></div>
 
+  <!-- Header + Logo -->
   <header>
     <img src="showduino._logo.png" alt="Showduino Logo" />
     <h1>Toby Brandon</h1>
     <p>Master of FX – Built for Haunt Engineers</p>
   </header>
 
+  <!-- Hero Section -->
   <section class="hero">
     <h2>Take Control of Your Horror Experience</h2>
     <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
+    <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">About Me</button>
+    <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
   </section>
 
+  <!-- Features Grid -->
   <section class="features" id="features">
     <div class="feature-card">
       <h3>💻 Touchscreen Menu UI</h3>
@@ -208,7 +236,29 @@
     </div>
   </section>
 
-  <section class="contact-section">
+  <!-- About Me -->
+  <section id="about">
+    <h2>About Me</h2>
+    <p style="max-width: 700px; margin: auto; font-size: 1.1rem; line-height: 1.6;">
+      I'm <strong>Toby Brandon</strong>, creator of haunted tech, immersive horror, and twisted theatre. From 
+      ESP32-powered ghost lights to full-scale FX systems, I blend coding with chaos to give haunt fans a 
+      fright they won’t forget. Showduino is my Frankenstein’s monster — and it's alive.
+    </p>
+  </section>
+
+  <!-- Collaborate -->
+  <section id="collab">
+    <h2>Collaborate With Me</h2>
+    <p style="max-width: 700px; margin: auto; font-size: 1.1rem; line-height: 1.6;">
+      Got a project that needs eerie sound, lighting, or FX engineering from the underworld? Let’s build 
+      something wicked together. Whether you’re making a haunted house, escape room, or interactive 
+      theatre — I’ve got the circuits, code, and creativity to help bring your nightmares to life.
+    </p>
+    <a href="#contact" style="display: inline-block; margin-top: 1.5rem; background-color: #ff0040; color: white; padding: 0.8rem 1.6rem; border-radius: 8px; text-decoration: none; box-shadow: 0 0 10px #ff0040;">Let's Talk</a>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-section" id="contact">
     <h2>Contact</h2>
     <form>
       <input type="text" placeholder="Your Name" required />
@@ -218,12 +268,15 @@
     </form>
   </section>
 
+  <!-- Call-to-Action (Buy Now Placeholder) -->
   <div class="buy-now">
     <a href="#" title="Coming Soon">Buy Now</a>
   </div>
 
+  <!-- Footer -->
   <footer>
     <p>Powered by FX | Created by Toby Brandon | Not responsible for any sudden hauntings</p>
   </footer>
+
 </body>
 </html>

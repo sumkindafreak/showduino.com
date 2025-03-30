@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Toby Brandon – Master of FX</title>
+  <title>Showduino – Master of FX</title>
   <style>
     body {
       margin: 0;
@@ -14,42 +14,27 @@
       overflow-x: hidden;
       position: relative;
     }
-
     header {
       background-color: #111;
       text-align: center;
       padding: 2rem 1rem;
       border-bottom: 2px solid #444;
-      position: relative;
-      z-index: 2;
     }
-
     header img {
       max-width: 300px;
-      display: block;
       margin: 0 auto 1rem;
+      display: block;
       filter: drop-shadow(0 0 20px #ff0040);
-      transition: all 0.2s ease-in-out;
     }
-
-    header h1 {
+    h1 {
       font-size: 3rem;
       text-shadow: 0 0 10px #ff0040;
     }
-
     .hero {
       padding: 3rem 1rem;
       background: radial-gradient(#111, #000);
       text-align: center;
-      position: relative;
-      z-index: 2;
     }
-
-    .hero h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
     .hero button {
       padding: 1rem 2rem;
       margin: 0.5rem;
@@ -60,154 +45,102 @@
       font-size: 1rem;
       cursor: pointer;
       box-shadow: 0 0 10px #ff0040;
-      transition: transform 0.2s ease;
     }
-
-    .hero button:hover {
-      transform: scale(1.05);
+    section {
+      padding: 3rem 1rem;
+      text-align: center;
     }
-
-    @keyframes glitch {
-      0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
-      20% { transform: translate(-2px, 2px); filter: hue-rotate(30deg); }
-      40% { transform: translate(2px, -1px); filter: hue-rotate(60deg); }
-      60% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
-      80% { transform: translate(1px, -2px); filter: hue-rotate(120deg); }
-      100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+    .feature-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 1rem;
+      margin-top: 2rem;
     }
-
-    .glitch {
-      animation: glitch 0.15s linear;
+    .feature-card {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #222;
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .feature-card h3 {
+      color: #ff0040;
     }
   </style>
 </head>
 <body>
 
-  <!-- Glitch audio -->
-  <audio id="glitchAudio">
-    <source src="glitch-sfx.mp3" type="audio/mpeg" />
-  </audio>
+<header>
+  <img src="showduino._logo.png" alt="Showduino Logo" />
+  <h1>Showduino</h1>
+  <p>Master of FX – Built for Haunt Engineers</p>
+</header>
 
-  <!-- Header -->
-  <header>
-    <img src="showduino._logo.png" alt="Showduino Logo" />
-    <h1>Toby Brandon</h1>
-    <p>Master of FX – Built for Haunt Engineers</p>
-  </header>
+<section class="hero">
+  <h2>Take Control of Your Horror Experience</h2>
+  <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
+</section>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <h2>Take Control of Your Horror Experience</h2>
-    <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
-    <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">About Me</button>
-    <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
-  </section>
-
-  <!-- === FEATURES SECTION === -->
-<section id="features" style="padding: 3rem; text-align: center;">
+<!-- FEATURES SECTION -->
+<section id="features">
   <h2 style="color: #ff0040;">System Features</h2>
+  <div class="feature-grid">
 
-  <!-- Container for all the feature cards -->
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 1rem; margin-top: 2rem;">
-
-    <!-- TOUCHSCREEN CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="feature-card">
       <div>
-        <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
+        <h3>💻 Touchscreen Menu UI</h3>
         <p>Sleek on-device control interface powered by ESP32.</p>
       </div>
-      <button onclick="document.getElementById('touchscreen-ui').scrollIntoView({behavior: 'smooth'})"
-              style="margin-top: 1rem;">Learn More</button>
+      <button onclick="document.getElementById('touchscreen-ui').scrollIntoView({behavior: 'smooth'})">Learn More</button>
     </div>
 
-    <!-- NEOPIXEL CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-      <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
-      <p>Multi-zone RGB lighting with real-time brightness control.</p>
+    <div class="feature-card">
+      <div>
+        <h3>👻 NeoPixel FX Control</h3>
+        <p>Multi-zone RGB lighting with real-time brightness control.</p>
+      </div>
+      <button onclick="document.getElementById('neopixel-ui').scrollIntoView({behavior: 'smooth'})">Learn More</button>
     </div>
 
-    <!-- BLUETOOTH CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-      <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
-      <p>Wireless scene selection and diagnostics updates.</p>
+    <div class="feature-card">
+      <div>
+        <h3>📡 Bluetooth & WiFi</h3>
+        <p>Wireless scene selection and diagnostics updates.</p>
+      </div>
     </div>
 
-    <!-- INFRARED REMOTE CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-      <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
-      <p>Old-school meets new-school with IR-based menu navigation.</p>
+    <div class="feature-card">
+      <div>
+        <h3>🔮 Infrared Remote</h3>
+        <p>IR-based menu navigation meets modern control tech.</p>
+      </div>
     </div>
 
-    <!-- DIAGNOSTICS CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-      <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
-      <p>Manual and automatic system checks to ensure peak performance.</p>
+    <div class="feature-card">
+      <div>
+        <h3>🔧 Diagnostics + Self-Test</h3>
+        <p>System checks and smart self-testing built in.</p>
+      </div>
     </div>
 
-    <!-- MEGA + ESP32 CARD -->
-    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
-                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
-      <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
-      <p>Brains and brawn combined in one unstoppable system.</p>
+    <div class="feature-card">
+      <div>
+        <h3>🔬 Arduino Mega + ESP32</h3>
+        <p>Brains and brawn combined in one unstoppable system.</p>
+      </div>
+      <button onclick="document.getElementById('gorefx').scrollIntoView({behavior: 'smooth'})">Learn More</button>
     </div>
 
   </div>
 </section>
 
-
-  <!-- About Section -->
-  <section id="about" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">About Me</h2>
-    <p style="max-width: 600px; margin: auto;">I'm Toby Brandon, haunted tech maker, FX wizard, and horror systems engineer. Showduino is my Frankenstein’s monster — and it’s alive.</p>
-  </section>
-
-  <!-- Collaborate Section -->
-  <section id="collab" style="padding: 3rem; text-align: center; background-color: #111;">
-    <h2 style="color: #ff0040;">Collaborate</h2>
-    <p style="max-width: 600px; margin: auto;">Got a project that needs sound, lighting, or creepy control systems? Let's build nightmares together.</p>
-    <a href="#contact" style="display: inline-block; margin-top: 1rem; background-color: #ff0040; padding: 0.75rem 1.5rem; color: white; border-radius: 8px; text-decoration: none;">Let’s Talk</a>
-  </section>
-
-  <!-- Contact Section -->
-  <section id="contact" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">Contact Me</h2>
-    <form action="https://formsubmit.co/showduino38@gmail.com" method="POST" style="max-width: 400px; margin: auto; display: flex; flex-direction: column;">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_subject" value="New message from the Showduino website!">
-      <input type="text" name="name" placeholder="Your Name" required />
-      <input type="email" name="email" placeholder="Your Email" required />
-      <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
-      <button type="submit" style="margin-top: 1rem;">Send Message</button>
-    </form>
-  </section>
-
-  <!-- Footer -->
-  <footer style="padding: 2rem; text-align: center; background-color: #0a0a0a; color: #888;">
-    <p>Website by Showduino | Not responsible for unexplained hauntings.</p>
-  </footer>
-
-  <!-- Glitch FX on Hover -->
-  <script>
-    const glitchAudio = document.getElementById('glitchAudio');
-    const logo = document.querySelector('header img');
-    const buttons = document.querySelectorAll('button');
-
-    buttons.forEach(button => {
-      button.addEventListener('mouseenter', () => {
-        glitchAudio.currentTime = 0;
-        glitchAudio.play();
-        logo.classList.add('glitch');
-        setTimeout(() => logo.classList.remove('glitch'), 150);
-      });
-    });
-  </script>
-<!-- === TOUCHSCREEN UI FEATURE DETAIL === -->
-<section id="touchscreen-ui" style="padding: 4rem 2rem; background-color: #0c0c0c; text-align: center;">
+<!-- TOUCHSCREEN UI SUBMENU -->
+<section id="touchscreen-ui" style="padding: 4rem 2rem; background-color: #0c0c0c;">
   <h2 style="color: #ff0040;">Touchscreen UI</h2>
   <p style="max-width: 800px; margin: auto; font-size: 1.1rem; line-height: 1.7;">
     Experience the future of show control with Showduino's intuitive touchscreen user interface. Navigate effortlessly through your lighting and FX settings with just a fingertip.
@@ -216,5 +149,28 @@
     Enjoy a user-friendly experience that simplifies complex operations and enhances your creative expression in any haunted attraction.
   </p>
 </section>
+
+<!-- NEOPIXEL FX SUBMENU -->
+<section id="neopixel-ui" style="padding: 4rem 2rem; background-color: #0d0d0d;">
+  <h2 style="color: #ff0040;">NeoPixel FX Control</h2>
+  <p style="max-width: 800px; margin: auto; font-size: 1.1rem; line-height: 1.7;">
+    With Showduino’s NeoPixel FX Control, you can manage multiple lighting zones, customize animations, and control brightness in real time.
+    Our advanced system supports addressable LEDs with a stunning range of effects – from slow eerie glows to wild strobe bursts.
+    Whether you're creating a moody dungeon or a chaotic chase scene, NeoPixel FX gives you theatrical control at your fingertips.
+  </p>
+</section>
+
+<!-- GOREFX LIGHTING CONTROL SUBMENU -->
+<section id="gorefx" style="padding: 4rem 2rem; background-color: #0c0c0c;">
+  <h2 style="color: #ff0040;">GoreFX Lighting Control</h2>
+  <p style="max-width: 800px; margin: auto; font-size: 1.1rem; line-height: 1.7;">
+    Illuminate your haunt with the GoreFX Lighting Control system. This feature allows precise management of lighting effects to create an atmosphere that sends chills down your spine.
+    With the ability to customize colors, intensities, and patterns, you can craft the perfect ambiance for every scene.
+    The user-friendly interface lets you adjust settings on-the-fly, ensuring that your lighting matches the action perfectly.
+    Whether it's a dimly lit corridor or a flashing strobe effect, GoreFX puts the power in your hands.
+    Scare your guests like never before and make every moment unforgettable!
+  </p>
+</section>
+
 </body>
 </html>

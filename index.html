@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Toby Brandon – Master of FX</title>
   <style>
-    /* Base Styles */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,7 +14,6 @@
       position: relative;
     }
 
-    /* Header Section with Fade-in Logo */
     header {
       background-color: #111;
       text-align: center;
@@ -45,7 +43,6 @@
       text-shadow: 0 0 10px #ff0040;
     }
 
-    /* Hero Section with Scroll Buttons */
     .hero {
       padding: 3rem 1rem;
       background: radial-gradient(#111, #000);
@@ -71,7 +68,6 @@
       box-shadow: 0 0 10px #ff0040;
     }
 
-    /* Feature Grid */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -98,13 +94,11 @@
       color: #ff0040;
     }
 
-    /* Shared Section Styles */
     section {
       padding: 3rem 1rem;
       text-align: center;
     }
 
-    /* Contact Form */
     .contact-section {
       background-color: #111;
     }
@@ -140,7 +134,6 @@
       cursor: pointer;
     }
 
-    /* Call to Action Button */
     .buy-now {
       margin-top: 3rem;
       text-align: center;
@@ -156,7 +149,6 @@
       box-shadow: 0 0 10px #ff0040;
     }
 
-    /* Fog Overlay */
     .fog {
       background: url('https://upload.wikimedia.org/wikipedia/commons/6/6a/Spinning_fog.gif') repeat;
       position: fixed;
@@ -169,7 +161,6 @@
       pointer-events: none;
     }
 
-    /* Footer */
     footer {
       text-align: center;
       padding: 1rem;
@@ -184,7 +175,7 @@
 </head>
 <body>
 
-  <!-- Glitch Sound (Autoplays & Loops) -->
+  <!-- Glitched Background Sound -->
   <audio id="glitchAudio" autoplay loop>
     <source src="https://freesound.org/data/previews/524/524006_6640014-lq.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -193,7 +184,7 @@
   <!-- Fog Overlay -->
   <div class="fog"></div>
 
-  <!-- Header + Logo -->
+  <!-- Header -->
   <header>
     <img src="showduino._logo.png" alt="Showduino Logo" />
     <h1>Toby Brandon</h1>
@@ -208,7 +199,7 @@
     <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
   </section>
 
-  <!-- Features Grid -->
+  <!-- Features Section -->
   <section class="features" id="features">
     <div class="feature-card">
       <h3>💻 Touchscreen Menu UI</h3>
@@ -236,7 +227,7 @@
     </div>
   </section>
 
-  <!-- About Me -->
+  <!-- About Me Section -->
   <section id="about">
     <h2>About Me</h2>
     <p style="max-width: 700px; margin: auto; font-size: 1.1rem; line-height: 1.6;">
@@ -246,7 +237,7 @@
     </p>
   </section>
 
-  <!-- Collaborate -->
+  <!-- Collaborate With Me Section -->
   <section id="collab">
     <h2>Collaborate With Me</h2>
     <p style="max-width: 700px; margin: auto; font-size: 1.1rem; line-height: 1.6;">
@@ -257,18 +248,20 @@
     <a href="#contact" style="display: inline-block; margin-top: 1.5rem; background-color: #ff0040; color: white; padding: 0.8rem 1.6rem; border-radius: 8px; text-decoration: none; box-shadow: 0 0 10px #ff0040;">Let's Talk</a>
   </section>
 
-  <!-- Contact -->
+  <!-- Contact Form -->
   <section class="contact-section" id="contact">
     <h2>Contact</h2>
-    <form>
-      <input type="text" placeholder="Your Name" required />
-      <input type="email" placeholder="Your Email" required />
-      <textarea placeholder="Your Message" rows="4" required></textarea>
+    <form action="https://formsubmit.co/tjpropandbuild@gmail.com" method="POST">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" value="New message from the Showduino website!">
+      <input type="text" name="name" placeholder="Your Name" required />
+      <input type="email" name="email" placeholder="Your Email" required />
+      <textarea name="message" placeholder="Your Message" rows="4" required></textarea>
       <button type="submit">Send Message</button>
     </form>
   </section>
 
-  <!-- Call-to-Action (Buy Now Placeholder) -->
+  <!-- Buy Now / Coming Soon CTA -->
   <div class="buy-now">
     <a href="#" title="Coming Soon">Buy Now</a>
   </div>

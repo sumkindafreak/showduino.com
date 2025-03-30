@@ -3,10 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Toby Brandon – Master of FX</title>
+  <title>Toby Brandon – Haunted FX Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #0a0a0a;
       color: #f2f2f2;
@@ -14,57 +21,80 @@
       position: relative;
     }
     header {
-      background-color: #111;
-      text-align: center;
+      background-color: #000;
       padding: 2rem 1rem;
-      border-bottom: 2px solid #444;
+      text-align: center;
+      border-bottom: 2px solid #ff0040;
       position: relative;
-      z-index: 2;
     }
     header img {
       max-width: 300px;
-      display: block;
-      margin: 0 auto 1rem;
       filter: drop-shadow(0 0 20px #ff0040);
+      animation: flicker 2s infinite;
     }
     header h1 {
+      font-family: 'UnifrakturCook', cursive;
       font-size: 3rem;
-      text-shadow: 0 0 10px #ff0040;
+      text-shadow: 0 0 20px #ff0040;
+      margin-top: 1rem;
+    }
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 22%, 24%, 55% {
+        opacity: 0.3;
+      }
+    }
+    .fog {
+      background: url('https://i.ibb.co/8DChfMX/fog-overlay.gif') repeat;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      opacity: 0.05;
+      pointer-events: none;
     }
     .hero {
-      padding: 3rem 1rem;
-      background: radial-gradient(#111, #000);
       text-align: center;
+      padding: 4rem 2rem;
       position: relative;
       z-index: 2;
     }
     .hero h2 {
-      font-size: 2rem;
+      font-size: 2.5rem;
       margin-bottom: 1rem;
     }
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
     .hero button {
-      padding: 1rem 2rem;
       background-color: #ff0040;
       color: white;
+      padding: 1rem 2rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 1rem;
+      box-shadow: 0 0 20px #ff0040;
       cursor: pointer;
-      box-shadow: 0 0 10px #ff0040;
     }
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding: 2rem;
+      gap: 1.5rem;
+      padding: 3rem;
       position: relative;
       z-index: 2;
     }
     .feature-card {
       background-color: #1a1a1a;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #222;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #222;
       transition: transform 0.3s;
     }
     .feature-card:hover {
@@ -73,13 +103,20 @@
     }
     .feature-card h3 {
       color: #ff0040;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
     .contact-section {
-      padding: 2rem;
+      padding: 3rem 2rem;
       background-color: #111;
       text-align: center;
     }
     .contact-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
       color: #ff0040;
     }
     .contact-section form {
@@ -91,7 +128,7 @@
     .contact-section input,
     .contact-section textarea {
       margin: 0.5rem 0;
-      padding: 0.75rem;
+      padding: 0.8rem;
       border-radius: 6px;
       border: none;
     }
@@ -100,13 +137,13 @@
       background-color: #ff0040;
       color: white;
       border: none;
-      padding: 0.75rem;
+      padding: 0.8rem;
       border-radius: 8px;
       cursor: pointer;
     }
     .buy-now {
-      margin-top: 3rem;
       text-align: center;
+      margin-top: 2rem;
     }
     .buy-now a {
       background-color: #ff0040;
@@ -117,24 +154,13 @@
       font-weight: bold;
       box-shadow: 0 0 10px #ff0040;
     }
-    .fog {
-      background: url('https://i.ibb.co/8DChfMX/fog-overlay.gif') repeat;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      opacity: 0.1;
-      pointer-events: none;
-    }
     footer {
       text-align: center;
-      padding: 1rem;
+      padding: 1.5rem 1rem;
       background-color: #111;
       color: #777;
-      border-top: 2px solid #444;
       font-size: 0.9rem;
+      border-top: 2px solid #444;
       position: relative;
       z-index: 2;
     }
@@ -142,60 +168,62 @@
 </head>
 <body>
   <div class="fog"></div>
+
   <header>
-    <img src="showduino._logo.png" alt="Showduino Logo" />
+    <img src="showduino-logo.png" alt="Showduino Logo" />
     <h1>Toby Brandon</h1>
-    <p>Master of FX – Built for Haunt Engineers</p>
+    <p>Haunted FX Engineer | Builder of Frightful Machines</p>
   </header>
 
   <section class="hero">
-    <h2>Take Control of Your Horror Experience</h2>
-    <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
+    <h2>Welcome to the Lab of Madness</h2>
+    <p>Electronics, horror, and immersive nightmares — all from the mind of Toby Brandon.</p>
+    <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Summon the Features</button>
   </section>
 
   <section class="features" id="features">
     <div class="feature-card">
-      <h3>💻 Touchscreen Menu UI</h3>
-      <p>Sleek on-device control interface powered by ESP32.</p>
+      <h3>💀 Haunted Touch UI</h3>
+      <p>Custom-built touchscreen interface with eerie glow, glitchy transitions, and dark magic beneath the glass.</p>
     </div>
     <div class="feature-card">
-      <h3>👻 NeoPixel FX Control</h3>
-      <p>Multi-zone RGB lighting with real-time brightness control.</p>
+      <h3>🎃 NeoPixel Horror Lighting</h3>
+      <p>Multi-zone RGB FX with pulsing reds, flickering yellows, and full scene-based brightness control.</p>
     </div>
     <div class="feature-card">
-      <h3>📡 Bluetooth & WiFi</h3>
-      <p>Wireless scene selection and diagnostics updates.</p>
+      <h3>📡 ESP32 Brainwaves</h3>
+      <p>WiFi + Bluetooth communication with serial protocols to command the Mega beast below.</p>
     </div>
     <div class="feature-card">
-      <h3>🔮 Infrared Remote Integration</h3>
-      <p>Old-school meets new-school with IR-based menu navigation.</p>
+      <h3>📺 IR Remote Possession</h3>
+      <p>Navigate your haunted menu via an old-school IR remote – complete with glitchy feedback LEDs.</p>
     </div>
     <div class="feature-card">
-      <h3>🔧 Diagnostics + Self-Test</h3>
-      <p>Manual and automatic system checks to ensure peak performance.</p>
+      <h3>🔧 Diagnostic Rituals</h3>
+      <p>Self-test mode, relay status, power checks, and voltage readings – all manually summoned on request.</p>
     </div>
     <div class="feature-card">
-      <h3>🔬 Arduino Mega + ESP32 Combo</h3>
-      <p>Brains and brawn combined in one unstoppable system.</p>
+      <h3>🎭 Escape Room FX Integration</h3>
+      <p>Ready to run puzzles, control scenes, trigger fog, and spook guests with just one command.</p>
     </div>
   </section>
 
   <section class="contact-section">
-    <h2>Contact</h2>
+    <h2>Contact the Creator</h2>
     <form>
       <input type="text" placeholder="Your Name" required />
       <input type="email" placeholder="Your Email" required />
       <textarea placeholder="Your Message" rows="4" required></textarea>
-      <button type="submit">Send Message</button>
+      <button type="submit">Send Summons</button>
     </form>
   </section>
 
   <div class="buy-now">
-    <a href="#" title="Coming Soon">Buy Now</a>
+    <a href="#">Buy the System – Coming Soon</a>
   </div>
 
   <footer>
-    <p>Powered by FX | Created by Toby Brandon | Not responsible for any sudden hauntings</p>
+    <p>&copy; 2025 Toby Brandon | Designed in the Shadows | Caution: May awaken haunted tech.</p>
   </footer>
 </body>
 </html>

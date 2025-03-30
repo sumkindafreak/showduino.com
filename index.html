@@ -103,36 +103,62 @@
     <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
   </section>
 
-  <!-- Features Section -->
-  <section id="features" style="padding: 3rem; text-align: center;">
-  <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-  <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
-  <p>Sleek on-device control interface powered by ESP32.</p>
-  <button onclick="document.getElementById('touchscreen-ui').scrollIntoView({behavior: 'smooth'})"
-          style="margin-top: 0.5rem;">Learn More</button>
-</div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
-        <p>Multi-zone RGB lighting with real-time brightness control.</p>
+  <!-- === FEATURES SECTION === -->
+<section id="features" style="padding: 3rem; text-align: center;">
+  <h2 style="color: #ff0040;">System Features</h2>
+
+  <!-- Container for all the feature cards -->
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 1rem; margin-top: 2rem;">
+
+    <!-- TOUCHSCREEN CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
+        <p>Sleek on-device control interface powered by ESP32.</p>
       </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
-        <p>Wireless scene selection and diagnostics updates.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
-        <p>Old-school meets new-school with IR-based menu navigation.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
-        <p>Manual and automatic system checks to ensure peak performance.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
-        <p>Brains and brawn combined in one unstoppable system.</p>
-      </div>
+      <button onclick="document.getElementById('touchscreen-ui').scrollIntoView({behavior: 'smooth'})"
+              style="margin-top: 1rem;">Learn More</button>
     </div>
-  </section>
+
+    <!-- NEOPIXEL CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
+      <p>Multi-zone RGB lighting with real-time brightness control.</p>
+    </div>
+
+    <!-- BLUETOOTH CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
+      <p>Wireless scene selection and diagnostics updates.</p>
+    </div>
+
+    <!-- INFRARED REMOTE CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
+      <p>Old-school meets new-school with IR-based menu navigation.</p>
+    </div>
+
+    <!-- DIAGNOSTICS CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
+      <p>Manual and automatic system checks to ensure peak performance.</p>
+    </div>
+
+    <!-- MEGA + ESP32 CARD -->
+    <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222;
+                width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+      <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
+      <p>Brains and brawn combined in one unstoppable system.</p>
+    </div>
+
+  </div>
+</section>
+
 
   <!-- About Section -->
   <section id="about" style="padding: 3rem; text-align: center;">

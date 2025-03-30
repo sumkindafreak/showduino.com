@@ -4,46 +4,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Toby Brandon – Master of FX</title>
-  <!-- All styles and glitch effects go here -->
+  <title>Showduino – FX Mastery</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #0a0a0a;
       color: #f2f2f2;
-      overflow-x: hidden;
-      position: relative;
     }
     header {
-      background-color: #111;
       text-align: center;
       padding: 2rem 1rem;
+      background: #111;
       border-bottom: 2px solid #444;
-      position: relative;
-      z-index: 2;
     }
     header img {
       max-width: 300px;
-      display: block;
-      margin: 0 auto 1rem;
+      margin-bottom: 1rem;
       filter: drop-shadow(0 0 20px #ff0040);
       transition: all 0.2s ease-in-out;
     }
-    header h1 {
+    h1 {
       font-size: 3rem;
       text-shadow: 0 0 10px #ff0040;
     }
     .hero {
-      padding: 3rem 1rem;
-      background: radial-gradient(#111, #000);
       text-align: center;
-      position: relative;
-      z-index: 2;
-    }
-    .hero h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      padding: 3rem 1rem;
     }
     .hero button {
       padding: 1rem 2rem;
@@ -54,116 +41,96 @@
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 0 10px #ff0040;
-      transition: transform 0.2s ease;
     }
-    .hero button:hover {
-      transform: scale(1.05);
+    section {
+      padding: 3rem 1rem;
+      text-align: center;
     }
-    @keyframes glitch {
-      0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
-      20% { transform: translate(-2px, 2px); filter: hue-rotate(30deg); }
-      40% { transform: translate(2px, -1px); filter: hue-rotate(60deg); }
-      60% { transform: translate(-1px, 1px); filter: hue-rotate(90deg); }
-      80% { transform: translate(1px, -2px); filter: hue-rotate(120deg); }
-      100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+    img.neopixel-preview {
+      max-width: 95%;
+      border-radius: 12px;
+      box-shadow: 0 0 25px #ff0040;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-    .glitch {
-      animation: glitch 0.15s linear;
+    img.neopixel-preview:hover {
+      box-shadow: 0 0 35px #ff0040, 0 0 15px #ff0055;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.95);
+    }
+
+    .modal-content {
+      margin: 5% auto;
+      display: block;
+      max-width: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 30px #ff0040;
+    }
+
+    .close {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Glitch sound on button hover -->
-  <audio id="glitchAudio">
-    <source src="glitch-sfx.mp3" type="audio/mpeg" />
-  </audio>
+<!-- Header -->
+<header>
+  <img src="showduino._logo.png" alt="Showduino Logo" />
+  <h1>Showduino</h1>
+  <p>Master of FX – Built for Haunt Engineers</p>
+</header>
 
-  <header>
-    <img src="showduino._logo.png" alt="Showduino Logo" />
-    <h1>Toby Brandon</h1>
-    <p>Master of FX – Built for Haunt Engineers</p>
-  </header>
+<!-- Hero Section -->
+<section class="hero">
+  <h2>Take Control of Your Horror Experience</h2>
+  <button onclick="document.getElementById('neopixel').scrollIntoView({behavior: 'smooth'})">NeoPixel FX</button>
+</section>
 
-  <section class="hero">
-    <h2>Take Control of Your Horror Experience</h2>
-    <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
-    <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">About Me</button>
-    <button onclick="document.getElementById('collab').scrollIntoView({behavior: 'smooth'})">Collaborate</button>
-  </section>
+<!-- NeoPixel FX Advert Section -->
+<section id="neopixel" style="background-color: #0b0b0b;">
+  <h2 style="color: #ff0040;">NeoPixel FX Modules</h2>
+  <p style="max-width: 700px; margin: auto; font-size: 1.1rem; line-height: 1.6;">
+    Designed for immersive environments, Showduino’s NeoPixel modules support brightness control, FX triggers, and scene-based animations — all in real time.
+  </p>
 
-  <!-- Features section with 6 FX cards -->
-  <section id="features" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">System Features</h2>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem;">
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">💻 Touchscreen Menu UI</h3>
-        <p>Sleek on-device control interface powered by ESP32.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">👻 NeoPixel FX Control</h3>
-        <p>Multi-zone RGB lighting with real-time brightness control.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">📡 Bluetooth & WiFi</h3>
-        <p>Wireless scene selection and diagnostics updates.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔮 Infrared Remote</h3>
-        <p>Old-school meets new-school with IR-based menu navigation.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h3>
-        <p>Manual and automatic system checks to ensure peak performance.</p>
-      </div>
-      <div style="background-color: #1a1a1a; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px #222; width: 280px;">
-        <h3 style="color: #ff0040;">🔬 Arduino Mega + ESP32</h3>
-        <p>Brains and brawn combined in one unstoppable system.</p>
-      </div>
-    </div>
-  </section>
+  <!-- Image that triggers the modal -->
+  <img src="neopixel_fx_advert.png" alt="NeoPixel FX Advert" class="neopixel-preview" onclick="openModal()">
+</section>
 
-  <section id="about" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">About Me</h2>
-    <p style="max-width: 600px; margin: auto;">I'm Toby Brandon, haunted tech maker, FX wizard, and horror systems engineer. Showduino is my Frankenstein’s monster — and it’s alive.</p>
-  </section>
+<!-- Modal Zoom Preview -->
+<div id="modal" class="modal" onclick="closeModal()">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <img class="modal-content" id="modalImg" src="neopixel_fx_advert.png" alt="NeoPixel FX Fullscreen">
+</div>
 
-  <section id="collab" style="padding: 3rem; text-align: center; background-color: #111;">
-    <h2 style="color: #ff0040;">Collaborate</h2>
-    <p style="max-width: 600px; margin: auto;">Got a project that needs sound, lighting, or creepy control systems? Let's build nightmares together.</p>
-    <a href="#contact" style="display: inline-block; margin-top: 1rem; background-color: #ff0040; padding: 0.75rem 1.5rem; color: white; border-radius: 8px; text-decoration: none;">Let’s Talk</a>
-  </section>
+<!-- Modal Script -->
+<script>
+  function openModal() {
+    document.getElementById('modal').style.display = 'block';
+  }
 
-  <section id="contact" style="padding: 3rem; text-align: center;">
-    <h2 style="color: #ff0040;">Contact Me</h2>
-    <form action="https://formsubmit.co/showduino38@gmail.com" method="POST" style="max-width: 400px; margin: auto; display: flex; flex-direction: column;">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_subject" value="New message from the Showduino website!">
-      <input type="text" name="name" placeholder="Your Name" required />
-      <input type="email" name="email" placeholder="Your Email" required />
-      <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
-      <button type="submit" style="margin-top: 1rem;">Send Message</button>
-    </form>
-  </section>
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+</script>
 
-  <footer style="padding: 2rem; text-align: center; background-color: #0a0a0a; color: #888;">
-    <p>Website by Showduino | Not responsible for unexplained hauntings.</p>
-  </footer>
-
-  <script>
-    const glitchAudio = document.getElementById('glitchAudio');
-    const logo = document.querySelector('header img');
-    const buttons = document.querySelectorAll('button');
-
-    buttons.forEach(button => {
-      button.addEventListener('mouseenter', () => {
-        glitchAudio.currentTime = 0;
-        glitchAudio.play();
-        logo.classList.add('glitch');
-        setTimeout(() => logo.classList.remove('glitch'), 150);
-      });
-    });
-  </script>
 </body>
 </html>

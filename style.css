@@ -1,0 +1,90 @@
+body {
+  background: #000;
+  color: #0f0;
+  font-family: monospace;
+  margin: 0;
+  padding: 0;
+}
+.header {
+  padding: 10px;
+  background: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toolbar button {
+  background: #0f0;
+  color: #000;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+.timeline-ruler {
+  display: flex;
+  padding: 5px 10px;
+  background: #111;
+}
+.time-marker {
+  flex: 1;
+  text-align: center;
+  color: #ff0;
+}
+.tracks {
+  padding: 10px;
+  position: relative;
+}
+.track {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #0f0;
+  margin-bottom: 5px;
+  position: relative;
+  min-height: 50px;
+}
+.label {
+  width: 100px;
+  font-weight: bold;
+}
+.segment {
+  position: absolute;
+  background: #0f0;
+  color: #000;
+  padding: 3px 5px;
+  border: 1px solid #070;
+  cursor: move;
+  box-sizing: border-box;
+}
+.segment .resize-handle {
+  position: absolute;
+  width: 6px;
+  height: 100%;
+  top: 0;
+  background: #070;
+  cursor: ew-resize;
+}
+.segment .left-handle {
+  left: -3px;
+}
+.segment .right-handle {
+  right: -3px;
+}
+#playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: red;
+  z-index: 1000;
+}
+.track-hover {
+  outline: 2px dashed #ff0;
+}
+#log {
+  padding: 10px;
+  background: #111;
+  border-top: 2px solid #0f0;
+  height: 150px;
+  overflow-y: auto;
+  margin-top: 10px;
+}

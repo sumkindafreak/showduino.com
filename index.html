@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #0a0a0a;
       color: #f2f2f2;
-      overflow-x: hidden;
+      overflow-x: hidden;a
       scroll-behavior: smooth;
       position: relative;
     }
@@ -104,7 +105,6 @@
   </style>
 </head>
 <body>
-
 <audio id="click-sound" src="click.wav" preload="auto"></audio>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -117,16 +117,13 @@
     });
   });
 </script>
-
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>AOS.init();</script>
-
 <header>
-  <img src="showduino._logo.png" alt="Showduino Logo" />
+  <img src="https://raw.githubusercontent.com/sumkindafreak/showduino.com/main/showduino._logo.png" alt="Showduino Logo" />
   <h1>Showduino</h1>
   <p>Master of FX – Built for Haunt Engineers</p>
 </header>
-
 <section class="hero">
   <h2>Take Control of Your Horror Experience</h2>
   <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Explore Features</button>
@@ -134,7 +131,6 @@
     <button>🧰 Recommended Tools</button>
   </a>
 </section>
-
 <section id="features">
   <h2 style="color: #ff0040;">System Features</h2>
   <div class="feature-grid">
@@ -147,29 +143,13 @@
     <div class="feature-card"><div><h3>🧩 Add-ons</h3><p>Expand your horror system with modular features and tools.</p></div><button onclick="document.getElementById('addons').scrollIntoView({behavior: 'smooth'})">Learn More</button></div>
   </div>
 </section>
-
-<!-- Submenu Sections -->
-<section id="touchscreen-ui"><h2 style="color: #ff0040;">💻 Touchscreen Menu UI</h2><p data-aos="fade-up">The heart of Showduino's control system...</p></section>
-<section id="neopixel-ui"><h2 style="color: #ff0040;">👻 NeoPixel FX Control</h2><p data-aos="fade-up">Craft haunting visuals...</p></section>
-<section id="bluetooth-wifi"><h2 style="color: #ff0040;">📡 Bluetooth & WiFi</h2><p data-aos="fade-up">Cut the cords...</p></section>
-<section id="ir-remote"><h2 style="color: #ff0040;">🔮 Infrared Remote Control</h2><p data-aos="fade-up">Classic horror meets modern tech...</p></section>
-<section id="diagnostics"><h2 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h2><p data-aos="fade-up">Stay in control...</p></section>
-<section id="gorefx"><h2 style="color: #ff0040;">🔬 Arduino Mega + ESP32 Core</h2><p data-aos="fade-up">Brains and brawn...</p></section>
-<section id="addons"><h2 style="color: #ff0040;">🧩 Add-ons</h2><p data-aos="fade-up">Expand your haunted system...</p></section>
-
-<!-- Support -->
-<section id="support">
-  <h2 style="color: #ff0040;">📘 Support & Documentation</h2>
-  <p data-aos="fade-up">Everything you need is just a scroll away.</p>
-  <div class="feature-grid" style="margin-top: 3rem;">
-    <div class="feature-card" data-aos="fade-up"><h3>📖 Full Manual (PDF)</h3><p>A complete guide with diagrams.</p><a href="manuals/showduino_manual.pdf" target="_blank"><button>Download Manual</button></a></div>
-    <div class="feature-card" data-aos="fade-up"><h3>⚡ Quick Start Guide</h3><p>Get online in under 10 minutes.</p><a href="manuals/quickstart.pdf" target="_blank"><button>Open Quick Start</button></a></div>
-    <div class="feature-card" data-aos="fade-up"><h3>🔍 FAQ & Troubleshooting</h3><p>Fix common problems fast.</p><a href="support.html#faq"><button>Visit FAQ</button></a></div>
-    <div class="feature-card" data-aos="fade-up"><h3>💬 Contact & Feedback</h3><p>Need help? We’ve got you.</p><a href="mailto:support@show-duino.com"><button>Email Support</button></a></div>
-  </div>
-</section>
-
-<!-- Footer -->
+<section id="touchscreen-ui"><h2 style="color: #ff0040;">💻 Touchscreen Menu UI</h2><p data-aos="fade-up">The heart of Showduino's control system. This intuitive, full-color interface gives you complete access to every tool in your haunted arsenal.</p></section>
+<section id="neopixel-ui"><h2 style="color: #ff0040;">👻 NeoPixel FX Control</h2><p data-aos="fade-up">Craft haunting visuals with precise RGB control. Use grouped zones, live brightness sliders, and terrifying custom effects.</p></section>
+<section id="bluetooth-wifi"><h2 style="color: #ff0040;">📡 Bluetooth & WiFi</h2><p data-aos="fade-up">Cut the cords. Trigger effects, sync your show, and diagnose issues wirelessly with built-in ESP32 connectivity.</p></section>
+<section id="ir-remote"><h2 style="color: #ff0040;">🔮 Infrared Remote Control</h2><p data-aos="fade-up">Classic horror meets modern tech. Control your entire system with a simple IR remote—even in the dark.</p></section>
+<section id="diagnostics"><h2 style="color: #ff0040;">🔧 Diagnostics + Self-Test</h2><p data-aos="fade-up">Stay in control. The built-in diagnostics system ensures your show is always ready to terrify.</p></section>
+<section id="gorefx"><h2 style="color: #ff0040;">🔬 Arduino Mega + ESP32 Core</h2><p data-aos="fade-up">Brains and brawn. Showduino runs on a powerful combo of Arduino and ESP32 logic, split for performance and flexibility.</p></section>
+<section id="addons"><h2 style="color: #ff0040;">🧩 Add-ons</h2><p data-aos="fade-up">Expand your haunted system with plug-and-play add-ons. Showduino supports an ever-growing list of props and effects.</p></section>
 <footer>
   <p style="margin-bottom: 1rem;">
     <img src="images/hauntsync_qr.png" alt="HauntSync QR" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
@@ -181,6 +161,5 @@
   </p>
 </footer>
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
-
 </body>
 </html>

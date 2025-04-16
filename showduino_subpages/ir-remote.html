@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Showduino – IR Remote</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0a0a0a;
+      color: #f2f2f2;
+      scroll-behavior: smooth;
+    }
+    header {
+      background-color: #111;
+      text-align: center;
+      padding: 2rem 1rem;
+      border-bottom: 2px solid #444;
+    }
+    h1, h2, h3 {
+      font-family: 'Creepster', cursive;
+      text-shadow: 0 0 10px #ff0040;
+    }
+    section {
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+    .placeholder-img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #ff0040;
+      margin: 2rem auto;
+    }
+    .back-btn {
+      padding: 1rem 2rem;
+      background-color: #ff0040;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ff0040;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .back-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ff0040;
+    }
+    footer {
+      background-color: #111;
+      padding: 2rem 1rem;
+      text-align: center;
+      border-top: 2px solid #444;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
+    <h1>Infrared Remote</h1>
+    <p>Retro Control Meets Horror Tech</p>
+  </header>
+
+  <section data-aos="fade-up">
+    <h2>Overview</h2>
+    <p>Take full control without touching the screen. Showduino's infrared remote system brings TV-style input to your haunt tech, ideal for prop operators, hidden tech panels, or wireless puzzle triggers.</p>
+    <img src="images/remote_placeholder.jpg" alt="IR Remote Preview" class="placeholder-img" />
+  </section>
+
+  <section data-aos="fade-up">
+    <h2>Remote Capabilities</h2>
+    <ul style="list-style:none; padding:0;">
+      <li>• Navigate menu items with arrow + OK buttons</li>
+      <li>• Trigger effects, sequences, or system actions wirelessly</li>
+      <li>• Use numeric entry for quick access to hidden features</li>
+    </ul>
+  </section>
+
+  <section data-aos="fade-up">
+    <h2>Shift Functionality</h2>
+    <p>Support for capital letters and symbols is built in using a SHIFT toggle on the remote. This allows full password input for WiFi, Bluetooth naming, and more — all without a keyboard.</p>
+    <img src="images/shift_input_placeholder.jpg" alt="IR Shift Mode" class="placeholder-img" />
+  </section>
+
+  <section data-aos="fade-up">
+    <h2>Perfect for Escape Rooms</h2>
+    <p>IR remote control is ideal for operators running shows from behind the scenes. It also allows you to embed tech control into set pieces, puzzle props, or even wearable gear.</p>
+  </section>
+
+  <section data-aos="fade-up">
+    <h2>Planned Upgrades</h2>
+    <ul style="list-style:none; padding:0;">
+      <li>• Custom remote profiles with learnable buttons</li>
+      <li>• Configurable trigger sequences</li>
+      <li>• Infrared recording and playback for puzzle integration</li>
+    </ul>
+  </section>
+
+  <div style="text-align:center;">
+    <a href="index.html"><button class="back-btn">Back to Home</button></a>
+  </div>
+
+  <footer>
+    <img src="images/hauntsync_qr.png" alt="HauntSync QR" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
+    <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
+    <p>
+      <a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>AOS.init();</script>
+</body>
+</html>

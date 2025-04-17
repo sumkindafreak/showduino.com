@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta setup for character encoding and responsive design -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Page title and favicon -->
   <title>Showduino – Master of FX</title>
   <link rel="icon" href="favicon.ico">
+
+  <!-- Horror-style font for headings -->
   <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+
+  <!-- Animation on Scroll (AOS) library for scroll-based animations (if used) -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <!-- Internal CSS styling -->
   <style>
+    /* Base page style */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,21 +26,29 @@
       overflow-x: hidden;
       scroll-behavior: smooth;
     }
+
+    /* Header bar styling */
     header {
       background-color: #111;
       text-align: center;
       padding: 2rem 1rem;
       border-bottom: 2px solid #444;
     }
+
+    /* Custom font style for large titles */
     h1, h2 {
       font-family: 'Creepster', cursive;
       text-shadow: 0 0 10px #ff0040;
     }
+
+    /* Hero section (intro banner) */
     .hero {
       padding: 3rem 1rem;
       background: radial-gradient(#111, #000);
       text-align: center;
     }
+
+    /* Universal button style */
     button {
       padding: 1rem 2rem;
       margin: 0.5rem;
@@ -43,10 +61,14 @@
       box-shadow: 0 0 10px #ff0040;
       transition: transform 0.3s, box-shadow 0.3s;
     }
+
+    /* Hover effect for buttons */
     button:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px #ff0040;
     }
+
+    /* Layout for the feature cards (grid format) */
     .feature-grid {
       display: flex;
       flex-wrap: wrap;
@@ -54,6 +76,8 @@
       gap: 1.5rem;
       padding: 2rem 1rem;
     }
+
+    /* Individual feature card style */
     .feature-card {
       background-color: #1a1a1a;
       padding: 1rem;
@@ -63,19 +87,27 @@
       transition: transform 0.3s, box-shadow 0.3s;
       text-align: center;
     }
+
+    /* Hover effect for feature cards */
     .feature-card:hover {
       transform: scale(1.05) rotate(2deg);
       box-shadow: 0 0 20px #ff0040;
     }
+
+    /* Card headings in theme color */
     .feature-card h3 {
       color: #ff0040;
     }
+
+    /* Icons inside feature cards */
     .feature-card img {
       width: 60px;
       height: 60px;
       margin-bottom: 0.5rem;
       filter: drop-shadow(0 0 5px #ff0040);
     }
+
+    /* Footer styling */
     footer {
       background-color: #111;
       padding: 2rem 1rem;
@@ -86,69 +118,74 @@
 </head>
 <body>
 
+  <!-- Main header with logo and tagline -->
   <header>
     <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
     <h1>Showduino</h1>
     <p>Master of FX – Built for Haunt Engineers</p>
   </header>
 
+  <!-- Hero section introduction -->
   <section class="hero">
     <h2>Take Control of Your Horror Experience</h2>
     <p>Explore the full system below:</p>
   </section>
 
-<section class="feature-grid">
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/touchscreen-ui.html" target="_blank">
-      <img src="icons/icon_touchscreen.svg" alt="Touchscreen UI" />
-      <h3>Touchscreen UI</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/neopixel-ui.html" target="_blank">
-      <img src="icons/icon_neopixel.svg" alt="NeoPixel FX" />
-      <h3>NeoPixel FX</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/bluetooth-wifi.html" target="_blank">
-      <img src="icons/icon_bluetooth-wifi.svg" alt="Bluetooth & WiFi" />
-      <h3>Bluetooth & WiFi</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/ir-remote.html" target="_blank">
-      <img src="icons/icon_ir-remote.svg" alt="IR Remote" />
-      <h3>IR Remote</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/diagnostics.html" target="_blank">
-      <img src="icons/icon_diagnostics.svg" alt="Diagnostics" />
-      <h3>Diagnostics</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/addons.html" target="_blank">
-      <img src="icons/icon_add-ons.svg" alt="Add-ons" />
-      <h3>Add-ons</h3>
-    </a>
-  </div>
-  <div class="feature-card">
-    <a href="https://sumkindafreak.github.io/showduino.com/manual.html" target="_blank">
-      <img src="icons/icon_manual.svg" alt="Manual" />
-      <h3>Manual</h3>
-    </a>
-  </div>
-</section>
+  <!-- Feature cards section linking to internal pages -->
+  <section class="feature-grid">
+    <!-- Each card links to a different feature page -->
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/touchscreen-ui.html" target="_blank">
+        <img src="icons/icon_touchscreen.svg" alt="Touchscreen UI" />
+        <h3>Touchscreen UI</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/neopixel-ui.html" target="_blank">
+        <img src="icons/icon_neopixel.svg" alt="NeoPixel FX" />
+        <h3>NeoPixel FX</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/bluetooth-wifi.html" target="_blank">
+        <img src="icons/icon_bluetooth-wifi.svg" alt="Bluetooth & WiFi" />
+        <h3>Bluetooth & WiFi</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/ir-remote.html" target="_blank">
+        <img src="icons/icon_ir-remote.svg" alt="IR Remote" />
+        <h3>IR Remote</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/diagnostics.html" target="_blank">
+        <img src="icons/icon_diagnostics.svg" alt="Diagnostics" />
+        <h3>Diagnostics</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/addons.html" target="_blank">
+        <img src="icons/icon_add-ons.svg" alt="Add-ons" />
+        <h3>Add-ons</h3>
+      </a>
+    </div>
+    <div class="feature-card">
+      <a href="https://sumkindafreak.github.io/showduino.com/manual.html" target="_blank">
+        <img src="icons/icon_manual.svg" alt="Manual" />
+        <h3>Manual</h3>
+      </a>
+    </div>
+  </section>
 
-
+  <!-- Footer section with QR code, copyright -->
   <footer>
     <img src="images/hauntsync_qr.png" alt="HauntSync QR" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
     <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
     <p><a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a></p>
   </footer>
 
+  <!-- Script to auto-update copyright year -->
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>

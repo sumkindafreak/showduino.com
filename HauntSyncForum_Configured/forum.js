@@ -1,112 +1,77 @@
-// Initialize Firestore & Auth
+// ✅ Initialize Firestore & Auth
 const db = firebase.firestore();
 const auth = firebase.auth();
 
 // ✅ Check if user is logged in on page load
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    alert("You must be signed in.");
-    window.location.href = "index.html";
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log("🧙 Logged in as:", user.email);
+    loadThreads(); // Automatically load forum threads
   } else {
-    loadUserProfile(user.uid);
-    loadThreads();
+    alert("❌ You must be signed in");
+    window.location.href = "index.html";
   }
 });
 
-// ✅ LOGOUT and redirect to Show-duino.com
+// ✅ Logout
 function logout() {
-  firebase.auth().signOut()
-    .then(() => {
-      console.log("✅ Logged out");
-      window.location.href = "https://show-duino.com"; // ✅ redirect
-    })
-    .catch((error) => {
-      alert("❌ Error signing out: " + error.message);
-    });
+  auth.signOut().then(() => {
+    console.log("👋 Signed out");
+    window.location.href = "https://show-duino.com"; // 🔁 Redirect after logout
+  });
 }
 
-// ✅ Load user profile data from Firestore
-function loadUserProfile(uid) {
-  db.collection("users").doc(uid).get()
-    .then(doc => {
-      if (doc.exists) {
-        const data = doc.data();
-        document.getElementById("ritual-persona").value = data.name || "";
-        document.getElementById("ritual-haunt").value = data.haunt || "";
-        document.getElementById("ritual-sigil").value = data.sigil || "";
-      }
-    })
-    .catch(error => {
-      console.error("Failed to load profile:", error);
-    });
-}
-
-// ✅ Save ritual profile to Firestore
+// ✅ Save Ritual Profile
 function saveRitualProfile() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const persona = document.getElementById("ritual-persona").value;
+  const name = document.getElementById("ritual-persona").value;
   const haunt = document.getElementById("ritual-haunt").value;
   const sigil = document.getElementById("ritual-sigil").value;
 
+  const user = auth.currentUser;
+  if (!user) return alert("❌ Not logged in");
+
   db.collection("users").doc(user.uid).update({
-    name: persona,
-    haunt: haunt,
-    sigil: sigil
+    name,
+    haunt,
+    sigil,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   })
-    .then(() => {
-      alert("🔮 Ritual profile saved.");
-    })
-    .catch(error => {
-      alert("❌ Failed to save profile: " + error.message);
-    });
+    .then(() => alert("✅ Ritual profile updated"))
+    .catch((error) => alert("❌ " + error.message));
 }
 
-// ✅ Post a new thread to Firestore
+// ✅ Post a Thread
 function postThread() {
+  const content = document.getElementById("thread-content").value.trim();
   const user = auth.currentUser;
-  if (!user) return;
-
-  const content = document.getElementById("thread-content").value;
-  if (!content.trim()) {
-    alert("Please enter a thread message.");
-    return;
-  }
+  if (!user || !content) return;
 
   db.collection("threads").add({
-    uid: user.uid,
-    content: content,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    content,
+    user: user.email,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   })
     .then(() => {
       document.getElementById("thread-content").value = "";
-      loadThreads(); // refresh thread list
+      loadThreads(); // Refresh thread list
     })
-    .catch(error => {
-      alert("❌ Failed to post thread: " + error.message);
-    });
+    .catch((error) => alert("❌ " + error.message));
 }
 
-// ✅ Load all threads
+// ✅ Load Threads
 function loadThreads() {
-  const threadsList = document.getElementById("threads-list");
-  threadsList.innerHTML = "";
+  const list = document.getElementById("threads-list");
+  list.innerHTML = "";
 
   db.collection("threads")
-    .orderBy("timestamp", "desc")
-    .limit(20)
+    .orderBy("createdAt", "desc")
+    .limit(10)
     .get()
     .then(snapshot => {
       snapshot.forEach(doc => {
-        const thread = doc.data();
         const li = document.createElement("li");
-        const time = thread.timestamp?.toDate().toLocaleString() || "Unknown time";
-        li.textContent = `${thread.content} (${time})`;
-        threadsList.appendChild(li);
+        li.textContent = `${doc.data().user}: ${doc.data().content}`;
+        list.appendChild(li);
       });
-    })
-    .catch(error => {
-      alert("❌ Failed to load threads: " + error.message);
     });
 }

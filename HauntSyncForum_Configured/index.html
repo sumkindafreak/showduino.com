@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>HauntSync Portal</title>
-  <meta charset="UTF-8" />
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDKs (compat version to match your current setup) -->
-<!-- Firebase SDKs (compat version) -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <h1>HauntSync Portal</h1>
@@ -23,10 +21,9 @@
 
     <button id="registerBtn">Register</button>
     <button id="loginBtn">Login</button>
-    <button id="googleBtn">Sign in with Google</button>
   </div>
 
-  <!-- ✅ Defer script until after page loads -->
+  <!-- Load logic AFTER everything -->
   <script src="auth.js" defer></script>
 </body>
 </html>

@@ -1,3 +1,11 @@
+
+console.log("✅ auth.js loaded");
+
+window.onload = function () {
+  console.log("✅ DOM ready");
+};
+
+
 // ✅ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",

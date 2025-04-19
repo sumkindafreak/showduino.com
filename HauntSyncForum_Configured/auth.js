@@ -1,10 +1,4 @@
-
 console.log("✅ auth.js loaded");
-
-window.onload = function () {
-  console.log("✅ DOM ready");
-};
-
 
 // ✅ Firebase config
 const firebaseConfig = {
@@ -16,13 +10,23 @@ const firebaseConfig = {
   appId: "1:525589326062:web:cfa0d7dc272c292fbb2840"
 };
 
-// ✅ Initialize Firebase
+// ✅ Init Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ✅ Register
-window.register = function () {
+// ✅ Hook buttons after page loads
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("✅ DOM ready");
+
+  document.getElementById("registerBtn").addEventListener("click", register);
+  document.getElementById("loginBtn").addEventListener("click", login);
+});
+
+// ✅ Register and save user data
+function register() {
+  console.log("📝 Register clicked");
+
   const name = document.getElementById("name").value.trim();
   const haunt = document.getElementById("haunt").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -47,17 +51,17 @@ window.register = function () {
     .then(() => {
       alert("✅ Registered and saved!");
       console.log("➡ Redirecting to forum.html...");
-      setTimeout(() => {
-        window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
-      }, 100); // small delay to allow alert to finish
+      window.location.href = "forum.html";
     })
     .catch((error) => {
       alert("❌ " + error.message);
     });
-};
+}
 
 // ✅ Login
-window.login = function () {
+function login() {
+  console.log("🔐 Login clicked");
+
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
@@ -65,11 +69,9 @@ window.login = function () {
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
       console.log("➡ Redirecting to forum.html...");
-      setTimeout(() => {
-        window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
-      }, 100);
+      window.location.href = "forum.html";
     })
     .catch((error) => {
       alert("❌ " + error.message);
     });
-};
+}

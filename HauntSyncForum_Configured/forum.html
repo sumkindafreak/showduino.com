@@ -1,34 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>HauntSync Forum</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase SDKs (Compat version) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-  <link rel="stylesheet" href="style.css">
+
+  <script>
+    // ✅ Your Firebase Config (replace with actual if needed)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "hauntsync-forum-4b992.firebaseapp.com",
+      projectId: "hauntsync-forum-4b992",
+      storageBucket: "hauntsync-forum-4b992.appspot.com",
+      messagingSenderId: "525589326062",
+      appId: "1:525589326062:web:cfa0d7dc272c292fbb2840"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
-  <h2>HauntSync Forum</h2>
+  <h1>🕯️ Welcome to HauntSync Forum</h1>
+
   <button onclick="logout()">Logout</button>
-  <button onclick="openProfileEditor()">Edit Profile</button>
 
-  <div id="thread-section">
-    <input id="new-thread" placeholder="Start a new thread">
-    <button onclick="postThread()">Post</button>
-    <ul id="threads"></ul>
-  </div>
+  <hr>
 
-  <!-- Profile Modal -->
-  <div id="profileModal" class="ritual-modal" style="display:none;">
-    <h2>Edit Ritual Profile</h2>
-    <input id="modalPersona" type="text" placeholder="Persona"><br>
-    <input id="modalHaunt" type="text" placeholder="Haunt Name"><br>
-    <div id="sigilGallery" class="sigil-gallery"></div>
-    <button onclick="saveRitualProfile()">Save</button>
-  </div>
+  <h2>🧙‍♂️ Ritual Profile</h2>
+  <label>Name:</label>
+  <input id="ritual-persona" type="text"><br>
+  <label>Haunt:</label>
+  <input id="ritual-haunt" type="text"><br>
+  <label>Sigil:</label>
+  <input id="ritual-sigil" type="text"><br>
+  <button onclick="saveRitualProfile()">Save Ritual Profile</button>
 
+  <hr>
+
+  <h2>💬 Start a Thread</h2>
+  <textarea id="thread-content" rows="4" cols="50" placeholder="What's on your haunted mind?"></textarea><br>
+  <button onclick="postThread()">Post Thread</button>
+
+  <hr>
+
+  <h2>📜 Latest Threads</h2>
+  <ul id="threads-list"></ul>
+
+  <!-- 🧠 Forum Logic Script -->
   <script src="forum.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
-// Firestore reference
+// Initialize Firestore & Auth
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// 🧠 On page load, ensure user is logged in
+// ✅ Check if user is logged in on page load
 auth.onAuthStateChanged(user => {
   if (!user) {
     alert("You must be signed in.");
@@ -13,15 +13,19 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// 🔒 Logout function
+// ✅ LOGOUT and redirect to Show-duino.com
 function logout() {
-  auth.signOut().then(() => {
-    alert("Signed out.");
-    window.location.href = "index.html";
-  });
+  firebase.auth().signOut()
+    .then(() => {
+      console.log("✅ Logged out");
+      window.location.href = "https://show-duino.com"; // ✅ redirect
+    })
+    .catch((error) => {
+      alert("❌ Error signing out: " + error.message);
+    });
 }
 
-// 🧑‍🔧 Load user profile data
+// ✅ Load user profile data from Firestore
 function loadUserProfile(uid) {
   db.collection("users").doc(uid).get()
     .then(doc => {
@@ -37,7 +41,7 @@ function loadUserProfile(uid) {
     });
 }
 
-// 💾 Save ritual profile info
+// ✅ Save ritual profile to Firestore
 function saveRitualProfile() {
   const user = auth.currentUser;
   if (!user) return;
@@ -55,4 +59,54 @@ function saveRitualProfile() {
       alert("🔮 Ritual profile saved.");
     })
     .catch(error => {
-      alert("❌ Failed to save profile: " + error.message
+      alert("❌ Failed to save profile: " + error.message);
+    });
+}
+
+// ✅ Post a new thread to Firestore
+function postThread() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const content = document.getElementById("thread-content").value;
+  if (!content.trim()) {
+    alert("Please enter a thread message.");
+    return;
+  }
+
+  db.collection("threads").add({
+    uid: user.uid,
+    content: content,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+    .then(() => {
+      document.getElementById("thread-content").value = "";
+      loadThreads(); // refresh thread list
+    })
+    .catch(error => {
+      alert("❌ Failed to post thread: " + error.message);
+    });
+}
+
+// ✅ Load all threads
+function loadThreads() {
+  const threadsList = document.getElementById("threads-list");
+  threadsList.innerHTML = "";
+
+  db.collection("threads")
+    .orderBy("timestamp", "desc")
+    .limit(20)
+    .get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const thread = doc.data();
+        const li = document.createElement("li");
+        const time = thread.timestamp?.toDate().toLocaleString() || "Unknown time";
+        li.textContent = `${thread.content} (${time})`;
+        threadsList.appendChild(li);
+      });
+    })
+    .catch(error => {
+      alert("❌ Failed to load threads: " + error.message);
+    });
+}

@@ -194,6 +194,8 @@
     </div>
   </section>
 
+ <!-- ...everything before remains unchanged... -->
+
   <footer>
     <img src="images/hauntsync_qr.png" alt="HauntSync QR" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
     <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
@@ -201,10 +203,17 @@
       <a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a>
     </p>
 
-    <!-- Buy Me a Coffee and Contact Buttons -->
+    <!-- Correctly separated buttons -->
     <a href="https://www.buymeacoffee.com/showduino" target="_blank" class="bmac-button">☕ Support Showduino</a>
     <a href="#contact" class="contact-button">Contact Me</a>
   </footer>
+
+  <!-- Contact section anchor target -->
+  <section id="contact" style="padding: 2rem; background:#1a1a1a; text-align:center;">
+    <h2 style="font-family:'Creepster',cursive; color:#ff0040;">Contact Me</h2>
+    <p>Email: <a href="mailto:your@email.com" style="color:#ff0040;">your@email.com</a></p>
+    <p>You can also reach me through <a href="https://hauntsync.com" target="_blank" style="color:#ff0040;">HauntSync</a>.</p>
+  </section>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();

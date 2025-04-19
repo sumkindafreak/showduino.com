@@ -1,4 +1,4 @@
-// ✅ Firebase Config (your exact values)
+// Firebase config (yours)
 const firebaseConfig = {
   apiKey: "AIzaSyCip1q8LbZN_tnBZgQ2Vp2RZ4C8PZQxPaw",
   authDomain: "hauntsync-forum-4b992.firebaseapp.com",
@@ -8,53 +8,41 @@ const firebaseConfig = {
   appId: "1:245053989822:web:62e7b06c25c76e20f283d8"
 };
 
-// ✅ Initialize Firebase
+// Init Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// ✅ Register Function
+// 🔐 Register
 function register() {
-  const name = document.getElementById("name").value.trim();
-  const haunt = document.getElementById("haunt").value.trim();
-  const email = document.getElementById("email").value.trim();
+  const name = document.getElementById("name").value;
+  const haunt = document.getElementById("haunt").value;
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    alert("Email and password are required.");
-    return;
-  }
 
   auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      alert(`✅ Registered as ${userCredential.user.email}`);
-      // Optionally: Save 'name' and 'haunt' to Firestore later
+    .then((cred) => {
+      alert(`✅ Registered: ${cred.user.email}`);
     })
-    .catch((error) => {
-      alert(`❌ Registration Error:\n${error.message}`);
+    .catch((err) => {
+      alert(`❌ ${err.message}`);
     });
 }
 
-// ✅ Login Function
+// 🔑 Login
 function login() {
-  const email = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  if (!email || !password) {
-    alert("Please enter your email and password.");
-    return;
-  }
-
   auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      alert(`✅ Logged in as ${userCredential.user.email}`);
-      // TODO: Redirect to portal or show content
+    .then((cred) => {
+      alert(`✅ Logged in: ${cred.user.email}`);
     })
-    .catch((error) => {
-      alert(`❌ Login Error:\n${error.message}`);
+    .catch((err) => {
+      alert(`❌ ${err.message}`);
     });
 }
 
-// ✅ Google Sign-In
+// 🔓 Google Login
 function googleLogin() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
@@ -62,6 +50,13 @@ function googleLogin() {
       alert(`✅ Google Sign-In: ${result.user.email}`);
     })
     .catch((error) => {
-      alert(`❌ Google Login Error:\n${error.message}`);
+      alert(`❌ ${error.message}`);
     });
 }
+
+// ✅ Attach functions once DOM is loaded
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById("registerBtn").addEventListener("click", register);
+  document.getElementById("loginBtn").addEventListener("click", login);
+  document.getElementById("googleBtn").addEventListener("click", googleLogin);
+});

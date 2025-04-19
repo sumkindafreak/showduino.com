@@ -1,5 +1,3 @@
-console.log("✅ auth.js loaded");
-
 // ✅ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
@@ -10,23 +8,15 @@ const firebaseConfig = {
   appId: "1:525589326062:web:cfa0d7dc272c292fbb2840"
 };
 
-// ✅ Init Firebase
+// ✅ Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ✅ Hook buttons after page loads
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("✅ DOM ready");
+console.log("🔥 Firebase ready");
 
-  document.getElementById("registerBtn").addEventListener("click", register);
-  document.getElementById("loginBtn").addEventListener("click", login);
-});
-
-// ✅ Register and save user data
-function register() {
-  console.log("📝 Register clicked");
-
+// ✅ Register and Save User Data to Firestore
+window.register = function () {
   const name = document.getElementById("name").value.trim();
   const haunt = document.getElementById("haunt").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -50,28 +40,26 @@ function register() {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-      console.log("➡ Redirecting to forum.html...");
-      window.location.href = "forum.html";
+      console.log("🔁 Redirecting to forum...");
+      window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
     })
     .catch((error) => {
       alert("❌ " + error.message);
     });
-}
+};
 
 // ✅ Login
-function login() {
-  console.log("🔐 Login clicked");
-
+window.login = function () {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
-      console.log("➡ Redirecting to forum.html...");
-      window.location.href = "forum.html";
+      console.log("🔁 Redirecting to forum...");
+      window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
     })
     .catch((error) => {
       alert("❌ " + error.message);
     });
-}
+};

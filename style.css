@@ -1,3 +1,4 @@
+/* === Base Body Styling === */
 body {
   background: #000;
   color: #0f0;
@@ -5,6 +6,8 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* === Header Toolbar === */
 .header {
   padding: 10px;
   background: #111;
@@ -12,6 +15,8 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+
+/* Toolbar buttons (e.g., Play, Stop, Add) */
 .toolbar button {
   background: #0f0;
   color: #000;
@@ -20,20 +25,28 @@ body {
   margin: 0 5px;
   cursor: pointer;
 }
+
+/* === Timeline Ruler Styling === */
 .timeline-ruler {
   display: flex;
   padding: 5px 10px;
   background: #111;
 }
+
+/* Time marker blocks along the ruler */
 .time-marker {
   flex: 1;
   text-align: center;
   color: #ff0;
 }
+
+/* === Timeline Tracks === */
 .tracks {
   padding: 10px;
   position: relative;
 }
+
+/* Each track row */
 .track {
   display: flex;
   align-items: center;
@@ -42,10 +55,14 @@ body {
   position: relative;
   min-height: 50px;
 }
+
+/* Track label on the left */
 .label {
   width: 100px;
   font-weight: bold;
 }
+
+/* === Timeline Segments === */
 .segment {
   position: absolute;
   background: #0f0;
@@ -55,6 +72,8 @@ body {
   cursor: move;
   box-sizing: border-box;
 }
+
+/* Resize handles for segments */
 .segment .resize-handle {
   position: absolute;
   width: 6px;
@@ -63,12 +82,16 @@ body {
   background: #070;
   cursor: ew-resize;
 }
+
+/* Left and right resize handles */
 .segment .left-handle {
   left: -3px;
 }
 .segment .right-handle {
   right: -3px;
 }
+
+/* === Playhead Line === */
 #playhead {
   position: absolute;
   top: 0;
@@ -77,9 +100,13 @@ body {
   background: red;
   z-index: 1000;
 }
+
+/* Hover effect for tracks */
 .track-hover {
   outline: 2px dashed #ff0;
 }
+
+/* === Event Log Section === */
 #log {
   padding: 10px;
   background: #111;
@@ -87,4 +114,26 @@ body {
   height: 150px;
   overflow-y: auto;
   margin-top: 10px;
+}
+
+/* === Buy Me a Coffee Button (Add this block below your log styling) === */
+.bmac-button {
+  display: inline-block;
+  padding: 8px 14px;
+  margin: 10px;
+  background-color: #111;
+  color: #0f0;
+  border: 2px solid #0f0;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: monospace;
+  text-shadow: 0 0 4px #0f0;
+  box-shadow: 0 0 10px #0f03;
+  transition: all 0.3s ease;
+}
+
+.bmac-button:hover {
+  background-color: #0f0;
+  color: #000;
+  box-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
 }

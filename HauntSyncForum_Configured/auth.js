@@ -1,6 +1,6 @@
 // ✅ Firebase config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // Replace with your actual values
+    apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
   authDomain: "hauntsync-forum-4b992.firebaseapp.com",
   projectId: "hauntsync-forum-4b992",
   storageBucket: "hauntsync-forum-4b992.appspot.com",

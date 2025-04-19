@@ -38,7 +38,7 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-       window.location.href = "forum.html"; 
+       window.location.href = "window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";"; 
     })
     .catch((error) => {
       alert("❌ " + error.message);
@@ -53,7 +53,7 @@ window.login = function () {
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
-      window.location.href = "forum.html";
+      window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
     })
     .catch((error) => {
       alert("❌ " + error.message);

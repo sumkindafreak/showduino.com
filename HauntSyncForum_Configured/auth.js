@@ -13,9 +13,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-console.log("🔥 Firebase ready");
-
-// ✅ Register and Save User Data to Firestore
+// ✅ Register
 window.register = function () {
   const name = document.getElementById("name").value.trim();
   const haunt = document.getElementById("haunt").value.trim();
@@ -40,8 +38,14 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-      console.log("🔁 Redirecting to forum...");
-      window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
+
+      // Wait until Firebase confirms authentication
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          console.log("🔐 Auth confirmed after registration. Redirecting...");
+          window.location.href = "forum.html";
+        }
+      });
     })
     .catch((error) => {
       alert("❌ " + error.message);
@@ -53,11 +57,20 @@ window.login = function () {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  auth.signInWithEmailAndPassword(email, password)
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL) // Persist login
+    .then(() => {
+      return auth.signInWithEmailAndPassword(email, password);
+    })
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
-      console.log("🔁 Redirecting to forum...");
-      window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
+
+      // Wait for Firebase to confirm auth state before redirecting
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          console.log("🔓 Auth confirmed. Redirecting...");
+          window.location.href = "forum.html";
+        }
+      });
     })
     .catch((error) => {
       alert("❌ " + error.message);

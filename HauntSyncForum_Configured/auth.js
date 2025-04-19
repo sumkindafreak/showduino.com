@@ -38,7 +38,7 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-      window.location.href = "forum.html";
+       window.location.href = "forum.html"; 
     })
     .catch((error) => {
       alert("❌ " + error.message);

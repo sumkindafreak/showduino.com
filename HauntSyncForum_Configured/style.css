@@ -1,0 +1,18 @@
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Creepster', cursive;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+  color: crimson;
+  text-shadow: 0 0 10px red;
+}
+
+input, button {
+  margin: 10px;
+  padding: 10px;
+  font-size: 1em;
+}

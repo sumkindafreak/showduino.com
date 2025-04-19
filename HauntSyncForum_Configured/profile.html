@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HauntSync Profile</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Summoned Profile</h1>
+  <div id="profile" class="profile-container">Loading...</div>
+
+  <script>
+    const firebaseConfig = { /* your config here */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const uid = new URLSearchParams(window.location.search).get('uid');
+
+    db.collection("users").doc(uid).get().then(doc => {
+      const data = doc.data();
+      document.getElementById('profile').innerHTML = `
+        <h2>${data.name}</h2>
+        <p class="persona-thread">${data.persona || 'Unknown Soul'}</p>
+        <p><em>${data.haunt || 'No Haunt Assigned'}</em></p>
+        <img src="${data.sigil || 'sigils/default.png'}"><br><br>
+        <a href="javascript:summon('${uid}')">Summon This Player</a>
+      `;
+    });
+
+    function summon(uid) {
+      fetch(\`http://showduino.local/api/summon?uid=\${uid}\`);
+      alert("Summoning ritual initiated...");
+    }
+  </script>
+</body>
+</html>

@@ -38,7 +38,7 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-       window.location.href = "window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";"; 
+       window.location.href = "window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html"; 
     })
     .catch((error) => {
       alert("❌ " + error.message);

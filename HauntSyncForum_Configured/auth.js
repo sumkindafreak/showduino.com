@@ -1,6 +1,6 @@
 // ✅ Firebase config
 const firebaseConfig = {
-    apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
+  apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
   authDomain: "hauntsync-forum-4b992.firebaseapp.com",
   projectId: "hauntsync-forum-4b992",
   storageBucket: "hauntsync-forum-4b992.appspot.com",
@@ -13,7 +13,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ✅ Register and Save User Data to Firestore
+// ✅ Register
 window.register = function () {
   const name = document.getElementById("name").value.trim();
   const haunt = document.getElementById("haunt").value.trim();
@@ -38,7 +38,10 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-       window.location.href ="https://hauntsync-forum-b99d2.web.app/forum.html"; 
+      console.log("➡ Redirecting to forum.html...");
+      setTimeout(() => {
+        window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
+      }, 100); // small delay to allow alert to finish
     })
     .catch((error) => {
       alert("❌ " + error.message);
@@ -53,7 +56,10 @@ window.login = function () {
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
-      window.location.href ="https://hauntsync-forum-b99d2.web.app/forum.html"; 
+      console.log("➡ Redirecting to forum.html...");
+      setTimeout(() => {
+        window.location.href = "https://hauntsync-forum-b99d2.web.app/forum.html";
+      }, 100);
     })
     .catch((error) => {
       alert("❌ " + error.message);

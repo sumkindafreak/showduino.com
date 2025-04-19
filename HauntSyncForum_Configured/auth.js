@@ -1,41 +1,55 @@
-// Firebase Configuration
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCjdh1wafL8ukJgucbya9X8kzQQtP2WPWw",
+  apiKey: "AIzaSyCj0jLq5zNUoQjv8v9kZb6YzBQzP4ZP3pw",
   authDomain: "hauntsync-forum-4b992.firebaseapp.com",
   projectId: "hauntsync-forum-4b992",
   storageBucket: "hauntsync-forum-4b992.appspot.com",
-  messagingSenderId: "165297838270",
-  appId: "1:165297838270:web:1e4a3278e2d7de23b92490"
+  messagingSenderId: "245962082982",
+  appId: "1:245962082982:web:bcb0ac4c3c20c7e29b2340"
 };
+
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-// REGISTER
-document.getElementById("registerBtn").addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
+// Register event
+document.getElementById("register-btn").addEventListener("click", () => {
+  const name = document.getElementById("name").value;
+  const haunt = document.getElementById("haunt").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      alert("✅ Registered as: " + userCredential.user.email);
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      alert(`✅ Registered as: ${user.email}\nName: ${name}\nHaunt: ${haunt}`);
+      // TODO: Optionally store name/haunt in Firestore or Realtime DB
     })
-    .catch(error => {
-      alert("❌ " + error.message);
+    .catch((error) => {
+      alert(`❌ Registration Error: ${error.message}`);
     });
 });
 
-// LOGIN
-document.getElementById("loginBtn").addEventListener("click", () => {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
+// Login event
+document.getElementById("login-btn").addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      alert("✅ Logged in as: " + userCredential.user.email);
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      alert(`✅ Logged in as: ${user.email}`);
+      // TODO: Redirect or show portal UI
     })
-    .catch(error => {
-      alert("❌ " + error.message);
+    .catch((error) => {
+      alert(`❌ Login Error: ${error.message}`);
     });
 });
-

@@ -7,98 +7,31 @@
 
   <!-- Page title and favicon -->
   <title>Showduino – Touchscreen</title>
-  <link rel="icon" href="favicon.ico">
+  <link rel="icon" href="favicon.ico" />
 
-  <!-- Importing horror-style Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+  <!-- Preloading horror-style Google Font -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
   <!-- AOS (Animate On Scroll) library for scroll animations -->
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 
-  <!-- Internal stylesheet -->
-  <style>
-    /* Base styles for body */
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0a0a0a;
-      color: #f2f2f2;
-      scroll-behavior: smooth;
-    }
-
-    /* Page header styling */
-    header {
-      background-color: #111;
-      text-align: center;
-      padding: 2rem 1rem;
-      border-bottom: 2px solid #444;
-    }
-
-    /* Horror-style headings */
-    h1, h2, h3 {
-      font-family: 'Creepster', cursive;
-      text-shadow: 0 0 10px #ff0040;
-    }
-
-    /* Section padding */
-    section {
-      padding: 3rem 1rem;
-      text-align: center;
-    }
-
-    /* Placeholder image styling */
-    .placeholder-img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #ff0040;
-      margin: 2rem auto;
-    }
-
-    /* Button styling consistent with homepage */
-    .back-btn {
-      padding: 1rem 2rem;
-      background-color: #ff0040;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff0040;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .back-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #ff0040;
-    }
-
-    /* Footer section */
-    footer {
-      background-color: #111;
-      padding: 2rem 1rem;
-      text-align: center;
-      border-top: 2px solid #444;
-      margin-top: 4rem;
-    }
-
-  </style>
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-
+<body data-theme="dark">
   <!-- HEADER: Displays logo, title, and subtitle -->
   <header>
-    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
-    <h1>Touchscreen </h1>
+    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" style="max-width:300px; filter:drop-shadow(0 0 20px var(--primary-color));" />
+    <h1>Touchscreen</h1>
     <p>Intuitive FX Control at Your Fingertips</p>
   </header>
 
   <!-- SECTION 1: Overview -->
   <section data-aos="fade-up">
     <h2>Overview</h2>
-    <p>The Showduino touchscreen interface brings a sleek and powerful control panel to life using the ESP32 display board. This interface lets you navigate menus, control brightness, launch diagnostics, and adjust system settings with ease.</p>
+    <p>The Showduino touchscreen interface brings a sleek and powerful control panel to life using the ESP32 display board. This interface lets you navigate menus, control brightness, launch diagnostics, and more.</p>
     <!-- Placeholder image representing the touchscreen -->
-<img src="3d-images/touchscreen.jpg" alt="Touchscreen Preview" class="touchscreen-preview" />
+    <img src="3d-images/touchscreen.jpg" alt="Preview of the touchscreen interface" class="touchscreen-preview" loading="lazy" />
   </section>
 
   <!-- SECTION 2: Key Features of the Touchscreen UI -->
@@ -117,7 +50,7 @@
   <section data-aos="fade-up">
     <h2>Interface Enhancements</h2>
     <p>The UI supports long-press detection for advanced options, and all buttons feature glowing visual feedback. Future plans include gesture support and multi-touch functionality if the hardware allows.</p>
-    <img src="images/ui_placeholder.jpg" alt="UI Enhancements" class="placeholder-img" />
+    <img src="images/ui_placeholder.jpg" alt="Illustration of user interface enhancements" class="placeholder-img" loading="lazy" />
   </section>
 
   <!-- SECTION 4: What’s Coming Next -->
@@ -132,16 +65,19 @@
   </section>
 
   <!-- BACK BUTTON: Returns to the homepage -->
-  <div style="text-align:center;">
+  <nav style="text-align:center;">
     <a href="index.html"><button class="back-btn">Back to Home</button></a>
-  </div>
+  </nav>
 
   <!-- FOOTER with QR and GitHub link -->
   <footer>
-    <img src="images/hauntsync_qr.png" alt="HauntSync QR" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
+    <img src="images/hauntsync_qr.png" alt="QR code for HauntSync project" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px var(--primary-color);" />
     <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
+    <noscript>
+      <p>© 2025 Showduino | A project by Twins of Evil Attractions</p>
+    </noscript>
     <p>
-      <a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a>
+      <a href="https://github.com/twins-of-evil/showduino" style="color:var(--primary-color);text-decoration:none;" target="_blank">GitHub</a>
     </p>
   </footer>
 
@@ -150,8 +86,24 @@
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 
+  <!-- Dark Mode Toggle Script -->
+  <button onclick="toggleTheme()" style="position:fixed;top:1rem;right:1rem;z-index:100;">Toggle Dark Mode</button>
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute("data-theme");
+      body.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
+    }
+  </script>
+
   <!-- Animate On Scroll (AOS) initialization -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>AOS.init();</script>
+  <script>
+    try {
+      AOS.init();
+    } catch (error) {
+      console.error("AOS library failed to initialize:", error);
+    }
+  </script>
 </body>
 </html>

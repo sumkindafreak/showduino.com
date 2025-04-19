@@ -1,14 +1,4 @@
-// Import Firebase (Modular Web SDK)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-
-// ✅ Your Firebase Config
+// ✅ Firebase Config (your exact values)
 const firebaseConfig = {
   apiKey: "AIzaSyCip1q8LbZN_tnBZgQ2Vp2RZ4C8PZQxPaw",
   authDomain: "hauntsync-forum-4b992.firebaseapp.com",
@@ -19,47 +9,59 @@ const firebaseConfig = {
 };
 
 // ✅ Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-// ✅ Register New User
-window.register = function () {
-  const name = document.getElementById("name").value;
-  const haunt = document.getElementById("haunt").value;
-  const email = document.getElementById("email").value;
+// ✅ Register Function
+function register() {
+  const name = document.getElementById("name").value.trim();
+  const haunt = document.getElementById("haunt").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  createUserWithEmailAndPassword(auth, email, password)
+  if (!email || !password) {
+    alert("Email and password are required.");
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       alert(`✅ Registered as ${userCredential.user.email}`);
+      // Optionally: Save 'name' and 'haunt' to Firestore later
     })
     .catch((error) => {
-      alert(`❌ ${error.message}`);
+      alert(`❌ Registration Error:\n${error.message}`);
     });
-};
+}
 
-// ✅ Login Existing User
-window.login = function () {
-  const email = document.getElementById("email").value;
+// ✅ Login Function
+function login() {
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  signInWithEmailAndPassword(auth, email, password)
+  if (!email || !password) {
+    alert("Please enter your email and password.");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
       alert(`✅ Logged in as ${userCredential.user.email}`);
+      // TODO: Redirect to portal or show content
     })
     .catch((error) => {
-      alert(`❌ ${error.message}`);
+      alert(`❌ Login Error:\n${error.message}`);
     });
-};
+}
 
-// ✅ Sign In With Google
-window.googleLogin = function () {
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(auth, provider)
+// ✅ Google Sign-In
+function googleLogin() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
     .then((result) => {
-      alert(`✅ Signed in as ${result.user.email}`);
+      alert(`✅ Google Sign-In: ${result.user.email}`);
     })
     .catch((error) => {
-      alert(`❌ ${error.message}`);
+      alert(`❌ Google Login Error:\n${error.message}`);
     });
-};
+}

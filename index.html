@@ -209,6 +209,52 @@
   </footer>
 
   <!-- Contact section anchor target -->
+
+  <!-- About Me Section -->
+<section id="about" style="position:relative; overflow:hidden; padding:5rem 2rem; background:#000; color:#fff; font-family:'Orbitron', sans-serif;">
+  <video autoplay muted loop playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.15;">
+    <source src="media/bg_fog_loop.mp4" type="video/mp4">
+  </video>
+
+  <div style="background:url('media/fog_overlay.png') repeat;position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.3;z-index:1;animation:fogMove 120s linear infinite;"></div>
+  <div style="background:rgba(255,255,255,0.02);position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;animation:flicker 0.3s infinite;"></div>
+
+  <div style="position:relative;z-index:3;background:rgba(0,0,0,0.6);padding:2rem;border-radius:10px;box-shadow:0 0 30px rgba(255,0,0,0.2);max-width:800px;margin:auto;text-align:center;">
+    <h2 style="font-size:3rem;color:#fff;text-shadow:0 0 12px #ff0000;position:relative;">About Me</h2>
+    <p style="font-size:1.2rem;line-height:1.8;color:#ccc;margin-bottom:1rem;">
+      I help creators, builders, and innovators bring their ideas to life through the power of Arduino, ESP32, and hands-on prototyping.
+    </p>
+    <p style="font-size:1.2rem;line-height:1.8;color:#ccc;margin-bottom:1rem;">
+      Whether you're designing haunted attractions, immersive props, or escape rooms, I specialize in making wild ideas tangible through practical show control systems.
+    </p>
+    <p style="font-size:1.2rem;line-height:1.8;color:#ccc;margin-bottom:1rem;">
+      With years of experience in embedded systems, sound, lighting, and interactivity, I work with you from sketch to showtime.
+    </p>
+    <p style="font-size:1.4rem;font-weight:bold;color:#ff4444;margin-top:2rem;animation:pulse 2s infinite;">
+      Let’s build something unforgettable.
+    </p>
+    <audio autoplay loop>
+      <source src="media/ambient_static_glitch.mp3" type="audio/mp3">
+    </audio>
+  </div>
+</section>
+
+<!-- Animations -->
+<style>
+  @keyframes fogMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 2000px 0; }
+  }
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.02; }
+    20%, 22%, 24%, 55% { opacity: 0.08; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
+    50% { opacity: 0.6; text-shadow: 0 0 20px #ff5555; }
+  }
+</style>
+
   <section id="contact" style="padding: 2rem; background:#1a1a1a; text-align:center;">
     <h2 style="font-family:'Creepster',cursive; color:#ff0040;">Contact Me</h2>
     <p>Email: <a href="mailto:showduino38@gmail.com" style="color:#ff0040;">showduino38@gmail.com</a></p>

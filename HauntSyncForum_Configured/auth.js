@@ -28,7 +28,6 @@ window.register = function () {
   auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-
       return db.collection("users").doc(user.uid).set({
         name: name || "Unnamed",
         haunt: haunt || "Unknown",
@@ -38,14 +37,7 @@ window.register = function () {
     })
     .then(() => {
       alert("✅ Registered and saved!");
-
-      // Wait until Firebase confirms authentication
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          console.log("🔐 Auth confirmed after registration. Redirecting...");
-          window.location.href = "forum.html";
-        }
-      });
+      window.location.href = "forum.html";  // 🔥 Immediate redirect after successful registration
     })
     .catch((error) => {
       alert("❌ " + error.message);
@@ -57,20 +49,13 @@ window.login = function () {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL) // Persist login
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     .then(() => {
       return auth.signInWithEmailAndPassword(email, password);
     })
     .then((userCredential) => {
       alert(`✅ Logged in as: ${userCredential.user.email}`);
-
-      // Wait for Firebase to confirm auth state before redirecting
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          console.log("🔓 Auth confirmed. Redirecting...");
-          window.location.href = "forum.html";
-        }
-      });
+      window.location.href = "forum.html";  // 🔥 Immediate redirect after successful login
     })
     .catch((error) => {
       alert("❌ " + error.message);

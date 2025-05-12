@@ -6,7 +6,7 @@
 Showduino integrates three core components to ensure smooth performance and precise control:
 
 - **ESP32 Touchscreen Interface** – Provides a user-friendly menu for controlling brightness, settings, and system diagnostics.
-- **ESP32 Brain** – Acts as the communication hub, managing Bluetooth connectivity and relaying data between the touchscreen interface and Arduino Mega.
+
 - **Arduino Mega** – Handles NeoPixel lighting effects, relay triggers, and DMX control based on commands received from the ESP32 Brain.
 
 ---
@@ -18,17 +18,13 @@ Showduino integrates three core components to ensure smooth performance and prec
 - Bluetooth control via serial commands to the **ESP32 Brain**.
 - Supports both text-based and icon-based UI (icons load from the SD card).
 
-### 2. **ESP32 Brain**
-- Acts as the system's communication hub.
-- Manages Bluetooth connectivity for remote control.
-- Relays instructions to the **Arduino Mega** for hardware control.
 
-### 3. **Arduino Mega**
+### 2. **Arduino Mega**
 - Controls NeoPixel displays with group-based brightness adjustment.
 - Manages relay triggers for dynamic effects.
 - Executes DMX sequences and lighting cues for immersive experiences.
 
-### 4. **Infrared Keyboard Support**
+### 3. **Infrared Keyboard Support**
 - Utilizes a **44-button IR remote** for direct system control.
 - Includes quick access command keys for:
   - Scene selection
@@ -38,7 +34,7 @@ Showduino integrates three core components to ensure smooth performance and prec
   - **Green** for recognized inputs.
   - **Red** for unrecognized inputs.
 
-### 5. **Diagnostics System**
+### 4. **Diagnostics System**
 - Displays real-time system information directly on the touchscreen interface, including:
   - Bluetooth status
   - WiFi connection details
@@ -50,7 +46,7 @@ Showduino integrates three core components to ensure smooth performance and prec
   - I/O check results
 - Manual **System Test Mode** with **PASS/FAIL** indicators for easy troubleshooting.
 
-### 6. **Future Expansion Plans**
+### 5. **Future Expansion Plans**
 Showduino is designed for scalability, with several planned upgrades:
 - Enhanced audio support with minimal memory impact.
 - Expanded touchscreen animations, effects, and transitions.
@@ -78,8 +74,8 @@ Showduino is designed for scalability, with several planned upgrades:
 Showduino's control structure ensures precise data management and hardware interaction:
 
 1. **ESP32 Touchscreen Interface** handles all UI interactions, sending serial commands to the **ESP32 Brain** via UART.
-2. The **ESP32 Brain** interprets these commands and relays relevant instructions to the **Arduino Mega**.
-3. The **Arduino Mega** executes lighting effects, relay control, and DMX sequences based on incoming data.
+
+2. The **Arduino Mega** executes lighting effects, relay control, and DMX sequences based on incoming data.
 
 This modular system design allows for future enhancements, expanded functionality, and flexible integration into immersive experiences.
 

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Showduino Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">Showduino Studio</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active" data-panel="introduction">Introduction</li>
+                    <li data-panel="connect">Connect</li>
+                    <li data-panel="live-control">Live Control</li>
+                    <li data-panel="timeline-editor">Timeline Editor</li>
+                    <li data-panel="playback">Playback</li>
+                    <li data-panel="audio-manager">Audio Manager</li>
+                    <li data-panel="devices">Devices</li>
+                    <li data-panel="diagnostics">Diagnostics</li>
+                    <li data-panel="hauntsync">HauntSync (Cloud)</li>
+                    <li data-panel="settings">Settings</li>
+                    <li data-panel="help">Help</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="index.html" class="back-to-menu-btn">← Back to Menu</a>
+                    <div class="connection-status offline">OFFLINE</div>
+                </div>
+                <div class="show-info">
+                    <span class="show-name">Untitled Show</span>
+                    <button class="save-icon">💾</button>
+                </div>
+                <div class="transport-controls">
+                    <button>▶</button>
+                    <button>■</button>
+                    <button>●</button>
+                    <button class="panic">PANIC</button>
+                </div>
+                <div class="system-info">
+                    <span class="clock">12:00:00</span>
+                    <span class="latency">0ms</span>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <!-- Panels will be loaded here -->
+            </div>
+        </main>
+
+        <footer class="bottom-dock collapsed">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <span>Logs</span>
+                    <div class="terminal-controls">
+                        <div class="filters">
+                            <button class="active">ALL</button>
+                            <button>INFO</button>
+                            <button>WARN</button>
+                            <button>ERR</button>
+                            <button>NET</button>
+                            <button>FX</button>
+                        </div>
+                        <button class="toggle-terminal" onclick="window.toggleTerminal()">▼</button>
+                    </div>
+                </div>
+                <div class="terminal-output"></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <script src="js/api.js"></script>
+    <script src="js/shdo_model.js"></script>
+    <script src="js/connection_detector.js"></script>
+    <script src="js/firebase_config.js"></script>
+    <script src="js/firebase_auth.js"></script>
+    <script src="js/firebase_sync.js"></script>
+    <script src="js/timeline.js"></script>
+    <script src="js/audio_browser.js"></script>
+    <script src="js/dmx_editor.js"></script>
+    <script src="js/led_studio.js"></script>
+    <script src="js/panels.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // Initialize connection detection and Firebase for Studio
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize connection detector
+            window.connectionDetector = new window.ConnectionDetector();
+            await window.connectionDetector.detectMode();
+            window.connectionDetector.startMonitoring();
+            
+            // Update connection status UI
+            const updateConnectionUI = () => {
+                const statusEl = document.querySelector('.connection-status');
+                if (statusEl) {
+                    if (window.connectionDetector.isAPMode()) {
+                        statusEl.className = 'connection-status ap';
+                        statusEl.textContent = 'AP MODE (OFFLINE)';
+                    } else if (window.connectionDetector.isOffline()) {
+                        statusEl.className = 'connection-status offline';
+                        statusEl.textContent = 'OFFLINE';
+                    } else {
+                        statusEl.className = 'connection-status lan';
+                        statusEl.textContent = 'ONLINE';
+                    }
+                }
+            };
+            updateConnectionUI();
+            setInterval(updateConnectionUI, 5000);
+            
+            // Initialize Firebase only if not in AP mode
+            if (window.connectionDetector.shouldUseFirebase() && 
+                window.FirebaseConfig && typeof firebase !== 'undefined') {
+                
+                await window.FirebaseConfig.initFirebase();
+                
+                // Initialize auth
+                window.firebaseAuth = new window.FirebaseAuth();
+                window.firebaseAuth.init();
+                
+                // Initialize sync
+                window.firebaseSync = new window.FirebaseSync();
+                window.firebaseSync.init();
+                
+                // Process sync queue
+                window.firebaseSync.processSyncQueue();
+                
+                // Listen for auth state changes
+                window.firebaseAuth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log('User authenticated in Studio:', user.email);
+                        // Load cloud projects
+                        loadCloudProjects();
+                    }
+                });
+            } else {
+                console.log('Firebase disabled - AP mode or offline');
+            }
+        });
+        
+        async function loadCloudProjects() {
+            if (!window.firebaseSync || !window.firebaseSync.syncEnabled) return;
+            
+            try {
+                const projects = await window.firebaseSync.loadProjects();
+                if (projects && projects.length > 0) {
+                    console.log(`Loaded ${projects.length} projects from cloud`);
+                    // Update project list UI if it exists
+                    if (window.updateProjectList) {
+                        window.updateProjectList(projects);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading cloud projects:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+

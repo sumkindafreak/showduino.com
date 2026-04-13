@@ -1,25 +1,30 @@
-// ⚠ SECURITY: Never commit real Firebase credentials to version control.
-// Use environment variables or a secrets manager in production.
+// ⚠ SECURITY WARNING: DO NOT commit real Firebase credentials to version control.
+// Use environment variables, a build-time injection step, or a secrets manager in production.
+//
 // Firebase Configuration
-// IMPORTANT: Replace these placeholder values with your actual Firebase project config.
-// Get config from: https://console.firebase.google.com → Project Settings → Your apps → SDK setup
+// ─────────────────────────────────────────────────────────────────────────────
+// SETUP: Replace the PLACEHOLDER values below with your actual Firebase project config.
+// Get your config from: Firebase Console → Project Settings → Your apps → SDK setup
+// Until replaced, Firebase features are disabled and the app runs in offline/local-only mode.
+// ─────────────────────────────────────────────────────────────────────────────
 
 class FirebaseConfig {
   static get _config() {
     return {
-      // TODO: Replace with your actual Firebase project credentials
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      // ↓↓↓  Replace every PLACEHOLDER_* value with your real Firebase credentials  ↓↓↓
+      apiKey:            "PLACEHOLDER_API_KEY",
+      authDomain:        "PLACEHOLDER_PROJECT_ID.firebaseapp.com",
+      projectId:         "PLACEHOLDER_PROJECT_ID",
+      storageBucket:     "PLACEHOLDER_PROJECT_ID.appspot.com",
+      messagingSenderId: "PLACEHOLDER_SENDER_ID",
+      appId:             "PLACEHOLDER_APP_ID"
+      // ↑↑↑  Do not leave placeholder values in production deployments  ↑↑↑
     };
   }
 
   static get _isConfigured() {
     const cfg = FirebaseConfig._config;
-    return cfg.apiKey && cfg.apiKey !== 'YOUR_API_KEY' && cfg.projectId !== 'YOUR_PROJECT_ID';
+    return cfg.apiKey && !cfg.apiKey.startsWith('PLACEHOLDER_') && !cfg.projectId.startsWith('PLACEHOLDER_');
   }
 
   static initFirebase() {

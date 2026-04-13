@@ -73,7 +73,7 @@ class TimelineEditor {
     this._el.appendChild(this._buildToolbar());
 
     const main = document.createElement('div');
-    main.className = 'tl-main';
+    main.className = 'timeline-main';
     main.style.cssText = 'display:flex;flex:1;overflow:hidden;';
 
     main.appendChild(this._buildLeftPanel());

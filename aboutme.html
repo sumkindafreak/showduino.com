@@ -1,150 +1,201 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Immersive About Me</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Showduino</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { margin: 0; background: #000; }
-    .about-immersive {
+    .about-wrapper {
       position: relative;
+      min-height: 100vh;
       overflow: hidden;
-      padding: 5rem 2rem;
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      perspective: 1000px;
-    }
-    .bg-video {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      z-index: 0;
-      opacity: 0.15;
-    }
-    .fog-overlay {
-      background: url('media/fog_overlay.png') repeat;
-      animation: fogMove 120s linear infinite;
-      opacity: 0.25;
-      z-index: 1;
-      pointer-events: none;
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
     }
     .flicker-overlay {
-      background: rgba(255, 255, 255, 0.02);
-      animation: flicker 0.3s infinite;
-      z-index: 2;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,0,0,0.015);
+      animation: flickerPulse 4s infinite;
       pointer-events: none;
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      z-index: 0;
     }
-    @keyframes fogMove {
-      0% { background-position: 0 0; }
-      100% { background-position: 2000px 0; }
-    }
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.02; }
-      20%, 22%, 24%, 55% { opacity: 0.08; }
-    }
-    .content-overlay {
+    .about-body {
       position: relative;
-      z-index: 3;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
-      transition: transform 0.2s ease;
-      text-align: center;
+      z-index: 1;
+    }
+    .about-card {
+      background: rgba(13,13,13,0.85);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: 0 0 40px rgba(255,0,64,0.15);
+      padding: 2.5rem;
       max-width: 800px;
-      margin: auto;
+      margin: 0 auto;
+      text-align: center;
     }
-    .section-title {
-      font-size: 3rem;
-      margin-bottom: 1.5rem;
-      color: #fff;
-      text-shadow: 0 0 12px #ff0000;
-      position: relative;
+    .about-card h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--accent-color);
+      text-shadow: 0 0 16px var(--glow-color);
+      margin: 0 0 1.5rem;
     }
-    .section-paragraph {
-      font-size: 1.2rem;
-      line-height: 1.8;
+    .about-card p {
+      font-size: 1.05rem;
       color: #ccc;
+      line-height: 1.9;
       margin-bottom: 1rem;
     }
-    .section-highlight {
+    .highlight-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--glow-color);
+      animation: flickerPulse 2.5s infinite ease-in-out;
       margin-top: 2rem;
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #ff4444;
     }
-    .pulse-text {
-      animation: pulse 2s infinite ease-in-out;
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+      text-align: left;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
-      50% { opacity: 0.6; text-shadow: 0 0 20px #ff5555; }
+    .skill-block {
+      background: #0a0a0a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
     }
-    .glitch-text::before,
-    .glitch-text::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0;
-      width: 100%;
-      color: #ff0000;
-      z-index: -1;
-      animation: glitch 2s infinite alternate;
+    .skill-block h4 {
+      color: var(--accent-color);
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
-    @keyframes glitch {
-      0% { top: 0; left: 0; }
-      20% { top: -2px; left: 2px; }
-      40% { top: 2px; left: -2px; }
-      60% { top: -1px; left: 1px; }
-      80% { top: 1px; left: -1px; }
-      100% { top: 0; left: 0; }
+    .skill-block ul {
+      list-style: none;
+      padding: 0; margin: 0;
     }
+    .skill-block ul li {
+      color: #aaa;
+      font-size: 0.9rem;
+      padding: 0.2rem 0;
+    }
+    .skill-block ul li::before { content: '▸ '; color: var(--accent-color); }
   </style>
 </head>
 <body>
-  <section id="about" class="section-dark about-immersive">
-    <video autoplay muted loop playsinline class="bg-video">
-      <source src="media/bg_fog_loop.mp4" type="video/mp4">
-    </video>
-    <div class="fog-overlay"></div>
-    <div class="flicker-overlay"></div>
-    <div class="content-overlay parallax-layer" data-depth="0.3">
-      <h2 class="section-title glitch-text" data-text="About Me">About Me</h2>
-      <p class="section-paragraph">
-        I help creators, builders, and innovators bring their ideas to life through the power of Arduino, ESP32, and hands-on prototyping.
-      </p>
-      <p class="section-paragraph">
-        Whether you're working on haunted attractions, escape rooms, or interactive show control systems, I specialize in turning impossible ideas into working tech.
-      </p>
-      <p class="section-paragraph">
-        With deep experience in embedded systems, sound FX, lighting control, and prop design, I can help take your vision from scribble to show-ready.
-      </p>
-      <p class="section-highlight pulse-text">
-        Let’s build something unforgettable.
-      </p>
-      <audio id="ambience" autoplay loop>
-        <source src="media/ambient_static_glitch.mp3" type="audio/mp3">
-      </audio>
-    </div>
-  </section>
+  <div class="about-wrapper">
+    <div class="flicker-overlay" aria-hidden="true"></div>
+
+    <!-- ── Site Header ── -->
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href="index.html" class="site-logo">SHOWDUINO</a>
+        <nav class="site-nav">
+          <a href="index.html">Home</a>
+          <a href="studio.html">Studio</a>
+          <a href="hauntsync.html">HauntSync</a>
+          <a href="tools.html">Tools</a>
+          <a href="addons.html">Add-ons</a>
+          <a href="aboutme.html" class="active">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="about-body">
+      <!-- ── Hero ── -->
+      <section class="page-hero" style="min-height:45vh;">
+        <div class="page-hero-content">
+          <h1 class="glitch-title" data-text="About Me">About Me</h1>
+          <p>Builder. Maker. Monster Maker.</p>
+        </div>
+      </section>
+
+      <!-- ── About content ── -->
+      <section class="content-section">
+        <div class="about-card">
+          <h2 class="glitch-title" data-text="About Me">About Me</h2>
+
+          <p>I help creators, builders, and innovators bring their ideas to life through the
+             power of Arduino, ESP32, and hands-on prototyping.</p>
+
+          <p>Whether you're working on haunted attractions, escape rooms, or interactive show
+             control systems, I specialise in turning impossible ideas into working tech.</p>
+
+          <p>With deep experience in embedded systems, sound FX, lighting control, and prop
+             design, I can help take your vision from scribble to show-ready.</p>
+
+          <div class="skills-grid">
+            <div class="skill-block">
+              <h4>Hardware</h4>
+              <ul>
+                <li>Arduino Mega / UNO</li>
+                <li>ESP32 / ESP8266</li>
+                <li>NeoPixel / WS2812B</li>
+                <li>Relay modules</li>
+                <li>IR &amp; Bluetooth</li>
+              </ul>
+            </div>
+            <div class="skill-block">
+              <h4>Software</h4>
+              <ul>
+                <li>Arduino IDE / PlatformIO</li>
+                <li>C++ embedded firmware</li>
+                <li>HTML / CSS / JS</li>
+                <li>Firebase / Firestore</li>
+                <li>Timeline FX editing</li>
+              </ul>
+            </div>
+            <div class="skill-block">
+              <h4>Applications</h4>
+              <ul>
+                <li>Haunted attractions</li>
+                <li>Escape room props</li>
+                <li>Interactive shows</li>
+                <li>DMX lighting rigs</li>
+                <li>Custom FX controllers</li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="highlight-text">Let's build something unforgettable.</p>
+
+          <div class="cta-row" style="margin-top:2rem;">
+            <a href="studio.html" class="btn-horror filled">🎬 Open Studio</a>
+            <a href="addons.html" class="btn-horror">➕ See Add-ons</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Footer ── -->
+      <footer class="site-footer">
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="studio.html">Studio</a>
+          <a href="hauntsync.html">HauntSync</a>
+          <a href="tools.html">Tools</a>
+          <a href="addons.html">Add-ons</a>
+          <a href="aboutme.html">About</a>
+          <a href="https://github.com/sumkindafreak/showduino.com" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <p>© <span id="yr"></span> Showduino · GoreFX by Twins of Evil Attractions</p>
+      </footer>
+    </div><!-- /.about-body -->
+  </div><!-- /.about-wrapper -->
+
+  <audio id="ambience" loop style="display:none">
+    <source src="media/ambient_static_glitch.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    document.addEventListener('mousemove', function (e) {
-      document.querySelectorAll('.parallax-layer').forEach(layer => {
-        const depth = layer.getAttribute('data-depth');
-        const x = (window.innerWidth - e.pageX * depth) / 100;
-        const y = (window.innerHeight - e.pageY * depth) / 100;
-        layer.style.transform = `translateX(${x}px) translateY(${y}px)`;
-      });
-    });
+    document.getElementById('yr').textContent = new Date().getFullYear();
+    // Auto-play ambient audio on first user interaction
+    document.addEventListener('click', () => {
+      const a = document.getElementById('ambience');
+      if (a && a.paused) a.play().catch(() => {});
+    }, { once: true });
   </script>
 </body>
 </html>

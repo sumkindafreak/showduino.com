@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Showduino Studio</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+      /* Studio-specific: font on logo */
+      .logo { font-family: var(--font-display); }
+      /* sidebar links back to marketing site */
+      .sidebar-site-link {
+        display: block;
+        padding: 0.6rem 1rem;
+        color: #777;
+        text-decoration: none;
+        font-size: 0.8rem;
+        border-top: 1px solid var(--border-color);
+        transition: color 0.2s;
+      }
+      .sidebar-site-link:hover { color: var(--accent-color); }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -27,6 +42,7 @@
                     <li data-panel="help">Help</li>
                 </ul>
             </nav>
+            <a href="index.html" class="sidebar-site-link">← Showduino Home</a>
         </aside>
 
         <main class="main-content">

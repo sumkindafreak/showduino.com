@@ -1,172 +1,120 @@
-g<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Meta settings for character encoding and responsive design -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <!-- Page title and favicon -->
-  <title>Showduino – Touchscreen</title>
-  <link rel="icon" href="favicon.ico">
-
-  <!-- Importing horror-style Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
-
-  <!-- AOS (Animate On Scroll) library for scroll animations -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Touchscreen UI — Showduino</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-  <!-- Internal stylesheet -->
-  <style>
-    /* Base styles for body */
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0a0a0a;
-      color: #f2f2f2;
-      scroll-behavior: smooth;
-    }
-
-    /* Page header styling */
-    header {
-      background-color: #111;
-      text-align: center;
-      padding: 2rem 1rem;
-      border-bottom: 2px solid #444;
-    }
-
-    /* Horror-style headings */
-    h1, h2, h3 {
-      font-family: 'Creepster', cursive;
-      text-shadow: 0 0 10px #ff0040;
-    }
-
-    /* Section padding */
-    section {
-      padding: 3rem 1rem;
-      text-align: center;
-    }
-
-    /* Placeholder image styling */
-    .placeholder-img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #ff0040;
-      margin: 2rem auto;
-    }
-
-    /* Button styling consistent with homepage */
-    .back-btn {
-      padding: 1rem 2rem;
-      background-color: #ff0040;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff0040;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .back-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #ff0040;
-    }
-
-    /* Footer section */
-    footer {
-      background-color: #111;
-      padding: 2rem 1rem;
-      text-align: center;
-      border-top: 2px solid #444;
-      margin-top: 4rem;
-    }
-
-    /* Reduced motion for animations */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation: none;
-        transition: none;
-      }
-    }
-  </style>
 </head>
 <body>
-  <!-- HEADER: Displays logo, title, and subtitle -->
-  <header>
-    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
-    <h1>Touchscreen</h1>
-    <p>Intuitive FX Control at Your Fingertips</p>
+
+  <!-- ── Site Header ── -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="index.html" class="site-logo">SHOWDUINO</a>
+      <nav class="site-nav">
+        <a href="index.html">Home</a>
+        <a href="studio.html">Studio</a>
+        <a href="hauntsync.html">HauntSync</a>
+        <a href="tools.html" class="active">Tools</a>
+        <a href="addons.html">Add-ons</a>
+        <a href="aboutme.html">About</a>
+      </nav>
+    </div>
   </header>
 
-  <!-- SECTION 1: Overview -->
-  <section data-aos="fade-up">
-    <h2>Overview</h2>
-    <p>The Showduino touchscreen interface brings a sleek and powerful control panel to life using the ESP32 display board. This interface lets you navigate menus, control brightness, launch diagnostics, and more.</p>
-    <!-- Placeholder image representing the touchscreen -->
-<img src="3d-images/touchscreen.jpeg" alt="Preview of the touchscreen interface - 3d view" class="placeholder-img" loading="lazy" />
+  <!-- ── Hero ── -->
+  <section class="page-hero" style="min-height:40vh;">
+    <div class="page-hero-content">
+      <h1 class="glitch-title" data-text="Touchscreen">Touchscreen</h1>
+      <p>Intuitive FX Control at Your Fingertips</p>
+    </div>
   </section>
 
-  <!-- SECTION 2: Key Features of the Touchscreen UI -->
-  <section data-aos="fade-up">
-    <h2>Key Features</h2>
-    <ul style="list-style:none; padding:0;">
-      <li>• Animated menu transitions for smoother UX</li>
-      <li>• Brightness sliders for TFT and NeoPixels</li>
-      <li>• Volume control for MP3 players A & B</li>
-      <li>• Bluetooth & WiFi status indicators</li>
-      <li>• Self-test initiation directly from the screen</li>
-    </ul>
+  <!-- ── Content ── -->
+  <section class="content-section">
+
+    <div class="horror-card" data-aos="fade-up" style="max-width:800px; margin: 0 auto 2rem;">
+      <h2>Overview</h2>
+      <p>The Showduino touchscreen interface brings a sleek and powerful control panel to
+         life using the ESP32 display board. Navigate menus, control brightness, launch
+         diagnostics, and more — all with glowing tactile feedback.</p>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:1.5rem;">
+        <img src="3d-images/touchscreen.jpeg"
+             alt="Touchscreen interface — 3D view"
+             style="width:100%; max-width:340px; border-radius:10px; box-shadow:0 0 24px rgba(255,0,64,0.25);"
+             loading="lazy">
+        <img src="3d-images/enhance.jpeg"
+             alt="Touchscreen UI enhancements"
+             style="width:100%; max-width:340px; border-radius:10px; box-shadow:0 0 24px rgba(255,0,64,0.25);"
+             loading="lazy">
+      </div>
+    </div>
+
+    <div class="card-grid" data-aos="fade-up">
+
+      <div class="horror-card">
+        <h3>📱 Key Features</h3>
+        <ul>
+          <li>Animated menu transitions for smoother UX</li>
+          <li>Brightness sliders for TFT display and NeoPixels</li>
+          <li>Volume control for MP3 players A &amp; B</li>
+          <li>Bluetooth &amp; WiFi status indicators</li>
+          <li>Self-test initiation directly from the screen</li>
+          <li>Long-press detection for advanced options</li>
+        </ul>
+      </div>
+
+      <div class="horror-card">
+        <h3>✨ Interface Enhancements</h3>
+        <p>All buttons feature glowing visual feedback. Long-press detection enables
+           advanced options menus for power users. The UI runs at smooth frame rates
+           even on the ESP32's single-core display thread.</p>
+        <p style="color:#888; font-size:0.9rem; margin-top:0.75rem;">
+          Designed for the ESP32 2.8″ SPI TFT display (ILI9341 driver).
+        </p>
+      </div>
+
+      <div class="horror-card">
+        <h3>🔜 Future Upgrades</h3>
+        <ul>
+          <li>Dark mode toggle via settings menu</li>
+          <li>UI sound toggle (beeps, FX triggers)</li>
+          <li>Icon-based menu categories</li>
+          <li>Real-time pixel previews during editing</li>
+          <li>Gesture support for compatible displays</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="cta-row" style="margin-top:2.5rem;">
+      <a href="neopixel-ui.html" class="btn-horror">💡 NeoPixel FX</a>
+      <a href="ir-remote.html" class="btn-horror">📺 IR Remote</a>
+      <a href="tools.html" class="btn-horror">🛠️ All Tools</a>
+      <a href="index.html" class="btn-horror">← Home</a>
+    </div>
   </section>
 
-  <!-- SECTION 3: Interface Enhancements -->
-  <section data-aos="fade-up">
-    <h2>Interface Enhancements</h2>
-    <p>The UI supports long-press detection for advanced options, and all buttons feature glowing visual feedback. Future plans include gesture support and multi-touch functionality if the hardware allows.</p>
-    <img src="3d-images/enhance.jpeg" alt="Illustration of user interface enhancements" class="placeholder-img" loading="lazy" />
-  </section>
-
-  <!-- SECTION 4: What’s Coming Next -->
-  <section data-aos="fade-up">
-    <h2>Future Upgrades</h2>
-    <ul style="list-style:none; padding:0;">
-      <li>• Dark mode toggle via the settings menu</li>
-      <li>• UI sound toggle (beeps, FX triggers)</li>
-      <li>• Icon-based menu categories</li>
-      <li>• Real-time pixel previews during editing</li>
-    </ul>
-  </section>
-
-  <!-- BACK BUTTON: Returns to the homepage -->
-  <div style="text-align:center;">
-    <a href="index.html"><button class="back-btn">Back to Home</button></a>
-  </div>
-
-  <!-- FOOTER with QR and GitHub link -->
-  <footer>
-    <img src="images/hauntsync_qr.png" alt="QR code for HauntSync project" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
-    <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
-    <noscript>
-      <p>© 2025 Showduino | A project by Twins of Evil Attractions</p>
-    </noscript>
-    <p>
-      <a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a>
-    </p>
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html">HauntSync</a>
+      <a href="tools.html">Tools</a>
+      <a href="addons.html">Add-ons</a>
+      <a href="aboutme.html">About</a>
+      <a href="https://github.com/sumkindafreak/showduino.com" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p>© <span id="yr"></span> Showduino · GoreFX by Twins of Evil Attractions</p>
   </footer>
 
-  <!-- Script to set the year in the footer -->
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-
-  <!-- Animate On Scroll (AOS) initialization -->
+  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
-    try {
-      AOS.init();
-    } catch (error) {
-      console.error("AOS library failed to initialize:", error);
-    }
+    try { AOS.init({ once: true }); } catch(e) { console.warn('AOS init failed', e); }
   </script>
 </body>
 </html>

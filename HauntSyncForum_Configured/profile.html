@@ -1,35 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>HauntSync Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summoned Profile — HauntSync</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Summoned Profile</h1>
-  <div id="profile" class="profile-container">Loading...</div>
+
+  <header class="forum-header">
+    <h1>🕯️ Summoned Profile</h1>
+    <nav class="forum-nav">
+      <a href="forum.html">← Forum</a>
+      <a href="../hauntsync.html">HauntSync</a>
+      <a href="../index.html">Home</a>
+    </nav>
+  </header>
+
+  <div class="forum-container">
+    <div class="profile-container" id="profile">
+      <p style="color:#555;">Loading summoned soul...</p>
+    </div>
+  </div>
 
   <script>
-    const firebaseConfig = { /* your config here */ };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
+      authDomain: "hauntsync-forum-4b992.firebaseapp.com",
+      projectId: "hauntsync-forum-4b992",
+      storageBucket: "hauntsync-forum-4b992.appspot.com",
+      messagingSenderId: "525589326062",
+      appId: "1:525589326062:web:cfa0d7dc272c292fbb2840"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const uid = new URLSearchParams(window.location.search).get('uid');
 
-    db.collection("users").doc(uid).get().then(doc => {
-      const data = doc.data();
-      document.getElementById('profile').innerHTML = `
-        <h2>${data.name}</h2>
-        <p class="persona-thread">${data.persona || 'Unknown Soul'}</p>
-        <p><em>${data.haunt || 'No Haunt Assigned'}</em></p>
-        <img src="${data.sigil || 'sigils/default.png'}"><br><br>
-        <a href="javascript:summon('${uid}')">Summon This Player</a>
-      `;
-    });
+    if (uid) {
+      db.collection("users").doc(uid).get().then(doc => {
+        if (!doc.exists) {
+          document.getElementById('profile').innerHTML = '<p style="color:#ff2b2b;">Soul not found.</p>';
+          return;
+        }
+        const data = doc.data();
+        document.getElementById('profile').innerHTML = `
+          <img src="${data.sigil || 'sigils/sigil1.png'}" alt="Sigil">
+          <h2>${data.name || 'Unknown Soul'}</h2>
+          <p class="persona-thread">${data.persona || 'No persona set'}</p>
+          <p><em>${data.haunt || 'No Haunt Assigned'}</em></p>
+          <button onclick="summon('${uid}')">🕯️ Summon This Player</button>
+        `;
+      }).catch(err => {
+        document.getElementById('profile').innerHTML = '<p style="color:#ff2b2b;">Error loading profile.</p>';
+        console.error(err);
+      });
+    } else {
+      document.getElementById('profile').innerHTML = '<p style="color:#ff2b2b;">No user ID provided.</p>';
+    }
 
     function summon(uid) {
-      fetch(\`http://showduino.local/api/summon?uid=\${uid}\`);
-      alert("Summoning ritual initiated...");
+      fetch(`http://showduino.local/api/summon?uid=${encodeURIComponent(uid)}`)
+        .then(() => alert('Summoning ritual initiated...'))
+        .catch(() => alert('Showduino device not reachable on local network.'));
     }
   </script>
 </body>

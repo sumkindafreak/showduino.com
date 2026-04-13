@@ -5,11 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Showduino - Recommended Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #000;
-      color: #fff;
+      background-color: var(--dark-bg);
+      color: var(--text-color);
       font-family: 'Courier New', Courier, monospace;
     }
     .glitch {
@@ -23,7 +25,7 @@
       left: 0;
       width: 100%;
       overflow: hidden;
-      color: #f00;
+      color: var(--accent-color);
       clip: rect(0, 0, 0, 0);
     }
     .glitch::before {
@@ -31,7 +33,7 @@
     }
     .glitch::after {
       animation: glitchBottom 2s infinite linear alternate-reverse;
-      color: #0ff;
+      color: var(--error-color);
     }
     @keyframes glitchTop {
       0% { clip: rect(2px, 9999px, 5px, 0); transform: translate(-2px, -2px); }

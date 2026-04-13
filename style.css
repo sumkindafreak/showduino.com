@@ -1,11 +1,11 @@
 
 :root {
-  --dark-bg: #1a1a1a;
-  --panel-bg: #2a2a2a;
-  --border-color: #444;
-  --text-color: #eee;
-  --accent-color: #00ffcc;
-  --glow-color: rgba(0, 255, 204, 0.5);
+  --dark-bg: #0a0a0a;
+  --panel-bg: #1a1a1a;
+  --border-color: #3a1010;
+  --text-color: #f2f2f2;
+  --accent-color: #ff0040;
+  --glow-color: rgba(255, 0, 64, 0.5);
   --error-color: #ff4d4d;
 }
 
@@ -421,7 +421,7 @@ body {
 }
 
 .track-lanes.drop-target {
-  background-color: rgba(0, 255, 204, 0.1);
+  background-color: rgba(255, 0, 64, 0.1);
   border: 2px dashed var(--accent-color);
 }
 
@@ -792,7 +792,7 @@ body {
 }
 
 .terminal-output div[data-level="NET"] {
-  color: #00ffff;
+  color: #ff8080;
 }
 
 /* Audio Manager */

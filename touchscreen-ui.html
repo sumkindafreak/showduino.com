@@ -1,4 +1,4 @@
-g<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Meta settings for character encoding and responsive design -->
@@ -9,92 +9,69 @@ g<!DOCTYPE html>
   <title>Showduino – Touchscreen</title>
   <link rel="icon" href="favicon.ico">
 
-  <!-- Importing horror-style Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+  <!-- Google Fonts: horror + tech -->
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500&display=swap" rel="stylesheet">
 
   <!-- AOS (Animate On Scroll) library for scroll animations -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-  <!-- Internal stylesheet -->
-  <style>
-    /* Base styles for body */
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0a0a0a;
-      color: #f2f2f2;
-      scroll-behavior: smooth;
-    }
+  <!-- Global theme stylesheet -->
+  <link rel="stylesheet" href="style.css">
 
-    /* Page header styling */
+  <!-- Page-specific styles -->
+  <style>
+    body { scroll-behavior: smooth; }
     header {
-      background-color: #111;
+      background-color: var(--panel-bg);
       text-align: center;
       padding: 2rem 1rem;
-      border-bottom: 2px solid #444;
+      border-bottom: 2px solid var(--border-color);
     }
-
-    /* Horror-style headings */
     h1, h2, h3 {
       font-family: 'Creepster', cursive;
-      text-shadow: 0 0 10px #ff0040;
+      text-shadow: 0 0 10px var(--accent-color);
     }
-
-    /* Section padding */
-    section {
-      padding: 3rem 1rem;
-      text-align: center;
-    }
-
-    /* Placeholder image styling */
+    section { padding: 3rem 1rem; text-align: center; }
     .placeholder-img {
       width: 100%;
       max-width: 400px;
       border-radius: 10px;
-      box-shadow: 0 0 20px #ff0040;
+      box-shadow: 0 0 20px var(--glow-color);
       margin: 2rem auto;
+      display: block;
     }
-
-    /* Button styling consistent with homepage */
     .back-btn {
       padding: 1rem 2rem;
-      background-color: #ff0040;
-      color: white;
+      background-color: var(--accent-color);
+      color: #000;
       border: none;
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 0 10px #ff0040;
+      box-shadow: 0 0 10px var(--glow-color);
       transition: transform 0.3s, box-shadow 0.3s;
     }
-
     .back-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 20px #ff0040;
+      box-shadow: 0 0 20px var(--glow-color);
     }
-
-    /* Footer section */
     footer {
-      background-color: #111;
+      background-color: var(--panel-bg);
       padding: 2rem 1rem;
       text-align: center;
-      border-top: 2px solid #444;
+      border-top: 2px solid var(--border-color);
       margin-top: 4rem;
     }
-
-    /* Reduced motion for animations */
+    footer a { color: var(--accent-color); text-decoration: none; }
     @media (prefers-reduced-motion: reduce) {
-      * {
-        animation: none;
-        transition: none;
-      }
+      * { animation: none; transition: none; }
     }
   </style>
 </head>
 <body>
   <!-- HEADER: Displays logo, title, and subtitle -->
   <header>
-    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
+    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" style="max-width:300px; filter:drop-shadow(0 0 20px var(--accent-color));" />
     <h1>Touchscreen</h1>
     <p>Intuitive FX Control at Your Fingertips</p>
   </header>
@@ -144,13 +121,13 @@ g<!DOCTYPE html>
 
   <!-- FOOTER with QR and GitHub link -->
   <footer>
-    <img src="images/hauntsync_qr.png" alt="QR code for HauntSync project" style="max-height:100px; border-radius:10px; box-shadow:0 0 10px #ff0040;" />
+    <img src="showduino._logo.png" alt="Showduino Logo" style="max-height:60px; filter:drop-shadow(0 0 10px var(--accent-color));" />
     <p>© <span id="year"></span> Showduino | A project by Twins of Evil Attractions</p>
     <noscript>
       <p>© 2025 Showduino | A project by Twins of Evil Attractions</p>
     </noscript>
     <p>
-      <a href="https://github.com/twins-of-evil/showduino" style="color:#ff0040;text-decoration:none;" target="_blank">GitHub</a>
+      <a href="https://github.com/twins-of-evil/showduino" target="_blank">GitHub</a>
     </p>
   </footer>
 

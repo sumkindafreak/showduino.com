@@ -585,7 +585,12 @@ document.addEventListener('DOMContentLoaded', () => {
       list.textContent = 'Loading…';
       try {
           const res = await api.listAudioFiles();
-          const files = Array.isArray(res) ? res : (res && res.files ? res.files : []);
+          let files = [];
+          if (Array.isArray(res)) {
+              files = res;
+          } else if (res && Array.isArray(res.files)) {
+              files = res.files;
+          }
           if (!files.length) {
               list.innerHTML = '<span style="color:#666;">No audio files on device SD card.</span>';
               return;

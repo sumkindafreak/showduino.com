@@ -118,11 +118,15 @@ class AudioLibrary {
 
   async addFiles(fileList) {
     const added = [];
+    let seqCounter = 0;
     for (const file of fileList) {
       if (!file.type.startsWith('audio/') && !/\.(mp3|wav|ogg|flac|m4a|aac)$/i.test(file.name)) {
         continue; // skip non-audio
       }
-      const id  = 'al_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      // Use crypto.randomUUID if available, otherwise combine timestamp + counter + random
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? 'al_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16)
+        : 'al_' + Date.now().toString(36) + '_' + (seqCounter++).toString(36) + '_' + Math.random().toString(36).slice(2, 7);
       const url = URL.createObjectURL(file);
       let dur = 0;
       try { dur = await this._getDuration(url); } catch (_) {}
@@ -388,7 +392,15 @@ class AudioLibrary {
     return new Promise((resolve, reject) => {
       const audio = new Audio();
       audio.preload = 'metadata';
-      audio.onloadedmetadata = () => resolve(Math.round(audio.duration * 1000));
+      audio.onloadedmetadata = () => {
+        const dur = audio.duration;
+        if (!isFinite(dur) || dur <= 0) {
+          // Streaming or unknown-length file — resolve with 0
+          resolve(0);
+        } else {
+          resolve(Math.round(dur * 1000));
+        }
+      };
       audio.onerror = () => reject(new Error('Failed to load audio metadata'));
       audio.src = url;
     });

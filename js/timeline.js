@@ -379,7 +379,7 @@ class TimelineEditor {
       let durationMs = 5000;
       if (audioSrcId && window.audioLibrary) {
         const item = window.audioLibrary.getItem(audioSrcId);
-        if (item && item.duration) durationMs = item.duration;
+        if (item && item.duration > 0) durationMs = item.duration;
       }
 
       const clip = this._addClip(track.id, type, startMs, durationMs);
@@ -1178,10 +1178,20 @@ class TimelineEditor {
         if (item && item.objectUrl) {
           const audio = new Audio(item.objectUrl);
           const offsetSec = (posMs - clip.startMs) / 1000;
-          audio.currentTime = Math.max(0, offsetSec);
           audio.volume = Math.min(1, Math.max(0, ((clip.params && clip.params.volume) || 100) / 100));
           if (clip.params && clip.params.loop) audio.loop = true;
-          audio.play().catch(() => {});
+          // Set currentTime once the audio is seekable, then play
+          const doPlay = () => {
+            if (offsetSec > 0) {
+              try { audio.currentTime = offsetSec; } catch (_) {}
+            }
+            audio.play().catch(err => { this._log('Audio play failed: ' + err.message, 'WARN'); });
+          };
+          if (offsetSec > 0 && audio.readyState < 2) {
+            audio.addEventListener('canplay', doPlay, { once: true });
+          } else {
+            doPlay();
+          }
           audio.addEventListener('ended', () => { delete this._activeAudio[key]; });
           this._activeAudio[key] = audio;
         }

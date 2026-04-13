@@ -1,35 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>HauntSync Profile</title>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HauntSync – Summoned Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>Summoned Profile</h1>
-  <div id="profile" class="profile-container">Loading...</div>
+
+  <header class="site-header">
+    <a href="../index.html" class="site-logo">SHOWDUINO</a>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="index.html">Portal</a>
+      <a href="forum.html">Forum</a>
+    </nav>
+  </header>
+
+  <div class="marketing-hero">
+    <h1>Summoned Profile</h1>
+    <p class="subtitle">Identity Manifested from the Ether</p>
+  </div>
+
+  <main style="max-width:600px; margin:0 auto; padding:2rem 1rem;">
+    <div id="profile" class="profile-container">Loading profile…</div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Showduino | HauntSync Community</p>
+    <p><a href="../index.html">← Back to Showduino</a></p>
+  </footer>
 
   <script>
-    const firebaseConfig = { /* your config here */ };
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
+      authDomain: "hauntsync-forum-4b992.firebaseapp.com",
+      projectId: "hauntsync-forum-4b992",
+      storageBucket: "hauntsync-forum-4b992.appspot.com",
+      messagingSenderId: "525589326062",
+      appId: "1:525589326062:web:cfa0d7dc272c292fbb2840"
+    };
     firebase.initializeApp(firebaseConfig);
+
     const db = firebase.firestore();
     const uid = new URLSearchParams(window.location.search).get('uid');
+    const profileEl = document.getElementById('profile');
 
-    db.collection("users").doc(uid).get().then(doc => {
-      const data = doc.data();
-      document.getElementById('profile').innerHTML = `
-        <h2>${data.name}</h2>
-        <p class="persona-thread">${data.persona || 'Unknown Soul'}</p>
-        <p><em>${data.haunt || 'No Haunt Assigned'}</em></p>
-        <img src="${data.sigil || 'sigils/default.png'}"><br><br>
-        <a href="javascript:summon('${uid}')">Summon This Player</a>
-      `;
-    });
+    if (uid) {
+      db.collection("users").doc(uid).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          const sigilHTML = data.sigil
+            ? `<img src="${data.sigil}" alt="Sigil" style="max-width:120px;border-radius:8px;margin:1rem 0;display:block;">`
+            : '';
+          profileEl.innerHTML = `
+            <h2 style="margin-top:0;">${data.name || 'Unknown Soul'}</h2>
+            <p style="color:#aaa;">${data.persona || ''}</p>
+            <p><em style="color:#888;">${data.haunt || 'No Haunt Assigned'}</em></p>
+            ${sigilHTML}
+            <button onclick="summon('${uid}')" class="forum-btn">Summon This Operator</button>
+          `;
+        } else {
+          profileEl.innerHTML = '<p style="color:#888;">Profile not found.</p>';
+        }
+      }).catch(() => {
+        profileEl.innerHTML = '<p style="color:var(--error-color);">Error loading profile.</p>';
+      });
+    } else {
+      profileEl.innerHTML = '<p style="color:#888;">No profile ID provided.</p>';
+    }
 
     function summon(uid) {
-      fetch(\`http://showduino.local/api/summon?uid=\${uid}\`);
-      alert("Summoning ritual initiated...");
+      fetch(`http://showduino.local/api/summon?uid=${uid}`);
+      alert("Summoning ritual initiated…");
     }
   </script>
 </body>

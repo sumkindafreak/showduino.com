@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HauntSync Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HauntSync Portal – Showduino Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <!-- Firebase SDKs -->
@@ -11,19 +13,40 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>HauntSync Portal</h1>
 
-  <div id="auth-section">
-    <input id="name" type="text" placeholder="Your Name"><br>
-    <input id="haunt" type="text" placeholder="Haunt Name (optional)"><br>
-    <input id="email" type="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Password"><br>
+  <header class="site-header">
+    <a href="../index.html" class="site-logo">SHOWDUINO</a>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../hauntsync.html">HauntSync</a>
+      <a href="../studio.html">Studio</a>
+      <a href="forum.html" class="active">Forum</a>
+    </nav>
+  </header>
 
-    <button id="registerBtn">Register</button>
-    <button id="loginBtn">Login</button>
+  <div class="marketing-hero">
+    <h1>HauntSync Portal</h1>
+    <p class="subtitle">Enter the Network – Join the Ritual</p>
   </div>
 
-  <!-- Load logic AFTER everything -->
+  <div id="auth-section" class="forum-auth-card">
+    <h2 class="forum-section-title" style="text-align:center; margin-bottom:1.5rem;">Sign In or Register</h2>
+    <input id="name" type="text" placeholder="Your Name" class="forum-input">
+    <input id="haunt" type="text" placeholder="Haunt Name (optional)" class="forum-input">
+    <input id="email" type="email" placeholder="Email" class="forum-input">
+    <input id="password" type="password" placeholder="Password" class="forum-input">
+    <div style="text-align:center; margin-top:1rem;">
+      <button id="registerBtn" class="forum-btn">Register</button>
+      <button id="loginBtn" class="forum-btn forum-btn-secondary">Login</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Showduino | HauntSync Community</p>
+    <p><a href="../index.html">← Back to Showduino</a></p>
+  </footer>
+
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
   <script src="auth.js" defer></script>
 </body>
 </html>

@@ -293,8 +293,15 @@ window._setRelay = async (out, state) => {
   /* ── Timeline Editor ──────────────────────────────────────────── */
   timelineEditor() {
     return `
-<div class="timeline-editor" style="height:calc(100vh - 180px);min-height:500px;display:flex;flex-direction:column;">
-  <!-- TimelineEditor renders into this div via init() -->
+<div style="display:flex;height:calc(100vh - 180px);min-height:500px;overflow:hidden;">
+  <!-- Audio Library sidebar -->
+  <div id="audio-lib-sidebar" style="width:220px;min-width:180px;max-width:280px;border-right:1px solid #333;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;background:#1a1a1a;">
+    <!-- AudioLibrary renders here via initTimelineEditor() -->
+  </div>
+  <!-- Timeline fills the rest -->
+  <div class="timeline-editor" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- TimelineEditor renders into this div via init() -->
+  </div>
 </div>`;
   }
 
@@ -390,98 +397,32 @@ window._seekTo = () => {
   /* ── Audio Manager ────────────────────────────────────────────── */
   audioManager() {
     return `
-<div class="panel-audio-manager">
+<div class="panel-audio-manager" style="display:flex;flex-direction:column;gap:1rem;">
+
   <div class="control-section">
-    <h3>🎵 Audio Library</h3>
+    <h3>🎵 Local Audio Library</h3>
+    <p style="font-size:12px;color:#888;margin:0 0 10px;">Import MP3, WAV, or OGG files from your phone or computer. Drag items into the Timeline Editor to create audio clips.</p>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-      <button class="btn-primary" style="font-size:12px;" onclick="window._loadAudioLibrary()">🔄 Refresh</button>
-      <button class="btn-toolbar" style="font-size:12px;" onclick="window._uploadAudio()">⬆ Upload File</button>
+      <button class="btn-primary" style="font-size:12px;" onclick="window._importLocalAudio()">📁 Import Audio Files</button>
+      <button class="btn-toolbar" style="font-size:12px;" onclick="window._stopAudioPreview()">⏹ Stop Preview</button>
     </div>
-    <div id="audio-library-list" style="min-height:80px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
-      Loading…
+    <div id="local-audio-library-panel" style="min-height:120px;border:1px solid #333;border-radius:4px;overflow:hidden;">
+      <!-- AudioLibrary renders here -->
     </div>
   </div>
 
-  <div class="control-grid">
-    ${['A','B'].map(ch => `
-    <div class="control-section">
-      <h3>🔊 Player ${ch}</h3>
-      <select id="player-${ch}-file" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:6px;border-radius:4px;font-size:12px;margin-bottom:8px;">
-        <option value="">-- Select file --</option>
-      </select>
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
-        <button class="btn-primary" style="flex:1;font-size:12px;" onclick="window.api?.playAudio(document.getElementById('player-${ch}-file').value)">▶</button>
-        <button class="btn-toolbar" style="flex:1;font-size:12px;" onclick="window.api?.pauseAudio()">⏸</button>
-        <button class="btn-secondary" style="flex:1;font-size:12px;" onclick="window.api?.stopAudio()">⏹</button>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label style="font-size:11px;color:#888;white-space:nowrap;">Vol</label>
-        <input type="range" id="player-${ch}-vol" min="0" max="100" value="80" style="flex:1;" oninput="window.api?.setAudioVolume(parseInt(this.value))"/>
-        <span id="player-${ch}-vol-val" style="font-size:11px;color:#888;min-width:30px;">80%</span>
-      </div>
-    </div>`).join('')}
+  <div class="control-section">
+    <h3>📡 Device Audio (SD Card)</h3>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn-toolbar" style="font-size:12px;" onclick="window._loadDeviceAudio()">🔄 Refresh</button>
+      <button class="btn-toolbar" style="font-size:12px;" onclick="window._uploadDeviceAudio()">⬆ Upload to Device</button>
+    </div>
+    <div id="device-audio-list" style="min-height:60px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
+      Not connected to device.
+    </div>
   </div>
-</div>
 
-<script>
-['A','B'].forEach(ch => {
-  const el = document.getElementById('player-'+ch+'-vol');
-  const vl = document.getElementById('player-'+ch+'-vol-val');
-  if (el && vl) el.addEventListener('input', () => vl.textContent = el.value+'%');
-});
-
-window._loadAudioLibrary = async () => {
-  const list = document.getElementById('audio-library-list');
-  if (list) list.textContent = 'Loading…';
-  try {
-    const res = await window.api?.listAudioFiles();
-    const files = res?.files || [];
-    if (!files.length) {
-      if (list) list.innerHTML = '<span style="color:#666;">No audio files on device.</span>';
-      return;
-    }
-    if (list) {
-      list.innerHTML = '';
-      files.forEach(f => {
-        const name = typeof f === 'string' ? f : f.name;
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #222;';
-        row.innerHTML = '<span style="flex:1;color:#eee;">🎵 ' + name + '</span>'
-          + '<button class="btn-toolbar" style="font-size:11px;padding:2px 8px;" onclick="window.api?.playAudio(\\''+name+'\\')">▶</button>';
-        list.appendChild(row);
-      });
-    }
-    // Populate player selects
-    ['A','B'].forEach(ch => {
-      const sel = document.getElementById('player-'+ch+'-file');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">-- Select file --</option>';
-      files.forEach(f => {
-        const n = typeof f === 'string' ? f : f.name;
-        const opt = document.createElement('option');
-        opt.value = n; opt.textContent = n;
-        sel.appendChild(opt);
-      });
-    });
-  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">Failed to load: ' + e.message + '</span>'; }
-};
-
-window._uploadAudio = () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'audio/*,.mp3,.wav,.ogg';
-  input.multiple = true;
-  input.addEventListener('change', async () => {
-    for (const f of input.files) {
-      try { await window.api?.uploadAudioFile(f); } catch(_) {}
-    }
-    window._loadAudioLibrary();
-  });
-  input.click();
-};
-
-window._loadAudioLibrary();
-<\/script>`;
+</div>`;
   }
 
   /* ── Devices ──────────────────────────────────────────────────── */

@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Panel Manager
   const panelManager = new PanelManager(api, state, log);
 
+  // Initialize Audio Library (IndexedDB-backed local audio management)
+  const audioLibrary = new AudioLibrary();
+  window.audioLibrary = audioLibrary;
+  audioLibrary.init().catch(() => {}); // async init, errors handled gracefully
+
   const workspace = document.querySelector('.workspace');
   const terminalOutput = document.querySelector('.terminal-output');
   const clockElement = document.querySelector('.clock');
@@ -155,6 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           workspace.innerHTML = html;
+          // Re-execute any inline <script> tags (innerHTML does not execute them)
+          workspace.querySelectorAll('script').forEach(oldScript => {
+              const newScript = document.createElement('script');
+              newScript.textContent = oldScript.textContent;
+              document.head.appendChild(newScript);
+              document.head.removeChild(newScript);
+          });
           log(`Loaded panel: ${panelName}`);
 
           // Initialize panel-specific functionality
@@ -172,6 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           if (panelName === 'playback') {
               setTimeout(() => initPlayback(), 100);
+          }
+          if (panelName === 'connect') {
+              setTimeout(() => initConnectPanel(), 100);
+          }
+          if (panelName === 'devices') {
+              setTimeout(() => initDevicesPanel(), 100);
+          }
+          if (panelName === 'settings') {
+              setTimeout(() => initSettingsPanel(), 100);
           }
       } catch (error) {
           log(`Error loading panel ${panelName}: ${error.message}`, 'ERR');
@@ -201,6 +222,11 @@ document.addEventListener('DOMContentLoaded', () => {
           window.ledStudio = ledStudio;
       }
       timelineEditor.init();
+      // Render audio library into the sidebar
+      const libSidebar = document.getElementById('audio-lib-sidebar');
+      if (libSidebar && window.audioLibrary) {
+          window.audioLibrary.renderPanel(libSidebar);
+      }
   }
 
   function loadTimelineEditor() {
@@ -454,8 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize panel-specific handlers
   function initLiveControl() {
-      // LED controls
-      window.setLEDLine = async (line) => {
+      // LED controls — define both with and without underscore prefix for compatibility
+      const setLEDLineImpl = async (line) => {
           const colorEl = document.getElementById(`led${line}-color`);
           const briEl = document.getElementById(`led${line}-brightness`);
           if (colorEl && briEl) {
@@ -472,8 +498,10 @@ document.addEventListener('DOMContentLoaded', () => {
               }
           }
       };
+      window.setLEDLine  = setLEDLineImpl;
+      window._setLEDLine = setLEDLineImpl;
 
-      window.clearLEDLine = async (line) => {
+      const clearLEDLineImpl = async (line) => {
           try {
               await api.clearLEDLine(line);
               log(`LED Line ${line} cleared`, 'INFO');
@@ -481,8 +509,10 @@ document.addEventListener('DOMContentLoaded', () => {
               log(`Failed to clear LED: ${error.message}`, 'ERR');
           }
       };
+      window.clearLEDLine  = clearLEDLineImpl;
+      window._clearLEDLine = clearLEDLineImpl;
 
-      window.clearAllLEDs = async () => {
+      const clearAllLEDsImpl = async () => {
           try {
               await api.clearLEDLine(0);
               log('All LEDs cleared', 'INFO');
@@ -490,32 +520,111 @@ document.addEventListener('DOMContentLoaded', () => {
               log(`Failed to clear all LEDs: ${error.message}`, 'ERR');
           }
       };
+      window.clearAllLEDs  = clearAllLEDsImpl;
+      window._clearAllLEDs = clearAllLEDsImpl;
+
+      const setRelayImpl = async (out, relayState) => {
+          try {
+              await api.setRelay(out, relayState);
+              log(`Relay ${out} ${relayState ? 'ON' : 'OFF'}`, 'INFO');
+          } catch (error) {
+              log(`Failed to set relay: ${error.message}`, 'ERR');
+          }
+      };
+      window._setRelay  = setRelayImpl;
+      window.setRelay   = setRelayImpl;
+
+      // LED brightness slider live update
+      document.querySelectorAll('[id^="led"][id$="-brightness"]').forEach(slider => {
+          const valEl = document.getElementById(slider.id.replace('brightness', 'bright-val'));
+          if (valEl) slider.addEventListener('input', () => { valEl.textContent = slider.value; });
+      });
   }
 
   function initAudioManager() {
-      // Load audio files
-      loadAudioFiles();
+      // Render local audio library into the panel
+      const libPanel = document.getElementById('local-audio-library-panel');
+      if (libPanel && window.audioLibrary) {
+          window.audioLibrary.renderPanel(libPanel);
+      }
+      // Load device audio
+      window._loadDeviceAudio && window._loadDeviceAudio();
   }
 
-  async function loadAudioFiles() {
-      try {
-          const files = await api.listAudioFiles();
-          if (files && files.files) {
-              const select = document.getElementById('audio-player-files');
-              if (select) {
-                  select.innerHTML = '<option value="">Select audio file...</option>';
-                  files.files.forEach(file => {
-                      const opt = document.createElement('option');
-                      opt.value = file;
-                      opt.textContent = file;
-                      select.appendChild(opt);
-                  });
+  // Audio manager functions (defined globally so HTML onclick handlers work)
+  window._importLocalAudio = () => {
+      if (window.audioLibrary) {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'audio/mp3,audio/mpeg,audio/wav,audio/ogg,.mp3,.wav,.ogg,.flac,.m4a,.aac';
+          input.multiple = true;
+          input.style.display = 'none';
+          document.body.appendChild(input);
+          input.addEventListener('change', async () => {
+              if (input.files && input.files.length) {
+                  await window.audioLibrary.addFiles(input.files);
+                  // Re-render wherever we have panels mounted
+                  const libPanel = document.getElementById('local-audio-library-panel');
+                  if (libPanel) window.audioLibrary.renderPanel(libPanel);
+                  const libSidebar = document.getElementById('audio-lib-sidebar');
+                  if (libSidebar) window.audioLibrary.renderPanel(libSidebar);
               }
-          }
-      } catch (error) {
-          log(`Failed to load audio files: ${error.message}`, 'WARN');
+              document.body.removeChild(input);
+          });
+          input.click();
       }
-  }
+  };
+
+  window._stopAudioPreview = () => {
+      if (window.audioLibrary) window.audioLibrary.stopPreview();
+  };
+
+  window._loadDeviceAudio = async () => {
+      const list = document.getElementById('device-audio-list');
+      if (!list) return;
+      list.textContent = 'Loading…';
+      try {
+          const res = await api.listAudioFiles();
+          const files = Array.isArray(res) ? res : (res && res.files ? res.files : []);
+          if (!files.length) {
+              list.innerHTML = '<span style="color:#666;">No audio files on device SD card.</span>';
+              return;
+          }
+          list.innerHTML = '';
+          files.forEach(f => {
+              const name = typeof f === 'string' ? f : (f.name || String(f));
+              const row = document.createElement('div');
+              row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #222;';
+              row.innerHTML = '<span style="flex:1;color:#eee;font-size:12px;">🎵 ' + name + '</span>';
+              const btn = document.createElement('button');
+              btn.className = 'btn-toolbar';
+              btn.style.cssText = 'font-size:11px;padding:2px 8px;';
+              btn.textContent = '▶';
+              btn.addEventListener('click', () => api.playAudio(name).catch(() => {}));
+              row.appendChild(btn);
+              list.appendChild(row);
+          });
+      } catch (e) {
+          list.innerHTML = '<span style="color:#888;">Device not connected. Files unavailable.</span>';
+      }
+  };
+
+  window._uploadDeviceAudio = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'audio/*,.mp3,.wav,.ogg';
+      input.multiple = true;
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      input.addEventListener('change', async () => {
+          for (const f of input.files) {
+              try { await api.uploadAudioFile(f); } catch (_) {}
+          }
+          document.body.removeChild(input);
+          window._loadDeviceAudio && window._loadDeviceAudio();
+      });
+      input.click();
+  };
   
   // Audio player control functions
   window.playAudioPlayer = async () => {
@@ -569,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   
   window.refreshAudioLibrary = async () => {
-      await loadAudioFiles();
+      window._loadDeviceAudio && window._loadDeviceAudio();
       log('Audio library refreshed', 'INFO');
   };
   
@@ -579,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
           try {
               await api.uploadAudioFile(input.files[0]);
               log(`Audio file uploaded: ${input.files[0].name}`, 'INFO');
-              await loadAudioFiles();
+              window._loadDeviceAudio && window._loadDeviceAudio();
               input.value = '';
           } catch (error) {
               log(`Failed to upload audio: ${error.message}`, 'ERR');
@@ -588,8 +697,86 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function initPlayback() {
-      // Initialize playback panel
+      // Initialize playback panel - BPM and seek helpers
       updatePlaybackInfo();
+      window._updateBPM = () => {
+          const v = parseInt(document.getElementById('pb-bpm')?.value);
+          if (v && state.project?.project) {
+              state.project.project.bpm = v;
+              if (window.timelineEditor) window.timelineEditor._autosave();
+          }
+      };
+      window._seekTo = () => {
+          const min = parseInt(document.getElementById('pb-seek-min')?.value) || 0;
+          const sec = parseInt(document.getElementById('pb-seek-sec')?.value) || 0;
+          const ms  = parseInt(document.getElementById('pb-seek-ms')?.value)  || 0;
+          const t = min * 60000 + sec * 1000 + ms;
+          if (window.timelineEditor) window.timelineEditor.seekTo(t);
+          else state.playhead = t;
+      };
+  }
+
+  function initConnectPanel() {
+      window._scanWifi = async () => {
+          const el = document.getElementById('wifi-list');
+          if (el) el.textContent = 'Scanning…';
+          try {
+              const result = await api.getStatus();
+              if (el) el.innerHTML = result
+                  ? '<span style="color:#00ffcc;">Scan not supported via /status. Use Showduino AP to configure WiFi.</span>'
+                  : '<span style="color:#ff4444;">Device not reachable.</span>';
+          } catch (e) {
+              if (el) el.innerHTML = `<span style="color:#ff4444;">Failed: ${e.message}</span>`;
+          }
+      };
+      window._connectWifi = async () => {
+          const ssid = document.getElementById('wifi-ssid')?.value;
+          const pass = document.getElementById('wifi-password')?.value;
+          if (!ssid) { alert('Enter SSID'); return; }
+          try {
+              await api.connectWiFi(ssid, pass);
+              alert('Connect request sent. Device will reboot.');
+          } catch (e) { alert('Failed: ' + e.message); }
+      };
+  }
+
+  function initDevicesPanel() {
+      window._refreshDevices = async () => {
+          const list = document.getElementById('devices-list');
+          if (!list) return;
+          list.innerHTML = '<div style="color:#666;font-size:12px;text-align:center;padding:20px;">Scanning…</div>';
+          try {
+              const res = await api.getDevices();
+              const devices = res?.devices || [];
+              if (!devices.length) {
+                  list.innerHTML = '<div style="color:#666;font-size:12px;text-align:center;padding:20px;">No devices found.</div>';
+                  return;
+              }
+              list.innerHTML = '';
+              devices.forEach(d => {
+                  const row = document.createElement('div');
+                  row.style.cssText = 'background:#222;border:1px solid #333;border-radius:4px;padding:10px;display:flex;justify-content:space-between;align-items:center;';
+                  row.innerHTML = `<div><div style="color:#eee;font-size:13px;">${d.name || d.ip || 'Unknown'}</div><div style="color:#666;font-size:11px;">${d.ip || ''}</div></div>`;
+                  list.appendChild(row);
+              });
+          } catch (e) {
+              list.innerHTML = '<div style="color:#888;font-size:12px;text-align:center;padding:20px;">Device not connected.</div>';
+          }
+      };
+      // Auto-scan
+      window._refreshDevices();
+  }
+
+  function initSettingsPanel() {
+      // Snap setting
+      const snapEl = document.getElementById('snap-value');
+      if (snapEl) {
+          snapEl.addEventListener('change', () => {
+              const snap = parseInt(snapEl.value) || 1000;
+              if (window.timelineEditor) window.timelineEditor._snapMs = snap;
+              if (state.project?.config) state.project.config.snapMs = snap;
+          });
+      }
   }
 
   function initHauntSyncPanel() {

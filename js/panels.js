@@ -278,7 +278,7 @@ if (volEl && volVal) volEl.addEventListener('input', () => { volVal.textContent 
 window._setLEDLine = async (line) => {
   const col = document.getElementById('led'+line+'-color')?.value || '#ffffff';
   const bright = parseInt(document.getElementById('led'+line+'-brightness')?.value) || 255;
-  const r = parseInt(col.substr(1,2),16), g = parseInt(col.substr(3,2),16), b = parseInt(col.substr(5,2),16);
+  const r = parseInt(col.slice(1,3),16), g = parseInt(col.slice(3,5),16), b = parseInt(col.slice(5,7),16);
   try { await window.api?.setLEDLine(line, r, g, b, bright); } catch(e) { console.warn(e); }
 };
 window._clearLEDLine = async (line) => {

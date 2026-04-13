@@ -14,7 +14,7 @@ class ShowduinoAPI {
     if (host === '192.168.4.1' || host.startsWith('192.168.4.')) {
       return `http://${host}`;
     }
-    if (host !== 'localhost' && host !== '127.0.0.1' && !host.includes('github') && !host.includes('showduino.com')) {
+    if (host !== 'localhost' && host !== '127.0.0.1' && host !== 'showduino.com' && !host.endsWith('.showduino.com') && !host.endsWith('.github.io') && host !== 'github.com') {
       return `http://${host}`;
     }
     return 'http://192.168.4.1';

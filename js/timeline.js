@@ -1134,7 +1134,7 @@ class TimelineEditor {
 
   _hexToRgb(hex) {
     hex = hex.replace('#','');
-    return [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
   }
 
   _rgbToHex(r, g, b) {

@@ -1,3 +1,5 @@
+// ⚠ SECURITY: Never commit real Firebase credentials to version control.
+// Use environment variables or a secrets manager in production.
 // Firebase Configuration
 // IMPORTANT: Replace these placeholder values with your actual Firebase project config.
 // Get config from: https://console.firebase.google.com → Project Settings → Your apps → SDK setup

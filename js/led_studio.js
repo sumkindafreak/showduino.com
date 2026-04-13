@@ -199,9 +199,9 @@ class LEDStudio {
     if (hexEl) hexEl.addEventListener('input', () => {
       const hex = hexEl.value.replace('#','');
       if (hex.length === 6) {
-        this._params.r = parseInt(hex.substr(0,2),16);
-        this._params.g = parseInt(hex.substr(2,2),16);
-        this._params.b = parseInt(hex.substr(4,2),16);
+        this._params.r = parseInt(hex.slice(0,2),16);
+        this._params.g = parseInt(hex.slice(2,4),16);
+        this._params.b = parseInt(hex.slice(4,6),16);
         this._syncUI();
         this._renderPreview();
       }
@@ -284,7 +284,7 @@ class LEDStudio {
       sw.style.cssText = `width:22px;height:22px;border-radius:3px;background:${hex};cursor:pointer;border:1px solid #555;`;
       sw.title = hex;
       sw.addEventListener('click', () => {
-        const r = parseInt(hex.substr(1,2),16), g = parseInt(hex.substr(3,2),16), b = parseInt(hex.substr(5,2),16);
+        const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
         this._params.r = r; this._params.g = g; this._params.b = b;
         this._syncUI();
         this._renderPreview();

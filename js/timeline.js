@@ -29,6 +29,8 @@ class TimelineEditor {
     this._headerWidth = 160;
     this._inspectorWidth = 280;
     this._scrollLeft = 0;
+    this._activeAudio = {};       // clipId → HTMLAudioElement (for Web Audio playback)
+    this._keysListening = false;  // prevent duplicate keydown listeners
   }
 
   /* ── Init ────────────────────────────────────────────────────── */
@@ -365,10 +367,30 @@ class TimelineEditor {
     row.addEventListener('drop', e => {
       e.preventDefault();
       row.style.background = track.muted ? '#1a1414' : '#1a1a1a';
-      const type = e.dataTransfer.getData('blockType') || track.type;
-      const x = e.clientX - this._canvas.getBoundingClientRect().left;
-      const startMs = this._snapValue(this._xToMs(x));
-      this._addClip(track.id, type, startMs);
+      if (track.locked) return;
+      const blockType = e.dataTransfer.getData('blockType');
+      const audioSrcId   = e.dataTransfer.getData('audioSourceId');
+      const audioSrcName = e.dataTransfer.getData('audioSourceName');
+      const type = blockType || track.type;
+      const x = e.clientX - this._canvas.getBoundingClientRect().left + this._canvasScroll.scrollLeft;
+      const startMs = this._snapEnabled ? this._snapValue(this._xToMs(x)) : this._xToMs(x);
+
+      // Determine duration from audio library item if available
+      let durationMs = 5000;
+      if (audioSrcId && window.audioLibrary) {
+        const item = window.audioLibrary.getItem(audioSrcId);
+        if (item && item.duration > 0) durationMs = item.duration;
+      }
+
+      const clip = this._addClip(track.id, type, startMs, durationMs);
+      if (clip && audioSrcId) {
+        clip.params = clip.params || {};
+        clip.params.audioSourceId   = audioSrcId;
+        clip.params.audioSourceName = audioSrcName || '';
+        if (audioSrcName) clip.label = audioSrcName;
+        this._refreshClipEl(clip.id);
+        this._autosave();
+      }
     });
 
     return row;
@@ -629,18 +651,43 @@ class TimelineEditor {
     const p = clip.params || {};
     let html = '<div style="font-size:11px;color:#888;margin-bottom:4px;">Parameters</div>';
     switch (clip.type) {
-      case 'audio':
+      case 'audio': {
+        const srcId   = p.audioSourceId || '';
+        const srcName = p.audioSourceName || p.file || '';
+        // Build audio source selector from audio library
+        let libOptions = '<option value="">-- Select from library --</option>';
+        if (window.audioLibrary) {
+          window.audioLibrary.getItems().forEach(item => {
+            const sel = item.id === srcId ? 'selected' : '';
+            libOptions += `<option value="${item.id}" ${sel}>${item.name}</option>`;
+          });
+        }
         html += `
           <div style="margin-bottom:6px;">
-            <label style="font-size:11px;color:#888;display:block;">File</label>
-            <input id="param-file" type="text" value="${p.file || ''}" placeholder="audio file" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;box-sizing:border-box;font-size:11px;border-radius:3px;"/>
+            <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Audio Source</label>
+            <select id="param-audio-src" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;font-size:11px;border-radius:3px;">${libOptions}</select>
+            <div style="font-size:10px;color:#666;margin-top:2px;">${srcName || 'No source selected'}</div>
           </div>
           <div style="margin-bottom:6px;">
             <label style="font-size:11px;color:#888;display:block;">Volume (%)</label>
-            <input id="param-volume" type="range" min="0" max="100" value="${p.volume !== undefined ? p.volume : 100}" style="width:100%;"/>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input id="param-volume" type="range" min="0" max="100" value="${p.volume !== undefined ? p.volume : 100}" style="flex:1;"/>
+              <span id="param-volume-val" style="font-size:11px;color:#888;min-width:30px;">${p.volume !== undefined ? p.volume : 100}%</span>
+            </div>
           </div>
-          <label style="font-size:11px;color:#888;"><input id="param-loop" type="checkbox" ${p.loop ? 'checked' : ''}/> Loop</label>`;
+          <label style="font-size:11px;color:#888;display:flex;align-items:center;gap:4px;margin-bottom:6px;">
+            <input id="param-loop" type="checkbox" ${p.loop ? 'checked' : ''}/> Loop
+          </label>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:11px;color:#888;display:block;">Fade In (ms)</label>
+            <input id="param-fadein" type="number" min="0" value="${p.fadeIn || 0}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;box-sizing:border-box;font-size:11px;border-radius:3px;"/>
+          </div>
+          <div style="margin-bottom:6px;">
+            <label style="font-size:11px;color:#888;display:block;">Fade Out (ms)</label>
+            <input id="param-fadeout" type="number" min="0" value="${p.fadeOut || 0}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;box-sizing:border-box;font-size:11px;border-radius:3px;"/>
+          </div>`;
         break;
+      }
       case 'relay':
         html += `
           <label style="font-size:11px;color:#888;display:block;margin-bottom:4px;">Output</label>
@@ -674,14 +721,45 @@ class TimelineEditor {
     const p = clip.params || {};
     const save = () => { clip.params = p; this._autosave(); };
 
-    const fileEl = document.getElementById('param-file');
-    if (fileEl) fileEl.addEventListener('change', () => { p.file = fileEl.value; save(); });
+    // Audio source selector (audio library)
+    const audioSrcEl = document.getElementById('param-audio-src');
+    if (audioSrcEl) {
+      audioSrcEl.addEventListener('change', () => {
+        const srcId = audioSrcEl.value;
+        p.audioSourceId = srcId;
+        if (srcId && window.audioLibrary) {
+          const item = window.audioLibrary.getItem(srcId);
+          if (item) {
+            p.audioSourceName = item.name;
+            if (!clip.label || clip.label === 'Audio') clip.label = item.name;
+            this._refreshClipEl(clip.id);
+            // Update the label in inspector
+            const labelEl = document.getElementById('insp-label');
+            if (labelEl) labelEl.value = clip.label;
+          }
+        }
+        save();
+      });
+    }
 
     const volEl = document.getElementById('param-volume');
-    if (volEl) volEl.addEventListener('input', () => { p.volume = Number(volEl.value); save(); });
+    const volValEl = document.getElementById('param-volume-val');
+    if (volEl) {
+      volEl.addEventListener('input', () => {
+        p.volume = Number(volEl.value);
+        if (volValEl) volValEl.textContent = p.volume + '%';
+        save();
+      });
+    }
 
     const loopEl = document.getElementById('param-loop');
     if (loopEl) loopEl.addEventListener('change', () => { p.loop = loopEl.checked; save(); });
+
+    const fadeInEl = document.getElementById('param-fadein');
+    if (fadeInEl) fadeInEl.addEventListener('change', () => { p.fadeIn = Number(fadeInEl.value); save(); });
+
+    const fadeOutEl = document.getElementById('param-fadeout');
+    if (fadeOutEl) fadeOutEl.addEventListener('change', () => { p.fadeOut = Number(fadeOutEl.value); save(); });
 
     const outEl = document.getElementById('param-out');
     if (outEl) outEl.addEventListener('change', () => { p.out = outEl.value; save(); });
@@ -1005,7 +1083,8 @@ class TimelineEditor {
     this._state.transport = 'playing';
     this._playStart = Date.now();
     this._playOffset = this._state.playhead;
-    document.getElementById('tl-play-btn').style.color = '#00ffcc';
+    const btn = document.getElementById('tl-play-btn');
+    if (btn) btn.style.color = '#00ffcc';
     if (window.appPlay) window.appPlay();
     this._tick();
     this._log('Playback started', 'INFO');
@@ -1016,7 +1095,9 @@ class TimelineEditor {
     this._playing = false;
     this._state.transport = 'paused';
     if (this._rafId) cancelAnimationFrame(this._rafId);
-    document.getElementById('tl-play-btn').style.color = '';
+    this._stopAllAudio();
+    const btn = document.getElementById('tl-play-btn');
+    if (btn) btn.style.color = '';
     if (window.appPause) window.appPause();
     this._log('Playback paused', 'INFO');
   }
@@ -1025,7 +1106,9 @@ class TimelineEditor {
     this._playing = false;
     this._state.transport = 'stopped';
     if (this._rafId) cancelAnimationFrame(this._rafId);
-    document.getElementById('tl-play-btn').style.color = '';
+    this._stopAllAudio();
+    const btn = document.getElementById('tl-play-btn');
+    if (btn) btn.style.color = '';
     if (window.appStop) window.appStop();
     this._log('Playback stopped', 'INFO');
   }
@@ -1055,6 +1138,7 @@ class TimelineEditor {
         this._playStart = Date.now();
         this._playOffset = 0;
         this._state.playhead = 0;
+        this._stopAllAudio();
       } else {
         this.stop();
         return;
@@ -1066,6 +1150,7 @@ class TimelineEditor {
     this._syncPlayheadPosition();
     this._updateTimecodeDisplay();
     this._highlightActiveClips();
+    this._tickAudio(this._state.playhead);
 
     // Auto-scroll to keep playhead visible
     const phX = this._msToX(this._state.playhead);
@@ -1076,6 +1161,51 @@ class TimelineEditor {
     }
 
     this._rafId = requestAnimationFrame(() => this._tick());
+  }
+
+  /* ── Audio playback via Web Audio / HTMLAudio ────────────────── */
+
+  _tickAudio(posMs) {
+    const audioLib = window.audioLibrary;
+    const audioClips = this._clips().filter(c => c.type === 'audio');
+    audioClips.forEach(clip => {
+      const active = posMs >= clip.startMs && posMs < clip.startMs + clip.durationMs;
+      const key = clip.id;
+      if (active && !this._activeAudio[key]) {
+        // Start audio
+        const srcId = clip.params && clip.params.audioSourceId;
+        const item  = srcId && audioLib ? audioLib.getItem(srcId) : null;
+        if (item && item.objectUrl) {
+          const audio = new Audio(item.objectUrl);
+          const offsetSec = (posMs - clip.startMs) / 1000;
+          audio.volume = Math.min(1, Math.max(0, ((clip.params && clip.params.volume) || 100) / 100));
+          if (clip.params && clip.params.loop) audio.loop = true;
+          // Set currentTime once the audio is seekable, then play
+          const doPlay = () => {
+            if (offsetSec > 0) {
+              try { audio.currentTime = offsetSec; } catch (_) {}
+            }
+            audio.play().catch(err => { this._log('Audio play failed: ' + err.message, 'WARN'); });
+          };
+          if (offsetSec > 0 && audio.readyState < 2) {
+            audio.addEventListener('canplay', doPlay, { once: true });
+          } else {
+            doPlay();
+          }
+          audio.addEventListener('ended', () => { delete this._activeAudio[key]; });
+          this._activeAudio[key] = audio;
+        }
+      } else if (!active && this._activeAudio[key]) {
+        // Stop audio
+        try { this._activeAudio[key].pause(); } catch (_) {}
+        delete this._activeAudio[key];
+      }
+    });
+  }
+
+  _stopAllAudio() {
+    Object.values(this._activeAudio).forEach(a => { try { a.pause(); } catch (_) {} });
+    this._activeAudio = {};
   }
 
   _highlightActiveClips() {
@@ -1183,6 +1313,8 @@ class TimelineEditor {
   /* ── Keyboard shortcuts ──────────────────────────────────────── */
 
   _bindGlobalKeys() {
+    if (this._keysListening) return; // prevent duplicate listeners
+    this._keysListening = true;
     document.addEventListener('keydown', e => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
       if (e.code === 'Space')  { e.preventDefault(); this._playing ? this.pause() : this.play(); }

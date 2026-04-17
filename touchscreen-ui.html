@@ -1,4 +1,4 @@
-g<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Meta settings for character encoding and responsive design -->
@@ -8,6 +8,9 @@ g<!DOCTYPE html>
   <!-- Page title and favicon -->
   <title>Showduino – Touchscreen</title>
   <link rel="icon" href="favicon.ico">
+
+  <!-- Shared site styles -->
+  <link rel="stylesheet" href="style.css">
 
   <!-- Importing horror-style Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
@@ -27,7 +30,7 @@ g<!DOCTYPE html>
     }
 
     /* Page header styling */
-    header {
+    .page-header {
       background-color: #111;
       text-align: center;
       padding: 2rem 1rem;
@@ -92,12 +95,25 @@ g<!DOCTYPE html>
   </style>
 </head>
 <body>
+  <!-- Site-wide header -->
+  <header class="website-header">
+    <a href="index.html" class="site-logo" aria-label="Return to Showduino home page">SHOWDUINO</a>
+    <button class="nav-toggle" id="nav-toggle" aria-controls="header-nav" aria-expanded="false" aria-label="Toggle navigation">&#9776;</button>
+    <nav class="header-nav" id="header-nav" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="hauntsync.html" class="nav-link">HauntSync</a>
+      <a href="studio.html" class="nav-link">Studio</a>
+      <a href="tools.html" class="nav-link">Tools</a>
+      <a href="aboutme.html" class="nav-link">About</a>
+    </nav>
+  </header>
+
   <!-- HEADER: Displays logo, title, and subtitle -->
-  <header>
-    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
+  <div class="page-header">
+    <img src="944eb351-61ec-449c-8372-27253ff1a3ef.png" alt="Showduino Logo with glowing effect" loading="lazy" style="max-width:300px; filter:drop-shadow(0 0 20px #ff0040);" />
     <h1>Touchscreen</h1>
     <p>Intuitive FX Control at Your Fingertips</p>
-  </header>
+  </div>
 
   <!-- SECTION 1: Overview -->
   <section data-aos="fade-up">
@@ -139,7 +155,7 @@ g<!DOCTYPE html>
 
   <!-- BACK BUTTON: Returns to the homepage -->
   <div style="text-align:center;">
-    <a href="index.html"><button class="back-btn">Back to Home</button></a>
+    <a href="index.html" class="cta-button">← Back to Home</a>
   </div>
 
   <!-- FOOTER with QR and GitHub link -->
@@ -160,13 +176,16 @@ g<!DOCTYPE html>
   </script>
 
   <!-- Animate On Scroll (AOS) initialization -->
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
   <script>
-    try {
-      AOS.init();
-    } catch (error) {
-      console.error("AOS library failed to initialize:", error);
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        AOS.init();
+      } catch (error) {
+        console.error("AOS library failed to initialize:", error);
+      }
+    });
   </script>
+  <script src="nav.js" defer></script>
 </body>
 </html>

@@ -493,8 +493,128 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function initAudioManager() {
-      // Load audio files
-      loadAudioFiles();
+      // Define the global helpers referenced by onclick handlers in the Audio Manager panel.
+      // (innerHTML injection does not execute <script> tags, so these must be defined here.)
+
+      // Retry delay for IndexedDB initialization (async open may still be in flight)
+      const INDEXEDDB_INIT_RETRY_DELAY_MS = 800;
+
+      window._loadAudioLibrary = async () => {
+          const list = document.getElementById('audio-library-list');
+          if (list) list.textContent = 'Loading…';
+          try {
+              const res = await api.listAudioFiles();
+              const files = res?.files || [];
+              if (!files.length) {
+                  if (list) list.innerHTML = '<span style="color:#666;">No audio files on device.</span>';
+              } else {
+                  if (list) {
+                      list.innerHTML = '';
+                      files.forEach(f => {
+                          const name = typeof f === 'string' ? f : f.name;
+                          const row = document.createElement('div');
+                          row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #222;';
+                          const nameEl = document.createElement('span');
+                          nameEl.textContent = '🎵 ' + name;
+                          nameEl.style.cssText = 'flex:1;color:#eee;';
+                          const playBtn = document.createElement('button');
+                          playBtn.textContent = '▶';
+                          playBtn.className = 'btn-toolbar';
+                          playBtn.style.cssText = 'font-size:11px;padding:2px 8px;';
+                          playBtn.addEventListener('click', () => window.api?.playAudio(name));
+                          row.appendChild(nameEl);
+                          row.appendChild(playBtn);
+                          list.appendChild(row);
+                      });
+                  }
+                  ['A', 'B'].forEach(ch => {
+                      const sel = document.getElementById('player-' + ch + '-file');
+                      if (!sel) return;
+                      sel.innerHTML = '<option value="">-- Select file --</option>';
+                      files.forEach(f => {
+                          const n = typeof f === 'string' ? f : f.name;
+                          const opt = document.createElement('option');
+                          opt.value = n; opt.textContent = n;
+                          sel.appendChild(opt);
+                      });
+                  });
+              }
+          } catch (e) {
+              if (list) list.innerHTML = '<span style="color:#ff4444;">Failed to load: ' + e.message + '</span>';
+          }
+          // Append local audio options after device files
+          await window.audioLibrary?.populatePlayerSelects();
+      };
+
+      window._uploadAudio = () => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'audio/*,.mp3,.wav,.ogg';
+          input.multiple = true;
+          input.addEventListener('change', async () => {
+              for (const f of input.files) {
+                  try { await api.uploadAudioFile(f); } catch (_) {}
+              }
+              window._loadAudioLibrary();
+          });
+          input.click();
+      };
+
+      window._importLocalAudio = () => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'audio/*,.mp3,.wav,.ogg,.flac,.m4a,.aac,.opus,.webm';
+          input.multiple = true;
+          input.addEventListener('change', async () => {
+              if (!input.files || !input.files.length) return;
+              const statusEl = document.getElementById('local-audio-status');
+              const listEl   = document.getElementById('local-audio-library-list');
+              const lib = window.audioLibrary;
+              if (!lib) {
+                  if (statusEl) { statusEl.style.color = '#ff4444'; statusEl.textContent = 'Audio library not available.'; }
+                  return;
+              }
+              if (statusEl) { statusEl.style.color = '#888'; statusEl.textContent = 'Importing…'; }
+              const errors = await lib.importFiles(input.files, prog => {
+                  if (statusEl) {
+                      statusEl.style.color = prog.ok ? '#00ffcc' : '#ff6666';
+                      statusEl.textContent = prog.ok
+                          ? ('Imported: ' + prog.name)
+                          : ('Error: ' + prog.name + ' — ' + prog.error);
+                  }
+              });
+              if (errors.length) {
+                  if (statusEl) { statusEl.style.color = '#ff6666'; statusEl.textContent = errors.map(e => e.name + ': ' + e.message).join('; '); }
+              } else {
+                  if (statusEl) { statusEl.style.color = '#00ffcc'; statusEl.textContent = input.files.length + ' file(s) imported successfully.'; }
+              }
+              if (listEl) lib.renderLibrary(listEl);
+              await lib.populatePlayerSelects();
+          });
+          input.click();
+      };
+
+      // Render the local library list (with retry in case IndexedDB is still opening)
+      const localListEl = document.getElementById('local-audio-library-list');
+      if (localListEl) {
+          if (window.audioLibrary) {
+              window.audioLibrary.renderLibrary(localListEl);
+              window.audioLibrary.populatePlayerSelects();
+          } else {
+              localListEl.innerHTML = '<span style="color:#666;font-size:12px;">Initialising…</span>';
+              setTimeout(() => {
+                  if (window.audioLibrary) {
+                      window.audioLibrary.renderLibrary(localListEl);
+                      window.audioLibrary.populatePlayerSelects();
+                  } else if (localListEl) {
+                      localListEl.innerHTML = '<span style="color:#666;font-size:12px;">No local audio imported.</span>';
+                  }
+              }, INDEXEDDB_INIT_RETRY_DELAY_MS);
+          }
+      }
+
+      // Load device audio files
+      window._loadAudioLibrary();
   }
 
   async function loadAudioFiles() {

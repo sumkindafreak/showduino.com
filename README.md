@@ -42,7 +42,7 @@ showduino/
 - **Live Control**: Direct hardware control (LEDs, relays, audio, status LED)
 - **Timeline Editor**: DAW-style show builder with draggable clips
 - **Playback**: Transport controls and show execution
-- **Audio Manager**: Audio file management and dual player control
+- **Audio Manager**: Audio file management, dual player control, and **local audio import** (IndexedDB)
 - **Devices**: Device discovery and inventory
 - **Diagnostics**: System status and diagnostics export
 - **HauntSync**: Cloud sync integration (when online)

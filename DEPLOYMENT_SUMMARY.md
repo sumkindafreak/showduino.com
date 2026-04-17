@@ -27,6 +27,7 @@ All essential modules are included:
 - ✅ shdo_model.js - Show data structure
 - ✅ timeline.js - Timeline editor (stub)
 - ✅ audio_browser.js - Audio management (stub)
+- ✅ audio_library.js - Local audio import & library (IndexedDB)
 - ✅ dmx_editor.js - DMX control (stub)
 - ✅ led_studio.js - LED designer (stub)
 - ✅ forum.js - Community forum (stub)
@@ -38,6 +39,41 @@ All essential modules are included:
 - **PAYPAL_SETUP.md** - PayPal integration instructions
 - **GITHUB_UPDATE_INSTRUCTIONS.md** - GitHub deployment help
 - **DEPLOY.md** - This deployment guide
+
+## 🎵 Local Audio Import
+
+Showduino Studio supports importing audio files directly from your phone or laptop — **no cloud upload required**.
+
+### How it works
+1. Open **Showduino Studio** → navigate to the **Audio Manager** panel.
+2. Click **📂 Import Audio** to open your device's file picker.
+3. Select one or more audio files (`MP3`, `WAV`, `OGG`, `FLAC`, `M4A`, `AAC`, etc.).
+4. Imported files appear in the **Local Audio Library** list immediately.
+
+### Local library controls
+| Button | Action |
+|--------|--------|
+| ▶ / ⏸ | Play / pause preview |
+| ⏹ | Stop preview |
+| Use | Assign file to the selected audio clip in the Timeline Editor |
+| ✕ | Remove file from the local library |
+
+### Storage
+- Audio blobs are stored in the browser's **IndexedDB** (`showduino-audio-library` database).
+- Metadata stored per item: `id`, `name`, `type`, `size`, `addedAt`, `duration`.
+- Data persists across page refreshes and works **fully offline**.
+- If the browser storage quota is exceeded, an error message is shown and the import is skipped gracefully.
+
+### Player integration
+- Imported local files are automatically added to **Player A** and **Player B** select menus (shown with a 📁 prefix).
+- Selecting a local file and clicking ▶ in a player will play it directly in the browser.
+
+### Compatibility
+- Works on desktop browsers (Chrome, Firefox, Edge, Safari).
+- Works on mobile browsers (iOS Safari, Android Chrome) — file picker respects mobile OS constraints.
+- Playback only starts after an explicit user tap/click (respects browser autoplay policies).
+
+---
 
 ## 🚀 How to Deploy (Quick Start)
 

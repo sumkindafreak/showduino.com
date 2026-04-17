@@ -9,9 +9,157 @@
   --error-color: #ff4d4d;
 }
 
-* {
-  box-sizing: border-box;
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  -webkit-tap-highlight-color: transparent;
 }
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Hamburger button - hidden on desktop */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--dark-bg);
+}
+
+/* Sidebar close button - hidden on desktop */
+.sidebar-close-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 767px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Off-canvas sidebar drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    max-width: 80vw;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    max-height: none;
+    overflow-y: auto;
+    border-right: 1px solid var(--border-color);
+    border-bottom: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Main content fills full width on mobile */
+  .main-content {
+    width: 100%;
+  }
+
+  /* Transport controls: ensure ≥44px tap targets */
+  .transport-controls button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    touch-action: manipulation;
+  }
+
+  /* Bottom dock: bigger drag handle */
+  .bottom-dock.collapsed {
+    height: 44px;
+  }
+
+  .terminal-header {
+    min-height: 44px;
+  }
+
+  .toggle-terminal {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0 0.5rem;
+  }
+
+  /* Bigger tap targets in terminal filter buttons */
+  .terminal-header .filters button {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0.25rem 0.5rem;
+    touch-action: manipulation;
+  }
+
+  /* Back to menu and other top-bar links */
+  .back-to-menu-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  /* Sidebar nav items: bigger tap targets */
+  .sidebar-nav li {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    touch-action: manipulation;
+  }
+
+  /* Top bar: stack more compactly on mobile */
+  .top-bar > .system-info {
+    display: none !important;
+  }
+}
+
 
 body {
   margin: 0;
@@ -26,24 +174,25 @@ body {
 .app-container {
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
+  flex-direction: row;
+  height: 100vh;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 767px) {
   .app-container {
-    flex-direction: row;
-    height: 100vh;
+    flex-direction: column;
+    height: 100dvh;
   }
 }
 
 .sidebar {
-  width: 100%;
+  width: 200px;
   background-color: var(--panel-bg);
-  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  max-height: 50vh;
   overflow-y: auto;
+  flex-shrink: 0;
 }
 
 @media (min-width: 768px) {
@@ -60,6 +209,10 @@ body {
   padding: 1rem;
   text-align: center;
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .logo {
@@ -884,4 +1037,115 @@ body {
 .autosave-date {
   font-size: 0.85rem;
   color: #aaa;
+}
+
+/* ── Mobile Timeline Improvements ─────────────────────────────── */
+
+/* Inspector bottom sheet for mobile */
+@media (max-width: 767px) {
+  /* Timeline editor fills available height */
+  .timeline-editor {
+    min-height: calc(100vh - 200px);
+    height: auto;
+    overflow: hidden;
+  }
+
+  /* Toolbar: scrollable horizontally on mobile */
+  .tl-toolbar,
+  .timeline-toolbar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  .tl-toolbar::-webkit-scrollbar,
+  .timeline-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Toolbar buttons: slightly bigger touch targets on mobile */
+  .btn-toolbar {
+    min-height: 40px;
+    padding: 0.4rem 0.6rem;
+    touch-action: manipulation;
+  }
+
+  /* Timeline inspector as a bottom sheet */
+  .tl-inspector {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: unset !important;
+    max-height: 55vh;
+    z-index: 800;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    border-left: none !important;
+    border-top: 2px solid var(--accent-color) !important;
+    box-shadow: 0 -4px 20px rgba(0, 255, 204, 0.15);
+  }
+
+  .tl-inspector.inspector-open {
+    transform: translateY(0);
+  }
+
+  /* Drag handle for inspector bottom sheet */
+  .tl-inspector-handle {
+    width: 40px;
+    height: 4px;
+    background: #666;
+    border-radius: 2px;
+    margin: 10px auto 6px;
+    flex-shrink: 0;
+  }
+
+  /* Canvas horizontal scroll */
+  .tl-canvas-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: scroll !important;
+    overflow-y: auto !important;
+  }
+
+  /* Workspace: no extra padding on mobile */
+  .workspace {
+    padding: 0.5rem;
+  }
+
+  /* Top bar: keep compact on mobile */
+  .top-bar {
+    padding: 0.4rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  /* Show info row */
+  .show-info {
+    min-height: 44px;
+  }
+
+  /* Transport controls compact */
+  .transport-controls {
+    gap: 0.3rem;
+    justify-content: flex-start;
+  }
+}
+
+/* Touch-friendly clip handles (applies on touch devices) */
+@media (hover: none) and (pointer: coarse) {
+  /* Wider resize handles for touch */
+  .tl-clip-handle-left,
+  .tl-clip-handle-right {
+    width: 16px !important;
+  }
+
+  /* Bigger track buttons */
+  .tl-track-header button {
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 14px !important;
+    padding: 4px 6px !important;
+  }
 }

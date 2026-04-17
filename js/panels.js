@@ -293,7 +293,7 @@ window._setRelay = async (out, state) => {
   /* ── Timeline Editor ──────────────────────────────────────────── */
   timelineEditor() {
     return `
-<div class="timeline-editor" style="height:calc(100vh - 180px);min-height:500px;display:flex;flex-direction:column;">
+<div class="timeline-editor" style="height:calc(100vh - 180px);min-height:320px;display:flex;flex-direction:column;">
   <!-- TimelineEditor renders into this div via init() -->
 </div>`;
   }

@@ -19,50 +19,24 @@
             margin: 0 auto;
         }
 
-        .hauntsync-header {
+        /* HauntSync app-level sub-navigation (Forum / Subscription / Profile) */
+        .hauntsync-subnav {
             background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-            padding: 0.75rem 1rem;
-            text-align: center;
-            border-bottom: 2px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        @media (max-width: 767px) {
-            .hauntsync-header {
-                padding: 1rem;
-            }
-        }
-
-        .hauntsync-logo {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 15px var(--glow-color);
-            margin: 0;
-            font-weight: bold;
-        }
-
-        @media (max-width: 767px) {
-            .hauntsync-logo {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-            }
-        }
-
-        .hauntsync-nav {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 0.5rem;
-            margin-top: 0.5rem;
             flex-wrap: wrap;
         }
 
-        @media (max-width: 767px) {
-            .hauntsync-nav {
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
+        .hauntsync-subnav-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-right: 1rem;
+            letter-spacing: 0.05em;
         }
 
         .nav-button {
@@ -72,18 +46,11 @@
             color: var(--text-color);
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
             text-decoration: none;
             display: inline-block;
             font-size: 0.85rem;
             white-space: nowrap;
-        }
-
-        @media (max-width: 767px) {
-            .nav-button {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
         }
 
         .nav-button:hover,
@@ -92,31 +59,9 @@
             color: var(--dark-bg);
         }
 
-        .back-link {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            color: var(--accent-color);
-            text-decoration: none;
-            padding: 0.4rem 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 767px) {
-            .back-link {
-                top: 0.75rem;
-                left: 0.75rem;
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        .back-link:hover {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
+        .nav-button:focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
         }
 
         .main-content {
@@ -461,24 +406,26 @@
     </style>
 </head>
 <body>
+    <!-- Site-wide header -->
+    <header class="website-header">
+        <a href="index.html" class="site-logo" aria-label="Return to Showduino home page">SHOWDUINO</a>
+        <button class="nav-toggle" id="nav-toggle" aria-controls="header-nav" aria-expanded="false" aria-label="Toggle navigation">&#9776;</button>
+        <nav class="header-nav" id="header-nav" aria-label="Main navigation">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="hauntsync.html" class="nav-link active" aria-current="page">HauntSync</a>
+            <a href="studio.html" class="nav-link">Studio</a>
+            <a href="tools.html" class="nav-link">Tools</a>
+            <a href="aboutme.html" class="nav-link">About</a>
+        </nav>
+    </header>
+
     <div class="hauntsync-container">
-        <div class="hauntsync-header">
-            <a href="index.html" class="back-link">← Home</a>
-            <h1 class="hauntsync-logo">HauntSync</h1>
-            <p style="color: #aaa; margin: 0.25rem 0 0 0; font-size: 0.75rem; display: none;" class="header-subtitle">Showduino Community Forum</p>
-            
-            <style>
-                @media (max-width: 767px) {
-                    .header-subtitle {
-                        display: block !important;
-                    }
-                }
-            </style>
-            <div class="hauntsync-nav">
-                <a href="#" class="nav-button active" onclick="showSection('forum'); return false;">Forum</a>
-                <a href="#" class="nav-button" onclick="showSection('subscription'); return false;">Subscription</a>
-                <a href="#" class="nav-button" onclick="showSection('profile'); return false;">My Profile</a>
-            </div>
+        <!-- HauntSync app sub-navigation -->
+        <div class="hauntsync-subnav">
+            <span class="hauntsync-subnav-title">HauntSync</span>
+            <a href="#" class="nav-button active" onclick="showSection('forum'); return false;">Forum</a>
+            <a href="#" class="nav-button" onclick="showSection('subscription'); return false;">Subscription</a>
+            <a href="#" class="nav-button" onclick="showSection('profile'); return false;">My Profile</a>
         </div>
 
         <!-- Forum Section -->
@@ -767,5 +714,6 @@
             }
         }
     </script>
+    <script src="nav.js" defer></script>
 </body>
 </html>

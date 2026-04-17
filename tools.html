@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Showduino - Recommended Tools</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body {
@@ -43,7 +44,22 @@
     }
   </style>
 </head>
-<body class="p-6">
+<body>
+
+  <!-- Site-wide header -->
+  <header class="website-header">
+    <a href="index.html" class="site-logo" aria-label="Return to Showduino home page">SHOWDUINO</a>
+    <button class="nav-toggle" id="nav-toggle" aria-controls="header-nav" aria-expanded="false" aria-label="Toggle navigation">&#9776;</button>
+    <nav class="header-nav" id="header-nav" aria-label="Main navigation">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="hauntsync.html" class="nav-link">HauntSync</a>
+      <a href="studio.html" class="nav-link">Studio</a>
+      <a href="tools.html" class="nav-link active" aria-current="page">Tools</a>
+      <a href="aboutme.html" class="nav-link">About</a>
+    </nav>
+  </header>
+
+  <div class="p-6">
 
   <header class="text-center mb-10">
     <h1 class="text-5xl glitch" data-text="Showduino Toolkit">Showduino Toolkit</h1>
@@ -143,5 +159,7 @@
     </p>
   </section>
 
+  </div><!-- end .p-6 wrapper -->
+  <script src="nav.js" defer></script>
 </body>
 </html>

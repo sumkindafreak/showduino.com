@@ -1135,17 +1135,18 @@ body {
 
 /* Touch-friendly clip handles (applies on touch devices) */
 @media (hover: none) and (pointer: coarse) {
-  /* Wider resize handles for touch */
+  /* Wider resize handles for touch — width is also set inline via JS */
   .tl-clip-handle-left,
   .tl-clip-handle-right {
-    width: 16px !important;
+    min-width: 12px;
+    width: 12px;
   }
 
   /* Bigger track buttons */
   .tl-track-header button {
     min-width: 32px;
     min-height: 32px;
-    font-size: 14px !important;
-    padding: 4px 6px !important;
+    font-size: 14px;
+    padding: 4px 6px;
   }
 }

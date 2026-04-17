@@ -305,8 +305,12 @@ class TimelineEditor {
       handle.style.cssText = 'width:40px;height:4px;background:#666;border-radius:2px;margin:10px auto 6px;flex-shrink:0;cursor:pointer;';
       handle.title = 'Tap to close inspector';
       handle.addEventListener('click', () => {
-        insp.classList.remove('inspector-open');
-        insp.style.transform = 'translateY(100%)';
+        if (window.mobileInspector) {
+          window.mobileInspector.close();
+        } else {
+          insp.classList.remove('inspector-open');
+          insp.style.transform = 'translateY(100%)';
+        }
       });
       insp.appendChild(handle);
     } else {
@@ -699,8 +703,12 @@ class TimelineEditor {
 
     // On mobile: slide up the bottom sheet
     if (this._isMobile) {
-      this._inspectorPanel.style.transform = 'translateY(0)';
-      this._inspectorPanel.classList.add('inspector-open');
+      if (window.mobileInspector) {
+        window.mobileInspector.open();
+      } else {
+        this._inspectorPanel.style.transform = 'translateY(0)';
+        this._inspectorPanel.classList.add('inspector-open');
+      }
     }
   }
 
@@ -884,8 +892,12 @@ class TimelineEditor {
       }
       // Close mobile bottom sheet
       if (this._isMobile) {
-        this._inspectorPanel.style.transform = 'translateY(100%)';
-        this._inspectorPanel.classList.remove('inspector-open');
+        if (window.mobileInspector) {
+          window.mobileInspector.close();
+        } else {
+          this._inspectorPanel.style.transform = 'translateY(100%)';
+          this._inspectorPanel.classList.remove('inspector-open');
+        }
       }
     }
     this._autosave();

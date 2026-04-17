@@ -100,11 +100,17 @@
     open: function () {
       if (!isMobile()) return;
       var insp = document.querySelector('.tl-inspector');
-      if (insp) insp.classList.add('inspector-open');
+      if (insp) {
+        insp.style.transform = 'translateY(0)';
+        insp.classList.add('inspector-open');
+      }
     },
     close: function () {
       var insp = document.querySelector('.tl-inspector');
-      if (insp) insp.classList.remove('inspector-open');
+      if (insp) {
+        insp.style.transform = 'translateY(100%)';
+        insp.classList.remove('inspector-open');
+      }
     },
     isOpen: function () {
       var insp = document.querySelector('.tl-inspector');

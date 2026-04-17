@@ -31,6 +31,12 @@ class TimelineEditor {
     this._scrollLeft = 0;
   }
 
+  /* ── Mobile detection ────────────────────────────────────────── */
+
+  get _isMobile() {
+    return window.innerWidth < 768;
+  }
+
   /* ── Init ────────────────────────────────────────────────────── */
 
   init() {
@@ -60,11 +66,15 @@ class TimelineEditor {
   /* ── Rendering ───────────────────────────────────────────────── */
 
   _render() {
+    // Remove any previously body-mounted mobile inspector
+    const prevInspector = document.querySelector('body > .tl-inspector');
+    if (prevInspector) prevInspector.remove();
+
     this._el.innerHTML = '';
     this._el.style.display = 'flex';
     this._el.style.flexDirection = 'column';
     this._el.style.height = '100%';
-    this._el.style.minHeight = '520px';
+    this._el.style.minHeight = this._isMobile ? '320px' : '520px';
     this._el.style.background = '#1a1a1a';
     this._el.style.color = '#eee';
     this._el.style.fontFamily = 'monospace, sans-serif';
@@ -82,7 +92,12 @@ class TimelineEditor {
     main.appendChild(this._rightPanel);
 
     this._inspectorPanel = this._buildInspector();
-    main.appendChild(this._inspectorPanel);
+    // On mobile the inspector is appended to body as a bottom sheet
+    if (this._isMobile) {
+      document.body.appendChild(this._inspectorPanel);
+    } else {
+      main.appendChild(this._inspectorPanel);
+    }
 
     this._el.appendChild(main);
 
@@ -93,7 +108,10 @@ class TimelineEditor {
   _buildToolbar() {
     const bar = document.createElement('div');
     bar.className = 'tl-toolbar timeline-toolbar';
-    bar.style.cssText = 'display:flex;gap:4px;padding:6px 8px;background:#2a2a2a;border-bottom:1px solid #444;flex-wrap:wrap;align-items:center;flex-shrink:0;';
+    const mobileStyle = this._isMobile
+      ? 'display:flex;gap:4px;padding:6px 8px;background:#2a2a2a;border-bottom:1px solid #444;flex-wrap:nowrap;align-items:center;flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;'
+      : 'display:flex;gap:4px;padding:6px 8px;background:#2a2a2a;border-bottom:1px solid #444;flex-wrap:wrap;align-items:center;flex-shrink:0;';
+    bar.style.cssText = mobileStyle;
 
     const addGroup = this._toolbarGroup('Add Track:');
     const trackTypes = ['audio','fx','relay','lighting','pixel','dmx','prop','trigger'];
@@ -105,11 +123,12 @@ class TimelineEditor {
     });
     bar.appendChild(addGroup);
 
-    const sep = () => { const s = document.createElement('div'); s.style.cssText='width:1px;background:#555;height:24px;margin:0 4px;'; return s; };
+    const sep = () => { const s = document.createElement('div'); s.style.cssText='width:1px;background:#555;height:24px;margin:0 4px;flex-shrink:0;'; return s; };
     bar.appendChild(sep());
 
     // Transport
     const transGroup = this._toolbarGroup('');
+    transGroup.style.flexWrap = 'nowrap';
     const playBtn = this._toolbarBtn('▶ Play', () => this.play());
     playBtn.id = 'tl-play-btn';
     const pauseBtn = this._toolbarBtn('⏸ Pause', () => this.pause());
@@ -127,6 +146,7 @@ class TimelineEditor {
 
     // Zoom
     const zoomGroup = this._toolbarGroup('Zoom:');
+    zoomGroup.style.flexWrap = 'nowrap';
     zoomGroup.appendChild(this._toolbarBtn('🔍+', () => this._zoom(1.5)));
     zoomGroup.appendChild(this._toolbarBtn('🔍-', () => this._zoom(1 / 1.5)));
     zoomGroup.appendChild(this._toolbarBtn('Fit', () => this._zoomFit()));
@@ -157,7 +177,7 @@ class TimelineEditor {
     // Timecode display
     const tc = document.createElement('div');
     tc.id = 'tl-timecode';
-    tc.style.cssText = 'margin-left:auto;font-size:14px;font-weight:bold;color:#00ffcc;letter-spacing:2px;padding:4px 8px;background:#111;border-radius:4px;min-width:100px;text-align:center;';
+    tc.style.cssText = 'margin-left:auto;font-size:14px;font-weight:bold;color:#00ffcc;letter-spacing:2px;padding:4px 8px;background:#111;border-radius:4px;min-width:90px;text-align:center;flex-shrink:0;';
     tc.textContent = '00:00.000';
     bar.appendChild(tc);
 
@@ -166,7 +186,7 @@ class TimelineEditor {
 
   _toolbarGroup(label) {
     const g = document.createElement('div');
-    g.style.cssText = 'display:flex;gap:3px;align-items:center;flex-wrap:wrap;';
+    g.style.cssText = 'display:flex;gap:3px;align-items:center;flex-wrap:wrap;flex-shrink:0;';
     if (label) {
       const lbl = document.createElement('span');
       lbl.textContent = label;
@@ -180,15 +200,16 @@ class TimelineEditor {
     const btn = document.createElement('button');
     btn.className = 'btn-toolbar';
     btn.textContent = text;
-    btn.style.cssText = 'padding:3px 8px;font-size:11px;white-space:nowrap;';
+    btn.style.cssText = 'padding:3px 8px;font-size:11px;white-space:nowrap;touch-action:manipulation;';
     btn.addEventListener('click', onClick);
     return btn;
   }
 
   _buildLeftPanel() {
+    const effectiveWidth = this._isMobile ? 100 : this._headerWidth;
     const left = document.createElement('div');
     left.className = 'tl-left';
-    left.style.cssText = `width:${this._headerWidth}px;min-width:${this._headerWidth}px;background:#222;border-right:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;`;
+    left.style.cssText = `width:${effectiveWidth}px;min-width:${effectiveWidth}px;background:#222;border-right:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;`;
 
     const hdr = document.createElement('div');
     hdr.className = 'tl-track-list-header';
@@ -215,6 +236,11 @@ class TimelineEditor {
     this._rulerEl.style.cssText = `height:${this._rulerHeight}px;background:#333;border-bottom:1px solid #444;position:relative;overflow:hidden;flex-shrink:0;cursor:pointer;`;
     this._rulerEl.title = 'Click to set playhead position';
     this._rulerEl.addEventListener('click', e => this._rulerClick(e));
+    this._rulerEl.addEventListener('touchend', e => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      this._rulerClickAt(touch.clientX);
+    }, { passive: false });
     right.appendChild(this._rulerEl);
 
     // Marker track
@@ -268,8 +294,35 @@ class TimelineEditor {
   _buildInspector() {
     const insp = document.createElement('div');
     insp.className = 'tl-inspector inspector';
-    insp.style.cssText = `width:${this._inspectorWidth}px;min-width:${this._inspectorWidth}px;background:#2a2a2a;border-left:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:12px;box-sizing:border-box;`;
-    insp.innerHTML = '<h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3><p style="color:#888;font-size:12px;">Select a clip to inspect.</p>';
+
+    if (this._isMobile) {
+      // Mobile: fixed bottom sheet (CSS handles transform/transition)
+      insp.style.cssText = `position:fixed;top:auto;bottom:0;left:0;right:0;width:100%;min-width:unset;background:#2a2a2a;border-left:none;border-top:2px solid #00ffcc;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:0 12px 12px;box-sizing:border-box;max-height:55vh;z-index:800;transform:translateY(100%);transition:transform 0.3s ease;box-shadow:0 -4px 20px rgba(0,255,204,0.15);`;
+
+      // Drag handle at the top
+      const handle = document.createElement('div');
+      handle.className = 'tl-inspector-handle';
+      handle.style.cssText = 'width:40px;height:4px;background:#666;border-radius:2px;margin:10px auto 6px;flex-shrink:0;cursor:pointer;';
+      handle.title = 'Tap to close inspector';
+      handle.addEventListener('click', () => {
+        if (window.mobileInspector) {
+          window.mobileInspector.close();
+        } else {
+          insp.classList.remove('inspector-open');
+          insp.style.transform = 'translateY(100%)';
+        }
+      });
+      insp.appendChild(handle);
+    } else {
+      insp.style.cssText = `width:${this._inspectorWidth}px;min-width:${this._inspectorWidth}px;background:#2a2a2a;border-left:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:12px;box-sizing:border-box;`;
+    }
+
+    const content = document.createElement('div');
+    content.className = 'tl-inspector-content';
+    content.innerHTML = '<h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3><p style="color:#888;font-size:12px;">Select a clip to inspect.</p>';
+    insp.appendChild(content);
+    this._inspectorContent = content;
+
     return insp;
   }
 
@@ -429,21 +482,32 @@ class TimelineEditor {
     el.appendChild(lbl);
 
     // Left resize handle
+    // Left resize handle — wider on touch (12px) vs mouse (6px) for better grab target
+    const handleWidth = this._isMobile ? 12 : 6;
     const leftHandle = document.createElement('div');
-    leftHandle.style.cssText = 'position:absolute;left:0;top:0;width:6px;height:100%;cursor:w-resize;background:rgba(255,255,255,0.2);z-index:11;';
+    leftHandle.className = 'tl-clip-handle-left';
+    leftHandle.style.cssText = `position:absolute;left:0;top:0;width:${handleWidth}px;height:100%;cursor:w-resize;background:rgba(255,255,255,0.2);z-index:11;`;
     leftHandle.addEventListener('mousedown', e => { e.stopPropagation(); this._startResize(e, clip.id, 'left'); });
+    leftHandle.addEventListener('touchstart', e => { e.stopPropagation(); this._startResize(e, clip.id, 'left'); }, { passive: false });
     el.appendChild(leftHandle);
 
     // Right resize handle
     const rightHandle = document.createElement('div');
-    rightHandle.style.cssText = 'position:absolute;right:0;top:0;width:6px;height:100%;cursor:e-resize;background:rgba(255,255,255,0.2);z-index:11;';
+    rightHandle.className = 'tl-clip-handle-right';
+    rightHandle.style.cssText = `position:absolute;right:0;top:0;width:${handleWidth}px;height:100%;cursor:e-resize;background:rgba(255,255,255,0.2);z-index:11;`;
     rightHandle.addEventListener('mousedown', e => { e.stopPropagation(); this._startResize(e, clip.id, 'right'); });
+    rightHandle.addEventListener('touchstart', e => { e.stopPropagation(); this._startResize(e, clip.id, 'right'); }, { passive: false });
     el.appendChild(rightHandle);
 
     el.addEventListener('mousedown', e => {
       if (e.target === leftHandle || e.target === rightHandle) return;
       this._startDrag(e, clip.id);
     });
+
+    el.addEventListener('touchstart', e => {
+      if (e.target === leftHandle || e.target === rightHandle) return;
+      this._startDrag(e, clip.id);
+    }, { passive: false });
 
     el.addEventListener('click', e => {
       if (this._dragState) return;
@@ -475,12 +539,13 @@ class TimelineEditor {
     if (!clip) return;
     this._selectClip(clipId);
 
-    const startX = e.clientX;
+    const isTouch = e.type === 'touchstart';
+    const startX = isTouch ? e.touches[0].clientX : e.clientX;
     const origStartMs = clip.startMs;
-    const canvasRect = this._canvas.getBoundingClientRect();
 
     const onMove = mv => {
-      const dx = mv.clientX - startX;
+      const clientX = mv.touches ? mv.touches[0].clientX : mv.clientX;
+      const dx = clientX - startX;
       const dMs = dx / this._pxPerMs;
       let newStart = Math.max(0, origStartMs + dMs);
       if (this._snapEnabled) newStart = this._snapValue(newStart);
@@ -497,12 +562,16 @@ class TimelineEditor {
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
       this._pushUndo();
       this._autosave();
     };
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
   }
 
   _startResize(e, clipId, edge) {
@@ -512,13 +581,15 @@ class TimelineEditor {
     const clip = this._clips().find(c => c.id === clipId);
     if (!clip) return;
 
-    const startX = e.clientX;
+    const isTouch = e.type === 'touchstart';
+    const startX = isTouch ? e.touches[0].clientX : e.clientX;
     const origStart = clip.startMs;
     const origDuration = clip.durationMs;
     const origEnd = origStart + origDuration;
 
     const onMove = mv => {
-      const dx = mv.clientX - startX;
+      const clientX = mv.touches ? mv.touches[0].clientX : mv.clientX;
+      const dx = clientX - startX;
       const dMs = dx / this._pxPerMs;
       if (edge === 'right') {
         const newDur = Math.max(100, origDuration + dMs);
@@ -543,12 +614,16 @@ class TimelineEditor {
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
       this._pushUndo();
       this._autosave();
     };
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
   }
 
   /* ── Inspector ───────────────────────────────────────────────── */
@@ -570,7 +645,10 @@ class TimelineEditor {
     if (!clip) return;
     const track = this._tracks().find(t => t.id === clip.trackId);
 
-    this._inspectorPanel.innerHTML = `
+    // Target the content container (mobile uses a nested div, desktop uses the panel itself)
+    const target = this._inspectorContent || this._inspectorPanel;
+
+    target.innerHTML = `
       <h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Label</label>
@@ -623,6 +701,16 @@ class TimelineEditor {
     bind('insp-color',    'color',      null);
 
     this._bindParamInputs(clip);
+
+    // On mobile: slide up the bottom sheet
+    if (this._isMobile) {
+      if (window.mobileInspector) {
+        window.mobileInspector.open();
+      } else {
+        this._inspectorPanel.style.transform = 'translateY(0)';
+        this._inspectorPanel.classList.add('inspector-open');
+      }
+    }
   }
 
   _buildParamsHTML(clip) {
@@ -797,7 +885,21 @@ class TimelineEditor {
     if (el) el.remove();
     if (this._selectedClipId === id) {
       this._selectedClipId = null;
-      this._inspectorPanel.innerHTML = '<h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3><p style="color:#888;font-size:12px;">Select a clip to inspect.</p>';
+      const emptyMsg = '<h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3><p style="color:#888;font-size:12px;">Select a clip to inspect.</p>';
+      if (this._inspectorContent) {
+        this._inspectorContent.innerHTML = emptyMsg;
+      } else {
+        this._inspectorPanel.innerHTML = emptyMsg;
+      }
+      // Close mobile bottom sheet
+      if (this._isMobile) {
+        if (window.mobileInspector) {
+          window.mobileInspector.close();
+        } else {
+          this._inspectorPanel.style.transform = 'translateY(100%)';
+          this._inspectorPanel.classList.remove('inspector-open');
+        }
+      }
     }
     this._autosave();
     this._log('Clip deleted', 'INFO');
@@ -909,6 +1011,14 @@ class TimelineEditor {
   _rulerClick(e) {
     const rect = this._rulerEl.getBoundingClientRect();
     const x = e.clientX - rect.left + this._scrollLeft;
+    this._state.playhead = Math.max(0, this._xToMs(x));
+    this._syncPlayheadPosition();
+    this._updateTimecodeDisplay();
+  }
+
+  _rulerClickAt(clientX) {
+    const rect = this._rulerEl.getBoundingClientRect();
+    const x = clientX - rect.left + this._scrollLeft;
     this._state.playhead = Math.max(0, this._xToMs(x));
     this._syncPlayheadPosition();
     this._updateTimecodeDisplay();
@@ -1367,7 +1477,8 @@ class TimelineEditor {
   _showToast(msg) {
     const t = document.createElement('div');
     t.textContent = msg;
-    t.style.cssText = 'position:fixed;bottom:60px;right:20px;background:#00ffcc;color:#000;padding:8px 16px;border-radius:4px;font-size:13px;z-index:9999;font-weight:bold;';
+    const bottomOffset = this._isMobile ? '70px' : '60px';
+    t.style.cssText = `position:fixed;bottom:${bottomOffset};right:20px;background:#00ffcc;color:#000;padding:8px 16px;border-radius:4px;font-size:13px;z-index:9999;font-weight:bold;`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 2000);
   }

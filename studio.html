@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
     <div class="app-container">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar" aria-label="Navigation">
             <div class="sidebar-header">
                 <h1 class="logo">Showduino Studio</h1>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close menu">✕</button>
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -32,6 +36,7 @@
         <main class="main-content">
             <header class="top-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">☰</button>
                     <a href="index.html" class="back-to-menu-btn">← Back to Menu</a>
                     <div class="connection-status offline">OFFLINE</div>
                 </div>
@@ -94,6 +99,7 @@
     <script src="js/dmx_editor.js"></script>
     <script src="js/led_studio.js"></script>
     <script src="js/panels.js"></script>
+    <script src="js/mobile.js"></script>
     <script src="app.js"></script>
     
     <script>

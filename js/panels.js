@@ -392,12 +392,24 @@ window._seekTo = () => {
     return `
 <div class="panel-audio-manager">
   <div class="control-section">
-    <h3>🎵 Audio Library</h3>
+    <h3>🎵 Device Audio Library</h3>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
       <button class="btn-primary" style="font-size:12px;" onclick="window._loadAudioLibrary()">🔄 Refresh</button>
       <button class="btn-toolbar" style="font-size:12px;" onclick="window._uploadAudio()">⬆ Upload File</button>
     </div>
     <div id="audio-library-list" style="min-height:80px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
+      Loading…
+    </div>
+  </div>
+
+  <div class="control-section" style="margin-top:12px;">
+    <h3>📁 Local Audio Library</h3>
+    <p style="font-size:11px;color:#888;margin:0 0 8px;">Import audio from your device — stored locally in your browser, no upload needed.</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn-primary" style="font-size:12px;" onclick="window._importLocalAudio()">📂 Import Audio</button>
+    </div>
+    <div id="local-audio-status" style="font-size:11px;color:#888;margin-bottom:6px;min-height:16px;"></div>
+    <div id="local-audio-library-list" style="min-height:60px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
       Loading…
     </div>
   </div>
@@ -421,67 +433,7 @@ window._seekTo = () => {
       </div>
     </div>`).join('')}
   </div>
-</div>
-
-<script>
-['A','B'].forEach(ch => {
-  const el = document.getElementById('player-'+ch+'-vol');
-  const vl = document.getElementById('player-'+ch+'-vol-val');
-  if (el && vl) el.addEventListener('input', () => vl.textContent = el.value+'%');
-});
-
-window._loadAudioLibrary = async () => {
-  const list = document.getElementById('audio-library-list');
-  if (list) list.textContent = 'Loading…';
-  try {
-    const res = await window.api?.listAudioFiles();
-    const files = res?.files || [];
-    if (!files.length) {
-      if (list) list.innerHTML = '<span style="color:#666;">No audio files on device.</span>';
-      return;
-    }
-    if (list) {
-      list.innerHTML = '';
-      files.forEach(f => {
-        const name = typeof f === 'string' ? f : f.name;
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #222;';
-        row.innerHTML = '<span style="flex:1;color:#eee;">🎵 ' + name + '</span>'
-          + '<button class="btn-toolbar" style="font-size:11px;padding:2px 8px;" onclick="window.api?.playAudio(\\''+name+'\\')">▶</button>';
-        list.appendChild(row);
-      });
-    }
-    // Populate player selects
-    ['A','B'].forEach(ch => {
-      const sel = document.getElementById('player-'+ch+'-file');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">-- Select file --</option>';
-      files.forEach(f => {
-        const n = typeof f === 'string' ? f : f.name;
-        const opt = document.createElement('option');
-        opt.value = n; opt.textContent = n;
-        sel.appendChild(opt);
-      });
-    });
-  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">Failed to load: ' + e.message + '</span>'; }
-};
-
-window._uploadAudio = () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'audio/*,.mp3,.wav,.ogg';
-  input.multiple = true;
-  input.addEventListener('change', async () => {
-    for (const f of input.files) {
-      try { await window.api?.uploadAudioFile(f); } catch(_) {}
-    }
-    window._loadAudioLibrary();
-  });
-  input.click();
-};
-
-window._loadAudioLibrary();
-<\/script>`;
+</div>`;
   }
 
   /* ── Devices ──────────────────────────────────────────────────── */

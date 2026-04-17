@@ -482,6 +482,7 @@ class TimelineEditor {
     el.appendChild(lbl);
 
     // Left resize handle
+    // Left resize handle — wider on touch (12px) vs mouse (6px) for better grab target
     const handleWidth = this._isMobile ? 12 : 6;
     const leftHandle = document.createElement('div');
     leftHandle.className = 'tl-clip-handle-left';

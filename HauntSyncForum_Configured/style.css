@@ -1,18 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500;700&display=swap');
+
+:root {
+  --dark-bg: #000;
+  --panel-bg: #0d0d0d;
+  --border-color: #2a2a2a;
+  --text-color: #f2f2f2;
+  --accent-color: #ff0040;
+  --glow-color: rgba(255, 0, 64, 0.5);
+  --error-color: #ff2b2b;
+  --radius: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-  background: #000;
-  color: #fff;
-  font-family: 'Creepster', cursive;
+  margin: 0;
+  background: var(--dark-bg);
+  color: var(--text-color);
+  font-family: 'Orbitron', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-family: 'Creepster', 'Orbitron', cursive;
+  letter-spacing: 0.04em;
+  color: var(--accent-color);
+  text-shadow: 0 0 12px var(--glow-color);
+}
+
+.forum-header {
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a0505 100%);
+  border-bottom: 2px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.forum-header h1 { margin: 0; font-size: 1.5rem; }
+
+.forum-nav a {
+  color: #aaa;
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background 0.2s, color 0.2s;
+}
+.forum-nav a:hover { background: var(--accent-color); color: #000; }
+
+.forum-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.forum-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.forum-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(255, 0, 64, 0.15);
+}
+
+.forum-card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+input, textarea, select {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  margin: 0.4rem 0 0.85rem;
+  background: #111;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px rgba(255,0,64,0.2);
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
+button {
+  padding: 0.65rem 1.5rem;
+  background: var(--accent-color);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  margin-top: 0.25rem;
+}
+
+button:hover {
+  background: #cc0033;
+  box-shadow: 0 0 18px rgba(255,0,64,0.4);
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  background: #1a1a1a;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+button.secondary:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  box-shadow: none;
+  background: #1a1a1a;
+}
+
+hr { border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0; }
+
+ul { padding-left: 1.2rem; }
+li { padding: 0.3rem 0; color: #bbb; }
+
+.thread-item {
+  background: #111;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  list-style: none;
+  margin-left: 0;
+}
+
+.thread-item:hover {
+  border-color: var(--accent-color);
+}
+
+#threads-list { list-style: none; padding: 0; }
+
+.profile-container {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 2rem;
   text-align: center;
+  max-width: 500px;
+  margin: 2rem auto;
 }
 
-h1 {
-  font-size: 3em;
-  color: crimson;
-  text-shadow: 0 0 10px red;
+.profile-container img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 0 16px var(--glow-color);
+  margin: 1rem 0;
 }
 
-input, button {
-  margin: 10px;
-  padding: 10px;
-  font-size: 1em;
+.persona-thread { color: #888; font-style: italic; }
+
+a { color: var(--accent-color); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Auth section */
+#auth-section {
+  max-width: 420px;
+  margin: 3rem auto;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 2rem;
 }
+
+#auth-section h2 { text-align: center; }

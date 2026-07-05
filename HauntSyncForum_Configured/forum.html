@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HauntSync Forum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HauntSync Forum – Showduino Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <!-- Firebase SDKs (Compat version) -->
@@ -11,7 +13,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // ✅ Your Firebase Config (replace with actual if needed)
     const firebaseConfig = {
       apiKey: "AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU",
       authDomain: "hauntsync-forum-4b992.firebaseapp.com",
@@ -24,33 +25,55 @@
   </script>
 </head>
 <body>
-  <h1>🕯️ Welcome to HauntSync Forum</h1>
 
-  <button onclick="logout()">Logout</button>
+  <header class="site-header">
+    <a href="../index.html" class="site-logo">SHOWDUINO</a>
+    <nav class="site-nav">
+      <a href="../index.html">Home</a>
+      <a href="../hauntsync.html">HauntSync</a>
+      <a href="index.html">Portal</a>
+      <a href="forum.html" class="active">Forum</a>
+    </nav>
+  </header>
 
-  <hr>
+  <div class="marketing-hero">
+    <h1>🕯️ HauntSync Forum</h1>
+    <p class="subtitle">Share, Debug, and Build Together</p>
+  </div>
 
-  <h2>Profile creation</h2>
-  <label>Name:</label>
-  <input id="ritual-persona" type="text"><br>
-  <label>Haunt:</label>
-  <input id="ritual-haunt" type="text"><br>
-  <label>Sigil:</label>
-  <input id="ritual-sigil" type="text"><br>
-  <button onclick="saveRitualProfile()">Save Ritual Profile</button>
+  <main style="max-width:860px; margin:0 auto; padding:2rem 1rem;">
 
-  <hr>
+    <div style="text-align:right; margin-bottom:1rem;">
+      <button onclick="logout()" class="forum-btn forum-btn-secondary">Logout</button>
+    </div>
 
-  <h2>💬 Start a Thread</h2>
-  <textarea id="thread-content" rows="4" cols="50" placeholder="issues/debug/info goes here"></textarea><br>
-  <button onclick="postThread()">Post Thread</button>
+    <section class="forum-auth-card" style="max-width:100%; margin-bottom:2rem;">
+      <h2 class="forum-section-title" style="margin-top:0;">Ritual Profile</h2>
+      <input id="ritual-persona" type="text" placeholder="Name" class="forum-input">
+      <input id="ritual-haunt" type="text" placeholder="Haunt" class="forum-input">
+      <input id="ritual-sigil" type="text" placeholder="Sigil URL" class="forum-input">
+      <button onclick="saveRitualProfile()" class="forum-btn" style="margin-top:0.5rem;">Save Profile</button>
+    </section>
 
-  <hr>
+    <section style="margin-bottom:2rem;">
+      <h2 class="forum-section-title">💬 Start a Thread</h2>
+      <textarea id="thread-content" rows="4" placeholder="Issues, debug info, ideas…" class="forum-input"></textarea>
+      <button onclick="postThread()" class="forum-btn" style="margin-top:0.5rem;">Post Thread</button>
+    </section>
 
-  <h2>📜 Latest Threads</h2>
-  <ul id="threads-list"></ul>
+    <section>
+      <h2 class="forum-section-title">📜 Latest Threads</h2>
+      <ul id="threads-list" style="list-style:none; padding:0; margin:0;"></ul>
+    </section>
 
-  <!-- 🧠 Forum Logic Script -->
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Showduino | HauntSync Community</p>
+    <p><a href="../index.html">← Back to Showduino</a></p>
+  </footer>
+
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
   <script src="forum.js"></script>
 </body>
 </html>

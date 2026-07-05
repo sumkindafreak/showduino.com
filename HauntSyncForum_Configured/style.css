@@ -1,18 +1,244 @@
+/* HauntSync Forum – Theme 2 (Red Horror/Glitch) */
+:root {
+  --dark-bg: #0a0a0a;
+  --panel-bg: #1a1a1a;
+  --border-color: #3a1010;
+  --text-color: #f2f2f2;
+  --accent-color: #ff0040;
+  --glow-color: rgba(255, 0, 64, 0.5);
+  --error-color: #ff4d4d;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  background: #000;
-  color: #fff;
-  font-family: 'Creepster', cursive;
+  margin: 0;
+  background-color: var(--dark-bg);
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Site header */
+.site-header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  padding: 1rem 2rem;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.site-logo {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 15px var(--glow-color);
+  margin: 0;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  font-family: 'Creepster', 'Orbitron', cursive;
+}
+
+.site-nav {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  background-color: var(--accent-color);
+  color: var(--dark-bg);
+}
+
+/* Marketing hero */
+.marketing-hero {
   text-align: center;
+  padding: 3rem 1rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
 }
 
-h1 {
-  font-size: 3em;
-  color: crimson;
-  text-shadow: 0 0 10px red;
+.marketing-hero h1 {
+  font-family: 'Creepster', cursive;
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+  margin: 0.5rem 0;
 }
 
-input, button {
-  margin: 10px;
-  padding: 10px;
-  font-size: 1em;
+.marketing-hero .subtitle {
+  color: #aaa;
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0;
+}
+
+/* Forum card */
+.forum-auth-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: 440px;
+  margin: 3rem auto;
+  padding: 2rem;
+  box-shadow: 0 0 30px rgba(255, 0, 64, 0.15);
+}
+
+/* Inputs */
+.forum-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #111;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+.forum-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--glow-color);
+}
+
+textarea.forum-input {
+  resize: vertical;
+}
+
+/* Buttons */
+.forum-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0.5rem 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.forum-btn:hover { opacity: 0.85; }
+
+.forum-btn.forum-btn-secondary {
+  background-color: #333;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.forum-btn.forum-btn-secondary:hover {
+  background-color: #444;
+  opacity: 1;
+}
+
+/* Thread cards */
+.thread-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.thread-card h3 {
+  margin: 0 0 0.5rem;
+  color: var(--accent-color);
+  font-size: 1rem;
+}
+
+.thread-card p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.thread-meta {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.forum-section-title {
+  font-family: 'Creepster', cursive;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+/* Footer */
+.site-footer {
+  background-color: #111;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-top: 2px solid var(--border-color);
+  margin-top: 4rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.site-footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.site-footer a:hover { text-decoration: underline; }
+
+/* Profile */
+.profile-container {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 2rem;
+  box-shadow: 0 0 30px rgba(255, 0, 64, 0.15);
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-family: 'Creepster', cursive;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+}
+
+/* Utilities */
+.btn-center {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+@media (max-width: 767px) {
+  .site-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .marketing-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .forum-auth-card {
+    margin: 2rem 1rem;
+  }
 }

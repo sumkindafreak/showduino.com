@@ -5,9 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Immersive About Me</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; background: #000; }
+    body { margin: 0; background: var(--dark-bg); font-family: 'Orbitron', sans-serif; }
     .about-immersive {
       position: relative;
       overflow: hidden;
@@ -66,8 +67,8 @@
     .section-title {
       font-size: 3rem;
       margin-bottom: 1.5rem;
-      color: #fff;
-      text-shadow: 0 0 12px #ff0000;
+      color: var(--text-color);
+      text-shadow: 0 0 12px var(--accent-color);
       position: relative;
     }
     .section-paragraph {
@@ -80,14 +81,14 @@
       margin-top: 2rem;
       font-size: 1.4rem;
       font-weight: bold;
-      color: #ff4444;
+      color: var(--accent-color);
     }
     .pulse-text {
       animation: pulse 2s infinite ease-in-out;
     }
     @keyframes pulse {
-      0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
-      50% { opacity: 0.6; text-shadow: 0 0 20px #ff5555; }
+      0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent-color); }
+      50% { opacity: 0.6; text-shadow: 0 0 20px var(--accent-color); }
     }
     .glitch-text::before,
     .glitch-text::after {
@@ -95,7 +96,7 @@
       position: absolute;
       left: 0;
       width: 100%;
-      color: #ff0000;
+      color: var(--accent-color);
       z-index: -1;
       animation: glitch 2s infinite alternate;
     }

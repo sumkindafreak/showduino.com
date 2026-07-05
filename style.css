@@ -1,11 +1,11 @@
 
 :root {
-  --dark-bg: #1a1a1a;
-  --panel-bg: #2a2a2a;
-  --border-color: #444;
-  --text-color: #eee;
-  --accent-color: #00ffcc;
-  --glow-color: rgba(0, 255, 204, 0.5);
+  --dark-bg: #0a0a0a;
+  --panel-bg: #1a1a1a;
+  --border-color: #3a1010;
+  --text-color: #f2f2f2;
+  --accent-color: #ff0040;
+  --glow-color: rgba(255, 0, 64, 0.5);
   --error-color: #ff4d4d;
 }
 
@@ -421,7 +421,7 @@ body {
 }
 
 .track-lanes.drop-target {
-  background-color: rgba(0, 255, 204, 0.1);
+  background-color: rgba(255, 0, 64, 0.1);
   border: 2px dashed var(--accent-color);
 }
 
@@ -792,7 +792,7 @@ body {
 }
 
 .terminal-output div[data-level="NET"] {
-  color: #00ffff;
+  color: #ff8080;
 }
 
 /* Audio Manager */
@@ -884,4 +884,293 @@ body {
 .autosave-date {
   font-size: 0.85rem;
   color: #aaa;
+}
+/* ── Marketing Page Shared Components ─────────────────────── */
+
+.site-header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+  padding: 1rem 2rem;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.site-logo {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 15px var(--glow-color);
+  margin: 0;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  font-family: 'Creepster', 'Orbitron', cursive;
+}
+
+.site-nav {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  background-color: var(--accent-color);
+  color: var(--dark-bg);
+}
+
+.site-footer {
+  background-color: #111;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-top: 2px solid var(--border-color);
+  margin-top: 4rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.site-footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+.site-footer .footer-qr {
+  max-height: 80px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--glow-color);
+  margin-bottom: 1rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.marketing-hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
+}
+
+.marketing-hero .hero-logo-img {
+  max-width: 240px;
+  filter: drop-shadow(0 0 20px var(--glow-color));
+  margin-bottom: 1rem;
+}
+
+.marketing-hero h1 {
+  font-family: 'Creepster', cursive;
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+  margin: 0.5rem 0;
+}
+
+.marketing-hero .subtitle {
+  color: #aaa;
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0;
+}
+
+.marketing-section {
+  padding: 3rem 1rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.marketing-section h2 {
+  font-family: 'Creepster', cursive;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+  font-size: 1.8rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.marketing-section p {
+  color: #ccc;
+  line-height: 1.7;
+  margin: 0 0 1rem;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.feature-list li {
+  padding: 0.4rem 0;
+  color: #ddd;
+  font-size: 1rem;
+}
+
+.feature-list li::before {
+  content: '▸ ';
+  color: var(--accent-color);
+}
+
+.section-img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px var(--glow-color);
+  margin: 1.5rem auto;
+  display: block;
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 0.85rem 2rem;
+  background-color: var(--accent-color);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--glow-color);
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-decoration: none;
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 24px var(--glow-color);
+  color: #000;
+}
+
+.btn-center {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+@media (max-width: 767px) {
+  .site-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .marketing-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .marketing-section {
+    padding: 2rem 1rem;
+  }
+}
+
+/* ── HauntSync Forum Components ──────────────────────────── */
+
+.forum-auth-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: 440px;
+  margin: 3rem auto;
+  padding: 2rem;
+  box-shadow: 0 0 30px rgba(255, 0, 64, 0.15);
+}
+
+.forum-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #111;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+.forum-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px var(--glow-color);
+}
+
+textarea.forum-input {
+  resize: vertical;
+}
+
+.forum-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0.5rem 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.forum-btn:hover {
+  opacity: 0.85;
+}
+
+.forum-btn.forum-btn-secondary {
+  background-color: #333;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.forum-btn.forum-btn-secondary:hover {
+  background-color: #444;
+  opacity: 1;
+}
+
+.thread-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.thread-card h3 {
+  margin: 0 0 0.5rem;
+  color: var(--accent-color);
+  font-size: 1rem;
+}
+
+.thread-card p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.thread-meta {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.forum-section-title {
+  font-family: 'Creepster', cursive;
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--glow-color);
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
 }

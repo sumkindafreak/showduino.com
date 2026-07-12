@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsUserDocument(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if ownsUserDocument(userId);
+      allow create: if ownsUserDocument(userId)
+        && !request.resource.data.keys().hasAny([
+          'stripeCustomerId',
+          'subscriptionId',
+          'subscriptionStatus',
+          'subscriptionPlan'
+        ]);
+      allow update: if ownsUserDocument(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName',
+          'photoURL',
+          'preferences',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+
+      match /projects/{projectId} {
+        allow read, create, update, delete: if ownsUserDocument(userId);
+      }
+    }
+
+    match /publicProjects/{projectId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

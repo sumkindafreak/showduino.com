@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Get help with Showduino Studio, HauntSync and Showduino hardware.">
+  <title>Support | Showduino</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html">HauntSync</a>
+      <a href="tools.html">Tools</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html" aria-current="page">Support</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main class="site-main">
+    <section class="page-heading">
+      <span class="badge">HELP CENTRE</span>
+      <h1>Showduino support</h1>
+      <p>Find practical help for Studio, HauntSync, project files and Showduino controller hardware.</p>
+    </section>
+
+    <section class="grid three">
+      <article class="card"><h2>Studio help</h2><p class="muted">Project saving, imports, exports, timelines, devices and offline operation.</p><a class="btn secondary" href="studio.html">Open Studio</a></article>
+      <article class="card"><h2>HauntSync help</h2><p class="muted">Project dashboard, local storage, registered devices and account preparation.</p><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></article>
+      <article class="card"><h2>GitHub issues</h2><p class="muted">Report bugs, request features and follow active development.</p><a class="btn secondary" href="https://github.com/sumkindafreak/showduino.com/issues" target="_blank" rel="noopener noreferrer">Open GitHub</a></article>
+    </section>
+
+    <section class="grid two" style="margin-top: 1rem;">
+      <article class="card">
+        <h2>Common questions</h2>
+        <h3>Does Showduino work offline?</h3>
+        <p class="muted">Yes. Studio project saving, importing, exporting and local HauntSync project management are designed to work without cloud access.</p>
+        <h3>Are payments active?</h3>
+        <p class="muted">No. Stripe and subscription services remain disabled while the website is being completed and tested.</p>
+        <h3>Where are projects stored?</h3>
+        <p class="muted">Until cloud services are enabled, projects are stored in your browser and can be exported as `.shdo` backups.</p>
+      </article>
+
+      <form id="support-form" class="card">
+        <h2>Contact support</h2>
+        <p class="muted">This form opens your email app with the details filled in. No information is uploaded by the website.</p>
+        <div class="form-group"><label for="support-name">Your name</label><input id="support-name" class="form-control" type="text" maxlength="80" required></div>
+        <div class="form-group"><label for="support-email">Your email</label><input id="support-email" class="form-control" type="email" required></div>
+        <div class="form-group"><label for="support-topic">Topic</label><select id="support-topic" class="form-control"><option>Studio</option><option>HauntSync</option><option>Hardware</option><option>Website bug</option><option>Other</option></select></div>
+        <div class="form-group"><label for="support-message">Message</label><textarea id="support-message" class="form-control" rows="7" maxlength="3000" required></textarea></div>
+        <button class="btn" type="submit">Prepare email</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p></footer>
+  <script>
+    document.getElementById('support-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const name = document.getElementById('support-name').value.trim();
+      const email = document.getElementById('support-email').value.trim();
+      const topic = document.getElementById('support-topic').value;
+      const message = document.getElementById('support-message').value.trim();
+      const subject = encodeURIComponent(`Showduino support: ${topic}`);
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`);
+      window.location.href = `mailto:showduino38@gmail.com?subject=${subject}&body=${body}`;
+    });
+  </script>
+</body>
+</html>

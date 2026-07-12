@@ -1,513 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Showduino - Immersive Show Control System</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            overflow-x: hidden;
-        }
-
-        .website-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-            padding: 1rem 2rem;
-            border-bottom: 2px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .website-header h1 {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 15px var(--glow-color);
-            margin: 0;
-            font-weight: bold;
-            letter-spacing: 0.1em;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .nav-link {
-            color: var(--text-color);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .nav-link:hover {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-        }
-
-        .hero-section {
-            min-height: 70vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-            position: relative;
-            overflow: hidden;
-            padding: 4rem 2rem;
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 255, 204, 0.03) 2px,
-                    rgba(0, 255, 204, 0.03) 4px
-                ),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 255, 204, 0.03) 2px,
-                    rgba(0, 255, 204, 0.03) 4px
-                );
-            pointer-events: none;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            max-width: 1200px;
-        }
-
-        .hero-logo {
-            font-size: 4rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
-            margin-bottom: 1rem;
-            font-weight: bold;
-            letter-spacing: 0.1em;
-        }
-
-        @media (max-width: 768px) {
-            .hero-logo {
-                font-size: 2.5rem;
-            }
-        }
-
-        .hero-tagline {
-            font-size: 1.5rem;
-            color: #aaa;
-            margin-bottom: 2rem;
-        }
-
-        .hero-description {
-            font-size: 1.1rem;
-            color: #ccc;
-            margin-bottom: 3rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.8;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .cta-button {
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 2px solid var(--accent-color);
-            border-radius: 10px;
-            color: var(--accent-color);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .cta-button:hover {
-            background: var(--accent-color);
-            color: var(--dark-bg);
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
-            transform: translateY(-3px);
-        }
-
-        .features-section {
-            padding: 4rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            color: var(--accent-color);
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 4rem;
-        }
-
-        .feature-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-title {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            margin-bottom: 1rem;
-        }
-
-        .feature-description {
-            color: #aaa;
-            line-height: 1.6;
-        }
-
-        .applications-section {
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-        }
-
-        .applications-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .app-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .app-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            padding: 2.5rem;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: all 0.3s ease;
-            display: block;
-        }
-
-        .app-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
-            transform: translateY(-5px);
-        }
-
-        .app-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--accent-color);
-        }
-
-        .app-title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: var(--accent-color);
-        }
-
-        .app-description {
-            color: #aaa;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        .app-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .app-features li {
-            padding: 0.5rem 0;
-            color: #ccc;
-        }
-
-        .app-features li:before {
-            content: "✓ ";
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .website-footer {
-            background-color: #1a1a1a;
-            border-top: 1px solid var(--border-color);
-            padding: 2rem;
-            text-align: center;
-            color: #666;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-link {
-            color: #aaa;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-link:hover {
-            color: var(--accent-color);
-        }
-
-        @media (max-width: 768px) {
-            .website-header {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .hero-section {
-                padding: 2rem 1rem;
-            }
-
-            .hero-tagline {
-                font-size: 1.2rem;
-            }
-
-            .hero-description {
-                font-size: 1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .features-grid,
-            .app-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Showduino is an open show-control platform for immersive attractions, escape rooms, theatre and interactive installations.">
+  <title>Showduino | Immersive Show Control</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <style>
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 5rem 1rem;
+    }
+    .hero-inner { width: min(900px, 100%); }
+    .hero h1 { margin: .75rem 0 1rem; font-size: clamp(3rem, 12vw, 7rem); letter-spacing: .08em; color: var(--site-accent); text-shadow: 0 0 40px rgba(0,255,204,.3); }
+    .hero p { max-width: 760px; margin: 0 auto 2rem; color: var(--site-muted); font-size: clamp(1rem, 2.3vw, 1.3rem); line-height: 1.8; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; }
+    .section { padding: 1rem 0 4rem; }
+    .section-heading { max-width: 720px; margin-bottom: 1.5rem; }
+    .section-heading h2 { margin: 0 0 .5rem; font-size: clamp(2rem, 5vw, 3rem); }
+    .feature-icon { font-size: 2rem; }
+    .launch-strip { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+    @media (max-width: 700px) { .launch-strip { flex-direction: column; align-items: stretch; } }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="website-header">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html">HauntSync</a>
+      <a href="tools.html">Tools</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html">Support</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <span class="badge">OPEN SHOW CONTROL PLATFORM</span>
         <h1>SHOWDUINO</h1>
-        <nav class="header-nav">
-            <a href="#features" class="nav-link">Features</a>
-            <a href="#applications" class="nav-link">Applications</a>
-            <a href="aboutme.html" class="nav-link">About</a>
-            <a href="tools.html" class="nav-link">Tools</a>
-            <a href="hauntsync.html" class="nav-link">HauntSync</a>
-            <a href="studio.html" class="nav-link">Studio</a>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-logo">SHOWDUINO</h1>
-            <p class="hero-tagline">Immersive Show Control System</p>
-            <p class="hero-description">
-                Professional Arduino-based control system designed to manage immersive horror experiences, 
-                escape rooms, and interactive installations. Combining multiple microcontrollers to deliver 
-                seamless control of lighting, audio, and environmental effects.
-            </p>
-            <div class="cta-buttons">
-                <a href="studio.html" class="cta-button">🎬 Launch Studio</a>
-                <a href="hauntsync.html" class="cta-button">☁️ Open HauntSync</a>
-            </div>
+        <p>Build, control and manage immersive shows using ESP32 hardware, lighting, audio, relays, sensors and timeline automation — all from one connected platform.</p>
+        <div class="hero-actions">
+          <a class="btn" href="studio.html">Launch Studio</a>
+          <a class="btn secondary" href="hauntsync.html">Open HauntSync</a>
+          <a class="btn secondary" href="account.html">View Account</a>
         </div>
+      </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features-section">
-        <h2 class="section-title">Key Features</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <h3 class="feature-title">Touchscreen Interface</h3>
-                <p class="feature-description">
-                    Interactive ESP32 touchscreen menu with real-time brightness control, 
-                    Bluetooth control, and intuitive icon-based UI.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">💡</div>
-                <h3 class="feature-title">NeoPixel Control</h3>
-                <p class="feature-description">
-                    Advanced NeoPixel displays with group-based brightness adjustment, 
-                    dynamic lighting effects, and seamless DMX integration.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔌</div>
-                <h3 class="feature-title">Relay Management</h3>
-                <p class="feature-description">
-                    Precise relay triggers for dynamic effects, environmental controls, 
-                    and automated sequence execution.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📡</div>
-                <h3 class="feature-title">Wireless Control</h3>
-                <p class="feature-description">
-                    Bluetooth and WiFi connectivity for remote control, 
-                    ESP-NOW mesh networking, and cloud synchronization.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🎵</div>
-                <h3 class="feature-title">Audio Integration</h3>
-                <p class="feature-description">
-                    I2S audio playback with synchronized timing, 
-                    multi-track support, and seamless show integration.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔍</div>
-                <h3 class="feature-title">Diagnostics</h3>
-                <p class="feature-description">
-                    Real-time system monitoring with comprehensive diagnostics, 
-                    temperature sensors, power monitoring, and I/O testing.
-                </p>
-            </div>
+    <div class="site-main" style="padding-top: 0;">
+      <section class="section">
+        <div class="section-heading">
+          <span class="badge">WHAT IT DOES</span>
+          <h2>One system for the whole attraction</h2>
+          <p class="muted">Showduino connects creative show building with reliable embedded control.</p>
         </div>
-    </section>
-
-    <!-- Applications Section -->
-    <section id="applications" class="applications-section">
-        <div class="applications-container">
-            <h2 class="section-title">Applications & Tools</h2>
-            <div class="app-cards">
-                <!-- Showduino Studio -->
-                <a href="studio.html" class="app-card">
-                    <div class="app-icon">🎬</div>
-                    <h3 class="app-title">Showduino Studio</h3>
-                    <p class="app-description">
-                        Professional timeline editor and show builder. Create, edit, and control your shows 
-                        with a full DAW-style interface.
-                    </p>
-                    <ul class="app-features">
-                        <li>Timeline-based show editing</li>
-                        <li>Audio track management</li>
-                        <li>LED sequence designer</li>
-                        <li>DMX channel control</li>
-                        <li>Drag-and-drop workflow</li>
-                        <li>Cloud project sync</li>
-                    </ul>
-                </a>
-
-                <!-- HauntSync -->
-                <a href="hauntsync.html" class="app-card">
-                    <div class="app-icon">☁️</div>
-                    <h3 class="app-title">HauntSync</h3>
-                    <p class="app-description">
-                        Cloud-based subscription management, device control, and social platform 
-                        for the Showduino community.
-                    </p>
-                    <ul class="app-features">
-                        <li>Cloud project synchronization</li>
-                        <li>Multi-device control</li>
-                        <li>Community forum</li>
-                        <li>Show sharing platform</li>
-                        <li>Subscription management</li>
-                        <li>Real-time collaboration</li>
-                    </ul>
-                </a>
-
-                <!-- Hardware Tools -->
-                <a href="tools.html" class="app-card">
-                    <div class="app-icon">🛠️</div>
-                    <h3 class="app-title">Hardware Tools</h3>
-                    <p class="app-description">
-                        Diagnostic tools, configuration utilities, and hardware management 
-                        for your Showduino devices.
-                    </p>
-                    <ul class="app-features">
-                        <li>Device diagnostics</li>
-                        <li>WiFi configuration</li>
-                        <li>Bluetooth pairing</li>
-                        <li>IR remote setup</li>
-                        <li>System testing</li>
-                        <li>Firmware updates</li>
-                    </ul>
-                </a>
-            </div>
+        <div class="grid three">
+          <article class="card"><div class="feature-icon">🎬</div><h3>Timeline show building</h3><p class="muted">Create scenes, cues, lighting changes, audio moments and automated effects in Showduino Studio.</p></article>
+          <article class="card"><div class="feature-icon">📡</div><h3>Distributed control</h3><p class="muted">Coordinate SUE, IAN, touchscreen UI and prop nodes across ESP-NOW, Wi-Fi, UART and DMX.</p></article>
+          <article class="card"><div class="feature-icon">☁️</div><h3>Project management</h3><p class="muted">Manage local projects and device inventories through HauntSync, with cloud syncing prepared for launch.</p></article>
+          <article class="card"><div class="feature-icon">💡</div><h3>Lighting and effects</h3><p class="muted">Control addressable LEDs, relay outputs, PWM effects, DMX fixtures and environmental systems.</p></article>
+          <article class="card"><div class="feature-icon">🎵</div><h3>Synchronized audio</h3><p class="muted">Build timed soundscapes and trigger audio alongside physical effects and lighting.</p></article>
+          <article class="card"><div class="feature-icon">🧰</div><h3>Built for makers</h3><p class="muted">Designed for haunted attractions, escape rooms, immersive theatre, installations and practical effects.</p></article>
         </div>
-    </section>
+      </section>
 
-    <!-- Footer -->
-    <footer class="website-footer">
-        <div class="footer-links">
-            <a href="index.html" class="footer-link">Home</a>
-            <a href="aboutme.html" class="footer-link">About</a>
-            <a href="addons.html" class="footer-link">Add-ons</a>
-            <a href="tools.html" class="footer-link">Tools</a>
-            <a href="https://github.com/sumkindafreak/showduino.com" class="footer-link" target="_blank">GitHub</a>
+      <section class="section">
+        <div class="section-heading">
+          <span class="badge">CORE APPLICATIONS</span>
+          <h2>Build locally. Manage centrally.</h2>
         </div>
-        <p style="margin-top: 1rem; color: #666;">
-            © 2024 Showduino. Professional Show Control System.
-            <br>
-            <a href="https://show-duino.com" style="color: #666; text-decoration: none;">www.show-duino.com</a>
-        </p>
-    </footer>
+        <div class="grid two">
+          <article class="card">
+            <h2>Showduino Studio</h2>
+            <p class="muted">The creative workspace for building and operating show projects. Save locally, import and export `.shdo` files, connect hardware and prepare cloud synchronization.</p>
+            <div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div>
+          </article>
+          <article class="card">
+            <h2>HauntSync</h2>
+            <p class="muted">The project and device dashboard. View saved shows, export backups, manage hardware inventory and prepare projects for future online access.</p>
+            <div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="card launch-strip">
+        <div>
+          <span class="badge">LAUNCH DEVELOPMENT</span>
+          <h2 style="margin: .7rem 0 .35rem;">The website is actively being completed</h2>
+          <p class="muted" style="margin: 0;">Studio and HauntSync already work locally. Accounts and cloud services remain safely disabled until final testing.</p>
+        </div>
+        <a class="btn secondary" href="support.html">Project support</a>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p>
+  </footer>
 </body>
 </html>
-

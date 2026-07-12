@@ -3,8 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Build, control, save and export immersive show projects with Showduino Studio.">
     <title>Showduino Studio</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .studio-project-actions {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .studio-action-btn {
+            min-height: 36px;
+            padding: 0.45rem 0.7rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #333;
+            color: var(--text-color);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .studio-action-btn:hover,
+        .studio-action-btn:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        .show-name {
+            cursor: pointer;
+            border-bottom: 1px dashed transparent;
+        }
+        .show-name:hover,
+        .show-name:focus-visible {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            outline: none;
+        }
+        @media (max-width: 767px) {
+            .studio-project-actions { width: 100%; }
+            .studio-action-btn { flex: 1; }
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -12,19 +50,19 @@
             <div class="sidebar-header">
                 <h1 class="logo">Showduino Studio</h1>
             </div>
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
-                    <li class="active" data-panel="introduction">Introduction</li>
-                    <li data-panel="connect">Connect</li>
-                    <li data-panel="live-control">Live Control</li>
-                    <li data-panel="timeline-editor">Timeline Editor</li>
-                    <li data-panel="playback">Playback</li>
-                    <li data-panel="audio-manager">Audio Manager</li>
-                    <li data-panel="devices">Devices</li>
-                    <li data-panel="diagnostics">Diagnostics</li>
-                    <li data-panel="hauntsync">HauntSync (Cloud)</li>
-                    <li data-panel="settings">Settings</li>
-                    <li data-panel="help">Help</li>
+                    <li class="active" data-panel="introduction" tabindex="0">Introduction</li>
+                    <li data-panel="connect" tabindex="0">Connect</li>
+                    <li data-panel="live-control" tabindex="0">Live Control</li>
+                    <li data-panel="timeline-editor" tabindex="0">Timeline Editor</li>
+                    <li data-panel="playback" tabindex="0">Playback</li>
+                    <li data-panel="audio-manager" tabindex="0">Audio Manager</li>
+                    <li data-panel="devices" tabindex="0">Devices</li>
+                    <li data-panel="diagnostics" tabindex="0">Diagnostics</li>
+                    <li data-panel="hauntsync" tabindex="0">HauntSync (Cloud)</li>
+                    <li data-panel="settings" tabindex="0">Settings</li>
+                    <li data-panel="help" tabindex="0">Help</li>
                 </ul>
             </nav>
         </aside>
@@ -32,18 +70,27 @@
         <main class="main-content">
             <header class="top-bar">
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <a href="index.html" class="back-to-menu-btn">← Back to Menu</a>
-                    <div class="connection-status offline">OFFLINE</div>
+                    <a href="index.html" class="back-to-menu-btn">← Website</a>
+                    <a href="account.html" class="back-to-menu-btn">Account</a>
+                    <div class="connection-status offline" role="status">OFFLINE</div>
                 </div>
+
                 <div class="show-info">
-                    <span class="show-name">Untitled Show</span>
-                    <button class="save-icon">💾</button>
+                    <span class="show-name" role="button" aria-label="Rename show">Untitled Show</span>
+                    <button class="save-icon" type="button" aria-label="Save project" title="Save project">💾</button>
                 </div>
+
+                <div class="studio-project-actions" aria-label="Project actions">
+                    <button id="studio-import-button" class="studio-action-btn" type="button">Import</button>
+                    <button id="studio-export-button" class="studio-action-btn" type="button">Export</button>
+                    <input id="studio-import-file" type="file" accept=".shdo,.json,application/json" hidden>
+                </div>
+
                 <div class="transport-controls">
-                    <button>▶</button>
-                    <button>■</button>
-                    <button>●</button>
-                    <button class="panic">PANIC</button>
+                    <button type="button" aria-label="Play">▶</button>
+                    <button type="button" aria-label="Stop">■</button>
+                    <button type="button" aria-label="Record">●</button>
+                    <button type="button" class="panic">PANIC</button>
                 </div>
                 <div class="system-info">
                     <span class="clock">12:00:00</span>
@@ -52,7 +99,7 @@
             </header>
 
             <div class="workspace">
-                <!-- Panels will be loaded here -->
+                <!-- Panels are loaded by app.js. -->
             </div>
         </main>
 
@@ -62,114 +109,82 @@
                     <span>Logs</span>
                     <div class="terminal-controls">
                         <div class="filters">
-                            <button class="active">ALL</button>
-                            <button>INFO</button>
-                            <button>WARN</button>
-                            <button>ERR</button>
-                            <button>NET</button>
-                            <button>FX</button>
+                            <button class="active" type="button">ALL</button>
+                            <button type="button">INFO</button>
+                            <button type="button">WARN</button>
+                            <button type="button">ERR</button>
+                            <button type="button">NET</button>
+                            <button type="button">FX</button>
                         </div>
-                        <button class="toggle-terminal" onclick="window.toggleTerminal()">▼</button>
+                        <button class="toggle-terminal" type="button" onclick="window.toggleTerminal()">▼</button>
                     </div>
                 </div>
-                <div class="terminal-output"></div>
+                <div class="terminal-output" aria-live="polite"></div>
             </div>
         </footer>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    
+    <script src="config/runtime-config.js"></script>
+    <script src="js/cloud/firebase-service.js"></script>
     <script src="js/api.js"></script>
     <script src="js/shdo_model.js"></script>
     <script src="js/connection_detector.js"></script>
-    <script src="js/firebase_config.js"></script>
-    <script src="js/firebase_auth.js"></script>
-    <script src="js/firebase_sync.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/audio_browser.js"></script>
     <script src="js/dmx_editor.js"></script>
     <script src="js/led_studio.js"></script>
     <script src="js/panels.js"></script>
     <script src="app.js"></script>
-    
+    <script src="js/studio-projects.js"></script>
+
     <script>
-        // Initialize connection detection and Firebase for Studio
         document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize connection detector
             window.connectionDetector = new window.ConnectionDetector();
             await window.connectionDetector.detectMode();
             window.connectionDetector.startMonitoring();
-            
-            // Update connection status UI
+
             const updateConnectionUI = () => {
-                const statusEl = document.querySelector('.connection-status');
-                if (statusEl) {
-                    if (window.connectionDetector.isAPMode()) {
-                        statusEl.className = 'connection-status ap';
-                        statusEl.textContent = 'AP MODE (OFFLINE)';
-                    } else if (window.connectionDetector.isOffline()) {
-                        statusEl.className = 'connection-status offline';
-                        statusEl.textContent = 'OFFLINE';
-                    } else {
-                        statusEl.className = 'connection-status lan';
-                        statusEl.textContent = 'ONLINE';
-                    }
+                const status = document.querySelector('.connection-status');
+                if (!status) return;
+
+                if (window.connectionDetector.isAPMode()) {
+                    status.className = 'connection-status ap';
+                    status.textContent = 'AP MODE';
+                } else if (window.connectionDetector.isOffline()) {
+                    status.className = 'connection-status offline';
+                    status.textContent = 'OFFLINE';
+                } else {
+                    status.className = 'connection-status lan';
+                    status.textContent = window.ShowduinoProjects?.cloudEnabled() ? 'ONLINE + CLOUD' : 'ONLINE';
                 }
             };
+
             updateConnectionUI();
-            setInterval(updateConnectionUI, 5000);
-            
-            // Initialize Firebase only if not in AP mode
-            if (window.connectionDetector.shouldUseFirebase() && 
-                window.FirebaseConfig && typeof firebase !== 'undefined') {
-                
-                await window.FirebaseConfig.initFirebase();
-                
-                // Initialize auth
-                window.firebaseAuth = new window.FirebaseAuth();
-                window.firebaseAuth.init();
-                
-                // Initialize sync
-                window.firebaseSync = new window.FirebaseSync();
-                window.firebaseSync.init();
-                
-                // Process sync queue
-                window.firebaseSync.processSyncQueue();
-                
-                // Listen for auth state changes
-                window.firebaseAuth.onAuthStateChanged((user) => {
-                    if (user) {
-                        console.log('User authenticated in Studio:', user.email);
-                        // Load cloud projects
-                        loadCloudProjects();
-                    }
-                });
-            } else {
-                console.log('Firebase disabled - AP mode or offline');
-            }
-        });
-        
-        async function loadCloudProjects() {
-            if (!window.firebaseSync || !window.firebaseSync.syncEnabled) return;
-            
-            try {
-                const projects = await window.firebaseSync.loadProjects();
-                if (projects && projects.length > 0) {
-                    console.log(`Loaded ${projects.length} projects from cloud`);
-                    // Update project list UI if it exists
-                    if (window.updateProjectList) {
-                        window.updateProjectList(projects);
-                    }
+            window.setInterval(updateConnectionUI, 5000);
+
+            const importButton = document.getElementById('studio-import-button');
+            const exportButton = document.getElementById('studio-export-button');
+            const importFile = document.getElementById('studio-import-file');
+
+            importButton.addEventListener('click', () => importFile.click());
+            exportButton.addEventListener('click', () => {
+                try {
+                    window.ShowduinoProjects.exportCurrentProject();
+                } catch (error) {
+                    window.alert(error.message);
                 }
-            } catch (error) {
-                console.error('Error loading cloud projects:', error);
-            }
-        }
+            });
+
+            importFile.addEventListener('change', async () => {
+                try {
+                    await window.ShowduinoProjects.importProject(importFile.files[0]);
+                } catch (error) {
+                    window.alert(error.message);
+                } finally {
+                    importFile.value = '';
+                }
+            });
+        });
     </script>
 </body>
 </html>
-

@@ -1,771 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>HauntSync - Showduino Community</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .hauntsync-container {
-            min-height: 100vh;
-            background-color: var(--dark-bg);
-            padding: 0;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .hauntsync-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a2a 100%);
-            padding: 0.75rem 1rem;
-            text-align: center;
-            border-bottom: 2px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        @media (max-width: 767px) {
-            .hauntsync-header {
-                padding: 1rem;
-            }
-        }
-
-        .hauntsync-logo {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 15px var(--glow-color);
-            margin: 0;
-            font-weight: bold;
-        }
-
-        @media (max-width: 767px) {
-            .hauntsync-logo {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-            }
-        }
-
-        .hauntsync-nav {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        @media (max-width: 767px) {
-            .hauntsync-nav {
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
-        }
-
-        .nav-button {
-            padding: 0.4rem 1rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 767px) {
-            .nav-button {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        .nav-button:hover,
-        .nav-button.active {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-        }
-
-        .back-link {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            color: var(--accent-color);
-            text-decoration: none;
-            padding: 0.4rem 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 767px) {
-            .back-link {
-                top: 0.75rem;
-                left: 0.75rem;
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        .back-link:hover {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            padding: 1rem;
-        }
-
-        @media (min-width: 1024px) {
-            .main-content {
-                grid-template-columns: 250px 1fr 300px;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .main-content {
-                grid-template-columns: 200px 1fr;
-            }
-            
-            .sidebar-right {
-                grid-column: 1 / -1;
-            }
-        }
-
-        .sidebar-left,
-        .sidebar-right {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-width: 0;
-        }
-        
-        @media (max-width: 767px) {
-            .sidebar-left,
-            .sidebar-right {
-                max-height: 400px;
-                overflow-y: auto;
-            }
-        }
-
-        .forum-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .forum-card,
-        .profile-card,
-        .stats-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1.5rem;
-        }
-
-        .post-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .post-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-color), #00ccaa);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: var(--dark-bg);
-        }
-
-        .post-author {
-            flex: 1;
-        }
-
-        .post-author-name {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1.1rem;
-        }
-
-        .post-meta {
-            font-size: 0.85rem;
-            color: #aaa;
-        }
-
-        .post-content {
-            margin: 1rem 0;
-            line-height: 1.6;
-            color: var(--text-color);
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .action-button {
-            padding: 0.5rem 1rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .action-button:hover {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-        }
-
-        .action-button.liked {
-            background-color: var(--error-color);
-            color: white;
-        }
-
-        .create-post {
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 2px dashed var(--border-color);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .create-post:hover {
-            border-color: var(--accent-color);
-            background-color: rgba(0, 255, 204, 0.05);
-        }
-
-        .create-post-form {
-            display: none;
-        }
-
-        .create-post-form.active {
-            display: block;
-        }
-
-        .create-post-form textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 1rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            font-family: inherit;
-            resize: vertical;
-            margin-bottom: 1rem;
-        }
-
-        .create-post-form select {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            margin-bottom: 1rem;
-        }
-
-        .collapsible-section {
-            background: transparent;
-            border: none;
-            margin-top: 0;
-        }
-
-        .collapsible-header {
-            padding: 1rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-            transition: background-color 0.3s ease;
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-        }
-
-        .collapsible-header:hover {
-            background-color: rgba(0, 255, 204, 0.05);
-        }
-
-        .collapsible-header h3 {
-            margin: 0;
-            color: var(--accent-color);
-            font-size: 1.1rem;
-        }
-
-        .collapsible-toggle {
-            font-size: 1rem;
-            color: var(--accent-color);
-            transition: transform 0.3s ease;
-        }
-
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .collapsible-section.active .collapsible-content {
-            max-height: 2000px;
-        }
-
-        .collapsible-section.active .collapsible-toggle {
-            transform: rotate(180deg);
-        }
-
-        .profile-header {
-            text-align: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-        }
-
-        .profile-avatar-large {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-color), #00ccaa);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 2rem;
-            color: var(--dark-bg);
-            margin: 0 auto 1rem;
-        }
-
-        .profile-name {
-            font-size: 1.3rem;
-            color: var(--accent-color);
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-
-        .profile-tier {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 0.75rem;
-            background-color: #333;
-            border-radius: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #aaa;
-        }
-
-        .category-tag {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin: 0.25rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .category-tag:hover,
-        .category-tag.active {
-            background-color: var(--accent-color);
-            color: var(--dark-bg);
-            border-color: var(--accent-color);
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #333;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar-left,
-            .sidebar-right {
-                order: 3;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage Showduino projects, devices and cloud-ready account features in HauntSync.">
+  <title>HauntSync | Showduino</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <style>
+    .dashboard-shell {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .dashboard-sidebar {
+      position: sticky;
+      top: 88px;
+      display: grid;
+      gap: 1rem;
+    }
+    .dashboard-nav {
+      display: grid;
+      gap: .35rem;
+    }
+    .dashboard-nav a {
+      padding: .75rem .9rem;
+      border-radius: 8px;
+      color: var(--site-text);
+      text-decoration: none;
+    }
+    .dashboard-nav a:hover { background: var(--site-panel-soft); color: var(--site-accent); }
+    .dashboard-content { display: grid; gap: 1rem; min-width: 0; }
+    .dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .stat-card { text-align: center; }
+    .stat-value { display: block; font-size: 2rem; font-weight: 900; color: var(--site-accent); }
+    .dashboard-list { display: grid; gap: .75rem; margin-top: 1rem; }
+    .dashboard-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--site-border);
+      border-radius: 10px;
+      background: #11171c;
+    }
+    .dashboard-item-title { margin-bottom: .35rem; font-weight: 900; }
+    .empty-state { padding: 2rem; text-align: center; border: 1px dashed var(--site-border); border-radius: 10px; }
+    .section-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+    .section-heading h2 { margin-bottom: .35rem; }
+    @media (max-width: 850px) {
+      .dashboard-shell { grid-template-columns: 1fr; }
+      .dashboard-sidebar { position: static; }
+      .dashboard-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .dashboard-stats { grid-template-columns: 1fr; }
+      .dashboard-item, .section-heading { flex-direction: column; align-items: stretch; }
+    }
+  </style>
 </head>
 <body>
-    <div class="hauntsync-container">
-        <div class="hauntsync-header">
-            <a href="index.html" class="back-link">← Home</a>
-            <h1 class="hauntsync-logo">HauntSync</h1>
-            <p style="color: #aaa; margin: 0.25rem 0 0 0; font-size: 0.75rem; display: none;" class="header-subtitle">Showduino Community Forum</p>
-            
-            <style>
-                @media (max-width: 767px) {
-                    .header-subtitle {
-                        display: block !important;
-                    }
-                }
-            </style>
-            <div class="hauntsync-nav">
-                <a href="#" class="nav-button active" onclick="showSection('forum'); return false;">Forum</a>
-                <a href="#" class="nav-button" onclick="showSection('subscription'); return false;">Subscription</a>
-                <a href="#" class="nav-button" onclick="showSection('profile'); return false;">My Profile</a>
+  <header class="site-header">
+    <a class="site-brand" href="index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html" aria-current="page">HauntSync</a>
+      <a href="tools.html">Tools</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main class="site-main">
+    <section class="page-heading">
+      <span class="badge">PROJECT HUB</span>
+      <h1>HauntSync</h1>
+      <p>Your workspace for projects, registered Showduino hardware and cloud-ready account features.</p>
+    </section>
+
+    <div id="hauntsync-status" class="status-banner" role="status" aria-live="polite">Loading HauntSync…</div>
+
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <article class="card">
+          <span class="badge">WORKSPACE</span>
+          <h2 id="account-name" style="margin-top: 1rem;">Local workspace</h2>
+          <p id="account-email" class="muted">Projects and devices are stored in this browser.</p>
+          <a id="account-link" class="btn secondary" href="account.html">Open account</a>
+        </article>
+
+        <nav class="card dashboard-nav" aria-label="HauntSync sections">
+          <a href="#overview">Overview</a>
+          <a href="#projects">Projects</a>
+          <a href="#devices">Devices</a>
+          <a href="studio.html">Open Studio</a>
+        </nav>
+      </aside>
+
+      <div class="dashboard-content">
+        <section id="overview" class="dashboard-stats">
+          <article class="card stat-card">
+            <span id="project-count" class="stat-value">0</span>
+            <span class="muted">Projects</span>
+          </article>
+          <article class="card stat-card">
+            <span id="device-count" class="stat-value">0</span>
+            <span class="muted">Devices</span>
+          </article>
+          <article class="card stat-card">
+            <span id="cloud-count" class="stat-value">Off</span>
+            <span class="muted">Cloud status</span>
+          </article>
+        </section>
+
+        <section id="projects" class="card">
+          <div class="section-heading">
+            <div>
+              <h2>Your projects</h2>
+              <p class="muted" style="margin: 0;">Projects saved in Studio appear here automatically.</p>
             </div>
-        </div>
+            <a class="btn" href="studio.html">Create a show</a>
+          </div>
+          <div id="project-list" class="dashboard-list"></div>
+        </section>
 
-        <!-- Forum Section -->
-        <div id="section-forum" class="section-content">
-            <div class="main-content">
-                <div class="sidebar-left">
-                    <div class="forum-card">
-                        <h3 style="color: var(--accent-color); margin-top: 0;">Categories</h3>
-                        <div class="category-list">
-                            <div class="category-tag active" onclick="filterCategory('all')">All Posts</div>
-                            <div class="category-tag" onclick="filterCategory('general')">General Discussion</div>
-                            <div class="category-tag" onclick="filterCategory('shows')">Show Sharing</div>
-                            <div class="category-tag" onclick="filterCategory('tech')">Technical Support</div>
-                            <div class="category-tag" onclick="filterCategory('ideas')">Ideas & Requests</div>
-                            <div class="category-tag" onclick="filterCategory('projects')">Projects</div>
-                        </div>
-                    </div>
-
-                    <div class="forum-card">
-                        <h3 style="color: var(--accent-color); margin-top: 0;">Trending</h3>
-                        <div id="trending-posts"></div>
-                    </div>
-                </div>
-
-                <div class="forum-content">
-                    <input type="text" class="search-box" placeholder="Search posts..." id="search-input" onkeyup="searchPosts()">
-
-                    <div class="create-post" onclick="toggleCreatePost()">
-                        <div style="text-align: center; color: var(--accent-color);">
-                            <strong>+ Create New Post</strong>
-                            <p style="color: #aaa; margin-top: 0.5rem; font-size: 0.9rem;">Share your shows, ask questions, or start a discussion</p>
-                        </div>
-                    </div>
-
-                    <div class="create-post-form" id="create-post-form">
-                        <select id="post-category">
-                            <option value="general">General Discussion</option>
-                            <option value="shows">Show Sharing</option>
-                            <option value="tech">Technical Support</option>
-                            <option value="ideas">Ideas & Requests</option>
-                            <option value="projects">Projects</option>
-                        </select>
-                        <textarea id="post-content" placeholder="What's on your mind?"></textarea>
-                        <div style="display: flex; gap: 1rem;">
-                            <button class="action-button" onclick="submitPost()">Post</button>
-                            <button class="action-button" onclick="toggleCreatePost()" style="background-color: #555;">Cancel</button>
-                        </div>
-                    </div>
-
-                    <div id="posts-container"></div>
-                </div>
-
-                <div class="sidebar-right">
-                    <div id="auth-section"></div>
-                    
-                    <div class="profile-card">
-                        <div class="profile-header">
-                            <div class="profile-avatar-large" id="user-avatar-large">U</div>
-                            <div class="profile-name" id="user-name-display">User</div>
-                            <div class="profile-tier" id="user-tier-badge">FREE</div>
-                        </div>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-value" id="user-posts-count">0</div>
-                                <div class="stat-label">Posts</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="user-likes-count">0</div>
-                                <div class="stat-label">Likes</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="user-followers-count">0</div>
-                                <div class="stat-label">Followers</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="user-following-count">0</div>
-                                <div class="stat-label">Following</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="collapsible-section">
-                        <div class="collapsible-header" onclick="toggleCollapsible('subscription-widget')">
-                            <h3>Subscription</h3>
-                            <span class="collapsible-toggle">▼</span>
-                        </div>
-                        <div class="collapsible-content">
-                            <div style="padding: 1rem;">
-                                <div id="subscription-status-widget"></div>
-                                <button class="action-button" style="width: 100%; margin-top: 1rem;" onclick="showSection('subscription')">Manage Subscription</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="collapsible-section">
-                        <div class="collapsible-header" onclick="toggleCollapsible('online-users')">
-                            <h3>Online Users</h3>
-                            <span class="collapsible-toggle">▼</span>
-                        </div>
-                        <div class="collapsible-content">
-                            <div style="padding: 1rem;" id="online-users-list">
-                                <p style="color: #aaa; text-align: center;">Loading...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section id="devices" class="card">
+          <div class="section-heading">
+            <div>
+              <h2>Registered devices</h2>
+              <p class="muted" style="margin: 0;">Maintain a local inventory of SUE, IAN, UI and prop controllers.</p>
             </div>
-        </div>
+          </div>
 
-        <!-- Subscription Section -->
-        <div id="section-subscription" class="section-content" style="display: none; padding: 2rem;">
-            <!-- Subscription content will be loaded here -->
-        </div>
+          <form id="device-form" class="grid three" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label for="device-name">Device name</label>
+              <input id="device-name" class="form-control" type="text" maxlength="60" placeholder="Main SUE" required>
+            </div>
+            <div class="form-group">
+              <label for="device-type">Device type</label>
+              <select id="device-type" class="form-control">
+                <option>SUE Controller</option>
+                <option>IAN Zone Node</option>
+                <option>Showduino UI</option>
+                <option>Prop Controller</option>
+                <option>Lighting Node</option>
+                <option>Audio Node</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="device-identifier">Identifier</label>
+              <input id="device-identifier" class="form-control" type="text" maxlength="80" placeholder="MAC, serial or nickname" required>
+            </div>
+            <div class="button-row" style="grid-column: 1 / -1;">
+              <button class="btn" type="submit">Register device</button>
+            </div>
+          </form>
 
-        <!-- Profile Section -->
-        <div id="section-profile" class="section-content" style="display: none; padding: 2rem;">
-            <!-- Profile editing content will be loaded here -->
-        </div>
+          <div id="device-list" class="dashboard-list"></div>
+        </section>
+
+        <section class="card">
+          <span class="badge">COMING ONLINE LATER</span>
+          <h2 style="margin-top: 1rem;">Cloud synchronization</h2>
+          <p class="muted">The dashboard is already prepared for Firebase-backed project synchronization. Until launch, local projects remain fully functional without transmitting data or initialising payment services.</p>
+        </section>
+      </div>
     </div>
+  </main>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    
-    <script src="js/firebase_config.js"></script>
-    <script src="js/firebase_auth.js"></script>
-    <script src="js/firebase_sync.js"></script>
-    <script src="js/paypal_config.js"></script>
-    <script src="js/paypal_integration.js"></script>
-    <script src="js/forum.js"></script>
-    
-    <script>
-        // Initialize Firebase when page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize Firebase
-            if (window.FirebaseConfig && typeof firebase !== 'undefined') {
-                window.FirebaseConfig.initFirebase();
-                
-                // Initialize auth
-                window.firebaseAuth = new window.FirebaseAuth();
-                window.firebaseAuth.init();
-                
-                // Initialize sync
-                window.firebaseSync = new window.FirebaseSync();
-                window.firebaseSync.init();
-            }
-            
-            // Initialize PayPal integration
-            if (window.PayPalConfig && window.PayPalIntegration) {
-                const config = window.PayPalConfig;
-                
-                // Only initialize if Client ID is configured
-                if (config.clientId && config.clientId !== 'YOUR_PAYPAL_CLIENT_ID') {
-                    try {
-                        window.paypalIntegration = new window.PayPalIntegration();
-                        await window.paypalIntegration.init(config.clientId, config.environment);
-                        
-                        // Set plan IDs
-                        if (config.plans.pro && config.plans.enterprise) {
-                            window.paypalIntegration.setPlanIds(config.plans.pro, config.plans.enterprise);
-                        }
-                        
-                        console.log('PayPal integration initialized');
-                    } catch (error) {
-                        console.error('Failed to initialize PayPal:', error);
-                    }
-                } else {
-                    console.warn('PayPal Client ID not configured. Please update js/paypal_config.js');
-                }
-            }
-                
-                // Check auth state and update UI
-                window.firebaseAuth.onAuthStateChanged((user) => {
-                    if (user) {
-                        updateAuthUI(user);
-                        // Load synced posts
-                        if (window.firebaseSync) {
-                            window.firebaseSync.loadPosts().then(posts => {
-                                if (posts && posts.length > 0) {
-                                    // Merge with local posts
-                                    if (window.loadPosts && typeof window.loadPosts === 'function') {
-                                        // Update forum posts
-                                    }
-                                }
-                            });
-                        }
-                    } else {
-                        updateAuthUI(null);
-                    }
-                });
-            }
-        });
-        
-        function updateAuthUI(user) {
-            const authSection = document.getElementById('auth-section');
-            if (!authSection) return;
-            
-            if (user) {
-                authSection.innerHTML = `
-                    <div style="padding: 1rem; background-color: #333; border-radius: 5px; margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: bold; color: var(--accent-color);">${user.email || user.displayName}</div>
-                                <div style="font-size: 0.8rem; color: #aaa;">Signed in</div>
-                            </div>
-                            <button onclick="signOut()" class="action-button">Sign Out</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                authSection.innerHTML = `
-                    <div style="padding: 1rem; background-color: #333; border-radius: 5px; margin-bottom: 1rem;">
-                        <h3 style="color: var(--accent-color); margin-top: 0;">Sign In / Sign Up</h3>
-                        <div style="display: grid; gap: 1rem;">
-                            <input type="email" id="auth-email" placeholder="Email" style="padding: 0.75rem; background-color: #222; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px;">
-                            <input type="password" id="auth-password" placeholder="Password" style="padding: 0.75rem; background-color: #222; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px;">
-                            <input type="text" id="auth-username" placeholder="Username (for sign up)" style="padding: 0.75rem; background-color: #222; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px;">
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button onclick="signIn()" class="action-button" style="flex: 1;">Sign In</button>
-                                <button onclick="signUp()" class="action-button" style="flex: 1;">Sign Up</button>
-                            </div>
-                            <button onclick="signInWithGoogle()" class="action-button" style="width: 100%; background-color: #4285f4;">Sign in with Google</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        
-        async function signIn() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            
-            if (!email || !password) {
-                alert('Please enter email and password');
-                return;
-            }
-            
-            try {
-                await window.firebaseAuth.signIn(email, password);
-                alert('Signed in successfully!');
-            } catch (error) {
-                alert('Sign in failed: ' + error.message);
-            }
-        }
-        
-        async function signUp() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const username = document.getElementById('auth-username').value;
-            
-            if (!email || !password) {
-                alert('Please enter email and password');
-                return;
-            }
-            
-            if (!username) {
-                alert('Please enter a username');
-                return;
-            }
-            
-            try {
-                await window.firebaseAuth.signUp(email, password, username);
-                alert('Account created successfully!');
-            } catch (error) {
-                alert('Sign up failed: ' + error.message);
-            }
-        }
-        
-        async function signInWithGoogle() {
-            try {
-                await window.firebaseAuth.signInWithGoogle();
-                alert('Signed in with Google!');
-            } catch (error) {
-                alert('Google sign in failed: ' + error.message);
-            }
-        }
-        
-        async function signOut() {
-            try {
-                await window.firebaseAuth.signOut();
-                alert('Signed out successfully');
-            } catch (error) {
-                alert('Sign out failed: ' + error.message);
-            }
-        }
-    </script>
+  <footer class="site-footer">
+    <p>© 2026 Showduino · HauntSync project workspace.</p>
+  </footer>
+
+  <script src="config/runtime-config.js"></script>
+  <script src="js/cloud/firebase-service.js"></script>
+  <script src="js/hauntsync-dashboard.js"></script>
 </body>
 </html>

@@ -8,50 +8,20 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/studio-daw.css">
     <link rel="stylesheet" href="css/studio-inspector.css">
+    <link rel="stylesheet" href="css/studio-timeline-mixer.css">
     <style>
-        .studio-project-actions {
-            display: flex;
-            gap: 0.35rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .studio-action-btn {
-            min-height: 36px;
-            padding: 0.45rem 0.7rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background: #333;
-            color: var(--text-color);
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .studio-action-btn:hover,
-        .studio-action-btn:focus-visible {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-        .show-name {
-            cursor: pointer;
-            border-bottom: 1px dashed transparent;
-        }
-        .show-name:hover,
-        .show-name:focus-visible {
-            color: var(--accent-color);
-            border-bottom-color: var(--accent-color);
-            outline: none;
-        }
-        @media (max-width: 767px) {
-            .studio-project-actions { width: 100%; }
-            .studio-action-btn { flex: 1; }
-        }
+        .studio-project-actions { display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; }
+        .studio-action-btn { min-height:36px; padding:.45rem .7rem; border:1px solid var(--border-color); border-radius:5px; background:#333; color:var(--text-color); cursor:pointer; text-decoration:none; }
+        .studio-action-btn:hover,.studio-action-btn:focus-visible { border-color:var(--accent-color); color:var(--accent-color); }
+        .show-name { cursor:pointer; border-bottom:1px dashed transparent; }
+        .show-name:hover,.show-name:focus-visible { color:var(--accent-color); border-bottom-color:var(--accent-color); outline:none; }
+        @media (max-width:767px){ .studio-project-actions{width:100%}.studio-action-btn{flex:1} }
     </style>
 </head>
 <body>
     <div class="app-container">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1 class="logo">Showduino Studio</h1>
-            </div>
+            <div class="sidebar-header"><h1 class="logo">Showduino Studio</h1></div>
             <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
                     <li class="active" data-panel="introduction" tabindex="0">Introduction</li>
@@ -68,55 +38,39 @@
                 </ul>
             </nav>
         </aside>
-
         <main class="main-content">
             <header class="top-bar">
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
                     <a href="index.html" class="back-to-menu-btn">← Website</a>
                     <a href="account.html" class="back-to-menu-btn">Account</a>
                     <div class="connection-status offline" role="status">OFFLINE</div>
                 </div>
-
                 <div class="show-info">
                     <span class="show-name" role="button" aria-label="Rename show">Untitled Show</span>
                     <button class="save-icon" type="button" aria-label="Save project" title="Save project">💾</button>
                 </div>
-
                 <div class="studio-project-actions" aria-label="Project actions">
                     <button id="studio-import-button" class="studio-action-btn" type="button">Import</button>
                     <button id="studio-export-button" class="studio-action-btn" type="button">Export</button>
                     <input id="studio-import-file" type="file" accept=".shdo,.json,application/json" hidden>
                 </div>
-
                 <div class="transport-controls">
                     <button type="button" aria-label="Play">▶</button>
                     <button type="button" aria-label="Stop">■</button>
                     <button type="button" aria-label="Record">●</button>
                     <button type="button" class="panic">PANIC</button>
                 </div>
-                <div class="system-info">
-                    <span class="clock">12:00:00</span>
-                    <span class="latency">0ms</span>
-                </div>
+                <div class="system-info"><span class="clock">12:00:00</span><span class="latency">0ms</span></div>
             </header>
-
-            <div class="workspace">
-                <!-- Panels are loaded by app.js. -->
-            </div>
+            <div class="workspace"><!-- Panels are loaded by app.js. --></div>
         </main>
-
         <footer class="bottom-dock collapsed">
             <div class="terminal">
                 <div class="terminal-header">
                     <span>Logs</span>
                     <div class="terminal-controls">
                         <div class="filters">
-                            <button class="active" type="button">ALL</button>
-                            <button type="button">INFO</button>
-                            <button type="button">WARN</button>
-                            <button type="button">ERR</button>
-                            <button type="button">NET</button>
-                            <button type="button">FX</button>
+                            <button class="active" type="button">ALL</button><button type="button">INFO</button><button type="button">WARN</button><button type="button">ERR</button><button type="button">NET</button><button type="button">FX</button>
                         </div>
                         <button class="toggle-terminal" type="button" onclick="window.toggleTerminal()">▼</button>
                     </div>
@@ -125,7 +79,6 @@
             </div>
         </footer>
     </div>
-
     <script src="config/runtime-config.js"></script>
     <script src="js/cloud/firebase-service.js"></script>
     <script src="js/api.js"></script>
@@ -134,60 +87,33 @@
     <script src="js/timeline.js"></script>
     <script src="js/timeline-fx-daw.js"></script>
     <script src="js/timeline-professional-inspector.js"></script>
+    <script src="js/timeline-mixer.js"></script>
     <script src="js/audio_browser.js"></script>
     <script src="js/dmx_editor.js"></script>
     <script src="js/led_studio.js"></script>
     <script src="js/panels.js"></script>
     <script src="app.js"></script>
     <script src="js/studio-projects.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             window.connectionDetector = new window.ConnectionDetector();
             await window.connectionDetector.detectMode();
             window.connectionDetector.startMonitoring();
-
             const updateConnectionUI = () => {
                 const status = document.querySelector('.connection-status');
                 if (!status) return;
-
-                if (window.connectionDetector.isAPMode()) {
-                    status.className = 'connection-status ap';
-                    status.textContent = 'AP MODE';
-                } else if (window.connectionDetector.isOffline()) {
-                    status.className = 'connection-status offline';
-                    status.textContent = 'OFFLINE';
-                } else {
-                    status.className = 'connection-status lan';
-                    status.textContent = window.ShowduinoProjects?.cloudEnabled() ? 'ONLINE + CLOUD' : 'ONLINE';
-                }
+                if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='AP MODE'; }
+                else if (window.connectionDetector.isOffline()) { status.className='connection-status offline'; status.textContent='OFFLINE'; }
+                else { status.className='connection-status lan'; status.textContent=window.ShowduinoProjects?.cloudEnabled()?'ONLINE + CLOUD':'ONLINE'; }
             };
-
             updateConnectionUI();
-            window.setInterval(updateConnectionUI, 5000);
-
-            const importButton = document.getElementById('studio-import-button');
-            const exportButton = document.getElementById('studio-export-button');
-            const importFile = document.getElementById('studio-import-file');
-
-            importButton.addEventListener('click', () => importFile.click());
-            exportButton.addEventListener('click', () => {
-                try {
-                    window.ShowduinoProjects.exportCurrentProject();
-                } catch (error) {
-                    window.alert(error.message);
-                }
-            });
-
-            importFile.addEventListener('change', async () => {
-                try {
-                    await window.ShowduinoProjects.importProject(importFile.files[0]);
-                } catch (error) {
-                    window.alert(error.message);
-                } finally {
-                    importFile.value = '';
-                }
-            });
+            window.setInterval(updateConnectionUI,5000);
+            const importButton=document.getElementById('studio-import-button');
+            const exportButton=document.getElementById('studio-export-button');
+            const importFile=document.getElementById('studio-import-file');
+            importButton.addEventListener('click',()=>importFile.click());
+            exportButton.addEventListener('click',()=>{ try{window.ShowduinoProjects.exportCurrentProject();}catch(error){window.alert(error.message);} });
+            importFile.addEventListener('change',async()=>{ try{await window.ShowduinoProjects.importProject(importFile.files[0]);}catch(error){window.alert(error.message);}finally{importFile.value='';} });
         });
     </script>
 </body>

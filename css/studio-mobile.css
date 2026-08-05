@@ -3,8 +3,21 @@
 .mobile-menu-button,
 .mobile-sidebar-close,
 .mobile-action-bar,
-.mobile-sidebar-overlay {
+.mobile-sidebar-overlay,
+.mobile-track-picker {
   display: none;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 @media (max-width: 767px) {
@@ -199,6 +212,7 @@
     overscroll-behavior-x: contain;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
   }
 
   .timeline-editor .tl-toolbar::-webkit-scrollbar {
@@ -208,30 +222,30 @@
   .timeline-editor .tl-toolbar > *,
   .timeline-editor .btn-toolbar {
     flex: 0 0 auto;
+    scroll-snap-align: start;
   }
 
   .timeline-editor .btn-toolbar {
     min-width: 44px;
     min-height: 44px;
-    padding: .55rem .65rem;
+    padding: .55rem .65rem !important;
   }
 
   .timeline-editor .daw-shortcuts {
     display: none;
   }
 
-  .timeline-editor .tl-main,
-  .timeline-editor .tl-body,
-  .timeline-editor .tl-workspace {
+  /* Actual generated timeline DOM names. */
+  .timeline-editor .timeline-main {
     min-width: 0 !important;
     min-height: 0 !important;
     overflow: hidden !important;
   }
 
   .timeline-editor .tl-left {
-    width: 104px !important;
-    min-width: 104px !important;
-    max-width: 104px !important;
+    width: 112px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
     z-index: 4;
   }
 
@@ -239,25 +253,58 @@
     display: none !important;
   }
 
-  .timeline-editor .tl-track-header,
   .timeline-editor .tl-track-list-header {
-    min-width: 104px !important;
+    width: 112px !important;
+    min-width: 112px !important;
+    padding: 0 7px !important;
+  }
+
+  .timeline-editor .tl-track-list {
+    overflow-x: hidden !important;
+    scrollbar-width: none;
+  }
+
+  .timeline-editor .tl-track-list::-webkit-scrollbar {
+    display: none;
   }
 
   .timeline-editor .tl-track-header,
   .timeline-editor .tl-track-row {
-    min-height: 56px !important;
+    min-height: 60px !important;
+    height: 60px !important;
   }
 
-  .timeline-editor .tl-scroll,
-  .timeline-editor .tl-center,
-  .timeline-editor .tl-timeline,
-  .timeline-editor .tl-ruler-scroll {
+  .timeline-editor .tl-track-header {
+    padding: 5px !important;
+  }
+
+  .timeline-editor .tl-track-header button {
+    min-width: 24px;
+    min-height: 24px;
+    padding: 2px 4px !important;
+  }
+
+  .timeline-editor .tl-right {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .timeline-editor .tl-canvas-scroll {
     min-width: 0 !important;
     overflow-x: auto !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    touch-action: pan-x pan-y;
+  }
+
+  .timeline-editor .tl-ruler {
+    touch-action: pan-x;
+  }
+
+  .timeline-editor .tl-clip {
+    min-height: 40px !important;
+    touch-action: none;
   }
 
   .timeline-editor .tl-inspector {
@@ -265,14 +312,26 @@
     inset: auto 0 64px 0 !important;
     z-index: 1300 !important;
     width: 100% !important;
+    min-width: 0 !important;
     max-width: none !important;
     max-height: min(68dvh, 620px);
+    padding: 14px 14px calc(18px + env(safe-area-inset-bottom)) !important;
     border: 1px solid var(--daw-border, #394550);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -18px 45px rgba(0, 0, 0, .62);
     overflow-y: auto;
     transform: translateY(calc(100% + 80px));
     transition: transform .22s ease;
+  }
+
+  .timeline-editor .tl-inspector::before {
+    content: '';
+    display: block;
+    width: 42px;
+    height: 4px;
+    margin: -5px auto 12px;
+    border-radius: 999px;
+    background: #65717c;
   }
 
   .timeline-editor .tl-inspector.inspector-open {
@@ -321,5 +380,127 @@
   .mobile-action-bar .mobile-action-icon {
     font-size: 1.25rem;
     line-height: 1;
+  }
+
+  .mobile-track-picker {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 1400;
+    display: block;
+    max-height: min(78dvh, 700px);
+    padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
+    border: 1px solid var(--daw-border, #394550);
+    border-radius: 18px 18px 0 0;
+    background: #182028;
+    box-shadow: 0 -22px 55px rgba(0, 0, 0, .72);
+    overflow-y: auto;
+    transform: translateY(105%);
+    transition: transform .22s ease;
+  }
+
+  .mobile-track-picker.open {
+    transform: translateY(0);
+  }
+
+  .mobile-sheet-handle {
+    width: 44px;
+    height: 4px;
+    margin: 2px auto 12px;
+    border-radius: 999px;
+    background: #65717c;
+  }
+
+  .mobile-sheet-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .mobile-sheet-heading strong {
+    display: block;
+    color: #fff;
+    font-size: 1rem;
+  }
+
+  .mobile-sheet-heading span {
+    display: block;
+    margin-top: 2px;
+    color: #8f9ca7;
+    font-size: .75rem;
+  }
+
+  .mobile-sheet-close {
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid #3a4651;
+    border-radius: 9px;
+    background: #222b34;
+    color: #fff;
+  }
+
+  .mobile-track-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-track-option {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-height: 72px;
+    padding: 9px;
+    border: 1px solid #394550;
+    border-radius: 11px;
+    background: #202a33;
+    color: #f3f6f8;
+    text-align: left;
+  }
+
+  .mobile-track-option:active,
+  .mobile-track-option:focus-visible {
+    border-color: var(--accent-color);
+    background: rgba(0, 255, 204, .1);
+    outline: none;
+  }
+
+  .mobile-track-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: #111820;
+    font-size: 1.15rem;
+  }
+
+  .mobile-track-option strong,
+  .mobile-track-option small {
+    display: block;
+  }
+
+  .mobile-track-option strong {
+    font-size: .8rem;
+  }
+
+  .mobile-track-option small {
+    margin-top: 2px;
+    color: #8f9ca7;
+    font-size: .62rem;
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 380px) {
+  .transport-controls .panic {
+    min-width: 52px;
+    padding-inline: .3rem;
+  }
+
+  .mobile-track-grid {
+    grid-template-columns: 1fr;
   }
 }

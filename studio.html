@@ -21,10 +21,10 @@
 </head>
 <body>
     <div class="app-container">
-        <aside id="studio-sidebar" class="sidebar" aria-label="Studio navigation drawer">
+        <aside class="sidebar" id="studio-sidebar" aria-label="Studio navigation">
             <div class="sidebar-header">
                 <h1 class="logo">Showduino Studio</h1>
-                <button id="mobile-sidebar-close" class="mobile-sidebar-close" type="button" aria-label="Close navigation">×</button>
+                <button id="mobile-sidebar-close" class="mobile-sidebar-close" type="button" aria-label="Close navigation">✕</button>
             </div>
             <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
@@ -42,9 +42,7 @@
                 </ul>
             </nav>
         </aside>
-
         <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" aria-hidden="true"></div>
-
         <main class="main-content">
             <header class="top-bar">
                 <button id="mobile-menu-button" class="mobile-menu-button" type="button" aria-label="Open navigation" aria-controls="studio-sidebar" aria-expanded="false">☰</button>
@@ -72,7 +70,6 @@
             </header>
             <div class="workspace"><!-- Panels are loaded by app.js. --></div>
         </main>
-
         <footer class="bottom-dock collapsed">
             <div class="terminal">
                 <div class="terminal-header">
@@ -87,15 +84,13 @@
                 <div class="terminal-output" aria-live="polite"></div>
             </div>
         </footer>
-
-        <nav class="mobile-action-bar" aria-label="Timeline mobile actions">
-            <button id="mobile-add-track" type="button"><span class="mobile-action-icon">＋</span><span>Add</span></button>
-            <button id="mobile-library" type="button"><span class="mobile-action-icon">▦</span><span>Library</span></button>
-            <button id="mobile-inspector" type="button"><span class="mobile-action-icon">⌁</span><span>Inspector</span></button>
-            <button id="mobile-more" type="button"><span class="mobile-action-icon">•••</span><span>More</span></button>
+        <nav class="mobile-action-bar" aria-label="Timeline tools">
+            <button id="mobile-add-track" type="button" aria-label="Add a track"><span class="mobile-action-icon">＋</span><span>Add</span></button>
+            <button id="mobile-library" type="button" aria-label="Open effects library" aria-expanded="false"><span class="mobile-action-icon">▦</span><span>Library</span></button>
+            <button id="mobile-inspector" type="button" aria-label="Open clip inspector" aria-expanded="false"><span class="mobile-action-icon">☷</span><span>Inspector</span></button>
+            <button id="mobile-more" type="button" aria-label="Show more timeline tools"><span class="mobile-action-icon">•••</span><span>More</span></button>
         </nav>
     </div>
-
     <script src="config/runtime-config.js"></script>
     <script src="js/cloud/firebase-service.js"></script>
     <script src="js/api.js"></script>

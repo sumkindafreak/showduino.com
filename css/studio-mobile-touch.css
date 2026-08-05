@@ -1,0 +1,138 @@
+/* Showduino Studio — mobile clip interaction affordances */
+
+.mobile-clip-actions {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  body.mobile-clip-gesture {
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  .timeline-editor .tl-clip::before,
+  .timeline-editor .tl-clip::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 18px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .timeline-editor .tl-clip::before {
+    left: 0;
+    border-left: 3px solid rgba(255, 255, 255, .7);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .timeline-editor .tl-clip::after {
+    right: 0;
+    border-right: 3px solid rgba(255, 255, 255, .7);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .timeline-editor .tl-clip.mobile-clip-armed {
+    filter: brightness(1.12);
+    outline: 2px solid rgba(0, 255, 204, .75);
+  }
+
+  .timeline-editor .tl-clip.mobile-clip-manipulating {
+    z-index: 500 !important;
+    opacity: .94;
+    outline: 2px solid #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .7), 0 0 0 3px rgba(0, 255, 204, .22);
+  }
+
+  .timeline-editor .tl-clip.mobile-clip-selected {
+    outline: 2px solid #fff;
+  }
+
+  .mobile-clip-actions {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 1500;
+    display: block;
+    padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
+    border: 1px solid var(--daw-border, #394550);
+    border-radius: 18px 18px 0 0;
+    background: #182028;
+    box-shadow: 0 -22px 55px rgba(0, 0, 0, .72);
+    transform: translateY(105%);
+    transition: transform .22s ease;
+  }
+
+  .mobile-clip-actions.open {
+    transform: translateY(0);
+  }
+
+  .mobile-clip-actions-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .mobile-clip-actions-title strong,
+  .mobile-clip-actions-title span {
+    display: block;
+  }
+
+  .mobile-clip-actions-title strong {
+    color: #fff;
+    font-size: 1rem;
+  }
+
+  .mobile-clip-actions-title span {
+    margin-top: 2px;
+    color: #8f9ca7;
+    font-size: .75rem;
+  }
+
+  .mobile-clip-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .mobile-clip-actions-grid button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 76px;
+    border: 1px solid #394550;
+    border-radius: 11px;
+    background: #202a33;
+    color: #f3f6f8;
+  }
+
+  .mobile-clip-actions-grid button > span {
+    font-size: 1.25rem;
+  }
+
+  .mobile-clip-actions-grid button > strong {
+    font-size: .75rem;
+  }
+
+  .mobile-clip-actions-grid button:active,
+  .mobile-clip-actions-grid button:focus-visible {
+    border-color: var(--accent-color);
+    background: rgba(0, 255, 204, .1);
+    outline: none;
+  }
+
+  .mobile-clip-actions-grid button.danger {
+    border-color: rgba(255, 77, 77, .45);
+    color: #ff8a8a;
+  }
+
+  .mobile-clip-actions-grid button.danger:active,
+  .mobile-clip-actions-grid button.danger:focus-visible {
+    border-color: #ff4d4d;
+    background: rgba(255, 77, 77, .12);
+  }
+}

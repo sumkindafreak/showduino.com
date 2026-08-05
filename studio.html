@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="Build, control, save and export immersive show projects with Showduino Studio.">
     <title>Showduino Studio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/studio-daw.css">
     <link rel="stylesheet" href="css/studio-inspector.css">
     <link rel="stylesheet" href="css/studio-timeline-mixer.css">
+    <link rel="stylesheet" href="css/studio-mobile.css">
+    <link rel="stylesheet" href="css/studio-mobile-touch.css">
     <style>
         .studio-project-actions { display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; }
         .studio-action-btn { min-height:36px; padding:.45rem .7rem; border:1px solid var(--border-color); border-radius:5px; background:#333; color:var(--text-color); cursor:pointer; text-decoration:none; }
@@ -20,8 +22,11 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header"><h1 class="logo">Showduino Studio</h1></div>
+        <aside class="sidebar" id="studio-sidebar" aria-label="Studio navigation">
+            <div class="sidebar-header">
+                <h1 class="logo">Showduino Studio</h1>
+                <button id="mobile-sidebar-close" class="mobile-sidebar-close" type="button" aria-label="Close navigation">✕</button>
+            </div>
             <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
                     <li class="active" data-panel="introduction" tabindex="0">Introduction</li>
@@ -38,8 +43,10 @@
                 </ul>
             </nav>
         </aside>
+        <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" aria-hidden="true"></div>
         <main class="main-content">
             <header class="top-bar">
+                <button id="mobile-menu-button" class="mobile-menu-button" type="button" aria-label="Open navigation" aria-controls="studio-sidebar" aria-expanded="false">☰</button>
                 <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
                     <a href="index.html" class="back-to-menu-btn">← Website</a>
                     <a href="account.html" class="back-to-menu-btn">Account</a>
@@ -78,6 +85,12 @@
                 <div class="terminal-output" aria-live="polite"></div>
             </div>
         </footer>
+        <nav class="mobile-action-bar" aria-label="Timeline tools">
+            <button id="mobile-add-track" type="button" aria-label="Add a track"><span class="mobile-action-icon">＋</span><span>Add</span></button>
+            <button id="mobile-library" type="button" aria-label="Open effects library" aria-expanded="false"><span class="mobile-action-icon">▦</span><span>Library</span></button>
+            <button id="mobile-inspector" type="button" aria-label="Open clip inspector" aria-expanded="false"><span class="mobile-action-icon">☷</span><span>Inspector</span></button>
+            <button id="mobile-more" type="button" aria-label="Show more timeline tools"><span class="mobile-action-icon">•••</span><span>More</span></button>
+        </nav>
     </div>
     <script src="config/runtime-config.js"></script>
     <script src="js/cloud/firebase-service.js"></script>
@@ -94,6 +107,8 @@
     <script src="js/panels.js"></script>
     <script src="app.js"></script>
     <script src="js/studio-projects.js"></script>
+    <script src="js/studio-mobile.js"></script>
+    <script src="js/studio-mobile-touch.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             window.connectionDetector = new window.ConnectionDetector();

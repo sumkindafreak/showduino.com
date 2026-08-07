@@ -2,7 +2,8 @@
 (function () {
   'use strict';
 
-  const ACCOUNT_URL = 'https://showduino.com/account.html';
+  const ACCOUNT_URL = 'https://show-duino.com/account.html';
+  const CONFIRMATION_URL = `${ACCOUNT_URL}?confirmed=1`;
   let client = null;
 
   function config() {
@@ -25,11 +26,7 @@
     if (!client) {
       const cfg = config().supabase;
       client = window.supabase.createClient(cfg.url, cfg.publishableKey, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
-        }
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
     }
     return client;
@@ -51,13 +48,22 @@
     const { data, error } = await getClient().auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: ACCOUNT_URL,
-        data: { display_name: displayName }
-      }
+      options: { emailRedirectTo: CONFIRMATION_URL, data: { display_name: displayName } }
     });
     if (error) throw error;
     if (data.user && data.session) await upsertProfile(data.user, displayName);
+    return data;
+  }
+
+  async function resendConfirmation(email) {
+    const address = String(email || '').trim();
+    if (!address) throw new Error('Enter the email address you used to sign up first.');
+    const { data, error } = await getClient().auth.resend({
+      type: 'signup',
+      email: address,
+      options: { emailRedirectTo: CONFIRMATION_URL }
+    });
+    if (error) throw error;
     return data;
   }
 
@@ -69,9 +75,7 @@
   }
 
   async function requestPasswordReset(email) {
-    const { data, error } = await getClient().auth.resetPasswordForEmail(email, {
-      redirectTo: ACCOUNT_URL
-    });
+    const { data, error } = await getClient().auth.resetPasswordForEmail(email, { redirectTo: ACCOUNT_URL });
     if (error) throw error;
     return data;
   }
@@ -119,9 +123,7 @@
 
   function ensureProjectUuid(project) {
     project.project = project.project || {};
-    if (!isUuid(project.project.id)) {
-      project.project.id = window.crypto?.randomUUID?.() || '00000000-0000-4000-8000-000000000000';
-    }
+    if (!isUuid(project.project.id)) project.project.id = window.crypto?.randomUUID?.() || '00000000-0000-4000-8000-000000000000';
     return project.project.id;
   }
 
@@ -148,11 +150,7 @@
   async function listProjects() {
     const user = await getCurrentUser();
     if (!user) return [];
-    const { data, error } = await getClient()
-      .from('projects')
-      .select('id,name,format,format_version,created_at,updated_at')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false });
+    const { data, error } = await getClient().from('projects').select('id,name,format,format_version,created_at,updated_at').eq('user_id', user.id).order('updated_at', { ascending: false });
     if (error) throw error;
     return data || [];
   }
@@ -160,12 +158,7 @@
   async function loadProject(id) {
     const user = await getCurrentUser();
     if (!user) throw new Error('Sign in to load cloud shows.');
-    const { data, error } = await getClient()
-      .from('projects')
-      .select('project_data')
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .single();
+    const { data, error } = await getClient().from('projects').select('project_data').eq('id', id).eq('user_id', user.id).single();
     if (error) throw error;
     return data.project_data;
   }
@@ -178,18 +171,7 @@
   }
 
   window.ShowduinoSupabase = Object.freeze({
-    enabled,
-    register,
-    signIn,
-    requestPasswordReset,
-    updatePassword,
-    signOut,
-    onAuthChanged,
-    getCurrentUser,
-    getProfile,
-    saveProject,
-    listProjects,
-    loadProject,
-    deleteProject
+    enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
+    onAuthChanged, getCurrentUser, getProfile, saveProject, listProjects, loadProject, deleteProject
   });
 })();

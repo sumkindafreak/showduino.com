@@ -1,0 +1,132 @@
+/* Showduino Studio — Inspector drawer
+   The timeline is the primary workspace. The Inspector overlays from the bottom
+   only when a clip is selected, instead of permanently consuming timeline width. */
+
+.timeline-editor .timeline-main {
+  position: relative !important;
+}
+
+/* Tablet/desktop: take the Inspector out of the horizontal flex layout. */
+@media (min-width: 761px) {
+  .timeline-editor .tl-inspector {
+    display: block !important;
+    position: absolute !important;
+    z-index: 70 !important;
+    left: 220px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: min(34vh, 310px) !important;
+    max-height: 310px !important;
+    padding: 0 !important;
+    overflow-y: auto !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--studio-border, #2d3a46) !important;
+    background: #111820 !important;
+    box-shadow: 0 -18px 48px rgba(0,0,0,.58) !important;
+    transform: translateY(calc(100% + 8px)) !important;
+    transition: transform .2s ease !important;
+    pointer-events: none;
+  }
+
+  body.studio-inspector-open .timeline-editor .tl-inspector {
+    transform: translateY(0) !important;
+    pointer-events: auto;
+  }
+
+  /* The timeline column now receives all space that the Inspector used to take. */
+  .timeline-editor .tl-right {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  /* Tablet library is a little narrower so the timeline remains dominant. */
+  @media (max-width: 1000px) {
+    .timeline-editor .tl-left {
+      width: 180px !important;
+      min-width: 180px !important;
+    }
+    .timeline-editor .tl-inspector {
+      left: 180px !important;
+    }
+  }
+}
+
+/* Phone keeps the existing full-width bottom-sheet behaviour, but starts hidden. */
+@media (max-width: 760px) {
+  .timeline-editor .tl-inspector {
+    pointer-events: none;
+  }
+  body.studio-inspector-open .timeline-editor .tl-inspector {
+    pointer-events: auto;
+  }
+}
+
+/* Drawer header/close control injected by studio-inspector-drawer.js. */
+.studio-inspector-drawer-bar {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 8px 12px;
+  background: rgba(17,24,32,.97);
+  border-bottom: 1px solid var(--studio-border, #2d3a46);
+  backdrop-filter: blur(10px);
+}
+
+.studio-inspector-drawer-label {
+  color: var(--studio-accent, #00e6c3);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.studio-inspector-close {
+  min-width: 34px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid #344653;
+  border-radius: 6px;
+  background: #1a252e;
+  color: #dfe9ed;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.studio-inspector-close:hover,
+.studio-inspector-close:focus-visible {
+  color: var(--studio-accent, #00e6c3);
+  border-color: var(--studio-accent, #00e6c3);
+  outline: none;
+}
+
+.timeline-editor .tl-inspector > .inspector-shell {
+  padding: 10px 12px 18px;
+}
+
+/* On wider screens, make Inspector fields flow horizontally instead of becoming
+   a very tall form. This keeps the drawer compact. */
+@media (min-width: 900px) {
+  .timeline-editor .tl-inspector .inspector-shell {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    gap: 10px;
+    align-items: start;
+  }
+
+  .timeline-editor .tl-inspector .inspector-head {
+    grid-column: 1 / -1;
+  }
+
+  .timeline-editor .tl-inspector .inspector-section {
+    margin: 0 !important;
+  }
+}

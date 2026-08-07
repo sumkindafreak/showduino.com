@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const PHONE_QUERY = '(max-width: 600px)';
+  const PHONE_QUERY = '(max-width: 760px)';
   let bar = null;
 
   function isPhone() {

@@ -58,7 +58,11 @@
           <label for="register-password">Password</label>
           <input id="register-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required>
         </div>
-        <button class="btn" type="submit">Create account</button>
+        <div class="button-row">
+          <button class="btn" type="submit">Create account</button>
+          <button id="resend-confirmation-button" class="btn secondary" type="button">Resend confirmation</button>
+        </div>
+        <p class="muted" style="margin-top:.75rem;">If your confirmation link expires or goes missing, enter your email above and tap “Resend confirmation”.</p>
       </form>
     </section>
 
@@ -93,7 +97,7 @@
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 Showduino · Built for immersive creators.</p>
+    <p>© 2026 Showduino · Show control so good, it’s frightening.</p>
   </footer>
 
   <script src="config/runtime-config.js"></script>

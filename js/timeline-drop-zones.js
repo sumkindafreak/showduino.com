@@ -36,14 +36,19 @@
     return editor._snapEnabled ? editor._snapValue(rawMs) : rawMs;
   }
 
-  function ensureTrack(editor, preset) {
-    const existing = editor._tracks().find((track) => track.type === preset.type && !track.locked);
+  function ensureTrack(editor, preset, startMs) {
+    const durationMs = preset.durationMs || 5000;
+    const existing = editor._tracks().find((track) =>
+      !track.locked && !editor._overlaps(null, track.id, startMs, durationMs)
+    );
     if (existing) return existing;
-    return editor.addTrack(preset.type, `${titleFor(preset.type)} Track ${editor._tracks().filter((track) => track.type === preset.type).length + 1}`);
+
+    const laneNumber = editor._tracks().filter((track) => track.type === 'mixed').length + 1;
+    return editor.addTrack('mixed', `Lane ${laneNumber}`);
   }
 
   function insertPreset(editor, preset, startMs) {
-    const track = ensureTrack(editor, preset);
+    const track = ensureTrack(editor, preset, startMs);
     if (typeof editor._insertPreset === 'function') {
       return editor._insertPreset(track.id, preset, startMs);
     }
@@ -105,7 +110,7 @@
 
     const hint = document.createElement('div');
     hint.className = 'timeline-lane-hint';
-    hint.textContent = `Drop ${titleFor(track.type)} here`;
+    hint.textContent = 'Drop any clip here';
     row.appendChild(hint);
 
     const activate = (event) => {

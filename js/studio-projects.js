@@ -31,14 +31,42 @@
     return `show_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   }
 
+  function validatePackage(project) {
+    if (!project || typeof project !== 'object') {
+      throw new Error('This is not a valid Showduino project file.');
+    }
+
+    // Older .shdo files did not have package metadata. They remain supported and are upgraded on load.
+    if (!project.package) return true;
+
+    const expectedFormat = window.ShowduinoPackage?.FORMAT_NAME || 'showduino-production';
+    const supportedVersion = window.ShowduinoPackage?.FORMAT_VERSION || 1;
+
+    if (project.package.format && project.package.format !== expectedFormat) {
+      throw new Error(`Unsupported project format: ${project.package.format}`);
+    }
+
+    const version = Number(project.package.version || 1);
+    if (!Number.isFinite(version) || version < 1) {
+      throw new Error('The .shdo file has an invalid format version.');
+    }
+    if (version > supportedVersion) {
+      throw new Error(`This show was created by a newer Showduino Studio (file version ${version}).`);
+    }
+
+    return true;
+  }
+
   function normaliseProject(project) {
+    validatePackage(project || {});
+
     const now = new Date().toISOString();
     const safeProject = project && typeof project === 'object' ? project : {};
     const metadata = safeProject.project && typeof safeProject.project === 'object'
       ? safeProject.project
       : {};
 
-    return {
+    const normalised = {
       ...safeProject,
       project: {
         id: metadata.id || createProjectId(),
@@ -55,6 +83,14 @@
       assets: safeProject.assets || {},
       metadata: safeProject.metadata || {}
     };
+
+    if (window.ShowduinoPackage) {
+      window.ShowduinoPackage.ensurePackageMetadata(normalised);
+    } else {
+      normalised.package = { format: 'showduino-production', version: 1 };
+    }
+
+    return normalised;
   }
 
   function readProjectIndex() {
@@ -78,7 +114,8 @@
       name: project.project.name,
       updatedAt: project.project.updatedAt,
       createdAt: project.project.createdAt,
-      storage: 'local'
+      storage: 'local',
+      packageVersion: project.package?.version || 1
     });
     writeProjectIndex(index.slice(0, 100));
   }
@@ -178,7 +215,7 @@
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
-    notify(`Exported: ${project.project.name}`, 'INFO');
+    notify(`Exported Showduino production: ${project.project.name}`, 'INFO');
   }
 
   function importProject(file) {
@@ -192,9 +229,11 @@
       reader.onload = async () => {
         try {
           const state = getState();
-          state.project = normaliseProject(JSON.parse(String(reader.result)));
+          const parsed = JSON.parse(String(reader.result));
+          validatePackage(parsed);
+          state.project = normaliseProject(parsed);
           await saveCurrentProject({ cloud: false });
-          notify(`Imported: ${state.project.project.name}`, 'INFO');
+          notify(`Imported Showduino production: ${state.project.project.name}`, 'INFO');
           resolve(state.project);
         } catch (error) {
           reject(new Error(`Project import failed: ${error.message}`));
@@ -262,6 +301,8 @@
     importProject,
     listLocalProjects,
     renameCurrentProject,
+    normaliseProject,
+    validatePackage,
     cloudEnabled,
     getCurrentUser: () => currentUser
   });

@@ -1,0 +1,152 @@
+/* Showduino Studio — visible timeline lanes and drag/drop guidance */
+.timeline-editor .tl-ruler {
+  min-height: 38px !important;
+  background-color: #151d25 !important;
+  background-image:
+    linear-gradient(90deg, rgba(0,230,195,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px) !important;
+  background-size: 100px 100%, 20px 100% !important;
+  box-shadow: inset 0 -1px 0 rgba(0,230,195,.18);
+}
+
+.timeline-editor .tl-canvas {
+  min-height: 100% !important;
+  background-color: #0a1016;
+  background-image:
+    linear-gradient(90deg, rgba(0,230,195,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) !important;
+  background-size: 100px 100%, 20px 100% !important;
+}
+
+.timeline-editor .timeline-lane {
+  position: absolute;
+  border-top: 1px solid rgba(255,255,255,.055) !important;
+  border-bottom: 1px solid #31404c !important;
+  background: rgba(17,24,32,.74) !important;
+  transition: background .12s ease, outline-color .12s ease, box-shadow .12s ease;
+}
+
+.timeline-editor .timeline-lane:nth-of-type(even) {
+  background: rgba(14,21,28,.9) !important;
+}
+
+.timeline-editor .timeline-lane.is-empty .timeline-lane-hint {
+  opacity: .72;
+}
+
+.timeline-lane-hint {
+  position: sticky;
+  left: 18px;
+  display: inline-flex;
+  align-items: center;
+  height: calc(100% - 14px);
+  margin: 7px 0 7px 18px;
+  padding: 0 14px;
+  border: 1px dashed rgba(0,230,195,.42);
+  border-radius: 6px;
+  color: #83a49f;
+  background: rgba(0,230,195,.035);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: .35;
+}
+
+.timeline-editor .timeline-lane.is-drop-target,
+.timeline-editor .timeline-lane.daw-drop-active {
+  outline: 2px solid #00e6c3 !important;
+  outline-offset: -2px;
+  background: rgba(0,230,195,.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,230,195,.25), 0 0 26px rgba(0,230,195,.12);
+}
+
+.timeline-editor .timeline-lane.is-drop-target .timeline-lane-hint,
+.timeline-editor .timeline-lane.daw-drop-active .timeline-lane-hint {
+  color: #001a16;
+  border-style: solid;
+  border-color: #00e6c3;
+  background: #00e6c3;
+  opacity: 1;
+}
+
+.tl-empty-drop {
+  position: sticky;
+  left: 20px;
+  top: 24px;
+  z-index: 12;
+  width: min(560px, calc(100vw - 110px));
+  min-height: 150px;
+  margin: 28px 20px;
+  padding: 28px 22px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 2px dashed #3b5860;
+  border-radius: 12px;
+  background: rgba(15,24,31,.86);
+  color: #d9e8e8;
+  text-align: center;
+  pointer-events: auto;
+  transition: border-color .12s ease, background .12s ease, transform .12s ease;
+}
+
+.tl-empty-drop strong {
+  color: #00e6c3;
+  font-size: 18px;
+}
+
+.tl-empty-drop span {
+  max-width: 410px;
+  color: #8fa4ad;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.tl-empty-drop.is-drop-target {
+  border-color: #00e6c3;
+  background: rgba(0,230,195,.12);
+  transform: scale(1.01);
+}
+
+.tl-empty-drop.is-drop-target strong::before {
+  content: '↓ ';
+}
+
+/* The user's Android viewport is wider than 600 CSS px on some browsers.
+   Treat anything up to 760px as the touch-first phone experience. */
+@media (max-width: 760px) {
+  .app-container { position:relative !important; display:block !important; width:100% !important; height:100dvh !important; overflow:hidden !important; }
+  .sidebar {
+    position:fixed !important; z-index:1000 !important; inset:0 auto 0 0 !important;
+    width:min(82vw,320px) !important; min-width:0 !important; height:100dvh !important; max-height:none !important;
+    transform:translateX(-105%) !important; transition:transform .22s ease !important;
+    background:#10171e !important; border:0 !important; border-right:1px solid var(--studio-border) !important;
+    box-shadow:20px 0 50px rgba(0,0,0,.45) !important; overflow-y:auto !important;
+  }
+  body.studio-menu-open .sidebar { transform:translateX(0) !important; }
+  .main-content { width:100% !important; height:100dvh !important; min-height:0 !important; overflow:hidden !important; display:flex !important; flex-direction:column !important; }
+  .bottom-dock { display:none !important; }
+  .workspace { flex:1 1 auto !important; min-height:0 !important; padding:0 0 58px !important; overflow:hidden !important; }
+  .timeline-editor { height:100% !important; min-height:0 !important; width:100% !important; border:0 !important; border-radius:0 !important; }
+  .timeline-main { flex:1 1 auto !important; min-height:0 !important; width:100% !important; display:block !important; position:relative !important; overflow:hidden !important; }
+  .timeline-editor .tl-right { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; display:flex !important; }
+  .timeline-editor .tl-left {
+    position:absolute !important; z-index:40 !important; inset:0 auto 0 0 !important;
+    width:min(80vw,300px) !important; min-width:0 !important; height:100% !important;
+    transform:translateX(-105%) !important; transition:transform .2s ease !important;
+  }
+  body.studio-library-open .timeline-editor .tl-left { transform:translateX(0) !important; }
+  .timeline-editor .tl-inspector {
+    display:block !important; position:absolute !important; z-index:45 !important; inset:auto 0 0 0 !important;
+    width:100% !important; min-width:0 !important; height:min(52vh,440px) !important; max-height:52vh !important;
+    transform:translateY(105%) !important; transition:transform .2s ease !important;
+  }
+  body.studio-inspector-open .timeline-editor .tl-inspector { transform:translateY(0) !important; }
+  .studio-mobile-bar { display:grid !important; }
+  .tl-empty-drop { width:min(520px, calc(100vw - 36px)); margin:22px 18px; min-height:170px; }
+  .timeline-editor .timeline-lane { min-height:72px !important; }
+  .timeline-lane-hint { font-size:10px; }
+}

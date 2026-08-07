@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="Create, preview, save, export and deploy immersive Showduino productions from your browser.">
     <title>Showduino Studio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/studio-daw.css">
     <link rel="stylesheet" href="css/studio-inspector.css">
     <link rel="stylesheet" href="css/studio-timeline-mixer.css">
+    <link rel="stylesheet" href="css/studio-3.css">
     <style>
         .studio-project-actions { display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; }
         .studio-action-btn { min-height:36px; padding:.45rem .7rem; border:1px solid var(--border-color); border-radius:5px; background:#333; color:var(--text-color); cursor:pointer; text-decoration:none; }
@@ -98,6 +99,7 @@
     <script src="js/studio-projects.js"></script>
     <script src="js/studio-deploy.js"></script>
     <script src="js/studio-creator-bootstrap.js"></script>
+    <script src="js/studio-mobile.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             window.connectionDetector = new window.ConnectionDetector();

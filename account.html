@@ -23,15 +23,15 @@
     <section class="page-heading">
       <span class="badge">SHOWDUINO ID</span>
       <h1>Your account</h1>
-      <p>One account for Showduino Studio, HauntSync projects, registered hardware and future community features.</p>
+      <p>One account for Showduino Studio, cloud-saved productions and future connected Showduino features.</p>
     </section>
 
-    <div id="account-status" class="status-banner" role="status" aria-live="polite">Loading account services…</div>
+    <div id="account-status" class="status-banner" role="status" aria-live="polite">Loading Showduino account services…</div>
 
     <section id="auth-forms" class="grid two">
       <form id="login-form" class="card">
         <h2>Sign in</h2>
-        <p class="muted">Access your projects and connected devices.</p>
+        <p class="muted">Open shows you saved from any computer or phone.</p>
         <div class="form-group">
           <label for="login-email">Email address</label>
           <input id="login-email" class="form-control" type="email" autocomplete="email" required>
@@ -45,7 +45,7 @@
 
       <form id="register-form" class="card">
         <h2>Create an account</h2>
-        <p class="muted">Prepare your Showduino identity and cloud workspace.</p>
+        <p class="muted">Create your free Showduino ID and cloud workspace.</p>
         <div class="form-group">
           <label for="register-name">Display name</label>
           <input id="register-name" class="form-control" type="text" autocomplete="name" maxlength="60" required>
@@ -74,9 +74,9 @@
       </article>
 
       <article class="card">
-        <h2>Account status</h2>
-        <p class="muted">Your account is ready for project syncing, device ownership and profile features as each website service is enabled.</p>
-        <span class="badge">FREE ACCESS</span>
+        <h2>Cloud status</h2>
+        <p class="muted">Your shows are protected by your Showduino account. Only you can read, change or delete your private projects.</p>
+        <span class="badge">SUPABASE CONNECTED</span>
       </article>
     </section>
 
@@ -84,7 +84,7 @@
       <div class="button-row" style="justify-content: space-between;">
         <div>
           <h2 style="margin-bottom: .35rem;">Your projects</h2>
-          <p class="muted" style="margin: 0;">Local and cloud-linked show projects will be managed here.</p>
+          <p class="muted" style="margin: 0;">Cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p>
         </div>
         <a class="btn secondary" href="studio.html">Create a show</a>
       </div>
@@ -97,7 +97,8 @@
   </footer>
 
   <script src="config/runtime-config.js"></script>
-  <script src="js/cloud/firebase-service.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
+  <script src="js/cloud/supabase-service.js"></script>
   <script src="js/account-page.js"></script>
 </body>
 </html>

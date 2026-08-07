@@ -3,6 +3,7 @@
   'use strict';
 
   const DEFAULT_HOSTS = ['http://showduino-studio.local', 'http://192.168.4.1'];
+  const IMPORT_PORT = 82;
 
   function notify(message, level) {
     if (typeof window.studioLog === 'function') window.studioLog(message, level || 'INFO');
@@ -13,6 +14,15 @@
     const project = window.state?.project;
     if (!project) throw new Error('Create or load a show before deploying.');
     return project;
+  }
+
+  function provisioningUrl(baseUrl, path) {
+    const url = new URL(baseUrl);
+    url.port = String(IMPORT_PORT);
+    url.pathname = path;
+    url.search = '';
+    url.hash = '';
+    return url.toString();
   }
 
   async function probe(baseUrl) {
@@ -50,7 +60,7 @@
       return { deployed: false, exported: true };
     }
 
-    const response = await fetch(`${target.baseUrl}/api/production/import`, {
+    const response = await fetch(provisioningUrl(target.baseUrl, '/api/production/import'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(project)

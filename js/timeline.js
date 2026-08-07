@@ -96,10 +96,11 @@ class TimelineEditor {
     bar.style.cssText = 'display:flex;gap:4px;padding:6px 8px;background:#2a2a2a;border-bottom:1px solid #444;flex-wrap:wrap;align-items:center;flex-shrink:0;';
 
     const addGroup = this._toolbarGroup('Add Track:');
-    const trackTypes = ['audio','fx','relay','lighting','pixel','dmx','prop','trigger'];
-    const trackIcons = { audio:'🎵', fx:'✨', relay:'⚡', lighting:'💡', pixel:'🌈', dmx:'🎛', prop:'⚙️', trigger:'🎯' };
+    const trackTypes = ['mixed','audio','fx','relay','lighting','pixel','dmx','prop','trigger'];
+    const trackIcons = { mixed:'＋', audio:'🎵', fx:'✨', relay:'⚡', lighting:'💡', pixel:'🌈', dmx:'🎛', prop:'⚙️', trigger:'🎯' };
     trackTypes.forEach(t => {
-      const btn = this._toolbarBtn(trackIcons[t] + ' ' + t.charAt(0).toUpperCase() + t.slice(1), () => this.addTrack(t));
+      const label = t === 'mixed' ? 'Lane' : t.charAt(0).toUpperCase() + t.slice(1);
+      const btn = this._toolbarBtn(trackIcons[t] + ' ' + label, () => this.addTrack(t));
       btn.title = 'Add ' + t + ' track';
       addGroup.appendChild(btn);
     });
@@ -523,11 +524,9 @@ class TimelineEditor {
       const pointerY = mv.clientY - canvasRect.top;
       const targetIndex = Math.max(0, Math.min(sortedTracks.length - 1, Math.floor(pointerY / this._trackHeight)));
       const candidateTrack = sortedTracks[targetIndex];
-      const targetTrack = candidateTrack &&
-        candidateTrack.type === clip.type &&
-        !candidateTrack.locked
-          ? candidateTrack
-          : this._tracks().find(track => track.id === clip.trackId);
+      const targetTrack = candidateTrack && !candidateTrack.locked
+        ? candidateTrack
+        : this._tracks().find(track => track.id === clip.trackId);
 
       if (!targetTrack || this._overlaps(clipId, targetTrack.id, newStart, clip.durationMs)) return;
 
@@ -768,8 +767,10 @@ class TimelineEditor {
 
     const order = this._tracks().length;
     const typeCount = this._tracks().filter(track => track.type === type).length;
-    const title = type.charAt(0).toUpperCase() + type.slice(1);
-    const trackName = name || `${title} Track ${typeCount + 1}`;
+    const title = type === 'mixed' ? 'Lane' : type.charAt(0).toUpperCase() + type.slice(1);
+    const trackName = name || (type === 'mixed'
+      ? `Lane ${typeCount + 1}`
+      : `${title} Track ${typeCount + 1}`);
     const track = SHDOModel.createTrack(type, trackName, order);
 
     this._project().tracks.push(track);

@@ -2,6 +2,7 @@
 (function () {
   'use strict';
 
+  const CONFIRMATION_REDIRECT = 'https://show-duino.com/account.html?confirmed=1';
   let client = null;
 
   function config() {
@@ -47,17 +48,28 @@
   }
 
   async function register(email, password, displayName) {
-    const redirect = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, 'account.html')}`;
     const { data, error } = await getClient().auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirect,
+        emailRedirectTo: CONFIRMATION_REDIRECT,
         data: { display_name: displayName }
       }
     });
     if (error) throw error;
     if (data.user && data.session) await upsertProfile(data.user, displayName);
+    return data;
+  }
+
+  async function resendConfirmation(email) {
+    const address = String(email || '').trim();
+    if (!address) throw new Error('Enter the email address you used to sign up first.');
+    const { data, error } = await getClient().auth.resend({
+      type: 'signup',
+      email: address,
+      options: { emailRedirectTo: CONFIRMATION_REDIRECT }
+    });
+    if (error) throw error;
     return data;
   }
 
@@ -166,6 +178,7 @@
   window.ShowduinoSupabase = Object.freeze({
     enabled,
     register,
+    resendConfirmation,
     signIn,
     signOut,
     onAuthChanged,

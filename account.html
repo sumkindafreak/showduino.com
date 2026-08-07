@@ -40,7 +40,10 @@
           <label for="login-password">Password</label>
           <input id="login-password" class="form-control" type="password" autocomplete="current-password" minlength="8" required>
         </div>
-        <button class="btn" type="submit">Sign in</button>
+        <div class="button-row">
+          <button class="btn" type="submit">Sign in</button>
+          <button id="forgot-password-button" class="btn secondary" type="button">Forgot password?</button>
+        </div>
       </form>
 
       <form id="register-form" class="card">
@@ -59,6 +62,23 @@
           <input id="register-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required>
         </div>
         <button class="btn" type="submit">Create account</button>
+      </form>
+    </section>
+
+    <section id="password-recovery-panel" class="card" hidden>
+      <span class="badge">PASSWORD RECOVERY</span>
+      <h2>Choose a new password</h2>
+      <p class="muted">Enter a new password for your Showduino account.</p>
+      <form id="password-recovery-form">
+        <div class="form-group">
+          <label for="recovery-password">New password</label>
+          <input id="recovery-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="form-group">
+          <label for="recovery-password-confirm">Confirm new password</label>
+          <input id="recovery-password-confirm" class="form-control" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <button class="btn" type="submit">Save new password</button>
       </form>
     </section>
 

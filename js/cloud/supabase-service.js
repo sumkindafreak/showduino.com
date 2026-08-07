@@ -2,6 +2,7 @@
 (function () {
   'use strict';
 
+  const ACCOUNT_URL = 'https://showduino.com/account.html';
   let client = null;
 
   function config() {
@@ -47,12 +48,11 @@
   }
 
   async function register(email, password, displayName) {
-    const redirect = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, 'account.html')}`;
     const { data, error } = await getClient().auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirect,
+        emailRedirectTo: ACCOUNT_URL,
         data: { display_name: displayName }
       }
     });
@@ -68,6 +68,20 @@
     return data;
   }
 
+  async function requestPasswordReset(email) {
+    const { data, error } = await getClient().auth.resetPasswordForEmail(email, {
+      redirectTo: ACCOUNT_URL
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async function updatePassword(password) {
+    const { data, error } = await getClient().auth.updateUser({ password });
+    if (error) throw error;
+    return data;
+  }
+
   async function signOut() {
     const { error } = await getClient().auth.signOut();
     if (error) throw error;
@@ -75,12 +89,12 @@
 
   function onAuthChanged(callback) {
     if (!enabled()) {
-      callback(null);
+      callback(null, 'DISABLED');
       return () => {};
     }
     const c = getClient();
-    c.auth.getSession().then(({ data }) => callback(data.session?.user || null));
-    const { data } = c.auth.onAuthStateChange((_event, session) => callback(session?.user || null));
+    c.auth.getSession().then(({ data }) => callback(data.session?.user || null, 'INITIAL_SESSION'));
+    const { data } = c.auth.onAuthStateChange((event, session) => callback(session?.user || null, event));
     return () => data.subscription.unsubscribe();
   }
 
@@ -167,6 +181,8 @@
     enabled,
     register,
     signIn,
+    requestPasswordReset,
+    updatePassword,
     signOut,
     onAuthChanged,
     getCurrentUser,

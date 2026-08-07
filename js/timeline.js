@@ -258,8 +258,22 @@ class TimelineEditor {
       this._rulerEl.scrollLeft = this._scrollLeft;
       this._markerTrackEl.style.transform = `translateX(-${this._scrollLeft}px)`;
       this._rulerEl.style.backgroundPositionX = `-${this._scrollLeft}px`;
+
+      if (!this._syncingVerticalScroll) {
+        this._syncingVerticalScroll = true;
+        this._trackListEl.scrollTop = this._canvasScroll.scrollTop;
+        this._syncingVerticalScroll = false;
+      }
+
       this._updateRuler();
       this._updateGridCanvas();
+    });
+
+    this._trackListEl.addEventListener('scroll', () => {
+      if (this._syncingVerticalScroll) return;
+      this._syncingVerticalScroll = true;
+      this._canvasScroll.scrollTop = this._trackListEl.scrollTop;
+      this._syncingVerticalScroll = false;
     });
 
     return right;
@@ -450,6 +464,15 @@ class TimelineEditor {
       this._selectClip(clip.id);
     });
 
+    el.addEventListener('dblclick', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      this._selectClip(clip.id);
+      if (window.ShowduinoInspectorDrawer) {
+        window.ShowduinoInspectorDrawer.open(clip.id);
+      }
+    });
+
     el.addEventListener('contextmenu', e => {
       e.preventDefault();
       this._showClipContextMenu(e, clip.id);
@@ -468,37 +491,69 @@ class TimelineEditor {
   /* ── Drag ────────────────────────────────────────────────────── */
 
   _startDrag(e, clipId) {
-    const track = this._getClipTrack(clipId);
-    if (track && track.locked) return;
+    const sourceTrack = this._getClipTrack(clipId);
+    if (sourceTrack && sourceTrack.locked) return;
+
     e.preventDefault();
     const clip = this._clips().find(c => c.id === clipId);
     if (!clip) return;
+
     this._selectClip(clipId);
 
     const startX = e.clientX;
+    const startY = e.clientY;
     const origStartMs = clip.startMs;
-    const canvasRect = this._canvas.getBoundingClientRect();
+    const sortedTracks = this._tracks().slice().sort((a, b) => a.order - b.order);
+    let moved = false;
+
+    this._dragState = { clipId };
 
     const onMove = mv => {
       const dx = mv.clientX - startX;
+      const dy = mv.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 3) return;
+      moved = true;
+
       const dMs = dx / this._pxPerMs;
       let newStart = Math.max(0, origStartMs + dMs);
       if (this._snapEnabled) newStart = this._snapValue(newStart);
 
-      if (!this._overlaps(clipId, clip.trackId, newStart, clip.durationMs)) {
-        clip.startMs = newStart;
-        const el = this._canvas.querySelector(`[data-clip-id="${clipId}"]`);
-        if (el) el.style.left = this._msToX(newStart) + 'px';
-        this._syncPlayheadPosition();
-        this._updateTimecodeDisplay();
+      const canvasRect = this._canvas.getBoundingClientRect();
+      const pointerY = mv.clientY - canvasRect.top;
+      const targetIndex = Math.max(0, Math.min(sortedTracks.length - 1, Math.floor(pointerY / this._trackHeight)));
+      const candidateTrack = sortedTracks[targetIndex];
+      const targetTrack = candidateTrack &&
+        candidateTrack.type === clip.type &&
+        !candidateTrack.locked
+          ? candidateTrack
+          : this._tracks().find(track => track.id === clip.trackId);
+
+      if (!targetTrack || this._overlaps(clipId, targetTrack.id, newStart, clip.durationMs)) return;
+
+      clip.startMs = newStart;
+      clip.trackId = targetTrack.id;
+
+      const renderedTrackIndex = sortedTracks.findIndex(track => track.id === targetTrack.id);
+      const el = this._canvas.querySelector(`[data-clip-id="${clipId}"]`);
+      if (el) {
+        el.style.left = this._msToX(newStart) + 'px';
+        el.style.top = (renderedTrackIndex * this._trackHeight + 8) + 'px';
       }
+
+      this._syncPlayheadPosition();
+      this._updateTimecodeDisplay();
     };
 
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
-      this._pushUndo();
-      this._autosave();
+      this._dragState = null;
+
+      if (moved) {
+        this._pushUndo();
+        this._autosave();
+        this._showInspector(clipId);
+      }
     };
 
     document.addEventListener('mousemove', onMove);
@@ -709,10 +764,23 @@ class TimelineEditor {
 
   addTrack(type = 'audio', name = null) {
     this._pushUndo();
+
     const order = this._tracks().length;
-    const track = SHDOModel.createTrack(type, name, order);
+    const typeCount = this._tracks().filter(track => track.type === type).length;
+    const title = type.charAt(0).toUpperCase() + type.slice(1);
+    const trackName = name || `${title} Track ${typeCount + 1}`;
+    const track = SHDOModel.createTrack(type, trackName, order);
+
     this._project().tracks.push(track);
     this._renderTracks();
+
+    requestAnimationFrame(() => {
+      this._canvasScroll.scrollTop = this._canvasScroll.scrollHeight;
+      this._trackListEl.scrollTop = this._trackListEl.scrollHeight;
+      const header = this._trackListEl.querySelector(`[data-track-id="${track.id}"]`);
+      if (header) header.scrollIntoView({ block: 'nearest' });
+    });
+
     this._autosave();
     this._log(`Track added: ${track.name}`, 'INFO');
     return track;
@@ -832,7 +900,10 @@ class TimelineEditor {
       menu.appendChild(li);
     };
 
-    item('✏️ Inspect',    () => this._selectClip(clipId));
+    item('✏️ Inspect',    () => {
+      this._selectClip(clipId);
+      if (window.ShowduinoInspectorDrawer) window.ShowduinoInspectorDrawer.open(clipId);
+    });
     item('⊕ Duplicate',  () => this._duplicateClip(clipId));
     item('✂️ Split at Playhead', () => this._splitClip(clipId));
     item('✕ Delete',     () => this._deleteClip(clipId));

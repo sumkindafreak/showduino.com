@@ -35,20 +35,27 @@
     panel.prepend(bar);
   }
 
-  TimelineEditor.prototype._showInspector = function (clipId) {
-    originalShowInspector.call(this, clipId);
+  function selectedClipExists(editor, clipId) {
+    return Boolean(editor && clipId && editor._clips().some((clip) => clip.id === clipId));
+  }
 
-    const clipExists = Boolean(clipId && this._clips().some((clip) => clip.id === clipId));
-    if (!clipExists) {
+  function renderInspector(editor, clipId) {
+    if (!selectedClipExists(editor, clipId)) {
       closeInspector();
-      return;
+      return false;
     }
 
-    addDrawerBar(this._inspectorPanel);
-    document.body.classList.add('studio-inspector-open');
+    originalShowInspector.call(editor, clipId);
+    addDrawerBar(editor._inspectorPanel);
+    return true;
+  }
+
+  // Selection keeps the Inspector content current, but never opens the drawer.
+  // This preserves click-and-drag as the primary DAW interaction.
+  TimelineEditor.prototype._showInspector = function (clipId) {
+    renderInspector(this, clipId);
   };
 
-  // If a selected clip is deleted, make sure the now-empty drawer disappears.
   const originalDeleteClip = TimelineEditor.prototype._deleteClip;
   if (typeof originalDeleteClip === 'function') {
     TimelineEditor.prototype._deleteClip = function (clipId) {
@@ -60,10 +67,23 @@
     };
   }
 
-  // Public helper used by the existing mobile Inspector button.
+  function openInspector(clipId) {
+    const editor = window.timelineEditor;
+    const targetClipId = clipId || (editor && editor._selectedClipId);
+    if (!renderInspector(editor, targetClipId)) return false;
+    document.body.classList.add('studio-inspector-open');
+    return true;
+  }
+
   window.ShowduinoInspectorDrawer = Object.freeze({
-    open() { document.body.classList.add('studio-inspector-open'); },
+    open: openInspector,
     close: closeInspector,
-    toggle() { document.body.classList.toggle('studio-inspector-open'); }
+    toggle(clipId) {
+      if (document.body.classList.contains('studio-inspector-open')) {
+        closeInspector();
+        return false;
+      }
+      return openInspector(clipId);
+    }
   });
 })();

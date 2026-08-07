@@ -25,6 +25,13 @@
     }
   }
 
+  async function sendCurrentShow() {
+    if (!window.ShowduinoDeploy?.deployCurrentProject) {
+      throw new Error('Showduino deployment tools are still starting.');
+    }
+    return window.ShowduinoDeploy.deployCurrentProject();
+  }
+
   function prepareCreatorNavigation() {
     // The public website is for building shows. Hardware engineering pages stay on the local Showduino Studio.
     ['live-control', 'devices', 'diagnostics'].forEach((panelName) => {
@@ -35,9 +42,18 @@
     const connect = document.querySelector('.sidebar-nav li[data-panel="connect"]');
     if (connect) {
       connect.textContent = 'Send to Showduino';
-      // Deployment/export is part of the creator workflow, not a paid live-control feature.
       connect.classList.remove('locked');
       connect.title = 'Prepare or send this show to your Showduino';
+      connect.addEventListener('click', async (event) => {
+        // Stop the old navigation handler from opening engineering/network setup controls.
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try {
+          await sendCurrentShow();
+        } catch (error) {
+          window.alert(`Could not prepare this show for Showduino.\n\n${error.message}`);
+        }
+      }, true);
     }
 
     const playback = document.querySelector('.sidebar-nav li[data-panel="playback"]');
@@ -49,17 +65,31 @@
 
   function prepareResetButton() {
     const resetButton = document.querySelector('.transport-controls .panic');
-    if (!resetButton) return;
+    if (resetButton) {
+      resetButton.textContent = 'RESET';
+      resetButton.title = 'Reset the browser preview only';
+      resetButton.setAttribute('aria-label', 'Reset browser preview');
 
-    resetButton.textContent = 'RESET';
-    resetButton.title = 'Reset the browser preview only';
-    resetButton.setAttribute('aria-label', 'Reset browser preview');
+      // app.js contains an older hardware PANIC listener. Capture the click first and stop it here.
+      resetButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        stopPreview();
+      }, true);
+    }
 
-    // app.js contains an older hardware PANIC listener. Capture the click first and stop it here.
-    resetButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      stopPreview();
+    // Preview Show is rendered later inside the workspace. Intercept its legacy PANIC/STOP
+    // control at document level so it can never fall through to old hardware-control code.
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest?.('button');
+      if (!button) return;
+      const inlineAction = button.getAttribute('onclick') || '';
+      const label = (button.textContent || '').toUpperCase();
+      if (inlineAction.includes('appStop') && label.includes('PANIC')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        stopPreview();
+      }
     }, true);
   }
 
@@ -71,6 +101,7 @@
 
   window.ShowduinoCreatorMode = Object.freeze({
     stopPreview,
+    sendCurrentShow,
     isCreatorMode: () => true
   });
 

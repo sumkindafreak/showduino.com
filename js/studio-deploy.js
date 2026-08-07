@@ -13,7 +13,9 @@
   function currentProject() {
     const project = window.state?.project;
     if (!project) throw new Error('Create or load a show before deploying.');
-    return project;
+    return window.ShowduinoProjects?.normaliseProject
+      ? window.ShowduinoProjects.normaliseProject(project)
+      : project;
   }
 
   function provisioningUrl(baseUrl, path) {
@@ -23,6 +25,12 @@
     url.search = '';
     url.hash = '';
     return url.toString();
+  }
+
+  function browserAllowsDirectLocalSend() {
+    // showduino.com uses HTTPS. Most browsers block a secure public website from
+    // directly controlling an ordinary HTTP device on the user's private network.
+    return window.location.protocol !== 'https:';
   }
 
   async function probe(baseUrl) {
@@ -41,6 +49,7 @@
   }
 
   async function findLocalShowduino() {
+    if (!browserAllowsDirectLocalSend()) return null;
     for (const host of DEFAULT_HOSTS) {
       const found = await probe(host);
       if (found) return found;
@@ -48,16 +57,25 @@
     return null;
   }
 
+  async function exportForShowduino(reason) {
+    await window.ShowduinoProjects?.saveCurrentProject({ cloud: true });
+    window.ShowduinoProjects.exportCurrentProject();
+    notify(reason || 'Show file prepared for Showduino.', 'INFO');
+    return { deployed: false, exported: true, reason: reason || 'export' };
+  }
+
   async function deployCurrentProject() {
     const project = currentProject();
     await window.ShowduinoProjects?.saveCurrentProject({ cloud: true });
-    notify('Looking for a local Showduino…', 'NET');
 
+    if (!browserAllowsDirectLocalSend()) {
+      return exportForShowduino('Your browser protects local devices from direct website access. Downloaded the .shdo file instead.');
+    }
+
+    notify('Looking for a local Showduino…', 'NET');
     const target = await findLocalShowduino();
     if (!target) {
-      notify('No local Showduino found. Exporting .shdo instead.', 'WARN');
-      window.ShowduinoProjects.exportCurrentProject();
-      return { deployed: false, exported: true };
+      return exportForShowduino('No local Showduino was found. Downloaded the .shdo file instead.');
     }
 
     const response = await fetch(provisioningUrl(target.baseUrl, '/api/production/import'), {
@@ -78,23 +96,27 @@
   function initialise() {
     const actions = document.querySelector('.studio-project-actions');
     if (!actions || document.getElementById('studio-deploy-button')) return;
+
     const button = document.createElement('button');
     button.id = 'studio-deploy-button';
     button.className = 'studio-action-btn studio-deploy-btn';
     button.type = 'button';
     button.textContent = 'Send to Showduino';
-    button.title = 'Install this .shdo project on a Showduino connected to your local network';
+    button.title = browserAllowsDirectLocalSend()
+      ? 'Install this show on a Showduino connected to your local network'
+      : 'Prepare this show for your Showduino';
+
     button.addEventListener('click', async () => {
       button.disabled = true;
       const old = button.textContent;
-      button.textContent = 'Finding Showduino…';
+      button.textContent = browserAllowsDirectLocalSend() ? 'Finding Showduino…' : 'Preparing show…';
       try {
-        await deployCurrentProject();
-        button.textContent = 'Sent ✓';
-        setTimeout(() => { button.textContent = old; }, 1800);
+        const result = await deployCurrentProject();
+        button.textContent = result.deployed ? 'Sent ✓' : 'Show file ready ✓';
+        setTimeout(() => { button.textContent = old; }, 2200);
       } catch (error) {
         notify(`Deploy failed: ${error.message}`, 'ERR');
-        window.alert(`Could not send this show to Showduino.\n\n${error.message}\n\nYou can still use Export to save the .shdo file.`);
+        window.alert(`Could not prepare this show for Showduino.\n\n${error.message}\n\nUse Export .shdo to save the show manually.`);
         button.textContent = old;
       } finally {
         button.disabled = false;
@@ -103,6 +125,11 @@
     actions.appendChild(button);
   }
 
-  window.ShowduinoDeploy = Object.freeze({ findLocalShowduino, deployCurrentProject });
+  window.ShowduinoDeploy = Object.freeze({
+    findLocalShowduino,
+    deployCurrentProject,
+    browserAllowsDirectLocalSend
+  });
+
   document.addEventListener('DOMContentLoaded', initialise);
 })();

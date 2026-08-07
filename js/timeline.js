@@ -145,6 +145,16 @@ class TimelineEditor {
 
     // Marker
     bar.appendChild(this._toolbarBtn('📌 Marker', () => this._addMarkerAtPlayhead()));
+
+    // Selected clip actions live under one deliberate three-dot menu.
+    const moreBtn = this._toolbarBtn('⋮', event => this._showTimelineMoreMenu(event.currentTarget));
+    moreBtn.classList.add('timeline-more-btn');
+    moreBtn.setAttribute('aria-label', 'More timeline actions');
+    moreBtn.setAttribute('aria-haspopup', 'menu');
+    moreBtn.title = 'More timeline actions';
+    moreBtn.style.fontSize = '18px';
+    moreBtn.style.lineHeight = '1';
+    bar.appendChild(moreBtn);
     bar.appendChild(sep());
 
     // Project
@@ -462,15 +472,6 @@ class TimelineEditor {
     el.addEventListener('click', e => {
       if (this._dragState) return;
       this._selectClip(clip.id);
-    });
-
-    el.addEventListener('dblclick', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      this._selectClip(clip.id);
-      if (window.ShowduinoInspectorDrawer) {
-        window.ShowduinoInspectorDrawer.open(clip.id);
-      }
     });
 
     el.addEventListener('contextmenu', e => {
@@ -880,6 +881,80 @@ class TimelineEditor {
     this._renderClip(copy);
     this._selectClip(copy.id);
     this._autosave();
+  }
+
+  _showTimelineMoreMenu(anchor) {
+    const existing = document.getElementById('tl-more-menu');
+    if (existing) {
+      existing.remove();
+      return;
+    }
+
+    const selectedClip = this.getSelectedClip();
+    const menu = document.createElement('div');
+    menu.id = 'tl-more-menu';
+    menu.setAttribute('role', 'menu');
+
+    const rect = anchor.getBoundingClientRect();
+    menu.style.cssText = `
+      position:fixed;
+      top:${rect.bottom + 6}px;
+      left:${Math.max(8, Math.min(rect.left, window.innerWidth - 210))}px;
+      width:200px;
+      padding:5px;
+      background:#202a32;
+      border:1px solid #465764;
+      border-radius:6px;
+      box-shadow:0 10px 28px rgba(0,0,0,.55);
+      z-index:10000;
+    `;
+
+    const addItem = (label, action, enabled = true) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('role', 'menuitem');
+      button.textContent = label;
+      button.disabled = !enabled;
+      button.style.cssText = `
+        display:block;
+        width:100%;
+        padding:8px 10px;
+        border:0;
+        border-radius:4px;
+        background:transparent;
+        color:${enabled ? '#e8f0f2' : '#6d7b82'};
+        text-align:left;
+        font:12px monospace;
+        cursor:${enabled ? 'pointer' : 'not-allowed'};
+      `;
+
+      if (enabled) {
+        button.addEventListener('mouseenter', () => { button.style.background = '#30404b'; });
+        button.addEventListener('mouseleave', () => { button.style.background = 'transparent'; });
+        button.addEventListener('click', () => {
+          menu.remove();
+          action();
+        });
+      }
+
+      menu.appendChild(button);
+    };
+
+    addItem('Inspector', () => {
+      if (window.ShowduinoInspectorDrawer) {
+        window.ShowduinoInspectorDrawer.open(selectedClip.id);
+      }
+    }, Boolean(selectedClip));
+
+    addItem('Duplicate clip', () => this._duplicateClip(selectedClip.id), Boolean(selectedClip));
+    addItem('Delete clip', () => this._deleteClip(selectedClip.id), Boolean(selectedClip));
+
+    document.body.appendChild(menu);
+
+    const closeMenu = event => {
+      if (!menu.contains(event.target) && event.target !== anchor) menu.remove();
+    };
+    setTimeout(() => document.addEventListener('pointerdown', closeMenu, { once: true }), 0);
   }
 
   _showClipContextMenu(e, clipId) {

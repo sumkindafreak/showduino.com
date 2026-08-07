@@ -33,7 +33,12 @@
     });
 
     const connect = document.querySelector('.sidebar-nav li[data-panel="connect"]');
-    if (connect) connect.textContent = 'Send to Showduino';
+    if (connect) {
+      connect.textContent = 'Send to Showduino';
+      // Deployment/export is part of the creator workflow, not a paid live-control feature.
+      connect.classList.remove('locked');
+      connect.title = 'Prepare or send this show to your Showduino';
+    }
 
     const playback = document.querySelector('.sidebar-nav li[data-panel="playback"]');
     if (playback) playback.textContent = 'Preview Show';

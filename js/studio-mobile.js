@@ -106,6 +106,46 @@
     else destroyMobileBar();
   }
 
+  function openTimelineOnPhone() {
+    if (!isPhone()) return;
+    window.setTimeout(() => {
+      const timelineItem = document.querySelector('.sidebar-nav li[data-panel="timeline-editor"]');
+      const activeItem = document.querySelector('.sidebar-nav li.active');
+      if (timelineItem && (!activeItem || activeItem.dataset.panel === 'introduction')) timelineItem.click();
+    }, 80);
+  }
+
+  function installTouchPresetInsertion() {
+    document.addEventListener('click', (event) => {
+      if (!isPhone()) return;
+      const presetEl = event.target.closest('.daw-preset');
+      if (!presetEl || presetEl.dataset.mobileHandled === '1') return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const editor = timeline();
+      if (!editor) return;
+
+      const meta = presetEl.querySelector('.daw-preset-meta')?.textContent || '';
+      const type = meta.split('·')[0].trim().toLowerCase();
+      if (!type) return;
+
+      const hasTrack = editor._tracks?.().some((track) => track.type === type && !track.locked);
+      if (!hasTrack && typeof editor.addTrack === 'function') editor.addTrack(type);
+
+      // The existing DAW library already owns the actual preset object inside
+      // its double-click handler. Reusing that handler keeps one source of truth.
+      window.setTimeout(() => {
+        presetEl.dataset.mobileHandled = '1';
+        presetEl.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, view: window }));
+        delete presetEl.dataset.mobileHandled;
+        document.body.classList.remove('studio-library-open');
+        updateActiveButtons();
+      }, 0);
+    }, true);
+  }
+
   function interceptSidebarNavigation() {
     document.addEventListener('click', (event) => {
       const item = event.target.closest('.sidebar-nav li');
@@ -116,7 +156,6 @@
         }, 0);
       }
 
-      // Tapping the dark canvas outside a drawer closes it.
       if (isPhone() && event.target.classList.contains('workspace')) closeDrawers();
     });
   }
@@ -131,10 +170,15 @@
     document.documentElement.dataset.studioVersion = '3';
     syncForViewport();
     interceptSidebarNavigation();
+    installTouchPresetInsertion();
     watchTimelineState();
+    openTimelineOnPhone();
 
     const media = window.matchMedia(PHONE_QUERY);
-    if (typeof media.addEventListener === 'function') media.addEventListener('change', syncForViewport);
+    if (typeof media.addEventListener === 'function') media.addEventListener('change', () => {
+      syncForViewport();
+      openTimelineOnPhone();
+    });
     else if (typeof media.addListener === 'function') media.addListener(syncForViewport);
 
     window.addEventListener('orientationchange', () => window.setTimeout(syncForViewport, 150));

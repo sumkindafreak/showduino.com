@@ -10,14 +10,6 @@
     else console.log(`[Studio Deploy] ${message}`);
   }
 
-  function currentProject() {
-    const project = window.state?.project;
-    if (!project) throw new Error('Create or load a show before deploying.');
-    return window.ShowduinoProjects?.normaliseProject
-      ? window.ShowduinoProjects.normaliseProject(project)
-      : project;
-  }
-
   function provisioningUrl(baseUrl, path) {
     const url = new URL(baseUrl);
     url.port = String(IMPORT_PORT);
@@ -57,16 +49,20 @@
     return null;
   }
 
-  async function exportForShowduino(reason) {
-    await window.ShowduinoProjects?.saveCurrentProject({ cloud: true });
+  function exportForShowduino(reason) {
     window.ShowduinoProjects.exportCurrentProject();
     notify(reason || 'Show file prepared for Showduino.', 'INFO');
     return { deployed: false, exported: true, reason: reason || 'export' };
   }
 
   async function deployCurrentProject() {
-    const project = currentProject();
-    await window.ShowduinoProjects?.saveCurrentProject({ cloud: true });
+    if (!window.ShowduinoProjects?.saveCurrentProject) {
+      throw new Error('Showduino Studio is still starting.');
+    }
+
+    // Save once locally and use exactly that saved snapshot for either deployment or export.
+    // Cloud saving is handled separately by the normal Save workflow and must not block transfer.
+    const project = await window.ShowduinoProjects.saveCurrentProject({ cloud: false });
 
     if (!browserAllowsDirectLocalSend()) {
       return exportForShowduino('Your browser protects local devices from direct website access. Downloaded the .shdo file instead.');

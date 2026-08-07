@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="description" content="Build, control, save and export immersive show projects with Showduino Studio.">
+    <meta name="description" content="Create, preview, save, export and deploy immersive Showduino productions from your browser.">
     <title>Showduino Studio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/studio-daw.css">
@@ -13,6 +13,8 @@
         .studio-project-actions { display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; }
         .studio-action-btn { min-height:36px; padding:.45rem .7rem; border:1px solid var(--border-color); border-radius:5px; background:#333; color:var(--text-color); cursor:pointer; text-decoration:none; }
         .studio-action-btn:hover,.studio-action-btn:focus-visible { border-color:var(--accent-color); color:var(--accent-color); }
+        .studio-deploy-btn { border-color:var(--accent-color); font-weight:700; }
+        .studio-deploy-btn:disabled { opacity:.55; cursor:wait; }
         .show-name { cursor:pointer; border-bottom:1px dashed transparent; }
         .show-name:hover,.show-name:focus-visible { color:var(--accent-color); border-bottom-color:var(--accent-color); outline:none; }
         @media (max-width:767px){ .studio-project-actions{width:100%}.studio-action-btn{flex:1} }
@@ -25,13 +27,13 @@
             <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
                     <li class="active" data-panel="introduction" tabindex="0">Introduction</li>
-                    <li data-panel="connect" tabindex="0">Connect</li>
-                    <li data-panel="live-control" tabindex="0">Live Control</li>
+                    <li data-panel="connect" tabindex="0">Deploy / Connect</li>
+                    <li data-panel="live-control" tabindex="0">Preview Control</li>
                     <li data-panel="timeline-editor" tabindex="0">Timeline Editor</li>
-                    <li data-panel="playback" tabindex="0">Playback</li>
+                    <li data-panel="playback" tabindex="0">Preview Playback</li>
                     <li data-panel="audio-manager" tabindex="0">Audio Manager</li>
-                    <li data-panel="devices" tabindex="0">Devices</li>
-                    <li data-panel="diagnostics" tabindex="0">Diagnostics</li>
+                    <li data-panel="devices" tabindex="0">Device Targets</li>
+                    <li data-panel="diagnostics" tabindex="0">Compatibility</li>
                     <li data-panel="hauntsync" tabindex="0">HauntSync (Cloud)</li>
                     <li data-panel="settings" tabindex="0">Settings</li>
                     <li data-panel="help" tabindex="0">Help</li>
@@ -50,17 +52,17 @@
                     <button class="save-icon" type="button" aria-label="Save project" title="Save project">💾</button>
                 </div>
                 <div class="studio-project-actions" aria-label="Project actions">
-                    <button id="studio-import-button" class="studio-action-btn" type="button">Import</button>
-                    <button id="studio-export-button" class="studio-action-btn" type="button">Export</button>
+                    <button id="studio-import-button" class="studio-action-btn" type="button">Import .shdo</button>
+                    <button id="studio-export-button" class="studio-action-btn" type="button">Export .shdo</button>
                     <input id="studio-import-file" type="file" accept=".shdo,.json,application/json" hidden>
                 </div>
-                <div class="transport-controls">
-                    <button type="button" aria-label="Play">▶</button>
-                    <button type="button" aria-label="Stop">■</button>
-                    <button type="button" aria-label="Record">●</button>
-                    <button type="button" class="panic">PANIC</button>
+                <div class="transport-controls" aria-label="Creator preview controls">
+                    <button type="button" aria-label="Preview play" title="Preview in Studio">▶</button>
+                    <button type="button" aria-label="Preview stop" title="Stop preview">■</button>
+                    <button type="button" aria-label="Record automation" title="Record automation">●</button>
+                    <button type="button" class="panic" title="Reset preview outputs">RESET</button>
                 </div>
-                <div class="system-info"><span class="clock">12:00:00</span><span class="latency">0ms</span></div>
+                <div class="system-info"><span class="clock">12:00:00</span><span class="latency">Creator</span></div>
             </header>
             <div class="workspace"><!-- Panels are loaded by app.js. --></div>
         </main>
@@ -94,6 +96,7 @@
     <script src="js/panels.js"></script>
     <script src="app.js"></script>
     <script src="js/studio-projects.js"></script>
+    <script src="js/studio-deploy.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             window.connectionDetector = new window.ConnectionDetector();
@@ -102,9 +105,9 @@
             const updateConnectionUI = () => {
                 const status = document.querySelector('.connection-status');
                 if (!status) return;
-                if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='AP MODE'; }
-                else if (window.connectionDetector.isOffline()) { status.className='connection-status offline'; status.textContent='OFFLINE'; }
-                else { status.className='connection-status lan'; status.textContent=window.ShowduinoProjects?.cloudEnabled()?'ONLINE + CLOUD':'ONLINE'; }
+                if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='SHOWDUINO AP'; }
+                else if (window.connectionDetector.isOffline()) { status.className='connection-status offline'; status.textContent='CREATOR OFFLINE'; }
+                else { status.className='connection-status lan'; status.textContent=window.ShowduinoProjects?.cloudEnabled()?'CREATOR + CLOUD':'CREATOR ONLINE'; }
             };
             updateConnectionUI();
             window.setInterval(updateConnectionUI,5000);

@@ -27,14 +27,11 @@
             <nav class="sidebar-nav" aria-label="Studio navigation">
                 <ul>
                     <li class="active" data-panel="introduction" tabindex="0">Introduction</li>
-                    <li data-panel="connect" tabindex="0">Deploy / Connect</li>
-                    <li data-panel="live-control" tabindex="0">Preview Control</li>
                     <li data-panel="timeline-editor" tabindex="0">Timeline Editor</li>
-                    <li data-panel="playback" tabindex="0">Preview Playback</li>
+                    <li data-panel="playback" tabindex="0">Preview Show</li>
                     <li data-panel="audio-manager" tabindex="0">Audio Manager</li>
-                    <li data-panel="devices" tabindex="0">Device Targets</li>
-                    <li data-panel="diagnostics" tabindex="0">Compatibility</li>
-                    <li data-panel="hauntsync" tabindex="0">HauntSync (Cloud)</li>
+                    <li data-panel="hauntsync" tabindex="0">My Shows / Cloud</li>
+                    <li data-panel="connect" tabindex="0">Send to Showduino</li>
                     <li data-panel="settings" tabindex="0">Settings</li>
                     <li data-panel="help" tabindex="0">Help</li>
                 </ul>
@@ -45,7 +42,7 @@
                 <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
                     <a href="index.html" class="back-to-menu-btn">← Website</a>
                     <a href="account.html" class="back-to-menu-btn">Account</a>
-                    <div class="connection-status offline" role="status">OFFLINE</div>
+                    <div class="connection-status offline" role="status">CREATOR OFFLINE</div>
                 </div>
                 <div class="show-info">
                     <span class="show-name" role="button" aria-label="Rename show">Untitled Show</span>
@@ -60,7 +57,7 @@
                     <button type="button" aria-label="Preview play" title="Preview in Studio">▶</button>
                     <button type="button" aria-label="Preview stop" title="Stop preview">■</button>
                     <button type="button" aria-label="Record automation" title="Record automation">●</button>
-                    <button type="button" class="panic" title="Reset preview outputs">RESET</button>
+                    <button type="button" class="panic" title="Reset browser preview only">RESET</button>
                 </div>
                 <div class="system-info"><span class="clock">12:00:00</span><span class="latency">Creator</span></div>
             </header>
@@ -82,7 +79,8 @@
         </footer>
     </div>
     <script src="config/runtime-config.js"></script>
-    <script src="js/cloud/firebase-service.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
+    <script src="js/cloud/supabase-service.js"></script>
     <script src="js/api.js"></script>
     <script src="js/shdo_model.js"></script>
     <script src="js/connection_detector.js"></script>
@@ -95,22 +93,28 @@
     <script src="js/led_studio.js"></script>
     <script src="js/panels.js"></script>
     <script src="app.js"></script>
+    <script src="js/studio-package.js"></script>
+    <script src="js/studio-creator-mode.js"></script>
     <script src="js/studio-projects.js"></script>
     <script src="js/studio-deploy.js"></script>
+    <script src="js/studio-creator-bootstrap.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             window.connectionDetector = new window.ConnectionDetector();
             await window.connectionDetector.detectMode();
             window.connectionDetector.startMonitoring();
-            const updateConnectionUI = () => {
-                const status = document.querySelector('.connection-status');
+            const status = document.querySelector('.connection-status');
+            const refreshCloudStatus = async () => {
                 if (!status) return;
-                if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='SHOWDUINO AP'; }
-                else if (window.connectionDetector.isOffline()) { status.className='connection-status offline'; status.textContent='CREATOR OFFLINE'; }
-                else { status.className='connection-status lan'; status.textContent=window.ShowduinoProjects?.cloudEnabled()?'CREATOR + CLOUD':'CREATOR ONLINE'; }
+                const user = await window.ShowduinoSupabase?.getCurrentUser?.();
+                if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='SHOWDUINO FOUND'; }
+                else if (user) { status.className='connection-status lan'; status.textContent='SIGNED IN + CLOUD'; }
+                else if (navigator.onLine) { status.className='connection-status lan'; status.textContent='CREATOR ONLINE'; }
+                else { status.className='connection-status offline'; status.textContent='CREATOR OFFLINE'; }
             };
-            updateConnectionUI();
-            window.setInterval(updateConnectionUI,5000);
+            refreshCloudStatus();
+            window.addEventListener('showduino:auth-changed', refreshCloudStatus);
+            window.setInterval(refreshCloudStatus,5000);
             const importButton=document.getElementById('studio-import-button');
             const exportButton=document.getElementById('studio-export-button');
             const importFile=document.getElementById('studio-import-file');

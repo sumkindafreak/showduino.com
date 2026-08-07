@@ -1,44 +1,14 @@
-/* global SHOWDUINO_CONFIG, ShowduinoFirebase */
+/* global ShowduinoSupabase */
 (function () {
   'use strict';
 
   const elements = {};
 
-  function byId(id) {
-    return document.getElementById(id);
-  }
+  function byId(id) { return document.getElementById(id); }
 
   function setStatus(message, type) {
     elements.status.textContent = message;
     elements.status.className = `status-banner${type ? ` ${type}` : ''}`;
-  }
-
-  function integrationsEnabled() {
-    const config = window.SHOWDUINO_CONFIG || { features: {} };
-    return Boolean(config.features.firebase && config.features.authentication);
-  }
-
-  function renderOfflineProjects() {
-    const stored = JSON.parse(localStorage.getItem('showduino_local_projects') || '[]');
-    elements.projectList.innerHTML = '';
-
-    if (!stored.length) {
-      elements.projectList.innerHTML = '<p class="muted">No local projects yet. Create one in Showduino Studio and it will appear here once account integration is connected.</p>';
-      return;
-    }
-
-    stored.forEach((project) => {
-      const item = document.createElement('article');
-      item.className = 'project-item';
-      item.innerHTML = `
-        <div>
-          <strong>${escapeHtml(project.name || 'Untitled show')}</strong>
-          <div class="muted">Updated ${escapeHtml(project.updatedAt || 'locally')}</div>
-        </div>
-        <span class="badge">LOCAL</span>
-      `;
-      elements.projectList.appendChild(item);
-    });
   }
 
   function escapeHtml(value) {
@@ -50,26 +20,79 @@
       .replaceAll("'", '&#039;');
   }
 
+  function localProjects() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('showduino_local_projects') || '[]');
+      return Array.isArray(stored) ? stored : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  async function renderProjects(user) {
+    elements.projectList.innerHTML = '';
+    let cloud = [];
+    if (user) {
+      try { cloud = await window.ShowduinoSupabase.listProjects(); }
+      catch (error) { setStatus(`Signed in, but cloud projects could not be loaded: ${error.message}`, 'error'); }
+    }
+
+    const cloudIds = new Set(cloud.map((project) => project.id));
+    const local = localProjects().filter((project) => !cloudIds.has(project.id));
+
+    if (!cloud.length && !local.length) {
+      elements.projectList.innerHTML = '<p class="muted">No shows yet. Open Studio and create your first Showduino production.</p>';
+      return;
+    }
+
+    cloud.forEach((project) => {
+      const item = document.createElement('article');
+      item.className = 'project-item';
+      item.innerHTML = `<div><strong>${escapeHtml(project.name || 'Untitled Show')}</strong><div class="muted">Updated ${escapeHtml(new Date(project.updated_at).toLocaleString())}</div></div><span class="badge">CLOUD</span>`;
+      item.addEventListener('click', () => {
+        sessionStorage.setItem('showduino_open_cloud_project', project.id);
+        window.location.href = 'studio.html';
+      });
+      item.tabIndex = 0;
+      item.setAttribute('role', 'button');
+      item.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') item.click();
+      });
+      elements.projectList.appendChild(item);
+    });
+
+    local.forEach((project) => {
+      const item = document.createElement('article');
+      item.className = 'project-item';
+      item.innerHTML = `<div><strong>${escapeHtml(project.name || 'Untitled Show')}</strong><div class="muted">Updated ${escapeHtml(project.updatedAt || 'on this device')}</div></div><span class="badge">THIS DEVICE</span>`;
+      elements.projectList.appendChild(item);
+    });
+  }
+
   function showSignedOut() {
     elements.authForms.hidden = false;
     elements.accountPanel.hidden = true;
-    elements.signOutButton.hidden = true;
   }
 
-  function showSignedIn(user) {
+  async function showSignedIn(user) {
     elements.authForms.hidden = true;
     elements.accountPanel.hidden = false;
-    elements.signOutButton.hidden = false;
-    elements.accountName.textContent = user.displayName || 'Showduino Creator';
-    elements.accountEmail.textContent = user.email || 'No email available';
-    setStatus('You are signed in and ready to use cloud features.', 'success');
+    let displayName = user.user_metadata?.display_name || 'Showduino Creator';
+    try {
+      const profile = await window.ShowduinoSupabase.getProfile();
+      if (profile?.display_name) displayName = profile.display_name;
+    } catch (_) {}
+    elements.accountName.textContent = displayName;
+    elements.accountEmail.textContent = user.email || '';
+    setStatus('Signed in. Your cloud shows are ready.', 'success');
+    await renderProjects(user);
   }
 
   async function handleSignIn(event) {
     event.preventDefault();
     setStatus('Signing in…');
     try {
-      await window.ShowduinoFirebase.signIn(elements.loginEmail.value.trim(), elements.loginPassword.value);
+      await window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(), elements.loginPassword.value);
     } catch (error) {
       setStatus(error.message || 'Sign in failed.', 'error');
     }
@@ -77,13 +100,19 @@
 
   async function handleRegister(event) {
     event.preventDefault();
-    setStatus('Creating your account…');
+    setStatus('Creating your Showduino account…');
     try {
-      await window.ShowduinoFirebase.register(
+      const data = await window.ShowduinoSupabase.register(
         elements.registerEmail.value.trim(),
         elements.registerPassword.value,
         elements.registerName.value.trim()
       );
+      elements.registerForm.reset();
+      if (!data.session) {
+        setStatus('Account created. Check your email for the confirmation link, then return here to sign in.', 'success');
+      } else {
+        setStatus('Account created and signed in.', 'success');
+      }
     } catch (error) {
       setStatus(error.message || 'Account creation failed.', 'error');
     }
@@ -91,8 +120,9 @@
 
   async function handleSignOut() {
     try {
-      await window.ShowduinoFirebase.signOut();
+      await window.ShowduinoSupabase.signOut();
       setStatus('You have signed out.');
+      await renderProjects(null);
     } catch (error) {
       setStatus(error.message || 'Sign out failed.', 'error');
     }
@@ -102,7 +132,6 @@
     elements.status = byId('account-status');
     elements.authForms = byId('auth-forms');
     elements.accountPanel = byId('account-panel');
-    elements.signOutButton = byId('sign-out-button');
     elements.loginForm = byId('login-form');
     elements.registerForm = byId('register-form');
     elements.loginEmail = byId('login-email');
@@ -113,25 +142,27 @@
     elements.accountName = byId('account-name');
     elements.accountEmail = byId('account-email');
     elements.projectList = byId('project-list');
+    elements.signOutButton = byId('sign-out-button');
 
-    renderOfflineProjects();
     elements.loginForm.addEventListener('submit', handleSignIn);
     elements.registerForm.addEventListener('submit', handleRegister);
     elements.signOutButton.addEventListener('click', handleSignOut);
 
-    if (!integrationsEnabled() || !window.ShowduinoFirebase) {
+    if (!window.ShowduinoSupabase?.enabled()) {
       showSignedOut();
       elements.authForms.querySelectorAll('input, button').forEach((element) => { element.disabled = true; });
-      setStatus('Account registration is prepared but currently disabled while the website is being completed. Local Studio features remain available.');
+      setStatus('Showduino account services could not start. Local Studio saving is still available.', 'error');
+      renderProjects(null);
       return;
     }
 
-    setStatus('Checking your account…');
-    window.ShowduinoFirebase.onAuthChanged((user) => {
-      if (user) showSignedIn(user);
+    setStatus('Checking your Showduino account…');
+    window.ShowduinoSupabase.onAuthChanged(async (user) => {
+      if (user) await showSignedIn(user);
       else {
         showSignedOut();
-        setStatus('Sign in or create a Showduino account.');
+        setStatus('Sign in or create a free Showduino account.');
+        await renderProjects(null);
       }
     });
   }

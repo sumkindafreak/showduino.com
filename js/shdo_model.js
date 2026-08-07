@@ -33,7 +33,7 @@ class SHDOModel {
 
   static createTrack(type = 'audio', name = null, order = 0) {
     const colors = {
-      audio: '#00aaff', fx: '#aa00ff', relay: '#ff8800', lighting: '#ffff00',
+      mixed: '#7f8c98', audio: '#00aaff', fx: '#aa00ff', relay: '#ff8800', lighting: '#ffff00',
       pixel: '#00ffcc', dmx: '#ff0066', prop: '#33cc33', trigger: '#ff3333'
     };
     return {

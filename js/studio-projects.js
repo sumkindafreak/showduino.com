@@ -136,6 +136,19 @@
     return project;
   }
 
+  function openRequestedLocalProject() {
+    const id = sessionStorage.getItem('showduino_open_local_project');
+    if (!id) return false;
+    sessionStorage.removeItem('showduino_open_local_project');
+    try {
+      loadLocalProject(id);
+      return true;
+    } catch (error) {
+      notify(`Could not open local show: ${error.message}`, 'ERR');
+      return false;
+    }
+  }
+
   async function loadCloudProject(projectId) {
     if (!cloudEnabled() || !currentUser) throw new Error('Sign in before loading a cloud show.');
     const state = getState();
@@ -241,8 +254,10 @@
     initialiseAuth();
     setTimeout(() => {
       try {
-        const project = ensureProject();
-        updateStudioTitle(project);
+        if (!openRequestedLocalProject()) {
+          const project = ensureProject();
+          updateStudioTitle(project);
+        }
       } catch (error) {
         console.warn('[Studio Projects]', error);
       }

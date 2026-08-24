@@ -96,27 +96,9 @@
         <form id="community-post-form" class="card" hidden>
           <span class="badge">POST TO HAUNTSYNC</span>
           <div class="composer-grid" style="margin-top:1rem;">
-            <div class="form-group">
-              <label for="community-post-title">Title</label>
-              <input id="community-post-title" class="form-control" type="text" maxlength="120" placeholder="What are you working on?" required>
-            </div>
-            <div class="form-group">
-              <label for="community-post-category">Category</label>
-              <select id="community-post-category" class="form-control">
-                <option value="build-log">Build log</option>
-                <option value="show-design">Show design</option>
-                <option value="code-control">Code &amp; control</option>
-                <option value="props-fx">Props &amp; FX</option>
-                <option value="lighting-audio">Lighting &amp; audio</option>
-                <option value="help-wanted">Help wanted</option>
-                <option value="showcase">Showcase</option>
-                <option value="general">General</option>
-              </select>
-            </div>
-            <div class="form-group wide">
-              <label for="community-post-content">Post</label>
-              <textarea id="community-post-content" class="form-control" rows="5" maxlength="5000" placeholder="Share the build, ask the question, show the ridiculous mechanism…" required></textarea>
-            </div>
+            <div class="form-group"><label for="community-post-title">Title</label><input id="community-post-title" class="form-control" type="text" maxlength="120" placeholder="What are you working on?" required></div>
+            <div class="form-group"><label for="community-post-category">Category</label><select id="community-post-category" class="form-control"><option value="build-log">Build log</option><option value="show-design">Show design</option><option value="code-control">Code &amp; control</option><option value="props-fx">Props &amp; FX</option><option value="lighting-audio">Lighting &amp; audio</option><option value="help-wanted">Help wanted</option><option value="showcase">Showcase</option><option value="general">General</option></select></div>
+            <div class="form-group wide"><label for="community-post-content">Post</label><textarea id="community-post-content" class="form-control" rows="5" maxlength="5000" placeholder="Share the build, ask the question, show the ridiculous mechanism…" required></textarea></div>
             <div class="section-actions wide"><button class="btn" type="submit">Post to HauntSync</button></div>
           </div>
         </form>
@@ -125,10 +107,7 @@
 
         <section id="workspace" class="workspace-grid">
           <article class="card">
-            <div class="section-actions" style="justify-content:space-between;">
-              <div><span class="badge">YOUR WORKSPACE</span><h2 style="margin:.65rem 0 .2rem;">Shows</h2></div>
-              <a class="btn secondary" href="studio.html">Create show</a>
-            </div>
+            <div class="section-actions" style="justify-content:space-between;"><div><span class="badge">YOUR WORKSPACE</span><h2 style="margin:.65rem 0 .2rem;">Shows</h2></div><a class="btn secondary" href="studio.html">Create show</a></div>
             <div id="project-list" class="workspace-list"></div>
           </article>
 
@@ -155,7 +134,7 @@
         </article>
 
         <article class="card">
-          <span class="badge">LIVE ON SUPABASE</span>
+          <span class="badge">DATABASE LIVE</span>
           <div class="stats-grid" style="margin-top:1rem;">
             <div class="stat"><strong id="community-count">0</strong><span class="muted">Latest posts</span></div>
             <div class="stat"><strong id="project-count">0</strong><span class="muted">Shows</span></div>
@@ -172,11 +151,12 @@
     </div>
   </main>
 
-  <footer class="site-footer"><p>© 2026 Showduino · HauntSync community powered by Supabase.</p></footer>
+  <footer class="site-footer"><p>© 2026 Showduino · HauntSync community.</p></footer>
 
   <script src="config/runtime-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
   <script src="js/cloud/supabase-service.js"></script>
   <script src="js/hauntsync-dashboard.js"></script>
+  <script src="js/provider-redaction.js"></script>
 </body>
 </html>

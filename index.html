@@ -3,27 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Showduino is an open show-control platform for immersive attractions, escape rooms, theatre and interactive installations.">
-  <title>Showduino | Immersive Show Control</title>
+  <meta name="description" content="Showduino is an open show-control platform for immersive attractions, theatre and interactive installations, with the HauntSync creator community built in.">
+  <title>Showduino | Immersive Show Control + HauntSync</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <style>
-    .hero {
-      min-height: 72vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 5rem 1rem;
-    }
-    .hero-inner { width: min(900px, 100%); }
-    .hero h1 { margin: .75rem 0 1rem; font-size: clamp(3rem, 12vw, 7rem); letter-spacing: .08em; color: var(--site-accent); text-shadow: 0 0 40px rgba(0,255,204,.3); }
-    .hero p { max-width: 760px; margin: 0 auto 2rem; color: var(--site-muted); font-size: clamp(1rem, 2.3vw, 1.3rem); line-height: 1.8; }
-    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; }
-    .section { padding: 1rem 0 4rem; }
-    .section-heading { max-width: 720px; margin-bottom: 1.5rem; }
-    .section-heading h2 { margin: 0 0 .5rem; font-size: clamp(2rem, 5vw, 3rem); }
-    .feature-icon { font-size: 2rem; }
-    .launch-strip { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
-    @media (max-width: 700px) { .launch-strip { flex-direction: column; align-items: stretch; } }
+    .hero { min-height:72vh; display:grid; place-items:center; text-align:center; padding:5rem 1rem; }
+    .hero-inner { width:min(920px,100%); }
+    .hero h1 { margin:.75rem 0 1rem; font-size:clamp(3rem,12vw,7rem); letter-spacing:.08em; color:var(--site-accent); text-shadow:0 0 40px rgba(0,255,204,.3); }
+    .hero p { max-width:780px; margin:0 auto 2rem; color:var(--site-muted); font-size:clamp(1rem,2.3vw,1.3rem); line-height:1.8; }
+    .hero-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:.8rem; }
+    .section { padding:1rem 0 4rem; }
+    .section-heading { max-width:760px; margin-bottom:1.5rem; }
+    .section-heading h2 { margin:0 0 .5rem; font-size:clamp(2rem,5vw,3rem); }
+    .feature-icon { font-size:2rem; }
+    .community-card { position:relative; overflow:hidden; }
+    .community-card::after { content:''; position:absolute; inset:auto -12% -55% 30%; height:260px; background:radial-gradient(circle,rgba(0,255,204,.14),transparent 65%); pointer-events:none; }
+    .launch-strip { display:flex; justify-content:space-between; gap:1rem; align-items:center; }
+    @media (max-width:700px) { .launch-strip { flex-direction:column; align-items:stretch; } }
   </style>
 </head>
 <body>
@@ -31,8 +27,8 @@
     <a class="site-brand" href="index.html">SHOWDUINO</a>
     <nav class="site-nav" aria-label="Main navigation">
       <a href="index.html" aria-current="page">Home</a>
-      <a href="studio.html">Studio</a>
       <a href="hauntsync.html">HauntSync</a>
+      <a href="studio.html">Studio</a>
       <a href="tools.html">Tools</a>
       <a href="aboutme.html">About</a>
       <a href="support.html">Support</a>
@@ -43,60 +39,69 @@
   <main>
     <section class="hero">
       <div class="hero-inner">
-        <span class="badge">OPEN SHOW CONTROL PLATFORM</span>
+        <span class="badge">OPEN SHOW CONTROL + CREATOR COMMUNITY</span>
         <h1>SHOWDUINO</h1>
-        <p>Build, control and manage immersive shows using ESP32 hardware, lighting, audio, relays, sensors and timeline automation — all from one connected platform.</p>
+        <p>Build immersive shows with synchronized audio, lighting, pixels, relays and practical effects — then share the ideas, builds and glorious technical disasters with the people making this stuff in HauntSync.</p>
         <div class="hero-actions">
-          <a class="btn" href="studio.html">Launch Studio</a>
-          <a class="btn secondary" href="hauntsync.html">Open HauntSync</a>
-          <a class="btn secondary" href="account.html">View Account</a>
+          <a class="btn" href="hauntsync.html">Enter HauntSync</a>
+          <a class="btn secondary" href="studio.html">Launch Studio</a>
+          <a class="btn secondary" href="account.html">Create Showduino ID</a>
         </div>
       </div>
     </section>
 
-    <div class="site-main" style="padding-top: 0;">
+    <div class="site-main" style="padding-top:0;">
+      <section class="section">
+        <article class="card community-card">
+          <span class="badge">HAUNTSYNC COMMUNITY</span>
+          <h2 style="margin:.8rem 0 .55rem;">For the people behind the effects</h2>
+          <p class="muted" style="max-width:800px;">HauntSync is a place for haunted-attraction builders, immersive theatre makers, escape-room creators, scenic artists, prop builders, lighting and audio people, coders and practical-FX obsessives. You do not need Showduino hardware to belong there.</p>
+          <div class="button-row"><a class="btn" href="hauntsync.html">See what people are building</a><a class="btn secondary" href="account.html">Join the community</a></div>
+        </article>
+      </section>
+
       <section class="section">
         <div class="section-heading">
-          <span class="badge">WHAT IT DOES</span>
+          <span class="badge">WHAT SHOWDUINO DOES</span>
           <h2>One system for the whole attraction</h2>
-          <p class="muted">Showduino connects creative show building with reliable embedded control.</p>
+          <p class="muted">Creative show building on one side; reliable embedded control on the other.</p>
         </div>
         <div class="grid three">
           <article class="card"><div class="feature-icon">🎬</div><h3>Timeline show building</h3><p class="muted">Create scenes, cues, lighting changes, audio moments and automated effects in Showduino Studio.</p></article>
-          <article class="card"><div class="feature-icon">📡</div><h3>Distributed control</h3><p class="muted">Coordinate SUE, IAN, touchscreen UI and prop nodes across ESP-NOW, Wi-Fi, UART and DMX.</p></article>
-          <article class="card"><div class="feature-icon">☁️</div><h3>Project management</h3><p class="muted">Manage local projects and device inventories through HauntSync, with cloud syncing prepared for launch.</p></article>
-          <article class="card"><div class="feature-icon">💡</div><h3>Lighting and effects</h3><p class="muted">Control addressable LEDs, relay outputs, PWM effects, DMX fixtures and environmental systems.</p></article>
+          <article class="card"><div class="feature-icon">📡</div><h3>Distributed control</h3><p class="muted">Coordinate Director, SUE, Stage Controller and dedicated output nodes across the show-control network.</p></article>
+          <article class="card"><div class="feature-icon">☁️</div><h3>Supabase cloud</h3><p class="muted">One Showduino ID connects HauntSync, private cloud shows and your registered hardware workspace.</p></article>
+          <article class="card"><div class="feature-icon">💡</div><h3>Lighting and effects</h3><p class="muted">Control addressable LEDs, relay outputs, practical effects, DMX fixtures and environmental systems.</p></article>
           <article class="card"><div class="feature-icon">🎵</div><h3>Synchronized audio</h3><p class="muted">Build timed soundscapes and trigger audio alongside physical effects and lighting.</p></article>
-          <article class="card"><div class="feature-icon">🧰</div><h3>Built for makers</h3><p class="muted">Designed for haunted attractions, escape rooms, immersive theatre, installations and practical effects.</p></article>
+          <article class="card"><div class="feature-icon">🧰</div><h3>Built for makers</h3><p class="muted">Designed around haunted attractions, escape rooms, immersive theatre, installations and practical effects.</p></article>
         </div>
       </section>
 
       <section class="section">
         <div class="section-heading">
-          <span class="badge">CORE APPLICATIONS</span>
-          <h2>Build locally. Manage centrally.</h2>
+          <span class="badge">TWO SIDES OF THE PLATFORM</span>
+          <h2>Build the show. Share the madness.</h2>
         </div>
         <div class="grid two">
           <article class="card">
-            <h2>Showduino Studio</h2>
-            <p class="muted">The creative workspace for building and operating show projects. Save locally, import and export `.shdo` files, connect hardware and prepare cloud synchronization.</p>
-            <div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div>
+            <h2>HauntSync</h2>
+            <p class="muted">The creator community and your cloud workspace. Share build logs, ask for help, discuss show design and practical FX, then keep your Showduino projects and devices under the same account.</p>
+            <div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a></div>
           </article>
           <article class="card">
-            <h2>HauntSync</h2>
-            <p class="muted">The project and device dashboard. View saved shows, export backups, manage hardware inventory and prepare projects for future online access.</p>
-            <div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a></div>
+            <h2>Showduino Studio</h2>
+            <p class="muted">The creative workspace for building and operating show projects. Save locally, import and export `.shdo` files, and sync signed-in projects through Supabase.</p>
+            <div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div>
           </article>
         </div>
       </section>
 
       <section class="card launch-strip">
         <div>
-          <span class="badge">LAUNCH DEVELOPMENT</span>
-          <h2 style="margin: .7rem 0 .35rem;">The website is actively being completed</h2>
-          <p class="muted" style="margin: 0;">Studio and HauntSync already work locally. Accounts and cloud services remain safely disabled until final testing.</p>
+          <span class="badge">HAUNTSYNC + SHOWDUINO ID</span>
+          <h2 style="margin:.7rem 0 .35rem;">One account across the platform</h2>
+          <p class="muted" style="margin:0;">Community posts are public to read. Sign in to post, reply, save cloud shows and maintain your Showduino hardware workspace.</p>
         </div>
-        <a class="btn secondary" href="support.html">Project support</a>
+        <a class="btn secondary" href="account.html">Create an account</a>
       </section>
     </div>
   </main>

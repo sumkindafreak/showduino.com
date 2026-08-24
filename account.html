@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Manage your Showduino account, projects and cloud access.">
+  <meta name="description" content="Manage your Showduino ID, HauntSync identity, projects and Supabase cloud access.">
   <title>Account | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
 </head>
@@ -11,27 +11,29 @@
   <header class="site-header">
     <a class="site-brand" href="index.html">SHOWDUINO</a>
     <nav class="site-nav" aria-label="Main navigation">
-      <a href="index.html">Home</a><a href="studio.html">Studio</a><a href="hauntsync.html">HauntSync</a><a href="tools.html">Tools</a><a href="account.html" aria-current="page">Account</a>
+      <a href="index.html">Home</a><a href="hauntsync.html">HauntSync</a><a href="studio.html">Studio</a><a href="tools.html">Tools</a><a href="account.html" aria-current="page">Account</a>
     </nav>
   </header>
   <main class="site-main">
-    <section class="page-heading"><span class="badge">SHOWDUINO ID</span><h1>Your account</h1><p>One account for Showduino Studio, cloud-saved productions and future connected Showduino features.</p></section>
+    <section class="page-heading"><span class="badge">SHOWDUINO ID</span><h1>Your account</h1><p>One Supabase-backed identity for HauntSync, Showduino Studio, cloud-saved productions and your hardware workspace.</p></section>
     <div id="account-status" class="status-banner" role="status" aria-live="polite">Loading Showduino account services…</div>
+
     <section id="auth-forms" class="grid two">
       <form id="login-form" class="card">
-        <h2>Sign in</h2><p class="muted">Open shows you saved from any computer or phone.</p>
+        <h2>Sign in</h2><p class="muted">Open your HauntSync identity and shows from any computer or phone.</p>
         <div class="form-group"><label for="login-email">Email address</label><input id="login-email" class="form-control" type="email" autocomplete="email" required></div>
         <div class="form-group"><label for="login-password">Password</label><input id="login-password" class="form-control" type="password" autocomplete="current-password" minlength="8" required></div>
         <div class="button-row"><button class="btn" type="submit">Sign in</button><button id="forgot-password-button" class="btn secondary" type="button">Forgot password?</button></div>
       </form>
       <form id="register-form" class="card">
-        <h2>Create an account</h2><p class="muted">Create your free Showduino ID and cloud workspace.</p>
+        <h2>Create an account</h2><p class="muted">Create your free Showduino ID and join HauntSync.</p>
         <div class="form-group"><label for="register-name">Display name</label><input id="register-name" class="form-control" type="text" autocomplete="name" maxlength="60" required></div>
         <div class="form-group"><label for="register-email">Email address</label><input id="register-email" class="form-control" type="email" autocomplete="email" required></div>
         <div class="form-group"><label for="register-password">Password</label><input id="register-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required></div>
         <div class="button-row"><button class="btn" type="submit">Create account</button><button id="resend-confirmation-button" class="btn secondary" type="button">Resend confirmation</button></div>
       </form>
     </section>
+
     <section id="password-recovery-panel" class="card" hidden>
       <span class="badge">PASSWORD RECOVERY</span><h2>Choose a new password</h2><p class="muted">Enter a new password for your Showduino account.</p>
       <form id="password-recovery-form">
@@ -40,11 +42,25 @@
         <button class="btn" type="submit">Save new password</button>
       </form>
     </section>
+
     <section id="account-panel" class="grid two" hidden>
-      <article class="card"><span class="badge">SIGNED IN</span><h2 id="account-name">Showduino Creator</h2><p id="account-email" class="muted"></p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a><button id="sign-out-button" class="btn secondary" type="button">Sign out</button></div></article>
-      <article class="card"><h2>Cloud status</h2><p class="muted">Your shows are protected by your Showduino account. Only you can read, change or delete your private projects.</p><span class="badge">SUPABASE CONNECTED</span></article>
+      <article class="card"><span class="badge">SIGNED IN</span><h2 id="account-name">Showduino Creator</h2><p id="account-email" class="muted"></p><div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a><a class="btn secondary" href="studio.html">Open Studio</a><button id="sign-out-button" class="btn secondary" type="button">Sign out</button></div></article>
+      <article class="card"><h2>Cloud status</h2><p class="muted">Your private shows and device inventory are protected by Row Level Security. HauntSync posts are public to read, but only signed-in authors can create or change their own posts and replies.</p><span class="badge">SUPABASE CONNECTED</span></article>
     </section>
-    <section class="card" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
+
+    <section id="profile-panel" class="card" hidden style="margin-top:1rem;">
+      <span class="badge">HAUNTSYNC IDENTITY</span>
+      <h2 style="margin-top:.8rem;">How you appear in the community</h2>
+      <p class="muted">Your email stays private. HauntSync posts use the public identity below.</p>
+      <form id="profile-form" class="grid two">
+        <div class="form-group"><label for="profile-display-name">Display name</label><input id="profile-display-name" class="form-control" type="text" maxlength="60" required></div>
+        <div class="form-group"><label for="profile-haunt-name">Haunt / company / project</label><input id="profile-haunt-name" class="form-control" type="text" maxlength="100" placeholder="Optional"></div>
+        <div class="form-group" style="grid-column:1 / -1;"><label for="profile-bio">Short bio</label><textarea id="profile-bio" class="form-control" rows="3" maxlength="500" placeholder="What do you build, design, code or break?"></textarea></div>
+        <div class="button-row" style="grid-column:1 / -1;"><button class="btn" type="submit">Save HauntSync identity</button></div>
+      </form>
+    </section>
+
+    <section class="card" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Supabase cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
   </main>
   <footer class="site-footer"><p>© 2026 Showduino · Show control so good, it’s frightening.</p></footer>
   <script src="config/runtime-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script src="js/cloud/supabase-service.js"></script><script src="js/account-page.js"></script>

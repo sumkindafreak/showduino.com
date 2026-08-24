@@ -5,36 +5,101 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function ownsUserDocument(userId) {
+    function isOwner(userId) {
       return signedIn() && request.auth.uid == userId;
     }
 
-    match /users/{userId} {
-      allow read: if ownsUserDocument(userId);
-      allow create: if ownsUserDocument(userId)
-        && !request.resource.data.keys().hasAny([
-          'stripeCustomerId',
-          'subscriptionId',
-          'subscriptionStatus',
-          'subscriptionPlan'
-        ]);
-      allow update: if ownsUserDocument(userId)
+    function validShortString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+
+    function validOptionalString(data, field, maxLength) {
+      return !(field in data) || (data[field] is string && data[field].size() <= maxLength);
+    }
+
+    match /profiles/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && validShortString(request.resource.data.displayName, 60)
+        && validOptionalString(request.resource.data, 'haunt', 100)
+        && validOptionalString(request.resource.data, 'bio', 500);
+      allow update: if isOwner(userId)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'displayName',
-          'photoURL',
-          'preferences',
-          'updatedAt'
-        ]);
-      allow delete: if false;
+          'displayName', 'email', 'haunt', 'bio', 'updatedAt'
+        ])
+        && validShortString(request.resource.data.displayName, 60)
+        && validOptionalString(request.resource.data, 'haunt', 100)
+        && validOptionalString(request.resource.data, 'bio', 500);
+      allow delete: if isOwner(userId);
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
 
       match /projects/{projectId} {
-        allow read, create, update, delete: if ownsUserDocument(userId);
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /devices/{deviceId} {
+        allow read, create, update, delete: if isOwner(userId);
       }
     }
 
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          'title', 'content', 'category', 'authorId', 'authorName', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.authorId == request.auth.uid
+        && validShortString(request.resource.data.title, 120)
+        && validShortString(request.resource.data.content, 5000)
+        && validShortString(request.resource.data.category, 40)
+        && validShortString(request.resource.data.authorName, 60)
+        && validOptionalString(request.resource.data, 'authorHaunt', 100)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if signedIn()
+        && resource.data.authorId == request.auth.uid
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validShortString(request.resource.data.title, 120)
+        && validShortString(request.resource.data.content, 5000)
+        && validShortString(request.resource.data.category, 40)
+        && validShortString(request.resource.data.authorName, 60)
+        && validOptionalString(request.resource.data, 'authorHaunt', 100);
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.keys().hasAll([
+            'content', 'authorId', 'authorName', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.authorId == request.auth.uid
+          && validShortString(request.resource.data.content, 2500)
+          && validShortString(request.resource.data.authorName, 60)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+        allow update: if signedIn()
+          && resource.data.authorId == request.auth.uid
+          && request.resource.data.authorId == resource.data.authorId
+          && request.resource.data.createdAt == resource.data.createdAt
+          && validShortString(request.resource.data.content, 2500)
+          && validShortString(request.resource.data.authorName, 60);
+        allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      }
+    }
+
+    // Legacy public Showduino showcase documents remain readable if present.
     match /publicProjects/{projectId} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // Everything else is denied unless explicitly matched above.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="Private live smoke-test page for the Supabase-backed HauntSync community.">
+  <meta name="description" content="Private live smoke-test page for the HauntSync community database.">
   <title>HauntSync Preview | Showduino</title>
   <link rel="stylesheet" href="../css/site-pages.css">
   <link rel="stylesheet" href="hauntsync-preview.css">
 </head>
 <body class="preview-page">
-  <div class="preview-banner">TEST AREA · This page writes to the production Showduino Supabase database, but it does not replace the live HauntSync website.</div>
+  <div class="preview-banner">TEST AREA · This page writes to the production Showduino database, but it does not replace the live HauntSync website.</div>
 
   <header class="site-header">
     <a class="site-brand" href="../index.html">SHOWDUINO</a>
@@ -24,11 +24,11 @@
 
   <main class="preview-shell">
     <section class="preview-hero">
-      <div><span class="badge">SUPABASE LIVE SMOKE TEST</span></div>
+      <div><span class="badge">DATABASE LIVE SMOKE TEST</span></div>
       <h1>HauntSync Preview</h1>
       <p>This isolated page lets us prove the new HauntSync database, authentication, Row Level Security, community posts, replies, Realtime, cloud projects and device inventory before the redesign is merged into the real website.</p>
       <div class="preview-toolbar">
-        <button id="refresh-button" class="btn" type="button">Refresh Supabase data</button>
+        <button id="refresh-button" class="btn" type="button">Refresh database data</button>
         <a class="btn secondary" href="../account.html">Open current Account page</a>
         <a class="btn secondary" href="../studio.html">Open current Studio</a>
       </div>
@@ -39,7 +39,7 @@
     <section class="preview-card preview-status" style="margin-bottom:1rem;">
       <div class="preview-status-copy">
         <strong id="identity-name">Checking account…</strong>
-        <span id="identity-detail">Connecting to Supabase.</span>
+        <span id="identity-detail">Connecting to database.</span>
       </div>
       <div class="preview-inline-status">
         <span id="realtime-dot" class="preview-dot"></span>
@@ -60,7 +60,7 @@
             <div>
               <span class="badge">COMMUNITY</span>
               <h2 style="margin-top:.65rem;">HauntSync feed</h2>
-              <p class="muted" style="margin:0;">Public-read. Supabase-authenticated members can write.</p>
+              <p class="muted" style="margin:0;">Public-read. Signed-in members can write.</p>
             </div>
             <select id="category-filter" class="form-control preview-filter" aria-label="Filter community category">
               <option value="">All categories</option>
@@ -76,7 +76,7 @@
           </div>
 
           <form id="post-form" class="preview-card" style="margin-bottom:1rem; box-shadow:none;" hidden>
-            <div style="margin-bottom:.8rem;"><strong>Create a test/community post</strong><div class="muted">This will be a real row in <code>community_posts</code>. You can delete it again from this page.</div></div>
+            <div style="margin-bottom:.8rem;"><strong>Create a test/community post</strong><div class="muted">This creates a real community post. You can delete it again from this page.</div></div>
             <div class="preview-form-grid">
               <div class="form-group">
                 <label for="post-title">Title</label>
@@ -112,7 +112,7 @@
           <span class="badge">SHOWDUINO ID</span>
           <div id="login-panel" style="margin-top:1rem;">
             <h2>Sign in for the test</h2>
-            <p class="muted">This is on the real <strong>show-duino.com</strong> origin and uses the same Supabase project as the current Account page.</p>
+            <p class="muted">This is on the real <strong>show-duino.com</strong> origin and uses the same cloud database as the current Account page.</p>
             <form id="login-form" class="preview-auth-form">
               <div class="form-group" style="margin:0;"><label for="login-email">Email</label><input id="login-email" class="form-control" type="email" autocomplete="email" required></div>
               <div class="form-group" style="margin:0;"><label for="login-password">Password</label><input id="login-password" class="form-control" type="password" autocomplete="current-password" required></div>
@@ -135,7 +135,7 @@
         <section class="preview-card">
           <span class="badge">PRIVATE WORKSPACE</span>
           <h2 style="margin-top:.65rem;">Cloud projects</h2>
-          <p class="muted">RLS should return only projects owned by the signed-in Showduino ID.</p>
+          <p class="muted">Only projects owned by the signed-in Showduino ID should appear here.</p>
           <div id="project-list" class="preview-list"><div class="preview-empty">Checking projects…</div></div>
         </section>
 
@@ -165,5 +165,6 @@
   <script src="../config/runtime-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
   <script src="hauntsync-preview.js"></script>
+  <script src="../js/provider-redaction.js"></script>
 </body>
 </html>

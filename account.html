@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Manage your Showduino ID, HauntSync identity, projects and Supabase cloud access.">
+  <meta name="description" content="Manage your Showduino ID, HauntSync identity, projects and cloud access.">
   <title>Account | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
 </head>
@@ -15,7 +15,7 @@
     </nav>
   </header>
   <main class="site-main">
-    <section class="page-heading"><span class="badge">SHOWDUINO ID</span><h1>Your account</h1><p>One Supabase-backed identity for HauntSync, Showduino Studio, cloud-saved productions and your hardware workspace.</p></section>
+    <section class="page-heading"><span class="badge">SHOWDUINO ID</span><h1>Your account</h1><p>One Showduino identity for HauntSync, Showduino Studio, cloud-saved productions and your hardware workspace.</p></section>
     <div id="account-status" class="status-banner" role="status" aria-live="polite">Loading Showduino account services…</div>
 
     <section id="auth-forms" class="grid two">
@@ -45,7 +45,7 @@
 
     <section id="account-panel" class="grid two" hidden>
       <article class="card"><span class="badge">SIGNED IN</span><h2 id="account-name">Showduino Creator</h2><p id="account-email" class="muted"></p><div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a><a class="btn secondary" href="studio.html">Open Studio</a><button id="sign-out-button" class="btn secondary" type="button">Sign out</button></div></article>
-      <article class="card"><h2>Cloud status</h2><p class="muted">Your private shows and device inventory are protected by Row Level Security. HauntSync posts are public to read, but only signed-in authors can create or change their own posts and replies.</p><span class="badge">SUPABASE CONNECTED</span></article>
+      <article class="card"><h2>Cloud status</h2><p class="muted">Your private shows and device inventory are protected by account-level access controls. HauntSync posts are public to read, but only signed-in authors can create or change their own posts and replies.</p><span class="badge">DATABASE CONNECTED</span></article>
     </section>
 
     <section id="profile-panel" class="card" hidden style="margin-top:1rem;">
@@ -60,9 +60,9 @@
       </form>
     </section>
 
-    <section class="card" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Supabase cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
+    <section class="card" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
   </main>
   <footer class="site-footer"><p>© 2026 Showduino · Show control so good, it’s frightening.</p></footer>
-  <script src="config/runtime-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script><script src="js/cloud/supabase-service.js"></script><script src="js/account-page.js"></script>
+  <script src="config/runtime-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script><script src="js/cloud/supabase-service.js"></script><script src="js/account-page.js"></script><script src="js/provider-redaction.js"></script>
 </body>
 </html>

@@ -44,6 +44,7 @@
             <header class="top-bar">
                 <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
                     <a href="index.html" class="back-to-menu-btn">← Website</a>
+                    <a href="hauntsync.html" class="back-to-menu-btn">HauntSync</a>
                     <a href="account.html" class="back-to-menu-btn">Account</a>
                     <div class="connection-status offline" role="status">CREATOR OFFLINE</div>
                 </div>
@@ -82,8 +83,7 @@
         </footer>
     </div>
     <script src="config/runtime-config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
-    <script src="js/cloud/supabase-service.js"></script>
+    <script src="js/cloud/firebase-service.js"></script>
     <script src="js/api.js"></script>
     <script src="js/shdo_model.js"></script>
     <script src="js/connection_detector.js"></script>
@@ -112,9 +112,9 @@
             const status = document.querySelector('.connection-status');
             const refreshCloudStatus = async () => {
                 if (!status) return;
-                const user = await window.ShowduinoSupabase?.getCurrentUser?.();
+                const user = await window.ShowduinoFirebase?.getCurrentUser?.();
                 if (window.connectionDetector.isAPMode()) { status.className='connection-status ap'; status.textContent='SHOWDUINO FOUND'; }
-                else if (user) { status.className='connection-status lan'; status.textContent='SIGNED IN + CLOUD'; }
+                else if (user) { status.className='connection-status lan'; status.textContent='SIGNED IN + FIREBASE'; }
                 else if (navigator.onLine) { status.className='connection-status lan'; status.textContent='CREATOR ONLINE'; }
                 else { status.className='connection-status offline'; status.textContent='CREATOR OFFLINE'; }
             };

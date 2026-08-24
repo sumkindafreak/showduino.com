@@ -3,60 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Manage Showduino projects, devices and cloud-ready account features in HauntSync.">
-  <title>HauntSync | Showduino</title>
+  <meta name="description" content="HauntSync is the Showduino community for immersive creators, haunters, theatre makers, escape-room builders and practical FX people.">
+  <title>HauntSync Community | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <style>
-    .dashboard-shell {
-      display: grid;
-      grid-template-columns: 240px minmax(0, 1fr);
-      gap: 1rem;
-      align-items: start;
+    .community-hero {
+      display:grid;
+      grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);
+      gap:1rem;
+      align-items:stretch;
+      margin-bottom:1rem;
     }
-    .dashboard-sidebar {
-      position: sticky;
-      top: 88px;
-      display: grid;
-      gap: 1rem;
+    .community-hero .card { height:100%; }
+    .community-hero h1 { font-size:clamp(2.8rem,8vw,5.8rem); margin:.45rem 0 .8rem; letter-spacing:.035em; }
+    .community-hero p { max-width:760px; font-size:1.08rem; line-height:1.75; }
+    .community-kicker { color:var(--site-accent); font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+    .community-layout { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(260px,.7fr); gap:1rem; align-items:start; }
+    .community-main,.community-side { display:grid; gap:1rem; }
+    .community-side { position:sticky; top:88px; }
+    .composer-grid { display:grid; gap:.8rem; }
+    .community-feed { display:grid; gap:1rem; }
+    .post-card { border:1px solid var(--site-border); border-radius:12px; background:#11171c; padding:1rem; }
+    .post-meta { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; color:var(--site-muted); font-size:.9rem; }
+    .post-card h3 { margin:.7rem 0 .4rem; font-size:1.25rem; }
+    .post-body { white-space:pre-wrap; line-height:1.65; }
+    .post-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.8rem; }
+    .replies { display:grid; gap:.6rem; margin-top:.85rem; padding-top:.85rem; border-top:1px solid var(--site-border); }
+    .reply { padding:.75rem; border-radius:9px; background:var(--site-panel-soft); }
+    .reply-meta { font-size:.82rem; color:var(--site-muted); margin-bottom:.3rem; }
+    .reply-form { display:grid; gap:.5rem; margin-top:.5rem; }
+    .stats-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.7rem; }
+    .stat-card { text-align:center; }
+    .stat-value { display:block; color:var(--site-accent); font-size:1.8rem; font-weight:900; }
+    .workspace-list { display:grid; gap:.7rem; margin-top:.8rem; }
+    .workspace-item { display:flex; justify-content:space-between; gap:.8rem; align-items:center; padding:.8rem; border:1px solid var(--site-border); border-radius:9px; background:#11171c; }
+    .workspace-item strong { display:block; }
+    .empty-state { padding:1.2rem; border:1px dashed var(--site-border); border-radius:10px; color:var(--site-muted); text-align:center; }
+    .community-note { border-left:3px solid var(--site-accent); padding-left:.9rem; }
+    @media (max-width:900px) {
+      .community-hero,.community-layout { grid-template-columns:1fr; }
+      .community-side { position:static; }
     }
-    .dashboard-nav {
-      display: grid;
-      gap: .35rem;
-    }
-    .dashboard-nav a {
-      padding: .75rem .9rem;
-      border-radius: 8px;
-      color: var(--site-text);
-      text-decoration: none;
-    }
-    .dashboard-nav a:hover { background: var(--site-panel-soft); color: var(--site-accent); }
-    .dashboard-content { display: grid; gap: 1rem; min-width: 0; }
-    .dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-    .stat-card { text-align: center; }
-    .stat-value { display: block; font-size: 2rem; font-weight: 900; color: var(--site-accent); }
-    .dashboard-list { display: grid; gap: .75rem; margin-top: 1rem; }
-    .dashboard-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem;
-      border: 1px solid var(--site-border);
-      border-radius: 10px;
-      background: #11171c;
-    }
-    .dashboard-item-title { margin-bottom: .35rem; font-weight: 900; }
-    .empty-state { padding: 2rem; text-align: center; border: 1px dashed var(--site-border); border-radius: 10px; }
-    .section-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
-    .section-heading h2 { margin-bottom: .35rem; }
-    @media (max-width: 850px) {
-      .dashboard-shell { grid-template-columns: 1fr; }
-      .dashboard-sidebar { position: static; }
-      .dashboard-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 620px) {
-      .dashboard-stats { grid-template-columns: 1fr; }
-      .dashboard-item, .section-heading { flex-direction: column; align-items: stretch; }
+    @media (max-width:620px) {
+      .stats-row { grid-template-columns:1fr; }
+      .workspace-item { align-items:stretch; flex-direction:column; }
     }
   </style>
 </head>
@@ -68,111 +58,129 @@
       <a href="studio.html">Studio</a>
       <a href="hauntsync.html" aria-current="page">HauntSync</a>
       <a href="tools.html">Tools</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html">Support</a>
       <a href="account.html">Account</a>
     </nav>
   </header>
 
   <main class="site-main">
-    <section class="page-heading">
-      <span class="badge">PROJECT HUB</span>
-      <h1>HauntSync</h1>
-      <p>Your workspace for projects, registered Showduino hardware and cloud-ready account features.</p>
+    <section class="community-hero">
+      <article class="card">
+        <div class="community-kicker">THE HAUNTSYNC COMMUNITY</div>
+        <h1>Build strange things together.</h1>
+        <p>HauntSync is the community side of Showduino: a place for haunted-attraction builders, immersive theatre teams, escape-room creators, prop makers, lighting people, coders and practical FX obsessives to share builds, solve problems and swap ideas.</p>
+        <div class="button-row">
+          <a class="btn" href="#community">Enter the community</a>
+          <a class="btn secondary" href="account.html">Create a free Showduino ID</a>
+        </div>
+      </article>
+      <article class="card">
+        <span class="badge">WHY HAUNTSYNC?</span>
+        <h2 style="margin-top:1rem;">More than a Showduino support forum</h2>
+        <p class="muted community-note">The community is deliberately wider than the product. Share a prop mechanism, ask about a trigger problem, show off a set build, discuss audio, lighting, pneumatics, pixels, DMX or the story behind an effect.</p>
+      </article>
     </section>
 
-    <div id="hauntsync-status" class="status-banner" role="status" aria-live="polite">Loading HauntSync…</div>
+    <div id="hauntsync-status" class="status-banner" role="status" aria-live="polite">Connecting HauntSync…</div>
 
-    <div class="dashboard-shell">
-      <aside class="dashboard-sidebar">
+    <div class="community-layout" id="community">
+      <div class="community-main">
+        <section class="card">
+          <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+              <span class="badge">COMMUNITY FEED</span>
+              <h2 style="margin:.7rem 0 .35rem;">What are you building?</h2>
+              <p class="muted" style="margin:0;">Posts update live through Firestore.</p>
+            </div>
+            <a id="community-account-link" class="btn secondary" href="account.html">Sign in to post</a>
+          </div>
+
+          <form id="community-post-form" class="composer-grid" style="margin-top:1rem;" hidden>
+            <div class="grid two">
+              <div class="form-group">
+                <label for="community-post-title">Title</label>
+                <input id="community-post-title" class="form-control" maxlength="120" placeholder="What are you working on?" required>
+              </div>
+              <div class="form-group">
+                <label for="community-post-category">Category</label>
+                <select id="community-post-category" class="form-control">
+                  <option>Build Log</option>
+                  <option>Show Design</option>
+                  <option>Code &amp; Control</option>
+                  <option>Props &amp; FX</option>
+                  <option>Lighting &amp; Audio</option>
+                  <option>Help Wanted</option>
+                  <option>Showcase</option>
+                  <option>General</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="community-post-content">Message</label>
+              <textarea id="community-post-content" class="form-control" rows="5" maxlength="5000" placeholder="Share the problem, the idea, the build or the ridiculous thing you are trying to make happen…" required></textarea>
+            </div>
+            <div class="button-row"><button class="btn" type="submit">Post to HauntSync</button></div>
+          </form>
+        </section>
+
+        <section id="community-feed" class="community-feed" aria-live="polite">
+          <div class="empty-state">Loading the HauntSync feed…</div>
+        </section>
+      </div>
+
+      <aside class="community-side">
         <article class="card">
-          <span class="badge">WORKSPACE</span>
-          <h2 id="account-name" style="margin-top: 1rem;">Local workspace</h2>
-          <p id="account-email" class="muted">Projects and devices are stored in this browser.</p>
-          <a id="account-link" class="btn secondary" href="account.html">Open account</a>
+          <span class="badge">YOUR HAUNTSYNC</span>
+          <h2 id="account-name" style="margin-top:1rem;">Guest creator</h2>
+          <p id="account-email" class="muted">Read the community now. Sign in to post, reply and sync your Showduino workspace.</p>
+          <div class="button-row">
+            <a id="account-link" class="btn" href="account.html">Sign in / Join</a>
+            <a class="btn secondary" href="studio.html">Open Studio</a>
+          </div>
         </article>
 
-        <nav class="card dashboard-nav" aria-label="HauntSync sections">
-          <a href="#overview">Overview</a>
-          <a href="#projects">Projects</a>
-          <a href="#devices">Devices</a>
-          <a href="studio.html">Open Studio</a>
-        </nav>
-      </aside>
-
-      <div class="dashboard-content">
-        <section id="overview" class="dashboard-stats">
-          <article class="card stat-card">
-            <span id="project-count" class="stat-value">0</span>
-            <span class="muted">Projects</span>
-          </article>
-          <article class="card stat-card">
-            <span id="device-count" class="stat-value">0</span>
-            <span class="muted">Devices</span>
-          </article>
-          <article class="card stat-card">
-            <span id="cloud-count" class="stat-value">Off</span>
-            <span class="muted">Cloud status</span>
-          </article>
+        <section class="stats-row">
+          <article class="card stat-card"><span id="community-count" class="stat-value">—</span><span class="muted">Recent posts</span></article>
+          <article class="card stat-card"><span id="project-count" class="stat-value">0</span><span class="muted">Projects</span></article>
+          <article class="card stat-card"><span id="device-count" class="stat-value">0</span><span class="muted">Devices</span></article>
         </section>
 
-        <section id="projects" class="card">
-          <div class="section-heading">
-            <div>
-              <h2>Your projects</h2>
-              <p class="muted" style="margin: 0;">Projects saved in Studio appear here automatically.</p>
-            </div>
-            <a class="btn" href="studio.html">Create a show</a>
-          </div>
-          <div id="project-list" class="dashboard-list"></div>
-        </section>
+        <article class="card">
+          <span class="badge">YOUR WORKSHOP</span>
+          <h2 style="margin-top:1rem;">Projects</h2>
+          <p class="muted">Local projects stay available offline. Signed-in projects can also live in Firebase.</p>
+          <div id="project-list" class="workspace-list"></div>
+        </article>
 
-        <section id="devices" class="card">
-          <div class="section-heading">
-            <div>
-              <h2>Registered devices</h2>
-              <p class="muted" style="margin: 0;">Maintain a local inventory of SUE, IAN, UI and prop controllers.</p>
-            </div>
-          </div>
-
-          <form id="device-form" class="grid three" style="margin-top: 1rem;">
-            <div class="form-group">
-              <label for="device-name">Device name</label>
-              <input id="device-name" class="form-control" type="text" maxlength="60" placeholder="Main SUE" required>
-            </div>
+        <article class="card">
+          <span class="badge">HARDWARE</span>
+          <h2 style="margin-top:1rem;">Device inventory</h2>
+          <form id="device-form" style="display:grid;gap:.7rem;">
+            <div class="form-group"><label for="device-name">Device name</label><input id="device-name" class="form-control" type="text" maxlength="60" placeholder="Main Stage Controller" required></div>
             <div class="form-group">
               <label for="device-type">Device type</label>
               <select id="device-type" class="form-control">
+                <option>Stage Controller</option>
                 <option>SUE Controller</option>
-                <option>IAN Zone Node</option>
-                <option>Showduino UI</option>
+                <option>Director</option>
                 <option>Prop Controller</option>
                 <option>Lighting Node</option>
                 <option>Audio Node</option>
                 <option>Other</option>
               </select>
             </div>
-            <div class="form-group">
-              <label for="device-identifier">Identifier</label>
-              <input id="device-identifier" class="form-control" type="text" maxlength="80" placeholder="MAC, serial or nickname" required>
-            </div>
-            <div class="button-row" style="grid-column: 1 / -1;">
-              <button class="btn" type="submit">Register device</button>
-            </div>
+            <div class="form-group"><label for="device-identifier">Identifier</label><input id="device-identifier" class="form-control" type="text" maxlength="80" placeholder="MAC, serial or nickname" required></div>
+            <button class="btn secondary" type="submit">Register device</button>
           </form>
-
-          <div id="device-list" class="dashboard-list"></div>
-        </section>
-
-        <section class="card">
-          <span class="badge">COMING ONLINE LATER</span>
-          <h2 style="margin-top: 1rem;">Cloud synchronization</h2>
-          <p class="muted">The dashboard is already prepared for Firebase-backed project synchronization. Until launch, local projects remain fully functional without transmitting data or initialising payment services.</p>
-        </section>
-      </div>
+          <div id="device-list" class="workspace-list"></div>
+        </article>
+      </aside>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 Showduino · HauntSync project workspace.</p>
+    <p>© 2026 Showduino · HauntSync is for the people who make the impossible bit actually work.</p>
   </footer>
 
   <script src="config/runtime-config.js"></script>

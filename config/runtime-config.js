@@ -1,26 +1,29 @@
 // Public website runtime configuration.
-// The Supabase publishable key is safe to expose in browser code; private service keys must never be committed here.
+// Firebase's web configuration identifies the public client app; it is not a private admin credential.
+// Never commit Firebase service-account keys or other server secrets here.
 window.SHOWDUINO_CONFIG = Object.freeze({
   environment: 'production',
   features: {
-    supabase: true,
+    supabase: false,
+    firebase: true,
     authentication: true,
     cloudSync: true,
-    firebase: false,
+    community: true,
     stripe: false,
     subscriptions: false
   },
-  supabase: {
-    url: 'https://fczxcvlyydcqdhjkejmd.supabase.co',
-    publishableKey: 'sb_publishable_r1eWnA-Vi2HJHG3y9njZxQ_VOxivZDW'
-  },
   firebase: {
-    apiKey: '',
-    authDomain: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: '',
-    appId: ''
+    apiKey: 'AIzaSyCbBK1hwavHkKopd6cycSXOc8QQQhVPWYU',
+    authDomain: 'hauntsync-forum-4b992.firebaseapp.com',
+    projectId: 'hauntsync-forum-4b992',
+    storageBucket: 'hauntsync-forum-4b992.appspot.com',
+    messagingSenderId: '525589326062',
+    appId: '1:525589326062:web:cfa0d7dc272c292fbb2840'
+  },
+  // Kept only so older pages fail safely while the Firebase migration is reviewed.
+  supabase: {
+    url: '',
+    publishableKey: ''
   },
   stripe: {
     publishableKey: '',

@@ -33,8 +33,25 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
+    // Preserve the existing protection around account/subscription metadata.
+    // Browser clients may never set Stripe customer/subscription fields directly.
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && !request.resource.data.keys().hasAny([
+          'stripeCustomerId',
+          'subscriptionId',
+          'subscriptionStatus',
+          'subscriptionPlan'
+        ]);
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName',
+          'photoURL',
+          'preferences',
+          'updatedAt'
+        ]);
+      allow delete: if false;
 
       match /projects/{projectId} {
         allow read, create, update, delete: if isOwner(userId);
@@ -97,7 +114,6 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Everything else is denied unless explicitly matched above.
     match /{document=**} {
       allow read, write: if false;
     }

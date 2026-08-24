@@ -1,4 +1,4 @@
-/* global ShowduinoSupabase */
+/* global ShowduinoFirebase */
 (function () {
   'use strict';
 
@@ -10,12 +10,12 @@
   function getState() { return window.state || null; }
 
   function cloudEnabled() {
-    return Boolean(window.ShowduinoSupabase?.enabled());
+    return Boolean(window.ShowduinoFirebase?.enabled?.());
   }
 
   function createProjectId() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    return '00000000-0000-4000-8000-000000000000';
+    return `project_${Date.now()}`;
   }
 
   function validatePackage(project) {
@@ -76,7 +76,7 @@
       name: project.project.name,
       updatedAt: project.project.updatedAt,
       createdAt: project.project.createdAt,
-      storage: currentUser ? 'local+cloud' : 'local',
+      storage: currentUser ? 'local+firebase' : 'local',
       packageVersion: project.package?.version || 1
     });
     writeProjectIndex(index.slice(0, 100));
@@ -112,10 +112,10 @@
 
     let cloudSaved = false;
     if (settings.cloud && cloudEnabled() && currentUser) {
-      await window.ShowduinoSupabase.saveProject(project);
+      await window.ShowduinoFirebase.saveProject(project);
       cloudSaved = true;
       updateProjectIndex(project);
-      notify(`Saved to your Showduino cloud: ${project.project.name}`, 'NET');
+      notify(`Saved to Firebase: ${project.project.name}`, 'NET');
     }
 
     window.dispatchEvent(new CustomEvent('showduino:project-saved', { detail: { project, cloud: cloudSaved } }));
@@ -139,11 +139,11 @@
   async function loadCloudProject(projectId) {
     if (!cloudEnabled() || !currentUser) throw new Error('Sign in before loading a cloud show.');
     const state = getState();
-    const project = await window.ShowduinoSupabase.loadProject(projectId);
-    if (!project) throw new Error('The cloud project could not be found.');
+    const project = await window.ShowduinoFirebase.loadProject(projectId);
+    if (!project) throw new Error('The Firebase project could not be found.');
     state.project = normaliseProject(project);
     await saveCurrentProject({ cloud: false });
-    notify(`Loaded from your Showduino cloud: ${state.project.project.name}`, 'NET');
+    notify(`Loaded from Firebase: ${state.project.project.name}`, 'NET');
     if (window.timelineEditor && typeof window.timelineEditor.init === 'function') window.timelineEditor.init();
     return state.project;
   }
@@ -211,10 +211,10 @@
       currentUser = null;
       return;
     }
-    window.ShowduinoSupabase.onAuthChanged(async (user) => {
+    window.ShowduinoFirebase.onAuthChanged(async (user) => {
       currentUser = user;
       window.dispatchEvent(new CustomEvent('showduino:auth-changed', { detail: { user } }));
-      notify(user ? `Showduino account connected: ${user.email || 'signed in'}` : 'Using local project saving only', user ? 'NET' : 'INFO');
+      notify(user ? `Firebase account connected: ${user.email || 'signed in'}` : 'Using local project saving only', user ? 'NET' : 'INFO');
       if (user) await openRequestedCloudProject();
     });
   }

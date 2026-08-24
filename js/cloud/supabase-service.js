@@ -139,6 +139,8 @@
       avatar_url: String(values?.avatarUrl || '').trim() || null,
       updated_at: new Date().toISOString()
     };
+    const { error: authError } = await getClient().auth.updateUser({ data: { display_name: payload.display_name } });
+    if (authError) throw authError;
     const { data, error } = await getClient().from('profiles').upsert(payload, { onConflict: 'id' }).select().single();
     if (error) throw error;
     return data;

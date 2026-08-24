@@ -23,7 +23,7 @@ community_comments
 
 ### profiles
 
-One profile per Supabase Auth user. The `on_auth_user_created` database trigger creates the initial profile automatically from the `display_name` auth metadata.
+One profile per Supabase Auth user. The `on_auth_user_created` database trigger creates the initial profile automatically from the `display_name` auth metadata. The HauntSync migration also backfilled profiles for accounts that existed before the trigger was added.
 
 ### projects
 
@@ -64,14 +64,15 @@ The production schema is versioned under:
 supabase/migrations/
 ```
 
-Initial migrations:
+Production migration history:
 
 ```text
-20260824105000_create_showduino_hauntsync_core.sql
-20260824105500_enable_hauntsync_realtime.sql
+20260807125329_showduino_accounts_and_projects.sql
+20260824100024_expand_showduino_for_hauntsync.sql
+20260824100115_lock_down_profile_trigger_function.sql
 ```
 
-These migrations have already been applied to the production `showduino` Supabase project.
+The first migration already existed in the restored Showduino project. The two HauntSync migrations were applied directly to the production `showduino` Supabase project on 24 August 2026 and then copied into GitHub so source control matches production.
 
 ## Website integration
 
@@ -104,11 +105,13 @@ Row Level Security is enabled on every Showduino public table.
 - Community posts: public read, author write
 - Community replies: public read, author write
 
-Run Supabase Security and Performance Advisors after future schema changes.
+The `handle_new_user()` function is `SECURITY DEFINER` so the Auth trigger can create profiles, but direct execution has been revoked from `public`, `anon` and `authenticated` roles.
+
+Supabase Security Advisor currently has one remaining Auth-level recommendation: enable leaked-password protection in the Supabase dashboard. It is not a database/RLS defect.
 
 ## First live test
 
-1. Open `/account.html` and create a Showduino ID.
+1. Open `/account.html` and sign in with the existing Showduino ID or create a new one.
 2. Confirm the account email if email confirmation is enabled.
 3. Open `/hauntsync.html` signed out and confirm the public feed loads.
 4. Sign in and create a community post.

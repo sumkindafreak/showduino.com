@@ -136,7 +136,7 @@
     const signedIn = Boolean(currentUser);
     elements.loginPanel.hidden = signedIn;
     elements.profilePanel.hidden = !signedIn;
-    elements.composer.hidden = !signedIn;
+    elements.postForm.hidden = !signedIn;
     elements.deviceForm.hidden = !signedIn;
 
     if (!signedIn) {
@@ -474,7 +474,7 @@
   }
 
   async function initialise() {
-    ['status','realtimeDot','realtimeText','identityName','identityDetail','loginPanel','loginForm','loginEmail','loginPassword','profilePanel','profileForm','profileName','profileHaunt','profileBio','profileEmail','signOutButton','composer','postForm','postTitle','postCategory','postContent','categoryFilter','feed','postCount','projectList','projectCount','deviceList','deviceCount','deviceForm','deviceName','deviceType','deviceIdentifier','refreshButton'].forEach((name) => {
+    ['status','realtimeDot','realtimeText','identityName','identityDetail','loginPanel','loginForm','loginEmail','loginPassword','profilePanel','profileForm','profileName','profileHaunt','profileBio','profileEmail','signOutButton','postForm','postTitle','postCategory','postContent','categoryFilter','feed','postCount','projectList','projectCount','deviceList','deviceCount','deviceForm','deviceName','deviceType','deviceIdentifier','refreshButton'].forEach((name) => {
       elements[name] = byId(name.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`));
     });
 

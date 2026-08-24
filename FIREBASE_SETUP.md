@@ -1,189 +1,95 @@
-# Firebase Setup Guide for Showduino
+# Showduino / HauntSync Firebase
 
-This guide will help you set up Firebase for cloud sync, authentication, and real-time features.
+Showduino now uses the existing Firebase project **`hauntsync-forum-4b992`** as the cloud backend for HauntSync and signed-in Studio projects.
 
-## Prerequisites
+## What Firebase owns
 
-1. A Google account
-2. Access to [Firebase Console](https://console.firebase.google.com/)
+- **Firebase Authentication** — Showduino ID sign-up/sign-in/password reset/email verification.
+- **Cloud Firestore** — HauntSync community posts and replies.
+- **Cloud Firestore** — private per-user Showduino projects.
+- **Cloud Firestore** — private per-user device inventory.
+- Existing Firebase Functions / Stripe integration remain separate and are not changed by the HauntSync client.
 
-## Step 1: Create Firebase Project
+## Web app configuration
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Click "Add project" or select an existing project
-3. Enter project name (e.g., "showduino")
-4. (Optional) Enable Google Analytics
-5. Click "Create project"
+The public Firebase web configuration lives in:
 
-## Step 2: Enable Authentication
+`config/runtime-config.js`
 
-1. In Firebase Console, go to **Authentication** > **Sign-in method**
-2. Enable **Email/Password** provider:
-   - Click "Email/Password"
-   - Toggle "Enable"
-   - Click "Save"
-3. Enable **Google** provider (optional):
-   - Click "Google"
-   - Toggle "Enable"
-   - Enter support email
-   - Click "Save"
+The project is:
 
-## Step 3: Create Firestore Database
+- Project ID: `hauntsync-forum-4b992`
+- Auth domain: `hauntsync-forum-4b992.firebaseapp.com`
 
-1. Go to **Firestore Database** in Firebase Console
-2. Click "Create database"
-3. Start in **Production mode** (you can change rules later)
-4. Select a location closest to your users
-5. Click "Enable"
+Firebase web config values are public client identifiers. **Never commit service-account JSON, Admin SDK private keys, Stripe secrets, or other server credentials.**
 
-### Firestore Security Rules
+## Required Firebase Console checks
 
-Update your Firestore rules to allow authenticated users to read/write their own data:
+Open Firebase Console and select `hauntsync-forum-4b992`.
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Users can read/write their own user document
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Users can read/write their own projects
-      match /projects/{projectId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-    }
-    
-    // Posts are readable by all, writable by authenticated users
-    match /posts/{postId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && 
-        (request.auth.uid == resource.data.authorId || request.auth.uid == request.resource.data.authorId);
-      
-      // Comments
-      match /comments/{commentId} {
-        allow read: if true;
-        allow create: if request.auth != null;
-        allow update, delete: if request.auth != null && 
-          (request.auth.uid == resource.data.authorId || request.auth.uid == request.resource.data.authorId);
-      }
-    }
-  }
-}
+### Authentication
+
+Under **Authentication → Sign-in method**:
+
+1. Enable **Email/Password**.
+2. Keep any other providers disabled until they are deliberately added to the Showduino UI.
+
+Under **Authentication → Settings → Authorized domains**, make sure these are present:
+
+- `show-duino.com`
+- `www.show-duino.com` if the site uses the www host
+- `localhost` for local development
+
+### Firestore
+
+The repository contains the production rules in `firestore.rules`.
+
+Data layout:
+
+```text
+profiles/{uid}
+users/{uid}/projects/{projectId}
+users/{uid}/devices/{deviceId}
+posts/{postId}
+posts/{postId}/comments/{commentId}
 ```
 
-## Step 4: Get Firebase Configuration
+Community posts/replies are publicly readable. Creating content requires authentication. Private projects, device inventory and profiles are restricted to their owning Firebase user.
 
-1. In Firebase Console, click the gear icon ⚙️ > **Project settings**
-2. Scroll down to "Your apps" section
-3. Click the **Web** icon (</>)
-4. Register your app (give it a nickname like "Showduino Web")
-5. Copy the `firebaseConfig` object
+The rules deliberately preserve the existing protection around Stripe/subscription fields on `users/{uid}` so browser clients cannot grant themselves subscription state.
 
-## Step 5: Update Configuration File
+## Deploy Firestore rules
 
-1. Open `js/firebase_config.js`
-2. Replace the placeholder values with your Firebase config:
+With Firebase CLI authenticated to the project:
 
-```javascript
-const FIREBASE_CONFIG = {
-    apiKey: "YOUR_ACTUAL_API_KEY",
-    authDomain: "your-project-id.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project-id.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef"
-};
+```bash
+firebase use hauntsync-forum-4b992
+firebase deploy --only firestore:rules,firestore:indexes
 ```
 
-## Step 6: Enable Firebase Storage (Optional, for project files)
+`.firebaserc` already selects `hauntsync-forum-4b992`, and `firebase.json` already points to `firestore.rules` and `firestore.indexes.json`.
 
-1. Go to **Storage** in Firebase Console
-2. Click "Get started"
-3. Start in production mode
-4. Use same location as Firestore
-5. Click "Done"
+## Website integration
 
-### Storage Security Rules
+- `account.html` uses `js/cloud/firebase-service.js` for Showduino ID authentication.
+- `hauntsync.html` uses Firebase for the live community, replies, projects and device inventory.
+- `studio.html` continues to save locally and also saves/opens cloud projects through Firebase when a user is signed in.
+- `index.html` now promotes HauntSync as a first-class part of Showduino.
 
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /users/{userId}/projects/{projectId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
+## First live test
 
-## Step 7: Test the Integration
+After the rules are deployed:
 
-1. Open `hauntsync.html` in your browser
-2. You should see a "Sign In / Sign Up" section
-3. Create an account:
-   - Enter email and password
-   - Enter a username
-   - Click "Sign Up"
-4. After signing in, you should see your email displayed
-5. Create a test post - it should sync to Firebase
-6. Check Firebase Console > Firestore to see your data
+1. Open `https://show-duino.com/account.html`.
+2. Create a test Showduino ID.
+3. Confirm the account appears in Firebase Authentication.
+4. Open HauntSync and create a test post.
+5. Reply to the post.
+6. Confirm `posts` and the `comments` subcollection appear in Firestore.
+7. Open Studio, save a small test show while signed in, and confirm it appears under `users/{uid}/projects`.
+8. Open HauntSync from another browser/device and confirm the public feed updates.
+9. Confirm another authenticated user cannot read another user's private `projects` or `devices` paths.
 
-## Features Enabled with Firebase
+## Legacy folder
 
-✅ **User Authentication**
-- Email/password sign up and sign in
-- Google sign in
-- Persistent sessions
-
-✅ **Cloud Sync**
-- Forum posts sync in real-time
-- User profiles sync across devices
-- Subscription status syncs
-- Project files can be backed up to cloud
-
-✅ **Real-time Updates**
-- See new posts from other users instantly
-- Comments update in real-time
-- Like counts sync automatically
-
-✅ **Offline Support**
-- Works offline with localStorage fallback
-- Syncs automatically when connection restored
-- Queues operations when offline
-
-## Troubleshooting
-
-### Firebase SDK not loading
-- Check browser console for errors
-- Ensure internet connection
-- Verify CDN URLs are correct in HTML
-
-### Authentication not working
-- Check Firebase Console > Authentication is enabled
-- Verify email/password provider is enabled
-- Check browser console for errors
-
-### Posts not syncing
-- Check if user is signed in
-- Verify Firestore rules allow writes
-- Check browser console for errors
-- Ensure Firestore database is created
-
-### Config errors
-- Double-check all config values are correct
-- Ensure no extra quotes or spaces
-- Verify project ID matches in all fields
-
-## Alternative: Configure via SUE Device
-
-You can also configure Firebase through the SUE device's web interface:
-
-1. Connect to your SUE device
-2. Navigate to Settings > Firebase
-3. Enter your Firebase credentials
-4. Save configuration
-
-The web UI will automatically load config from the device if available.
-
+`HauntSyncForum_Configured/` is the old standalone forum prototype. It is retained only as historical reference; the live website should use the integrated Firebase service and `hauntsync.html` instead.

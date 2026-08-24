@@ -6,6 +6,7 @@
   const PROJECT_DATA_PREFIX = 'showduino_project_';
   let currentUser = null;
   let pendingCloudOpenHandled = false;
+  let pendingLocalOpenHandled = false;
 
   function getState() { return window.state || null; }
 
@@ -148,6 +149,16 @@
     return state.project;
   }
 
+  function openRequestedLocalProject() {
+    if (pendingLocalOpenHandled) return;
+    const id = sessionStorage.getItem('showduino_open_local_project');
+    if (!id) return;
+    pendingLocalOpenHandled = true;
+    sessionStorage.removeItem('showduino_open_local_project');
+    try { loadLocalProject(id); }
+    catch (error) { notify(`Could not open local show: ${error.message}`, 'ERR'); }
+  }
+
   async function openRequestedCloudProject() {
     if (pendingCloudOpenHandled || !currentUser) return;
     const id = sessionStorage.getItem('showduino_open_cloud_project');
@@ -243,6 +254,7 @@
       try {
         const project = ensureProject();
         updateStudioTitle(project);
+        openRequestedLocalProject();
       } catch (error) {
         console.warn('[Studio Projects]', error);
       }

@@ -70,9 +70,10 @@ Production migration history:
 20260807125329_showduino_accounts_and_projects.sql
 20260824100024_expand_showduino_for_hauntsync.sql
 20260824100115_lock_down_profile_trigger_function.sql
+20260824100527_add_hauntsync_author_indexes.sql
 ```
 
-The first migration already existed in the restored Showduino project. The two HauntSync migrations were applied directly to the production `showduino` Supabase project on 24 August 2026 and then copied into GitHub so source control matches production.
+The first migration already existed in the restored Showduino project. The HauntSync migrations were applied directly to the production `showduino` Supabase project on 24 August 2026 and then copied into GitHub so source control matches production.
 
 ## Website integration
 
@@ -88,7 +89,7 @@ The shared `ShowduinoSupabase` service provides:
 
 - Email/password account registration and sign-in
 - Email confirmation and password recovery
-- Profile access
+- HauntSync identity/profile editing
 - Studio project save/list/load/delete
 - Device save/list/delete
 - HauntSync post creation/listing/deletion
@@ -109,14 +110,17 @@ The `handle_new_user()` function is `SECURITY DEFINER` so the Auth trigger can c
 
 Supabase Security Advisor currently has one remaining Auth-level recommendation: enable leaked-password protection in the Supabase dashboard. It is not a database/RLS defect.
 
+The two HauntSync author foreign keys have covering indexes. Unused-index notices are expected before the new tables have real traffic.
+
 ## First live test
 
 1. Open `/account.html` and sign in with the existing Showduino ID or create a new one.
 2. Confirm the account email if email confirmation is enabled.
-3. Open `/hauntsync.html` signed out and confirm the public feed loads.
-4. Sign in and create a community post.
-5. Add a reply and verify it appears without refreshing.
-6. Register a device and confirm it appears in the private workspace.
-7. Open Studio, save a project, then return to HauntSync and confirm the Supabase project appears.
-8. Open the cloud project from HauntSync and confirm Studio loads it.
-9. Repeat with a local-only project.
+3. Edit the HauntSync identity and save a display name / haunt or company.
+4. Open `/hauntsync.html` signed out and confirm the public feed loads.
+5. Sign in and create a community post.
+6. Add a reply and verify it appears without refreshing.
+7. Register a device and confirm it appears in the private workspace.
+8. Open Studio, save a project, then return to HauntSync and confirm the Supabase project appears.
+9. Open the cloud project from HauntSync and confirm Studio loads it.
+10. Repeat with a local-only project.

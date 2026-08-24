@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Private live smoke-test page for the Supabase-backed HauntSync community.">
+  <title>HauntSync Preview | Showduino</title>
+  <link rel="stylesheet" href="../css/site-pages.css">
+  <link rel="stylesheet" href="hauntsync-preview.css">
+</head>
+<body class="preview-page">
+  <div class="preview-banner">TEST AREA · This page writes to the production Showduino Supabase database, but it does not replace the live HauntSync website.</div>
+
+  <header class="site-header">
+    <a class="site-brand" href="../index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Preview navigation">
+      <a href="../index.html">Live site</a>
+      <a href="../account.html">Account</a>
+      <a href="../studio.html">Studio</a>
+      <a href="hauntsync.html" aria-current="page">HauntSync Preview</a>
+    </nav>
+  </header>
+
+  <main class="preview-shell">
+    <section class="preview-hero">
+      <div><span class="badge">SUPABASE LIVE SMOKE TEST</span></div>
+      <h1>HauntSync Preview</h1>
+      <p>This isolated page lets us prove the new HauntSync database, authentication, Row Level Security, community posts, replies, Realtime, cloud projects and device inventory before the redesign is merged into the real website.</p>
+      <div class="preview-toolbar">
+        <button id="refresh-button" class="btn" type="button">Refresh Supabase data</button>
+        <a class="btn secondary" href="../account.html">Open current Account page</a>
+        <a class="btn secondary" href="../studio.html">Open current Studio</a>
+      </div>
+    </section>
+
+    <div id="status" class="status-banner" role="status" aria-live="polite">Starting HauntSync preview…</div>
+
+    <section class="preview-card preview-status" style="margin-bottom:1rem;">
+      <div class="preview-status-copy">
+        <strong id="identity-name">Checking account…</strong>
+        <span id="identity-detail">Connecting to Supabase.</span>
+      </div>
+      <div class="preview-inline-status">
+        <span id="realtime-dot" class="preview-dot"></span>
+        <span id="realtime-text" class="muted">Connecting Realtime…</span>
+      </div>
+    </section>
+
+    <section class="preview-counts" style="margin-bottom:1rem;">
+      <div class="preview-count"><strong id="post-count">0</strong><span class="muted">Posts in view</span></div>
+      <div class="preview-count"><strong id="project-count">0</strong><span class="muted">Cloud projects</span></div>
+      <div class="preview-count"><strong id="device-count">0</strong><span class="muted">Private devices</span></div>
+    </section>
+
+    <div class="preview-layout">
+      <div class="preview-stack">
+        <section class="preview-card">
+          <div class="preview-section-head">
+            <div>
+              <span class="badge">COMMUNITY</span>
+              <h2 style="margin-top:.65rem;">HauntSync feed</h2>
+              <p class="muted" style="margin:0;">Public-read. Supabase-authenticated members can write.</p>
+            </div>
+            <select id="category-filter" class="form-control preview-filter" aria-label="Filter community category">
+              <option value="">All categories</option>
+              <option value="general">General</option>
+              <option value="build-log">Build log</option>
+              <option value="show-design">Show design</option>
+              <option value="code-control">Code &amp; control</option>
+              <option value="props-fx">Props &amp; FX</option>
+              <option value="lighting-audio">Lighting &amp; audio</option>
+              <option value="help-wanted">Help wanted</option>
+              <option value="showcase">Showcase</option>
+            </select>
+          </div>
+
+          <form id="post-form" class="preview-card" style="margin-bottom:1rem; box-shadow:none;" hidden>
+            <div style="margin-bottom:.8rem;"><strong>Create a test/community post</strong><div class="muted">This will be a real row in <code>community_posts</code>. You can delete it again from this page.</div></div>
+            <div class="preview-form-grid">
+              <div class="form-group">
+                <label for="post-title">Title</label>
+                <input id="post-title" class="form-control" maxlength="120" placeholder="Prototype #001 heading out on tour…" required>
+              </div>
+              <div class="form-group">
+                <label for="post-category">Category</label>
+                <select id="post-category" class="form-control">
+                  <option value="general">General</option>
+                  <option value="build-log">Build log</option>
+                  <option value="show-design">Show design</option>
+                  <option value="code-control">Code &amp; control</option>
+                  <option value="props-fx">Props &amp; FX</option>
+                  <option value="lighting-audio">Lighting &amp; audio</option>
+                  <option value="help-wanted">Help wanted</option>
+                  <option value="showcase">Showcase</option>
+                </select>
+              </div>
+              <div class="form-group wide">
+                <label for="post-content">Post</label>
+                <textarea id="post-content" class="form-control" rows="4" maxlength="5000" placeholder="What are you building, testing or trying to solve?" required></textarea>
+              </div>
+            </div>
+            <button class="btn" type="submit">Post to HauntSync</button>
+          </form>
+
+          <div id="feed" class="preview-feed"><div class="preview-empty">Loading posts…</div></div>
+        </section>
+      </div>
+
+      <aside class="preview-stack" id="account">
+        <section class="preview-card">
+          <span class="badge">SHOWDUINO ID</span>
+          <div id="login-panel" style="margin-top:1rem;">
+            <h2>Sign in for the test</h2>
+            <p class="muted">This is on the real <strong>show-duino.com</strong> origin and uses the same Supabase project as the current Account page.</p>
+            <form id="login-form" class="preview-auth-form">
+              <div class="form-group" style="margin:0;"><label for="login-email">Email</label><input id="login-email" class="form-control" type="email" autocomplete="email" required></div>
+              <div class="form-group" style="margin:0;"><label for="login-password">Password</label><input id="login-password" class="form-control" type="password" autocomplete="current-password" required></div>
+              <button class="btn" type="submit">Sign in</button>
+            </form>
+          </div>
+
+          <div id="profile-panel" hidden style="margin-top:1rem;">
+            <h2>Your HauntSync identity</h2>
+            <p id="profile-email" class="muted"></p>
+            <form id="profile-form">
+              <div class="form-group"><label for="profile-name">Display name</label><input id="profile-name" class="form-control" maxlength="60" required></div>
+              <div class="form-group"><label for="profile-haunt">Haunt / company / project</label><input id="profile-haunt" class="form-control" maxlength="100" placeholder="Twins of Evil Attractions"></div>
+              <div class="form-group"><label for="profile-bio">Short bio</label><textarea id="profile-bio" class="form-control" rows="3" maxlength="500" placeholder="Builder, creator, tech gremlin…"></textarea></div>
+              <div class="button-row"><button class="btn" type="submit">Save identity</button><button id="sign-out-button" class="btn secondary" type="button">Sign out</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="preview-card">
+          <span class="badge">PRIVATE WORKSPACE</span>
+          <h2 style="margin-top:.65rem;">Cloud projects</h2>
+          <p class="muted">RLS should return only projects owned by the signed-in Showduino ID.</p>
+          <div id="project-list" class="preview-list"><div class="preview-empty">Checking projects…</div></div>
+        </section>
+
+        <section class="preview-card">
+          <span class="badge">PRIVATE WORKSPACE</span>
+          <h2 style="margin-top:.65rem;">Registered devices</h2>
+          <p class="muted">Add a disposable test device here. It should only be visible to your account.</p>
+          <form id="device-form" hidden>
+            <div class="form-group"><label for="device-name">Device name</label><input id="device-name" class="form-control" maxlength="60" placeholder="Preview Test Node" required></div>
+            <div class="form-group"><label for="device-type">Device type</label><select id="device-type" class="form-control"><option>SUE Controller</option><option>Stage Controller</option><option>Director</option><option>Prop Controller</option><option>Lighting Node</option><option>Audio Node</option><option>Other</option></select></div>
+            <div class="form-group"><label for="device-identifier">Identifier</label><input id="device-identifier" class="form-control" maxlength="120" placeholder="TEST-001" required></div>
+            <button class="btn secondary" type="submit">Add test device</button>
+          </form>
+          <div id="device-list" class="preview-list" style="margin-top:1rem;"><div class="preview-empty">Checking devices…</div></div>
+        </section>
+
+        <section class="preview-test-note">
+          <strong>What counts as a pass?</strong><br>
+          Public feed loads signed out; sign-in works; identity saves; post + reply appear; Realtime says connected; device/project queries work; signing out hides private rows and the composer.
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"><p>HauntSync preview · isolated test route · <a href="../index.html">return to live Showduino</a></p></footer>
+
+  <script src="../config/runtime-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js"></script>
+  <script src="hauntsync-preview.js"></script>
+</body>
+</html>

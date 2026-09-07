@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist relay, MOSFET, pixel and audio nodes.">
+  <title>System Architecture | Showduino</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html" aria-current="page">System</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html">HauntSync</a>
+      <a href="tools.html">Hardware</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <main class="site-main wide">
+    <section class="page-heading">
+      <span class="eyebrow">SYSTEM GUIDE · CURRENT BASELINE</span>
+      <h1>One show.<br><span class="accent">Four responsibilities.</span></h1>
+      <p>Showduino is built as a distributed control system. Each device has a deliberately narrow job so the live show can remain deterministic, diagnosable and independent of the browser.</p>
+    </section>
+
+    <section class="section compact reveal">
+      <div class="architecture">
+        <article class="architecture-node">
+          <span class="role-number">01 / DIRECTOR</span>
+          <h3>ESP32-S3 Director</h3>
+          <p>800×480 operator touchscreen. Sends requests and displays state. It is not the source of truth for a running show.</p>
+          <span class="transport">ESP-NOW →</span>
+        </article>
+        <article class="architecture-node">
+          <span class="role-number">02 / COMMS</span>
+          <h3>ESP32-S3 Communications Controller</h3>
+          <p>Dedicated transport bridge between ESP-NOW devices and the Show Engine. No cue logic and no show decisions.</p>
+          <span class="transport">UART 115200 →</span>
+        </article>
+        <article class="architecture-node">
+          <span class="role-number">03 / SHOW ENGINE</span>
+          <h3>ESP32-P4</h3>
+          <p>Authoritative runtime for timeline, show state, safety gates, cue dispatch and emergency handling.</p>
+          <span class="transport">COMMANDS →</span>
+        </article>
+        <article class="architecture-node">
+          <span class="role-number">04 / NODES</span>
+          <h3>Specialist ESP32 Nodes</h3>
+          <p>Relay, MOSFET, pixel and audio devices execute commands and return useful state/results.</p>
+          <span class="transport">REPORT ←</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="principle"><strong>Authority stays on the P4:</strong> once a show has been loaded and started, losing the Director, a browser session, Wi-Fi or internet access must not stop the live runtime.</div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">ROLE 01</span>
+        <h2>Director · operator control without runtime ownership</h2>
+        <p>The Director is the human-facing control surface. It should make the current production, link state, show controls and emergency state obvious without becoming a hidden dependency.</p>
+      </div>
+      <div class="grid three">
+        <article class="card"><div class="card-icon">UI</div><h3>800×480 touchscreen</h3><p class="muted">A dedicated ESP32-S3 display for live operation, navigation and system feedback.</p></article>
+        <article class="card"><div class="card-icon">REQ</div><h3>Requests actions</h3><p class="muted">Start, stop, pause, resume and emergency operations are requests into the authoritative runtime.</p></article>
+        <article class="card"><div class="card-icon">STAT</div><h3>Shows state</h3><p class="muted">The Director reflects what the Show Engine reports rather than inventing its own parallel truth.</p></article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">ROLE 02</span>
+        <h2>Communications Controller · transport only</h2>
+        <p>The dedicated ESP32-S3 Comms Controller replaces the earlier C3/SUE bridge concept and keeps the P4 isolated from wireless protocol details.</p>
+      </div>
+      <article class="card">
+        <ul class="spec-list">
+          <li><strong>Wireless side</strong><span>ESP-NOW for Director and compatible node traffic.</span></li>
+          <li><strong>P4 side</strong><span>UART at 115200 8N1, newline-framed command traffic.</span></li>
+          <li><strong>Responsibility</strong><span>Forward transport, basic diagnostics and link visibility.</span></li>
+          <li><strong>Not responsible for</strong><span>Timeline decisions, safety policy, cue ownership or show state.</span></li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">ROLE 03</span>
+        <h2>ESP32-P4 Show Engine · the authority</h2>
+        <p>The P4 is where the production becomes a running show. It owns the state machine and is the only layer that should decide whether a live command is currently allowed.</p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Runtime responsibilities</h3>
+          <ul class="spec-list">
+            <li><strong>Timeline</strong><span>Load, order, start, pause, resume, stop and emergency interruption.</span></li>
+            <li><strong>State</strong><span>Authoritative show status and command gating.</span></li>
+            <li><strong>Safety</strong><span>Emergency latch and rejection of invalid/unsafe state transitions.</span></li>
+            <li><strong>Dispatch</strong><span>Routes work to specialist nodes and tracks results as the system develops.</span></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Local services</h3>
+          <ul class="spec-list">
+            <li><strong>Storage</strong><span>SD-backed production and web assets are the target persistent store.</span></li>
+            <li><strong>System audio</strong><span>Local P4 audio remains available for Showduino notifications and emergency/system sounds.</span></li>
+            <li><strong>I²C expansion</strong><span>Plug-in bus for supported expanders and future hardware overlays.</span></li>
+            <li><strong>Emergency input</strong><span>Dedicated physical input with latched behaviour and explicit clear rules.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">ROLE 04</span>
+        <h2>Specialist nodes · do one physical job well</h2>
+        <p>Nodes are not mini Show Engines. They receive a commanded state, perform the work that belongs to their hardware role and report useful results or faults.</p>
+      </div>
+      <div class="grid four">
+        <article class="card"><div class="card-icon">RLY</div><h3>Relay Node</h3><p class="muted">Discrete switched outputs for compatible effects and equipment.</p></article>
+        <article class="card"><div class="card-icon">MOS</div><h3>MOSFET Node</h3><p class="muted">Solid-state low-voltage switching for suitable loads and effects.</p></article>
+        <article class="card"><div class="card-icon">PIX</div><h3>Pixel Node</h3><p class="muted">Segment-aware NeoPixel effects with a system emergency override model.</p></article>
+        <article class="card"><div class="card-icon">AUD</div><h3>Audio Node</h3><p class="muted">Dedicated show audio playback while the P4 retains separate local system audio.</p></article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">EMERGENCY BEHAVIOUR</span>
+        <h2>Emergency is an override, not another effect.</h2>
+        <p>The emergency path is deliberately stronger than show playback. It latches, interrupts the show and requires an explicit clear rather than silently resuming.</p>
+      </div>
+      <div class="grid two">
+        <article class="pixel-panel">
+          <div class="pixel-label-row"><strong>NORMAL / SHOW STATE</strong><span>segmented behaviour allowed</span></div>
+          <div class="pixel-strip" data-pixel-preview="show" data-pixel-count="30"></div>
+          <p class="pixel-note">Logical pixel segments can show different effects or keep emergency signage markers visible during a production.</p>
+        </article>
+        <article class="pixel-panel">
+          <div class="pixel-label-row"><strong>EMERGENCY STATE</strong><span>all pixels white</span></div>
+          <div class="pixel-strip" data-pixel-preview="emergency" data-pixel-count="30"></div>
+          <p class="pixel-note">Every pixel line is overridden to bright white. The system does not auto-resume the show when the physical condition clears.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">CURRENT SCOPE</span>
+        <h2>What Showduino is concentrating on now</h2>
+        <p>The current system is being completed around the non-DMX core: reliable show runtime, real node control, pixels, audio, storage, diagnostics and a useful authoring workflow.</p>
+      </div>
+      <div class="grid three">
+        <article class="card"><h3>In the current build</h3><p class="muted">Director, dedicated S3 Comms Controller, P4 Show Engine, relay node, MOSFET node, pixel work, audio node development and Studio/HauntSync tooling.</p></article>
+        <article class="card"><h3>Being completed</h3><p class="muted">Persistent P4 project storage, first-class output engines, logical device addressing and completion/fault reporting throughout the node path.</p></article>
+        <article class="card"><h3>Deliberately not current</h3><p class="muted">DMX is not part of the present implementation scope and is not being advertised as a current capability.</p></article>
+      </div>
+    </section>
+
+    <section class="section compact reveal">
+      <div class="callout">
+        <div><h2>Build the show in Studio.</h2><p>Then deploy it into a runtime that does not need Studio to stay alive.</p></div>
+        <a class="btn" href="studio.html">Open Studio</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
+</body>
+</html>

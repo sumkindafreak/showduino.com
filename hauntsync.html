@@ -3,80 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Manage Showduino projects, devices and cloud-ready account features in HauntSync.">
+  <meta name="description" content="Manage Showduino projects and register current Director, Communications Controller, P4 Show Engine and specialist node hardware in HauntSync.">
   <title>HauntSync | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <style>
-    .dashboard-shell {
-      display: grid;
-      grid-template-columns: 240px minmax(0, 1fr);
-      gap: 1rem;
-      align-items: start;
-    }
-    .dashboard-sidebar {
-      position: sticky;
-      top: 88px;
-      display: grid;
-      gap: 1rem;
-    }
-    .dashboard-nav {
-      display: grid;
-      gap: .35rem;
-    }
-    .dashboard-nav a {
-      padding: .75rem .9rem;
-      border-radius: 8px;
-      color: var(--site-text);
-      text-decoration: none;
-    }
-    .dashboard-nav a:hover { background: var(--site-panel-soft); color: var(--site-accent); }
-    .dashboard-content { display: grid; gap: 1rem; min-width: 0; }
-    .dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-    .stat-card { text-align: center; }
-    .stat-value { display: block; font-size: 2rem; font-weight: 900; color: var(--site-accent); }
-    .dashboard-list { display: grid; gap: .75rem; margin-top: 1rem; }
-    .dashboard-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem;
-      border: 1px solid var(--site-border);
-      border-radius: 10px;
-      background: #11171c;
-    }
-    .dashboard-item-title { margin-bottom: .35rem; font-weight: 900; }
-    .empty-state { padding: 2rem; text-align: center; border: 1px dashed var(--site-border); border-radius: 10px; }
-    .section-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
-    .section-heading h2 { margin-bottom: .35rem; }
-    @media (max-width: 850px) {
-      .dashboard-shell { grid-template-columns: 1fr; }
-      .dashboard-sidebar { position: static; }
-      .dashboard-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 620px) {
-      .dashboard-stats { grid-template-columns: 1fr; }
-      .dashboard-item, .section-heading { flex-direction: column; align-items: stretch; }
-    }
+    .dashboard-shell { display:grid; grid-template-columns:240px minmax(0,1fr); gap:1rem; align-items:start; }
+    .dashboard-sidebar { position:sticky; top:88px; display:grid; gap:1rem; }
+    .dashboard-nav { display:grid; gap:.35rem; }
+    .dashboard-nav a { padding:.75rem .9rem; border-radius:8px; color:var(--site-text); text-decoration:none; }
+    .dashboard-nav a:hover { background:var(--site-panel-soft); color:var(--site-accent); }
+    .dashboard-content { display:grid; gap:1rem; min-width:0; }
+    .dashboard-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; }
+    .stat-card { text-align:center; }
+    .stat-value { display:block; font-size:2rem; font-weight:900; color:var(--site-accent); }
+    .dashboard-list { display:grid; gap:.75rem; margin-top:1rem; }
+    .dashboard-item { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem; border:1px solid var(--site-border); border-radius:10px; background:#0d1318; }
+    .dashboard-item-title { margin-bottom:.35rem; font-weight:900; }
+    .section-heading-inline { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
+    .section-heading-inline h2 { margin-bottom:.35rem; }
+    @media (max-width:850px) { .dashboard-shell{grid-template-columns:1fr}.dashboard-sidebar{position:static}.dashboard-nav{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:620px) { .dashboard-stats{grid-template-columns:1fr}.dashboard-item,.section-heading-inline{flex-direction:column;align-items:stretch} }
   </style>
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
   <header class="site-header">
     <a class="site-brand" href="index.html">SHOWDUINO</a>
     <nav class="site-nav" aria-label="Main navigation">
       <a href="index.html">Home</a>
+      <a href="system.html">System</a>
       <a href="studio.html">Studio</a>
       <a href="hauntsync.html" aria-current="page">HauntSync</a>
-      <a href="tools.html">Tools</a>
-      <a href="account.html">Account</a>
+      <a href="tools.html">Hardware</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html">Support</a>
     </nav>
   </header>
 
   <main class="site-main">
     <section class="page-heading">
-      <span class="badge">PROJECT HUB</span>
-      <h1>HauntSync</h1>
-      <p>Your workspace for projects, registered Showduino hardware and cloud-ready account features.</p>
+      <span class="eyebrow">PROJECT + HARDWARE HUB</span>
+      <h1>Haunt<span class="accent">Sync</span></h1>
+      <p>Keep local Showduino projects together with an inventory that now matches the current hardware architecture instead of the retired SUE/IAN generations.</p>
     </section>
 
     <div id="hauntsync-status" class="status-banner" role="status" aria-live="polite">Loading HauntSync…</div>
@@ -85,98 +53,83 @@
       <aside class="dashboard-sidebar">
         <article class="card">
           <span class="badge">WORKSPACE</span>
-          <h2 id="account-name" style="margin-top: 1rem;">Local workspace</h2>
+          <h2 id="account-name" style="margin-top:1rem;">Local workspace</h2>
           <p id="account-email" class="muted">Projects and devices are stored in this browser.</p>
           <a id="account-link" class="btn secondary" href="account.html">Open account</a>
         </article>
-
         <nav class="card dashboard-nav" aria-label="HauntSync sections">
           <a href="#overview">Overview</a>
           <a href="#projects">Projects</a>
-          <a href="#devices">Devices</a>
+          <a href="#devices">Hardware</a>
           <a href="studio.html">Open Studio</a>
         </nav>
       </aside>
 
       <div class="dashboard-content">
-        <section id="overview" class="dashboard-stats">
-          <article class="card stat-card">
-            <span id="project-count" class="stat-value">0</span>
-            <span class="muted">Projects</span>
-          </article>
-          <article class="card stat-card">
-            <span id="device-count" class="stat-value">0</span>
-            <span class="muted">Devices</span>
-          </article>
-          <article class="card stat-card">
-            <span id="cloud-count" class="stat-value">Off</span>
-            <span class="muted">Cloud status</span>
-          </article>
+        <section id="overview" class="dashboard-stats reveal">
+          <article class="card stat-card"><span id="project-count" class="stat-value">0</span><span class="muted">Projects</span></article>
+          <article class="card stat-card"><span id="device-count" class="stat-value">0</span><span class="muted">Hardware entries</span></article>
+          <article class="card stat-card"><span id="cloud-count" class="stat-value">Off</span><span class="muted">Cloud status</span></article>
         </section>
 
-        <section id="projects" class="card">
-          <div class="section-heading">
-            <div>
-              <h2>Your projects</h2>
-              <p class="muted" style="margin: 0;">Projects saved in Studio appear here automatically.</p>
-            </div>
+        <section id="projects" class="card reveal">
+          <div class="section-heading-inline">
+            <div><span class="badge">PRODUCTIONS</span><h2>Your projects</h2><p class="muted" style="margin:0;">Projects saved in Studio appear here automatically.</p></div>
             <a class="btn" href="studio.html">Create a show</a>
           </div>
           <div id="project-list" class="dashboard-list"></div>
         </section>
 
-        <section id="devices" class="card">
-          <div class="section-heading">
-            <div>
-              <h2>Registered devices</h2>
-              <p class="muted" style="margin: 0;">Maintain a local inventory of SUE, IAN, UI and prop controllers.</p>
-            </div>
+        <section id="devices" class="card reveal">
+          <div class="section-heading-inline">
+            <div><span class="badge">CURRENT ARCHITECTURE</span><h2>Registered hardware</h2><p class="muted" style="margin:0;">Track Directors, Comms Controllers, P4 Show Engines and specialist nodes.</p></div>
+            <a class="btn secondary" href="system.html">Architecture guide</a>
           </div>
 
-          <form id="device-form" class="grid three" style="margin-top: 1rem;">
+          <form id="device-form" class="grid three" style="margin-top:1.25rem;">
             <div class="form-group">
               <label for="device-name">Device name</label>
-              <input id="device-name" class="form-control" type="text" maxlength="60" placeholder="Main SUE" required>
+              <input id="device-name" class="form-control" type="text" maxlength="60" placeholder="Main P4 Show Engine" required>
             </div>
             <div class="form-group">
               <label for="device-type">Device type</label>
               <select id="device-type" class="form-control">
-                <option>SUE Controller</option>
-                <option>IAN Zone Node</option>
-                <option>Showduino UI</option>
-                <option>Prop Controller</option>
-                <option>Lighting Node</option>
+                <option>Director (ESP32-S3)</option>
+                <option>Communications Controller (ESP32-S3)</option>
+                <option>Show Engine (ESP32-P4)</option>
+                <option>Relay Node</option>
+                <option>MOSFET Node</option>
+                <option>Pixel Node</option>
                 <option>Audio Node</option>
-                <option>Other</option>
+                <option>I2C Expansion</option>
+                <option>Other Showduino Node</option>
               </select>
             </div>
             <div class="form-group">
               <label for="device-identifier">Identifier</label>
-              <input id="device-identifier" class="form-control" type="text" maxlength="80" placeholder="MAC, serial or nickname" required>
+              <input id="device-identifier" class="form-control" type="text" maxlength="80" placeholder="Device ID, MAC, serial or nickname" required>
             </div>
-            <div class="button-row" style="grid-column: 1 / -1;">
-              <button class="btn" type="submit">Register device</button>
-            </div>
+            <div class="button-row" style="grid-column:1/-1;"><button class="btn" type="submit">Register hardware</button></div>
           </form>
 
           <div id="device-list" class="dashboard-list"></div>
         </section>
 
-        <section class="card">
-          <span class="badge">COMING ONLINE LATER</span>
-          <h2 style="margin-top: 1rem;">Cloud synchronization</h2>
-          <p class="muted">The dashboard is already prepared for Firebase-backed project synchronization. Until launch, local projects remain fully functional without transmitting data or initialising payment services.</p>
+        <section class="card reveal">
+          <span class="badge">LOCAL-FIRST</span>
+          <h2 style="margin-top:1rem;">Project management is not the runtime</h2>
+          <p class="muted">HauntSync can help organise projects and hardware, but a running show remains the responsibility of the P4 Show Engine. Cloud availability must never become a live-show requirement.</p>
         </section>
       </div>
     </div>
   </main>
 
-  <footer class="site-footer">
-    <p>© 2026 Showduino · HauntSync project workspace.</p>
-  </footer>
+  <footer class="site-footer"><p>© 2026 Showduino · HauntSync project and hardware workspace.</p></footer>
 
   <script src="config/runtime-config.js"></script>
   <script src="js/cloud/firebase-service.js"></script>
   <script src="js/hauntsync-dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
 </body>
 </html>

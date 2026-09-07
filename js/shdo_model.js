@@ -165,7 +165,9 @@ class SHDOModel {
     project.project.name = project.project.name || 'Untitled Show';
     project.project.version = '2.0.0';
     project.project.createdAt = project.project.createdAt || now;
-    project.project.updatedAt = now;
+    // Migration should never make a project look freshly edited just because a
+    // dashboard/stat view inspected it. Normal save paths own updatedAt changes.
+    project.project.updatedAt = project.project.updatedAt || now;
 
     project.architecture = {
       version: 1,

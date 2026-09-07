@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Showduino is a distributed ESP32 show-control system with a dedicated Director, Communications Controller, ESP32-P4 Show Engine and specialist nodes for immersive attractions and practical effects.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Showduino | Distributed Immersive Show Control">
+  <meta property="og:description" content="Studio creates it. Director operates it. The ESP32-P4 Show Engine runs it locally.">
+  <meta property="og:url" content="https://show-duino.com/">
+  <meta property="og:image" content="https://show-duino.com/media/product/showduino-social.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <title>Showduino | Distributed Immersive Show Control</title>
+  <link rel="canonical" href="https://show-duino.com/">
+  <link rel="preload" as="image" href="media/product/director-front.webp" type="image/webp">
   <link rel="stylesheet" href="css/site-pages.css">
+  <link rel="stylesheet" href="css/product-media.css">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -32,32 +41,18 @@
           <a class="btn" href="system.html">Explore the system</a>
           <a class="btn secondary" href="studio.html">Open Studio</a>
         </div>
+        <div class="product-proof" aria-label="Current Showduino hardware facts">
+          <div><strong>REAL HARDWARE</strong><span>The current enclosure and Director are built, assembled and being developed as the actual system.</span></div>
+          <div><strong>LOCAL AUTHORITY</strong><span>The ESP32-P4 owns show state, safety, timeline execution and cue dispatch.</span></div>
+          <div><strong>SPECIALIST NODES</strong><span>Relay, MOSFET, pixel and audio jobs are split into hardware designed around the work.</span></div>
+        </div>
       </div>
 
-      <div class="hero-console" aria-label="Illustrated Showduino system model">
-        <div class="console-top"><span>SHOWDUINO SYSTEM MODEL</span><span>V1 · 2026</span></div>
-        <div class="console-screen">
-          <div class="console-row">
-            <span class="console-label">Director</span>
-            <span class="console-path">ESP32-S3 · operator UI</span>
-            <span class="console-state"><i class="status-dot"></i>READY</span>
-          </div>
-          <div class="console-row">
-            <span class="console-label">Comms Controller</span>
-            <span class="console-path">ESP-NOW ↔ UART bridge</span>
-            <span class="console-state"><i class="status-dot"></i>LINK</span>
-          </div>
-          <div class="console-row">
-            <span class="console-label">Show Engine</span>
-            <span class="console-path">ESP32-P4 · authoritative runtime</span>
-            <span class="console-state"><i class="status-dot"></i>ARMED</span>
-          </div>
-          <div class="console-row">
-            <span class="console-label">Specialist Nodes</span>
-            <span class="console-path">relay · MOSFET · pixels · audio</span>
-            <span class="console-state"><i class="status-dot"></i>ACTIVE</span>
-          </div>
-          <div class="console-rule"><strong>Core rule:</strong> a running show does not depend on the Director, browser, Wi-Fi or internet. Live timing, state and safety stay with the P4 Show Engine.</div>
+      <div class="hero-product" aria-label="Current Showduino Director and Show Engine enclosure">
+        <img src="media/product/director-front.webp" width="1152" height="1536" fetchpriority="high" alt="Finished Showduino control unit with touchscreen Director, antennas, emergency button and black enclosure">
+        <div class="hero-product-overlay">
+          <div class="hero-product-title"><strong>Current Showduino hardware</strong><span>Director + Show Engine enclosure · 2026 prototype</span></div>
+          <span class="product-status">SYSTEM BUILT</span>
         </div>
       </div>
     </section>
@@ -69,91 +64,47 @@
           <h2>Four jobs. Clear responsibility.</h2>
           <p>The current Showduino system is deliberately split so operator controls, transport, show decisions and physical outputs cannot accidentally become the same job.</p>
         </div>
-
         <div class="architecture" aria-label="Showduino architecture flow">
-          <article class="architecture-node">
-            <span class="role-number">01 / DIRECTOR</span>
-            <h3>ESP32-S3 Director</h3>
-            <p>The 800×480 touchscreen is the operator desk. It requests actions, displays state and keeps the live controls clear.</p>
-            <span class="transport">ESP-NOW →</span>
-          </article>
-          <article class="architecture-node">
-            <span class="role-number">02 / TRANSPORT</span>
-            <h3>S3 Comms Controller</h3>
-            <p>A dedicated bridge between wireless devices and the P4. It transports messages; it does not make show decisions.</p>
-            <span class="transport">UART 115200 →</span>
-          </article>
-          <article class="architecture-node">
-            <span class="role-number">03 / AUTHORITY</span>
-            <h3>ESP32-P4 Show Engine</h3>
-            <p>The runtime authority for state, timeline, safety, cues and emergency behaviour. The show lives here.</p>
-            <span class="transport">COMMANDS →</span>
-          </article>
-          <article class="architecture-node">
-            <span class="role-number">04 / ACTION</span>
-            <h3>Specialist Nodes</h3>
-            <p>Relay, MOSFET, pixel and audio nodes perform commanded work and report results back to the system.</p>
-            <span class="transport">ACTUATE + REPORT</span>
-          </article>
+          <article class="architecture-node"><span class="role-number">01 / DIRECTOR</span><h3>ESP32-S3 Director</h3><p>The 800×480 touchscreen is the operator desk. It requests actions, displays state and keeps the live controls clear.</p><span class="transport">ESP-NOW →</span></article>
+          <article class="architecture-node"><span class="role-number">02 / TRANSPORT</span><h3>S3 Comms Controller</h3><p>A dedicated bridge between wireless devices and the P4. It transports messages; it does not make show decisions.</p><span class="transport">UART 115200 →</span></article>
+          <article class="architecture-node"><span class="role-number">03 / AUTHORITY</span><h3>ESP32-P4 Show Engine</h3><p>The runtime authority for state, timeline, safety, cues and emergency behaviour. The show lives here.</p><span class="transport">COMMANDS →</span></article>
+          <article class="architecture-node"><span class="role-number">04 / ACTION</span><h3>Specialist Nodes</h3><p>Relay, MOSFET, pixel and audio nodes perform commanded work and report results back to the system.</p><span class="transport">ACTUATE + REPORT</span></article>
         </div>
       </section>
 
       <section class="section reveal">
-        <div class="principle"><strong>Local-first by design:</strong> Studio helps you create the show. The Director helps you operate it. Neither is allowed to become the thing keeping a live show alive.</div>
+        <div class="principle"><strong>Studio creates it. Director operates it. P4 runs it.</strong> A live production does not need the browser, internet or touchscreen to keep the timeline alive.</div>
       </section>
 
       <section class="section reveal">
         <div class="section-heading">
-          <span class="eyebrow">PIXEL SYSTEM</span>
-          <h2>Segmented in the show. Unmistakable in an emergency.</h2>
-          <p>Pixel lines can be divided into logical segments for show effects, while the emergency state overrides every line and drives every pixel bright white.</p>
+          <span class="eyebrow">THE HARDWARE IS REAL</span>
+          <h2>Not a render. Not a someday box.</h2>
+          <p>The current Showduino enclosure is printed, assembled and being used as the development hardware. The website now follows the physical product instead of illustrating an imaginary controller.</p>
         </div>
+        <div class="product-gallery">
+          <figure class="product-photo rear"><img loading="lazy" src="media/product/director-rear.webp" width="1152" height="1536" alt="Rear view of the Showduino touchscreen mount and green pluggable connectors"><figcaption class="product-photo-caption">Serviceable rear connections and touchscreen mount</figcaption></figure>
+          <figure class="product-photo side"><img loading="lazy" src="media/product/director-side.webp" width="1152" height="1536" alt="Side view of the Showduino control unit showing Ethernet and USB ports"><figcaption class="product-photo-caption">Accessible I/O and antenna hardware</figcaption></figure>
+          <figure class="product-photo angle"><img loading="lazy" src="media/product/director-angle.webp" width="1152" height="1536" alt="Angled view of the finished Showduino enclosure with red emergency button"><figcaption class="product-photo-caption">Dedicated physical emergency control</figcaption></figure>
+          <figure class="product-photo logo"><img loading="lazy" src="media/product/showduino-logo-detail.webp" width="1152" height="1536" alt="Close-up of the Showduino logo fan grille on the enclosure"><figcaption class="product-photo-caption">Printed enclosure detail and system cooling</figcaption></figure>
+        </div>
+        <div class="product-feature-grid" style="margin-top:1rem;">
+          <article class="product-feature"><strong>Operator hardware</strong><h3>Adjustable touchscreen Director</h3><p>The interface is a real physical operator surface, not the thing responsible for continuing show execution.</p></article>
+          <article class="product-feature"><strong>Physical safety</strong><h3>Emergency control stays obvious</h3><p>The red emergency control is deliberately separated from touchscreen UI actions and normal show cues.</p></article>
+          <article class="product-feature"><strong>Serviceability</strong><h3>Connections stay accessible</h3><p>Pluggable terminals, USB, Ethernet and antennas are treated as equipment interfaces rather than hidden development-board clutter.</p></article>
+        </div>
+      </section>
 
+      <section class="section reveal">
+        <div class="section-heading"><span class="eyebrow">PIXEL SYSTEM</span><h2>Segmented in the show. Unmistakable in an emergency.</h2><p>Pixel lines can be divided into logical segments for show effects, while the emergency state overrides every line and drives every pixel bright white.</p></div>
         <div class="grid two">
-          <article class="pixel-panel">
-            <div class="pixel-label-row"><strong>SHOW MODE · EXIT SIGN SEGMENTS</strong><span>example: pixel 0 / 10 / 20 green</span></div>
-            <div class="pixel-strip" data-pixel-preview="show" data-pixel-count="30" aria-label="Animated segmented pixel preview"></div>
-            <p class="pixel-note">The same physical line can remain visually useful during a production while preserving logical emergency-sign groupings.</p>
-          </article>
-          <article class="pixel-panel">
-            <div class="pixel-label-row"><strong>EMERGENCY OVERRIDE</strong><span>all pixels · bright white</span></div>
-            <div class="pixel-strip" data-pixel-preview="emergency" data-pixel-count="30" aria-label="Emergency white pixel preview"></div>
-            <p class="pixel-note">Emergency state wins over show effects. The visual override is system-wide, not limited to a decorative emergency strip.</p>
-          </article>
+          <article class="pixel-panel"><div class="pixel-label-row"><strong>SHOW MODE · EXIT SIGN SEGMENTS</strong><span>example: pixel 0 / 10 / 20 green</span></div><div class="pixel-strip" data-pixel-preview="show" data-pixel-count="30" aria-label="Animated segmented pixel preview"></div><p class="pixel-note">The same physical line can remain visually useful during a production while preserving logical emergency-sign groupings.</p></article>
+          <article class="pixel-panel"><div class="pixel-label-row"><strong>EMERGENCY OVERRIDE</strong><span>all pixels · bright white</span></div><div class="pixel-strip" data-pixel-preview="emergency" data-pixel-count="30" aria-label="Emergency white pixel preview"></div><p class="pixel-note">Emergency state wins over show effects. The visual override is system-wide, not limited to a decorative emergency strip.</p></article>
         </div>
       </section>
 
       <section class="section reveal">
-        <div class="section-heading">
-          <span class="eyebrow">PHYSICAL SYSTEM</span>
-          <h2>Built like equipment, not a science-fair prototype.</h2>
-          <p>The current enclosure language is simple: black serviceable modules, labelled connections, visible status LEDs and dedicated hardware roles that can be diagnosed independently.</p>
-        </div>
-
-        <div class="hardware-grid">
-          <div class="hardware-stack">
-            <div class="hardware-module"><span class="hardware-led"></span><div><strong>Showduino P4 Show Engine</strong><small>Runtime · safety · timeline · SD · system audio</small></div><span class="hardware-port">P4</span></div>
-            <div class="hardware-module"><span class="hardware-led"></span><div><strong>Relay Node</strong><small>Isolated physical output control and result reporting</small></div><span class="hardware-port">NODE</span></div>
-            <div class="hardware-module"><span class="hardware-led"></span><div><strong>MOSFET Node</strong><small>Solid-state low-voltage load control</small></div><span class="hardware-port">NODE</span></div>
-            <div class="hardware-module"><span class="hardware-led"></span><div><strong>Pixel / Audio Nodes</strong><small>Specialist engines for visual and sound playback tasks</small></div><span class="hardware-port">NODE</span></div>
-          </div>
-          <div class="touchscreen-shell">
-            <div class="touchscreen" aria-label="Stylised Showduino Director touchscreen">
-              <div class="touchscreen-ui">
-                <span class="touchscreen-tile"></span><span class="touchscreen-tile"></span><span class="touchscreen-tile"></span>
-                <span class="touchscreen-tile"></span><span class="touchscreen-tile"></span><span class="touchscreen-tile"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section reveal">
-        <div class="section-heading">
-          <span class="eyebrow">CURRENT ROLLOUT</span>
-          <h2>Finish the useful core first.</h2>
-          <p>The current development path concentrates on the systems that already matter to a real attraction. Unfinished future protocols are not being presented as finished features.</p>
-        </div>
+        <div class="section-heading"><span class="eyebrow">CURRENT ROLLOUT</span><h2>Finish the useful core first.</h2><p>The current development path concentrates on the systems that already matter to a real attraction. Unfinished future protocols are not being presented as finished features.</p></div>
         <div class="grid four">
           <article class="card"><div class="card-icon">RLY</div><h3>Relay outputs</h3><p class="muted">Commanded switching with node state and fault reporting as the target behaviour.</p></article>
           <article class="card"><div class="card-icon">MOS</div><h3>MOSFET outputs</h3><p class="muted">Efficient control of compatible low-voltage effects and loads without treating everything as a relay.</p></article>
@@ -163,39 +114,20 @@
       </section>
 
       <section class="section reveal">
-        <div class="section-heading">
-          <span class="eyebrow">SOFTWARE</span>
-          <h2>Create separately. Run locally.</h2>
-        </div>
+        <div class="section-heading"><span class="eyebrow">SOFTWARE</span><h2>Create separately. Run locally.</h2></div>
         <div class="grid two">
-          <article class="card">
-            <span class="badge">CREATION</span>
-            <h2>Showduino Studio</h2>
-            <p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable `.shdo` project files. Studio is a creator and deployment tool — not the live show engine.</p>
-            <div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div>
-          </article>
-          <article class="card">
-            <span class="badge">PROJECT HUB</span>
-            <h2>HauntSync</h2>
-            <p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p>
-            <div class="button-row"><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></div>
-          </article>
+          <article class="card"><span class="badge">CREATION</span><h2>Showduino Studio</h2><p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable `.shdo` project files. Studio is a creator and deployment tool — not the live show engine.</p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div></article>
+          <article class="card"><span class="badge">PROJECT HUB</span><h2>HauntSync</h2><p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p><div class="button-row"><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></div></article>
         </div>
       </section>
 
       <section class="section compact reveal">
-        <div class="callout">
-          <div><h2>Want the architecture without the marketing?</h2><p>The System page breaks down responsibilities, transports, emergency behaviour and the current hardware scope.</p></div>
-          <a class="btn" href="system.html">Open System Guide</a>
-        </div>
+        <div class="callout"><div><h2>Want the architecture without the marketing?</h2><p>The System page breaks down responsibilities, transports, emergency behaviour and the current hardware scope.</p></div><a class="btn" href="system.html">Open System Guide</a></div>
       </section>
     </div>
   </main>
 
-  <footer class="site-footer">
-    <p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p>
-  </footer>
-
+  <footer class="site-footer"><p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p></footer>
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
   <script src="js/site-motion.js"></script>
 </body>

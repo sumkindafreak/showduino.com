@@ -1,147 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Showduino - Recommended Tools</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: 'Courier New', Courier, monospace;
-    }
-    .glitch {
-      position: relative;
-      color: white;
-    }
-    .glitch::before,
-    .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0;
-      width: 100%;
-      overflow: hidden;
-      color: #f00;
-      clip: rect(0, 0, 0, 0);
-    }
-    .glitch::before {
-      animation: glitchTop 1.5s infinite linear alternate-reverse;
-    }
-    .glitch::after {
-      animation: glitchBottom 2s infinite linear alternate-reverse;
-      color: #0ff;
-    }
-    @keyframes glitchTop {
-      0% { clip: rect(2px, 9999px, 5px, 0); transform: translate(-2px, -2px); }
-      100% { clip: rect(5px, 9999px, 12px, 0); transform: translate(2px, 0); }
-    }
-    @keyframes glitchBottom {
-      0% { clip: rect(25px, 9999px, 30px, 0); transform: translate(2px, 2px); }
-      100% { clip: rect(40px, 9999px, 45px, 0); transform: translate(-2px, 0); }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Current Showduino hardware stack and the boards used by the Director, Communications Controller, Show Engine and specialist nodes.">
+  <title>Hardware | Showduino</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
-<body class="p-6">
-
-  <header class="text-center mb-10">
-    <h1 class="text-5xl glitch" data-text="Showduino Toolkit">Showduino Toolkit</h1>
-    <p class="text-gray-400 mt-4">Your backstage pass to building terrifying tech. Everything we use to summon spirits (and sensors).</p>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="index.html">SHOWDUINO</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">System</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html">HauntSync</a>
+      <a href="tools.html" aria-current="page">Hardware</a>
+      <a href="aboutme.html">About</a>
+      <a href="support.html">Support</a>
+    </nav>
   </header>
 
-  <section id="recommended-tools" class="max-w-6xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <main class="site-main">
+    <section class="page-heading">
+      <span class="eyebrow">CURRENT HARDWARE STACK</span>
+      <h1>Built around<br><span class="accent">real roles.</span></h1>
+      <p>The Showduino hardware stack now follows the same architecture as the software: dedicated devices for operator control, communications, runtime authority and physical outputs.</p>
+    </section>
 
-      <!-- Tool Card 1 -->
-      <div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-        <h2 class="text-2xl font-bold mb-2">ESP32 Dev Board</h2>
-        <img src="https://m.media-amazon.com/images/I/61jN2wY1jML._AC_SL1500_.jpg" alt="ESP32 Dev Board" class="mb-4 rounded-lg w-full">
-        <p class="text-gray-400 mb-4">The haunted heart of Showduino. Dual-core, WiFi, Bluetooth—what more could a monster ask for?</p>
-        <a href="https://www.amazon.co.uk/dp/B08DR5T897?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
+    <section class="section compact reveal">
+      <div class="grid two">
+        <article class="card">
+          <span class="badge">DIRECTOR</span>
+          <h2>ESP32-S3 800×480 touchscreen</h2>
+          <p class="muted">The Director is the operator-facing controller. The current hardware uses an ESP32-S3 touchscreen platform with a large 800×480 display for live show controls and status.</p>
+          <ul class="spec-list">
+            <li><strong>Role</strong><span>Operator requests and state display</span></li>
+            <li><strong>Primary link</strong><span>ESP-NOW to the Communications Controller</span></li>
+            <li><strong>Runtime authority</strong><span>No — the P4 remains authoritative</span></li>
+          </ul>
+        </article>
+        <article class="card">
+          <span class="badge">COMMS CONTROLLER</span>
+          <h2>Dedicated ESP32-S3 bridge</h2>
+          <p class="muted">The previous C3 bridge concept has been superseded by a full ESP32-S3 Communications Controller. It bridges wireless traffic to the P4 without making show decisions.</p>
+          <ul class="spec-list">
+            <li><strong>Wireless</strong><span>ESP-NOW</span></li>
+            <li><strong>P4 transport</strong><span>UART 115200 8N1</span></li>
+            <li><strong>Show logic</strong><span>None by design</span></li>
+          </ul>
+        </article>
       </div>
+    </section>
 
-      <!-- Tool Card 2 -->
-      <div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-        <h2 class="text-2xl font-bold mb-2">HC-05 Bluetooth Module</h2>
-        <img src="https://m.media-amazon.com/images/I/61T1cyLx9JL._AC_SL1001_.jpg" alt="HC-05 Bluetooth Module" class="mb-4 rounded-lg w-full">
-        <p class="text-gray-400 mb-4">Summon wireless serial magic from your phone straight into your props—Bluetooth that bites.</p>
-        <a href="https://www.amazon.co.uk/dp/B00INWZRNC?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
+    <section class="section reveal">
+      <article class="card">
+        <span class="badge">SHOW ENGINE</span>
+        <h2>Waveshare ESP32-P4-Module-DEV-KIT</h2>
+        <p class="muted">The P4 is the centre of the live runtime: state, safety, cue dispatch, timeline execution, local storage and Showduino system services.</p>
+        <div class="grid two" style="margin-top:1rem;">
+          <ul class="spec-list">
+            <li><strong>Comms UART</strong><span>RX GPIO4 · TX GPIO5</span></li>
+            <li><strong>I²C plug-in bus</strong><span>SDA GPIO7 · SCL GPIO8 · 100 kHz</span></li>
+            <li><strong>Status LED</strong><span>GPIO10</span></li>
+            <li><strong>Emergency input</strong><span>GPIO25</span></li>
+          </ul>
+          <ul class="spec-list">
+            <li><strong>I²S system audio</strong><span>WS GPIO20 · BCLK GPIO21 · DATA GPIO22</span></li>
+            <li><strong>Pixel line</strong><span>GPIO24</span></li>
+            <li><strong>Storage</strong><span>SD card for projects/assets</span></li>
+            <li><strong>Onboard C6</strong><span>Reserved / unused in current architecture</span></li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">SPECIALIST NODES</span>
+        <h2>Output hardware follows the job.</h2>
+        <p>Instead of forcing every effect through one generic box, Showduino uses specialist nodes that can be built, tested and diagnosed around the load they actually control.</p>
       </div>
-
-      <!-- Tool Card 3 -->
-      <div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-        <h2 class="text-2xl font-bold mb-2">NeoPixel Jewel (7 RGB LEDs)</h2>
-        <img src="https://m.media-amazon.com/images/I/71KHvJk7SDL._AC_SL1500_.jpg" alt="NeoPixel Jewel" class="mb-4 rounded-lg w-full">
-        <p class="text-gray-400 mb-4">This little jewel packs a wicked punch. Perfect for haunted lanterns, eerie glow effects, and magical runes.</p>
-        <a href="https://www.amazon.co.uk/dp/B00Q9R8QUO?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
+      <div class="grid four">
+        <article class="card"><div class="card-icon">RLY</div><h3>Relay Node</h3><p class="muted">For compatible switched outputs and devices that benefit from isolated relay control.</p></article>
+        <article class="card"><div class="card-icon">MOS</div><h3>MOSFET Node</h3><p class="muted">For suitable low-voltage loads where solid-state switching makes more sense than a mechanical relay.</p></article>
+        <article class="card"><div class="card-icon">PIX</div><h3>Pixel Node</h3><p class="muted">For segmented addressable LED effects and emergency-white override behaviour.</p></article>
+        <article class="card"><div class="card-icon">AUD</div><h3>Audio Node</h3><p class="muted">For dedicated show audio playback, separate from the P4's own local system sounds.</p></article>
       </div>
+    </section>
 
-      <!-- Tool Card 4 -->
-      <div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-        <h2 class="text-2xl font-bold mb-2">Serial MP3 Player Module</h2>
-        <img src="https://m.media-amazon.com/images/I/51XK1vwiL0L._AC_SL1001_.jpg" alt="MP3 Player Module" class="mb-4 rounded-lg w-full">
-        <p class="text-gray-400 mb-4">Because what's a haunt without screams? Add chilling soundscapes to your creations with this creepy compact sound module.</p>
-        <a href="https://www.amazon.co.uk/dp/B09BTM3CQ7?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
+    <section class="section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">EXPANSION</span>
+        <h2>I²C without turning the P4 into a wiring mess.</h2>
+        <p>The P4 exposes a defined plug-in bus for supported I/O and PWM expansion hardware. The current architecture keeps expansion modular instead of scattering one-off pin assignments throughout the build.</p>
       </div>
+      <div class="grid three">
+        <article class="card"><h3>MCP23017</h3><p class="muted">General-purpose digital I/O expansion for compatible plug-in hardware.</p></article>
+        <article class="card"><h3>PCA9685</h3><p class="muted">PWM/servo-style expansion where dedicated multi-channel PWM is useful.</p></article>
+        <article class="card"><h3>TCA9548A</h3><p class="muted">I²C multiplexing where multiple same-address devices or isolated branches are required.</p></article>
+      </div>
+    </section>
 
-      <!-- Tool Card 5 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">WS2812B RGB LED Strip</h2>
-  <img src="https://m.media-amazon.com/images/I/71Eis9zNH1L._AC_SL1500_.jpg" alt="WS2812B RGB LED Strip" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">Bring your haunted sets to life with vibrant color-changing magic. Ideal for NeoPixel sequences, lighting FX, and underworld ambiance.</p>
-  <a href="https://www.amazon.co.uk/dp/B088K8DVMQ?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
-      
-<!-- Tool Card 6 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">Buck Converter 1.25–30V</h2>
-  <img src="https://m.media-amazon.com/images/I/61nQAc7NhML._AC_SL1001_.jpg" alt="Buck Converter" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">Step down voltage like a true show master. Perfect for powering FX boards, LEDs, and haunted gadgets without frying your circuits.</p>
-  <a href="https://www.amazon.co.uk/dp/B0CKZ4V1RM?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
+    <section class="section reveal">
+      <div class="principle"><strong>Current scope note:</strong> DMX is deliberately not part of the current Showduino implementation plan. The present focus is finishing the relay, MOSFET, pixel, audio, storage and runtime path properly before opening another protocol.</div>
+    </section>
 
-      <!-- Tool Card 7 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">Arduino Mega 2560 (Elegoo)</h2>
-  <img src="https://m.media-amazon.com/images/I/71WSl7UW8-L._AC_SL1500_.jpg" alt="Arduino Mega Board" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">The mega-brained controller behind Showduino’s monstrous might. Tons of pins, loads of memory, and terrifying reliability.</p>
-  <a href="https://www.amazon.co.uk/dp/B06XKHN62M?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
-<!-- Tool Card 8 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">7.4V 2000mAh Li-ion Battery + Charger</h2>
-  <img src="https://m.media-amazon.com/images/I/71p6pJ0R0vL._AC_SL1500_.jpg" alt="7.4V Li-ion Battery Pack" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">Need power on the go? This beast keeps your props running where the grid fears to tread. Ideal for portable FX rigs, haunted props, or escape room modules.</p>
-  <a href="https://www.amazon.co.uk/dp/B0C6THFXXQ?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
+    <section class="section compact reveal">
+      <div class="callout">
+        <div><h2>See how the hardware fits together.</h2><p>The System Guide explains why these devices are separate and which one owns the live show.</p></div>
+        <a class="btn" href="system.html">Open System Guide</a>
+      </div>
+    </section>
+  </main>
 
-      <!-- Tool Card 9 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">8-Channel Relay Module</h2>
-  <img src="https://m.media-amazon.com/images/I/71p6pJ0R0vL._AC_SL1500_.jpg" alt="8-Channel Relay Module" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">Control up to eight high-power devices with precision. Ideal for managing multiple props, lights, or other electronic elements in your haunted setup.</p>
-  <a href="https://www.amazon.co.uk/dp/B0B99X4CJN?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
-      
-<!-- Tool Card 10 -->
-<div class="bg-gray-900 p-6 rounded-2xl shadow-lg hover:shadow-red-700 transition-all">
-  <h2 class="text-2xl font-bold mb-2">ESP32 2.8" Touchscreen Dev Board</h2>
-  <img src="https://m.media-amazon.com/images/I/71hhbFOaRDL._AC_SL1500_.jpg" alt="ESP32 Touchscreen Board" class="mb-4 rounded-lg w-full">
-  <p class="text-gray-400 mb-4">The nerve center of your haunted UI. This touchscreen ESP32 dev board is perfect for Showduino's menu system and bringing cursed interactions to life.</p>
-  <a href="https://www.amazon.co.uk/dp/B0CWTNLB1B?tag=showduino-21" target="_blank" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded">Get it on Amazon</a>
-</div>
-
-
-      
-
-
-    </div>
-
-    <p class="mt-10 text-center text-gray-500 text-sm">
-      *Some links are affiliate links. They cost you nothing, but they help power our haunted ambitions. Cheers, mortal.
-    </p>
-  </section>
-
+  <footer class="site-footer"><p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p></footer>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
 </body>
 </html>

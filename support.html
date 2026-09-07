@@ -3,61 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Get help with Showduino Studio, HauntSync and Showduino hardware.">
+  <meta name="description" content="Showduino support for Studio, HauntSync, the ESP32-P4 Show Engine, Director, Communications Controller and specialist nodes.">
   <title>Support | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
   <header class="site-header">
     <a class="site-brand" href="index.html">SHOWDUINO</a>
     <nav class="site-nav" aria-label="Main navigation">
       <a href="index.html">Home</a>
+      <a href="system.html">System</a>
       <a href="studio.html">Studio</a>
       <a href="hauntsync.html">HauntSync</a>
-      <a href="tools.html">Tools</a>
+      <a href="tools.html">Hardware</a>
       <a href="aboutme.html">About</a>
       <a href="support.html" aria-current="page">Support</a>
-      <a href="account.html">Account</a>
     </nav>
   </header>
 
   <main class="site-main">
     <section class="page-heading">
-      <span class="badge">HELP CENTRE</span>
-      <h1>Showduino support</h1>
-      <p>Find practical help for Studio, HauntSync, project files and Showduino controller hardware.</p>
+      <span class="eyebrow">HELP CENTRE</span>
+      <h1>Support for the<br><span class="accent">current system.</span></h1>
+      <p>Find help for Showduino Studio, HauntSync and the Director → Communications Controller → P4 Show Engine → specialist-node architecture.</p>
     </section>
 
-    <section class="grid three">
-      <article class="card"><h2>Studio help</h2><p class="muted">Project saving, imports, exports, timelines, devices and offline operation.</p><a class="btn secondary" href="studio.html">Open Studio</a></article>
-      <article class="card"><h2>HauntSync help</h2><p class="muted">Project dashboard, local storage, registered devices and account preparation.</p><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></article>
-      <article class="card"><h2>GitHub issues</h2><p class="muted">Report bugs, request features and follow active development.</p><a class="btn secondary" href="https://github.com/sumkindafreak/showduino.com/issues" target="_blank" rel="noopener noreferrer">Open GitHub</a></article>
+    <section class="grid three reveal">
+      <article class="card"><div class="card-icon">SYS</div><h2>System guide</h2><p class="muted">Understand device responsibilities, transports, emergency behaviour and current scope before troubleshooting.</p><a class="btn secondary" href="system.html">Open System Guide</a></article>
+      <article class="card"><div class="card-icon">STD</div><h2>Studio help</h2><p class="muted">Project saving, imports, exports, timelines, routing and creator-mode operation.</p><a class="btn secondary" href="studio.html">Open Studio</a></article>
+      <article class="card"><div class="card-icon">HNT</div><h2>HauntSync help</h2><p class="muted">Projects, registered hardware roles, local storage and account-ready project management.</p><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></article>
     </section>
 
-    <section class="grid two" style="margin-top: 1rem;">
-      <article class="card">
-        <h2>Common questions</h2>
-        <h3>Does Showduino work offline?</h3>
-        <p class="muted">Yes. Studio project saving, importing, exporting and local HauntSync project management are designed to work without cloud access.</p>
-        <h3>Are payments active?</h3>
-        <p class="muted">No. Stripe and subscription services remain disabled while the website is being completed and tested.</p>
-        <h3>Where are projects stored?</h3>
-        <p class="muted">Until cloud services are enabled, projects are stored in your browser and can be exported as `.shdo` backups.</p>
-      </article>
+    <section class="section reveal">
+      <div class="grid two">
+        <article class="card">
+          <span class="badge">COMMON QUESTIONS</span>
+          <h2 style="margin-top:1rem;">How the current system behaves</h2>
+          <h3>Does a live show need the browser?</h3>
+          <p class="muted">No. Studio is the authoring environment. The P4 Show Engine is intended to own the live runtime after a production has been loaded.</p>
+          <h3>Does losing the Director stop the show?</h3>
+          <p class="muted">It should not. The Director is an operator interface, not the runtime authority.</p>
+          <h3>What does the Communications Controller decide?</h3>
+          <p class="muted">Nothing about the show. It bridges ESP-NOW traffic to the P4 over UART and provides communications diagnostics.</p>
+          <h3>What happens in an emergency?</h3>
+          <p class="muted">Emergency state interrupts normal playback, latches, overrides pixel outputs to bright white and does not automatically resume the show when the initiating condition clears.</p>
+          <h3>Is DMX part of the current build?</h3>
+          <p class="muted">No. DMX is intentionally outside the current development scope while the core relay, MOSFET, pixel, audio and runtime path is completed.</p>
+        </article>
 
-      <form id="support-form" class="card">
-        <h2>Contact support</h2>
-        <p class="muted">This form opens your email app with the details filled in. No information is uploaded by the website.</p>
-        <div class="form-group"><label for="support-name">Your name</label><input id="support-name" class="form-control" type="text" maxlength="80" required></div>
-        <div class="form-group"><label for="support-email">Your email</label><input id="support-email" class="form-control" type="email" required></div>
-        <div class="form-group"><label for="support-topic">Topic</label><select id="support-topic" class="form-control"><option>Studio</option><option>HauntSync</option><option>Hardware</option><option>Website bug</option><option>Other</option></select></div>
-        <div class="form-group"><label for="support-message">Message</label><textarea id="support-message" class="form-control" rows="7" maxlength="3000" required></textarea></div>
-        <button class="btn" type="submit">Prepare email</button>
-      </form>
+        <form id="support-form" class="card">
+          <span class="badge">CONTACT</span>
+          <h2 style="margin-top:1rem;">Prepare a support email</h2>
+          <p class="muted">This form opens your email app with the details filled in. It does not upload the message through the website.</p>
+          <div class="form-group"><label for="support-name">Your name</label><input id="support-name" class="form-control" type="text" maxlength="80" required></div>
+          <div class="form-group"><label for="support-email">Your email</label><input id="support-email" class="form-control" type="email" required></div>
+          <div class="form-group"><label for="support-topic">Topic</label><select id="support-topic" class="form-control"><option>System architecture</option><option>Director</option><option>Communications Controller</option><option>P4 Show Engine</option><option>Relay / MOSFET Node</option><option>Pixel system</option><option>Audio Node</option><option>Studio</option><option>HauntSync</option><option>Website bug</option><option>Other</option></select></div>
+          <div class="form-group"><label for="support-message">Message</label><textarea id="support-message" class="form-control" rows="8" maxlength="3000" required></textarea></div>
+          <button class="btn" type="submit">Prepare email</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="section compact reveal">
+      <div class="callout">
+        <div><h2>Found a reproducible software bug?</h2><p>GitHub issues are the best place to keep technical problems, logs and fixes attached to the codebase.</p></div>
+        <a class="btn secondary" href="https://github.com/sumkindafreak/showduino.com/issues" target="_blank" rel="noopener noreferrer">Open GitHub Issues</a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer"><p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p></footer>
+
   <script>
     document.getElementById('support-form').addEventListener('submit', function (event) {
       event.preventDefault();
@@ -70,5 +87,7 @@
       window.location.href = `mailto:showduino38@gmail.com?subject=${subject}&body=${body}`;
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
 </body>
 </html>

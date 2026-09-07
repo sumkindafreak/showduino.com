@@ -23,8 +23,7 @@
 
   function readJson(key, fallback) {
     try {
-      const parsed = JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-      return parsed;
+      return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
     } catch (error) {
       console.warn(`[HauntSync] Could not read ${key}`, error);
       return fallback;
@@ -91,7 +90,7 @@
         <div>
           <div class="dashboard-item-title">${escapeHtml(project.name || 'Untitled Show')}</div>
           <div class="muted">Updated ${escapeHtml(formatDate(project.updatedAt))}</div>
-          <div class="button-row" style="margin-top: .8rem;">
+          <div class="button-row" style="margin-top:.8rem;">
             <span class="badge">LOCAL</span>
             ${currentUser && cloudEnabled() ? '<span class="badge">CLOUD READY</span>' : ''}
           </div>
@@ -111,7 +110,7 @@
     elements.deviceList.innerHTML = '';
 
     if (!devices.length) {
-      elements.deviceList.innerHTML = '<p class="muted">No devices registered yet. Add a SUE, IAN, UI or prop controller to build your equipment inventory.</p>';
+      elements.deviceList.innerHTML = '<div class="empty-state"><h3>No hardware registered yet</h3><p>Add your Director, Communications Controller, P4 Show Engine or specialist nodes to build the current Showduino inventory.</p></div>';
       return;
     }
 
@@ -189,7 +188,7 @@
     localStorage.setItem(DEVICE_KEY, JSON.stringify(devices));
     renderDevices();
     updateStats();
-    setStatus('Device removed.', 'success');
+    setStatus('Hardware entry removed.', 'success');
   }
 
   function updateAccountUi(user) {
@@ -201,13 +200,14 @@
       setStatus('HauntSync account connected. Local projects are ready for cloud sync.', 'success');
     } else {
       elements.accountName.textContent = 'Local workspace';
-      elements.accountEmail.textContent = 'Projects and devices are stored in this browser.';
+      elements.accountEmail.textContent = 'Projects and hardware entries are stored in this browser.';
       elements.accountLink.textContent = 'Open account';
       setStatus(cloudEnabled()
         ? 'Sign in to enable cloud project access.'
-        : 'HauntSync is running locally. Cloud services remain disabled until launch.');
+        : 'HauntSync is running locally. Cloud services remain optional and outside the live show path.');
     }
     renderProjects();
+    renderDevices();
     updateStats();
   }
 

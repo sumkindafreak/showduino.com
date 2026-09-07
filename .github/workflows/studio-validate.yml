@@ -1,0 +1,111 @@
+name: Studio Validate
+
+on:
+  push:
+    branches:
+      - main
+      - studio-2-revamp-2026-09-07
+    paths:
+      - 'studio.html'
+      - 'app.js'
+      - 'js/**'
+      - 'css/studio-*.css'
+      - '.github/workflows/studio-validate.yml'
+  pull_request:
+    paths:
+      - 'studio.html'
+      - 'app.js'
+      - 'js/**'
+      - 'css/studio-*.css'
+      - '.github/workflows/studio-validate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-studio:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check Studio JavaScript syntax
+        run: |
+          node --check js/shdo_model.js
+          node --check js/timeline.js
+          node --check js/timeline-fx-daw.js
+          node --check js/timeline-professional-inspector.js
+          node --check js/studio-package.js
+          node --check js/studio-projects.js
+          node --check js/studio-deploy.js
+          node --check js/studio-creator-mode.js
+          node --check js/studio-mobile.js
+          node --check js/current-system-ui.js
+          node --check js/studio-v4.js
+          node --check app.js
+
+      - name: Check Studio local asset references
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          root = Path('.')
+          html = (root / 'studio.html').read_text(encoding='utf-8')
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if tag == 'script' and attrs.get('src'):
+                      self.refs.append(attrs['src'])
+                  if tag == 'link' and attrs.get('href'):
+                      self.refs.append(attrs['href'])
+
+          parser = Parser()
+          parser.feed(html)
+          missing = []
+          for ref in parser.refs:
+              parsed = urlparse(ref)
+              if parsed.scheme or ref.startswith('//') or ref.startswith('#'):
+                  continue
+              path = ref.split('?', 1)[0].split('#', 1)[0]
+              if path and not (root / path).exists():
+                  missing.append(path)
+
+          if missing:
+              raise SystemExit('Missing Studio assets: ' + ', '.join(sorted(set(missing))))
+          print(f'Checked {len(parser.refs)} Studio script/stylesheet references: all local assets exist.')
+          PY
+
+      - name: Check current-scope authoring rules
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          studio = Path('studio.html').read_text(encoding='utf-8')
+          library = Path('js/timeline-fx-daw.js').read_text(encoding='utf-8')
+          v4 = Path('js/studio-v4.js').read_text(encoding='utf-8')
+
+          required = [
+              'Pixel FX Lab',
+              'P4 RUNTIME AUTHORITY',
+              'mosfet',
+              'repeat-marker',
+              'Emergency = every pixel bright white',
+          ]
+          combined = studio + '\n' + library + '\n' + v4
+          missing = [item for item in required if item not in combined]
+          if missing:
+              raise SystemExit('Missing Studio v4 requirements: ' + ', '.join(missing))
+
+          forbidden_new_presets = ['DMX Scene', 'Light Fade', 'Prop Trigger']
+          bad = [item for item in forbidden_new_presets if item in library]
+          if bad:
+              raise SystemExit('Out-of-scope presets returned to current library: ' + ', '.join(bad))
+
+          print('Current Showduino authoring-scope checks passed.')
+          PY

@@ -7,20 +7,59 @@
     return;
   }
 
+  const PIXEL_FX = [
+    ['Solid','solid','STATIC'],['Fade','fade','LEVEL'],['Pulse','pulse','LEVEL'],['Breathe','breathe','LEVEL'],
+    ['Flash','flash','IMPACT'],['Strobe','strobe','IMPACT'],['Lightning','lightning','IMPACT'],['Flicker','flicker','ORGANIC'],
+    ['Fire','fire','ORGANIC'],['Ember','ember','ORGANIC'],['Sparkle','sparkle','ORGANIC'],['Twinkle','twinkle','ORGANIC'],
+    ['Chase','chase','MOTION'],['Comet','comet','MOTION'],['Scanner','scanner','MOTION'],['Meteor','meteor','MOTION'],
+    ['Colour Wipe','wipe','MOTION'],['Theatre Chase','theatre','MOTION'],['Wave','wave','MOTION'],['Ripple','ripple','MOTION'],
+    ['Rainbow','rainbow','COLOUR'],['Confetti','confetti','COLOUR'],['Red / Blue','police','COLOUR'],['UV Flicker','uv-flicker','COLOUR'],
+    ['Blackout','blackout','UTILITY']
+  ];
+
+  function pixelParams(effect) {
+    return {
+      line: 1,
+      segmentMode: 'range',
+      segmentName: 'Segment A',
+      startPixel: 0,
+      length: 10,
+      groupSize: 10,
+      markerOffset: 0,
+      r: effect === 'blackout' ? 0 : 0,
+      g: effect === 'blackout' ? 0 : 255,
+      b: effect === 'blackout' ? 0 : 200,
+      secondary: '#101820',
+      brightness: effect === 'blackout' ? 0 : 255,
+      effect,
+      speed: 120,
+      fadeMs: 0,
+      blackoutAtEnd: false
+    };
+  }
+
   const PRESETS = [
-    { name: 'Audio Cue', type: 'audio', icon: '🎵', durationMs: 5000, params: { file: '', volume: 100, loop: false, fadeIn: 0, fadeOut: 0 } },
-    { name: 'Impact Hit', type: 'audio', icon: '💥', durationMs: 1200, params: { file: 'impact.mp3', volume: 100, loop: false, fadeIn: 0, fadeOut: 120 } },
-    { name: 'Ambient Loop', type: 'audio', icon: '🌫️', durationMs: 15000, params: { file: 'ambience.mp3', volume: 70, loop: true, fadeIn: 1000, fadeOut: 1000 } },
-    { name: 'Relay Pulse', type: 'relay', icon: '⚡', durationMs: 500, params: { out: 'out1', state: true, pulseMs: 500 } },
-    { name: 'Relay Hold', type: 'relay', icon: '🔌', durationMs: 3000, params: { out: 'out1', state: true, pulseMs: 0 } },
-    { name: 'Light Fade', type: 'lighting', icon: '💡', durationMs: 3000, params: { r: 255, g: 255, b: 255, brightness: 255, effect: 'fade' } },
-    { name: 'Strobe', type: 'lighting', icon: '⚠️', durationMs: 1200, params: { r: 255, g: 255, b: 255, brightness: 255, effect: 'flash' } },
-    { name: 'Pixel Chase', type: 'pixel', icon: '🌈', durationMs: 5000, params: { r: 0, g: 255, b: 204, brightness: 255, effect: 'chase', line: 1 } },
-    { name: 'Pixel Pulse', type: 'pixel', icon: '🟢', durationMs: 2500, params: { r: 0, g: 255, b: 80, brightness: 220, effect: 'pulse', line: 1 } },
-    { name: 'DMX Scene', type: 'dmx', icon: '🎛️', durationMs: 5000, params: { channels: {} } },
-    { name: 'Prop Trigger', type: 'prop', icon: '⚙️', durationMs: 500, params: { action: 'trigger', value: 1 } },
-    { name: 'Event Trigger', type: 'trigger', icon: '🎯', durationMs: 250, params: { event: '', payload: '' } },
-    { name: 'FX Block', type: 'fx', icon: '✨', durationMs: 2000, params: { effect: 'custom', intensity: 100 } }
+    { name: 'Audio Cue', type: 'audio', icon: 'AUD', durationMs: 5000, params: { file: '', volume: 100, loop: false, fadeIn: 0, fadeOut: 0, pan: 0, rate: 1 } },
+    { name: 'Impact Hit', type: 'audio', icon: 'AUD', durationMs: 1200, params: { file: 'impact.wav', volume: 100, loop: false, fadeIn: 0, fadeOut: 120, pan: 0, rate: 1 } },
+    { name: 'Ambient Loop', type: 'audio', icon: 'AUD', durationMs: 15000, params: { file: 'ambience.wav', volume: 70, loop: true, fadeIn: 1000, fadeOut: 1000, pan: 0, rate: 1 } },
+
+    { name: 'Relay Pulse', type: 'relay', icon: 'RLY', durationMs: 500, params: { out: 'out1', mode: 'pulse', state: true, pulseMs: 500, safeOff: true } },
+    { name: 'Relay Hold', type: 'relay', icon: 'RLY', durationMs: 3000, params: { out: 'out1', mode: 'hold', state: true, pulseMs: 0, safeOff: true } },
+
+    { name: 'MOSFET Hold', type: 'mosfet', icon: 'MOS', durationMs: 3000, params: { out: 'out1', mode: 'hold', state: true, duty: 100, pulseMs: 0, safeOff: true } },
+    { name: 'MOSFET Pulse', type: 'mosfet', icon: 'MOS', durationMs: 500, params: { out: 'out1', mode: 'pulse', state: true, duty: 100, pulseMs: 500, safeOff: true } },
+    { name: 'MOSFET PWM', type: 'mosfet', icon: 'MOS', durationMs: 4000, params: { out: 'out1', mode: 'pwm', state: true, duty: 50, pulseMs: 0, safeOff: true } },
+
+    { name: 'Exit Sign Markers', type: 'pixel', icon: 'PIX', durationMs: 10000, params: { ...pixelParams('solid'), segmentMode: 'repeat-marker', segmentName: 'Emergency Exit Markers', groupSize: 10, markerOffset: 0, r: 0, g: 216, b: 109, secondary: '#000000' } },
+    ...PIXEL_FX.map(([name, effect, family]) => ({ name: `Pixel ${name}`, type: 'pixel', icon: 'PIX', family, durationMs: effect === 'flash' || effect === 'strobe' ? 1500 : 4000, params: pixelParams(effect) })),
+
+    { name: 'FX Block', type: 'fx', icon: 'FX', durationMs: 2000, params: { effect: 'custom', intensity: 100, rampIn: 0, rampOut: 0, safeStop: true } },
+    { name: 'Fog / Atmosphere', type: 'fx', icon: 'FX', durationMs: 3000, params: { effect: 'fog', intensity: 100, rampIn: 0, rampOut: 0, safeStop: true } },
+    { name: 'Air Blast', type: 'fx', icon: 'FX', durationMs: 350, params: { effect: 'air', intensity: 100, rampIn: 0, rampOut: 0, safeStop: true } },
+    { name: 'Vibration', type: 'fx', icon: 'FX', durationMs: 2000, params: { effect: 'vibration', intensity: 75, rampIn: 100, rampOut: 150, safeStop: true } },
+
+    { name: 'Event Trigger', type: 'trigger', icon: 'TRG', durationMs: 250, params: { event: '', payload: '', scope: 'project', once: false } },
+    { name: 'Node Event', type: 'trigger', icon: 'TRG', durationMs: 250, params: { event: 'node_event', payload: '', scope: 'node', once: false } }
   ];
 
   const originalRender = TimelineEditor.prototype._render;
@@ -33,6 +72,10 @@
     const seconds = Math.floor(total / 1000);
     const minutes = Math.floor(seconds / 60);
     return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}.${String(total % 1000).padStart(3, '0')}`;
+  }
+
+  function presetSearchText(preset) {
+    return `${preset.name} ${preset.type} ${preset.family || ''}`.toLowerCase();
   }
 
   TimelineEditor.prototype._render = function () {
@@ -52,11 +95,11 @@
     library.className = 'daw-library';
     library.innerHTML = `
       <div class="daw-library-head">
-        <span>FX Library</span>
-        <button class="daw-library-toggle" type="button" aria-label="Toggle FX library">▾</button>
+        <span>Cue Library</span>
+        <button class="daw-library-toggle" type="button" aria-label="Toggle cue library">▾</button>
       </div>
       <div class="daw-library-body">
-        <input class="daw-search" type="search" placeholder="Search FX…" aria-label="Search effects">
+        <input class="daw-search" type="search" placeholder="Search audio, relay, MOSFET, pixel FX…" aria-label="Search cue library">
         <div class="daw-presets"></div>
       </div>`;
 
@@ -64,22 +107,25 @@
     const search = library.querySelector('.daw-search');
 
     const render = (query) => {
-      const term = String(query || '').toLowerCase();
+      const term = String(query || '').toLowerCase().trim();
       list.innerHTML = '';
-      PRESETS.filter((preset) => `${preset.name} ${preset.type}`.toLowerCase().includes(term)).forEach((preset) => {
+      PRESETS.filter((preset) => !term || presetSearchText(preset).includes(term)).forEach((preset) => {
         const item = document.createElement('div');
         item.className = 'daw-preset';
         item.draggable = true;
-        item.innerHTML = `<div class="daw-preset-icon">${preset.icon}</div><div><div class="daw-preset-name">${preset.name}</div><div class="daw-preset-meta">${preset.type} · ${formatMs(preset.durationMs)}</div></div>`;
+        item.dataset.presetType = preset.type;
+        item.innerHTML = `<div class="daw-preset-icon">${preset.icon}</div><div><div class="daw-preset-name">${preset.name}</div><div class="daw-preset-meta">${preset.family ? `${preset.family} · ` : ''}${preset.type} · ${formatMs(preset.durationMs)}</div></div>`;
         item.addEventListener('dragstart', (event) => {
           event.dataTransfer.effectAllowed = 'copy';
           event.dataTransfer.setData('application/x-showduino-preset', JSON.stringify(preset));
           event.dataTransfer.setData('blockType', preset.type);
         });
         item.addEventListener('dblclick', () => {
-          const track = this._tracks().find((candidate) => candidate.type === preset.type && !candidate.locked) || this._tracks().find((candidate) => !candidate.locked);
+          const sameType = this._tracks().find((candidate) => candidate.type === preset.type && !candidate.locked);
+          const mixed = this._tracks().find((candidate) => candidate.type === 'mixed' && !candidate.locked);
+          const track = sameType || mixed;
           if (!track) {
-            this._toast('Add a track before inserting FX.');
+            this._toast(`Add a ${preset.type === 'mosfet' ? 'MOSFET' : preset.type} track or Mixed Lane first.`);
             return;
           }
           this._insertPreset(track.id, preset, this._state.playhead || 0);
@@ -121,7 +167,13 @@
         this._toast('That track is locked.');
         return;
       }
+
       const preset = JSON.parse(raw);
+      if (track.type !== 'mixed' && track.type !== preset.type) {
+        this._toast(`Drop ${preset.type} cues onto a ${preset.type} track or Mixed Lane.`);
+        return;
+      }
+
       const rect = this._canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const startMs = this._snapEnabled ? this._snapValue(this._xToMs(x)) : this._xToMs(x);
@@ -135,12 +187,19 @@
     this._pushUndo();
     const clip = SHDOModel.createClip(trackId, preset.type, Math.max(0, startMs), preset.durationMs, preset.name);
     clip.params = JSON.parse(JSON.stringify(preset.params || {}));
+    if (preset.type === 'pixel') {
+      clip.routing = { nodeId: '', output: `Pixel Line ${clip.params.line || 1}` };
+      clip.label = preset.name === 'Exit Sign Markers' ? 'Emergency Exit Markers' : preset.name;
+    }
+    if (preset.type === 'relay') clip.routing = { nodeId: '', output: clip.params.out || 'out1' };
+    if (preset.type === 'mosfet') clip.routing = { nodeId: '', output: clip.params.out || 'out1' };
     this._project().clips.push(clip);
     this._renderClip(clip);
     this._selectClip(clip.id);
     this._autosave();
-    this._log(`FX added: ${preset.name}`, 'FX');
+    this._log(`Cue added: ${preset.name}`, 'FX');
     this._toast(`${preset.name} added`);
+    window.dispatchEvent(new CustomEvent('showduino:studio-cue-added', { detail: { clip, preset } }));
     return clip;
   };
 
@@ -153,7 +212,8 @@
     if (oldLabel) oldLabel.remove();
     const content = document.createElement('div');
     content.className = 'daw-clip-content';
-    content.innerHTML = `<span class="daw-clip-title">${clip.label || clip.type}</span><span class="daw-clip-time">${formatMs(clip.startMs)} · ${formatMs(clip.durationMs)}</span>`;
+    const route = clip.routing?.nodeId ? ` · ${clip.routing.nodeId}` : '';
+    content.innerHTML = `<span class="daw-clip-title">${clip.label || clip.type}</span><span class="daw-clip-time">${formatMs(clip.startMs)} · ${formatMs(clip.durationMs)}${route}</span>`;
     element.insertBefore(content, element.firstChild ? element.firstChild.nextSibling : null);
   };
 
@@ -182,6 +242,7 @@
       const targetIndex = Math.max(0, Math.min(orderedTracks.length - 1, originalTrackIndex + deltaRows));
       const targetTrack = orderedTracks[targetIndex];
       if (!targetTrack || targetTrack.locked) return;
+      if (targetTrack.type !== 'mixed' && targetTrack.type !== clip.type) return;
 
       if (!this._overlaps(clipId, targetTrack.id, nextStart, clip.durationMs)) {
         clip.startMs = nextStart;

@@ -8,6 +8,9 @@
   function ensurePackageMetadata(project) {
     if (!project || typeof project !== 'object') return project;
 
+    // Any file labelled v2 must first contain the v2 current-system model.
+    if (window.SHDOModel?.migrate) window.SHDOModel.migrate(project);
+
     project.package = {
       format: FORMAT_NAME,
       version: FORMAT_VERSION,

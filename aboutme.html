@@ -6,86 +6,33 @@
   <meta name="description" content="About Showduino: an independently developed show-control platform built for practical effects, immersive attractions and reliable local runtime.">
   <title>About | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
+  <link rel="stylesheet" href="css/product-media.css">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-  <header class="site-header">
-    <a class="site-brand" href="index.html">SHOWDUINO</a>
-    <nav class="site-nav" aria-label="Main navigation">
-      <a href="index.html">Home</a>
-      <a href="system.html">System</a>
-      <a href="studio.html">Studio</a>
-      <a href="hauntsync.html">HauntSync</a>
-      <a href="tools.html">Hardware</a>
-      <a href="aboutme.html" aria-current="page">About</a>
-      <a href="support.html">Support</a>
-    </nav>
-  </header>
+  <header class="site-header"><a class="site-brand" href="index.html">SHOWDUINO</a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a><a href="hauntsync.html">HauntSync</a><a href="tools.html">Hardware</a><a href="aboutme.html" aria-current="page">About</a><a href="support.html">Support</a></nav></header>
 
   <main class="site-main">
-    <section class="page-heading">
-      <span class="eyebrow">WHY SHOWDUINO EXISTS</span>
-      <h1>Built for the gap between<br><span class="accent">a prop and a show.</span></h1>
-      <p>Showduino grew from the practical problem of making physical effects, lighting, sound and interactive scenery behave like one production instead of a pile of unrelated controllers.</p>
-    </section>
+    <section class="page-heading"><span class="eyebrow">WHY SHOWDUINO EXISTS</span><h1>Built for the gap between<br><span class="accent">a prop and a show.</span></h1><p>Showduino grew from the practical problem of making physical effects, lighting, sound and interactive scenery behave like one production instead of a pile of unrelated controllers.</p></section>
 
     <section class="section compact reveal">
-      <div class="grid two">
-        <article class="card">
-          <span class="badge">THE IDEA</span>
-          <h2>Creative tools should not be the live dependency.</h2>
-          <p class="muted">A browser is brilliant for designing a timeline. A touchscreen is brilliant for an operator. Neither should be the only thing standing between a running attraction and a dead show.</p>
-          <p class="muted">That principle is why the current Showduino architecture gives the ESP32-P4 Show Engine the authoritative runtime and keeps Studio, the Director and communications layers in clearly separated roles.</p>
-        </article>
-        <article class="card">
-          <span class="badge">THE BUILD</span>
-          <h2>Software and hardware developed together.</h2>
-          <p class="muted">Showduino is not a desktop app looking for hardware to control later. The enclosure, touchscreen, node modules, wiring, diagnostics, protocol and authoring workflow are being developed as one system.</p>
-          <p class="muted">That makes boring details — labels, status LEDs, emergency behaviour, device IDs and failure modes — just as important as flashy effects.</p>
-        </article>
+      <div class="about-product-shot media-free">
+        <div class="build-manifesto" aria-label="Showduino design philosophy"><span class="eyebrow">THE BUILD</span><strong>HARDWARE</strong><i>+</i><strong>SOFTWARE</strong><i>+</i><strong>SHOW LOGIC</strong><i>=</i><strong class="accent-word">SHOWDUINO</strong><small>One system · clear roles · local runtime</small></div>
+        <div class="about-product-copy"><span class="eyebrow">THE APPROACH</span><h2>Software and hardware are one project.</h2><p>Showduino is not a browser application waiting for somebody to invent a controller later. The touchscreen, enclosure, P4 runtime, communications bridge, specialist nodes, wiring, diagnostics and authoring workflow are being built as one system.</p><p>That means the unglamorous parts matter: service access, labels, status lights, emergency behaviour, local storage, failure modes and what happens when an operator interface disappears mid-show.</p><div class="principle"><strong>The design rule:</strong> creative tools can help build and operate the production, but they do not become the dependency keeping it alive.</div></div>
       </div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-heading">
-        <span class="eyebrow">DESIGN PRINCIPLES</span>
-        <h2>What the system is trying to protect</h2>
-      </div>
-      <div class="grid four">
-        <article class="card"><div class="card-icon">LOC</div><h3>Local runtime</h3><p class="muted">The live show should keep running without cloud services, internet access or a browser session.</p></article>
-        <article class="card"><div class="card-icon">OWN</div><h3>Single authority</h3><p class="muted">The P4 owns show state so multiple interfaces do not become competing sources of truth.</p></article>
-        <article class="card"><div class="card-icon">MOD</div><h3>Modular hardware</h3><p class="muted">Dedicated nodes make physical roles easier to test, replace and diagnose.</p></article>
-        <article class="card"><div class="card-icon">SAFE</div><h3>Explicit safety</h3><p class="muted">Emergency behaviour interrupts normal effects and requires deliberate recovery rather than auto-resume.</p></article>
-      </div>
-    </section>
+    <section class="section compact reveal"><div class="grid two"><article class="card"><span class="badge">THE IDEA</span><h2>Creative tools should not be the live dependency.</h2><p class="muted">A browser is brilliant for designing a timeline. A touchscreen is brilliant for an operator. Neither should be the only thing standing between a running attraction and a dead show.</p><p class="muted">That principle is why the current Showduino architecture gives the ESP32-P4 Show Engine the authoritative runtime and keeps Studio, the Director and communications layers in clearly separated roles.</p></article><article class="card"><span class="badge">THE APPROACH</span><h2>Prototype until the physical system makes sense.</h2><p class="muted">The enclosure is printed and revised around the electronics rather than treated as an afterthought. Connections, cooling, controls and mounting are allowed to influence the software architecture too.</p><p class="muted">The goal is not the smallest possible pile of boards. It is a system that can be installed, understood and repaired.</p></article></div></section>
 
-    <section class="section reveal">
-      <div class="section-heading">
-        <span class="eyebrow">WHO IT IS FOR</span>
-        <h2>People building things audiences can actually walk into.</h2>
-        <p>Showduino is aimed at immersive attractions, scare events, escape rooms, practical-effects builds, interactive installations and small-scale theatre where physical outputs and repeatable timing matter.</p>
-      </div>
-      <div class="grid three">
-        <article class="card"><h3>Immersive attractions</h3><p class="muted">Coordinate environmental effects, triggered scenes, signage, audio and operator control across physical spaces.</p></article>
-        <article class="card"><h3>Practical effects</h3><p class="muted">Treat relays, MOSFET loads, pixels and sound as parts of a timed production rather than independent gadgets.</p></article>
-        <article class="card"><h3>Makers who want structure</h3><p class="muted">Keep the flexibility of ESP32 hardware while adding clearer roles, project files, timelines and diagnostics.</p></article>
-      </div>
-    </section>
+    <section class="section reveal"><div class="section-heading"><span class="eyebrow">DESIGN PRINCIPLES</span><h2>What the system is trying to protect</h2></div><div class="grid four"><article class="card"><div class="card-icon">LOC</div><h3>Local runtime</h3><p class="muted">The live show should keep running without cloud services, internet access or a browser session.</p></article><article class="card"><div class="card-icon">OWN</div><h3>Single authority</h3><p class="muted">The P4 owns show state so multiple interfaces do not become competing sources of truth.</p></article><article class="card"><div class="card-icon">MOD</div><h3>Modular hardware</h3><p class="muted">Dedicated nodes make physical roles easier to test, replace and diagnose.</p></article><article class="card"><div class="card-icon">SAFE</div><h3>Explicit safety</h3><p class="muted">Emergency behaviour interrupts normal effects and requires deliberate recovery rather than auto-resume.</p></article></div></section>
 
-    <section class="section reveal">
-      <div class="principle"><strong>Showduino is still being built in public.</strong> The current site describes the system that actually exists or is actively being completed, rather than padding the feature list with hardware that is merely possible someday.</div>
-    </section>
+    <section class="section reveal"><div class="section-heading"><span class="eyebrow">WHO IT IS FOR</span><h2>People building things audiences can actually walk into.</h2><p>Showduino is aimed at immersive attractions, scare events, escape rooms, practical-effects builds, interactive installations and small-scale theatre where physical outputs and repeatable timing matter.</p></div><div class="grid three"><article class="card"><h3>Immersive attractions</h3><p class="muted">Coordinate environmental effects, triggered scenes, signage, audio and operator control across physical spaces.</p></article><article class="card"><h3>Practical effects</h3><p class="muted">Treat relays, MOSFET loads, pixels and sound as parts of a timed production rather than independent gadgets.</p></article><article class="card"><h3>Makers who want structure</h3><p class="muted">Keep the flexibility of ESP32 hardware while adding clearer roles, project files, timelines and diagnostics.</p></article></div></section>
 
-    <section class="section compact reveal">
-      <div class="callout">
-        <div><h2>See the current system, not the old generations.</h2><p>The architecture guide documents the Director → Comms → P4 → Nodes model now used by Showduino.</p></div>
-        <a class="btn" href="system.html">View Architecture</a>
-      </div>
-    </section>
+    <section class="section reveal"><div class="principle"><strong>Showduino is still being built in public.</strong> The current site describes the system that actually exists or is actively being completed, rather than padding the feature list with hardware that is merely possible someday.</div></section>
+    <section class="section compact reveal"><div class="callout"><div><h2>See the current system, not the old generations.</h2><p>The architecture guide documents the Director → Comms → P4 → Nodes model now used by Showduino.</p></div><a class="btn" href="system.html">View Architecture</a></div></section>
   </main>
 
   <footer class="site-footer"><p>© 2026 Showduino · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p></footer>
-  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
-  <script src="js/site-motion.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script><script src="js/site-motion.js"></script>
 </body>
 </html>

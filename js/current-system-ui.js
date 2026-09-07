@@ -1,17 +1,30 @@
 (() => {
   'use strict';
 
-  const CURRENT_ROUTE_PLACEHOLDER = 'Show Engine / Node device ID';
+  const CURRENT_ROUTE_PLACEHOLDER = 'Logical node device ID';
   const DMX_DISABLED_MESSAGE = 'DMX is outside the current Showduino implementation scope.';
 
   function updateLegacyRoutingLabels(root) {
-    root.querySelectorAll('input[placeholder="SUE, IAN or device ID"]').forEach((input) => {
+    root.querySelectorAll('input[placeholder="SUE, IAN or device ID"], input[placeholder*="SUE"], input[placeholder*="IAN"]').forEach((input) => {
       input.placeholder = CURRENT_ROUTE_PLACEHOLDER;
     });
 
-    root.querySelectorAll('input[placeholder*="SUE"], input[placeholder*="IAN"]').forEach((input) => {
-      input.placeholder = CURRENT_ROUTE_PLACEHOLDER;
-    });
+    const routeNode = root.querySelector('#route-node');
+    if (routeNode) routeNode.placeholder = CURRENT_ROUTE_PLACEHOLDER;
+
+    // Studio v4 routes current output clips by logical node ID + output. Old
+    // universe/channel fields remain in imported JSON for compatibility but are
+    // not part of current authoring.
+    if (document.body.classList.contains('studio-v4')) {
+      const routeChannel = root.querySelector('#route-channel');
+      const routeUniverse = root.querySelector('#route-universe');
+      routeChannel?.closest('.inspector-field')?.setAttribute('hidden', '');
+      routeUniverse?.closest('.inspector-field')?.setAttribute('hidden', '');
+      const routeGrid = routeChannel?.closest('.inspector-grid');
+      if (routeGrid) routeGrid.style.gridTemplateColumns = '1fr';
+      const note = root.querySelector('.inspector-route .inspector-note') || root.querySelector('.inspector-section .inspector-note');
+      if (note && note.textContent.includes('Routing')) note.textContent = 'Routing stores a logical node device ID and output. The P4 runtime resolves that target to physical hardware.';
+    }
   }
 
   function updateLegacyText(root) {
@@ -54,6 +67,8 @@
   }
 
   function addArchitectureHint() {
+    // Studio v4 has a permanent runtime-authority chip in the shell.
+    if (document.body.classList.contains('studio-v4') || document.querySelector('.runtime-authority-chip')) return;
     const topBar = document.querySelector('.top-bar');
     if (!topBar || document.getElementById('current-system-hint')) return;
 

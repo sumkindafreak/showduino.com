@@ -1,7 +1,6 @@
-/* Showduino Studio 3 — mobile companion controls.
- * This does not replace the timeline engine. It gives the existing editor a
- * touch-first shell: off-canvas menu, library drawer, inspector drawer and a
- * large bottom transport bar.
+/* Showduino Studio — mobile companion controls for the current Studio shell.
+ * The timeline engine stays the same; this layer provides touch-first menu,
+ * library, preview, inspector and save controls.
  */
 (function () {
   'use strict';
@@ -13,8 +12,16 @@
     return window.matchMedia(PHONE_QUERY).matches;
   }
 
+  function isV4() {
+    return document.body.classList.contains('studio-v4');
+  }
+
+  function menuClass() {
+    return isV4() ? 'studio-v4-menu-open' : 'studio-menu-open';
+  }
+
   function closeDrawers() {
-    document.body.classList.remove('studio-menu-open', 'studio-library-open', 'studio-inspector-open');
+    document.body.classList.remove('studio-menu-open', 'studio-v4-menu-open', 'studio-library-open', 'studio-inspector-open');
     updateActiveButtons();
   }
 
@@ -31,7 +38,10 @@
 
   function playPause() {
     const editor = timeline();
-    if (!editor) return;
+    if (!editor) {
+      window.ShowduinoStudioV4?.openPanel?.('timeline-editor');
+      return;
+    }
     if (editor._playing && typeof editor.pause === 'function') editor.pause();
     else if (typeof editor.play === 'function') editor.play();
     updatePlayButton();
@@ -48,7 +58,7 @@
   function updateActiveButtons() {
     if (!bar) return;
     const mappings = {
-      '.mobile-menu': 'studio-menu-open',
+      '.mobile-menu': menuClass(),
       '.mobile-library': 'studio-library-open',
       '.mobile-inspector': 'studio-inspector-open'
     };
@@ -73,8 +83,11 @@
     bar.className = 'studio-mobile-bar';
     bar.setAttribute('aria-label', 'Studio mobile controls');
 
-    bar.appendChild(button('mobile-menu', '☰', 'Menu', () => toggleBodyClass('studio-menu-open')));
-    bar.appendChild(button('mobile-library', '＋', 'Library', () => toggleBodyClass('studio-library-open')));
+    bar.appendChild(button('mobile-menu', '☰', 'Menu', () => toggleBodyClass(menuClass())));
+    bar.appendChild(button('mobile-library', '＋', 'Library', () => {
+      if (!document.querySelector('.timeline-editor')) window.ShowduinoStudioV4?.openPanel?.('timeline-editor');
+      window.setTimeout(() => toggleBodyClass('studio-library-open'), 50);
+    }));
     bar.appendChild(button('mobile-play', '▶', 'Play', playPause));
     bar.appendChild(button('mobile-inspector', '⌁', 'Inspector', () => toggleBodyClass('studio-inspector-open')));
     bar.appendChild(button('mobile-save', '✓', 'Save', async () => {
@@ -85,6 +98,7 @@
           save.textContent = 'Saved';
           window.setTimeout(() => { save.textContent = 'Save'; }, 1200);
         }
+        window.ShowduinoStudioV4?.refreshProjectStats?.();
       } catch (error) {
         window.alert(error.message || 'This show could not be saved.');
       }
@@ -106,15 +120,6 @@
     else destroyMobileBar();
   }
 
-  function openTimelineOnPhone() {
-    if (!isPhone()) return;
-    window.setTimeout(() => {
-      const timelineItem = document.querySelector('.sidebar-nav li[data-panel="timeline-editor"]');
-      const activeItem = document.querySelector('.sidebar-nav li.active');
-      if (timelineItem && (!activeItem || activeItem.dataset.panel === 'introduction')) timelineItem.click();
-    }, 80);
-  }
-
   function installTouchPresetInsertion() {
     document.addEventListener('click', (event) => {
       if (!isPhone()) return;
@@ -127,15 +132,14 @@
       const editor = timeline();
       if (!editor) return;
 
-      const meta = presetEl.querySelector('.daw-preset-meta')?.textContent || '';
-      const type = meta.split('·')[0].trim().toLowerCase();
+      const type = String(presetEl.dataset.presetType || '').trim().toLowerCase();
       if (!type) return;
 
-      const hasTrack = editor._tracks?.().some((track) => track.type === type && !track.locked);
+      const hasTrack = editor._tracks?.().some((track) => (track.type === type || track.type === 'mixed') && !track.locked);
       if (!hasTrack && typeof editor.addTrack === 'function') editor.addTrack(type);
 
-      // The existing DAW library already owns the actual preset object inside
-      // its double-click handler. Reusing that handler keeps one source of truth.
+      // Reuse the DAW library's double-click insertion so desktop and mobile
+      // share exactly one preset definition.
       window.setTimeout(() => {
         presetEl.dataset.mobileHandled = '1';
         presetEl.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, view: window }));
@@ -151,43 +155,32 @@
       const item = event.target.closest('.sidebar-nav li');
       if (item && isPhone()) {
         window.setTimeout(() => {
-          document.body.classList.remove('studio-menu-open');
+          document.body.classList.remove('studio-menu-open', 'studio-v4-menu-open');
           updateActiveButtons();
         }, 0);
       }
-
       if (isPhone() && event.target.classList.contains('workspace')) closeDrawers();
     });
   }
 
   function watchTimelineState() {
-    window.setInterval(() => {
-      if (isPhone()) updatePlayButton();
-    }, 350);
+    window.setInterval(() => { if (isPhone()) updatePlayButton(); }, 350);
   }
 
   function initialise() {
-    document.documentElement.dataset.studioVersion = '3';
+    document.documentElement.dataset.studioVersion = isV4() ? '4' : '3';
     syncForViewport();
     interceptSidebarNavigation();
     installTouchPresetInsertion();
     watchTimelineState();
-    openTimelineOnPhone();
 
     const media = window.matchMedia(PHONE_QUERY);
-    if (typeof media.addEventListener === 'function') media.addEventListener('change', () => {
-      syncForViewport();
-      openTimelineOnPhone();
-    });
+    if (typeof media.addEventListener === 'function') media.addEventListener('change', syncForViewport);
     else if (typeof media.addListener === 'function') media.addListener(syncForViewport);
 
     window.addEventListener('orientationchange', () => window.setTimeout(syncForViewport, 150));
   }
 
-  window.ShowduinoMobileStudio = Object.freeze({
-    closeDrawers,
-    isPhone
-  });
-
+  window.ShowduinoMobileStudio = Object.freeze({ closeDrawers, isPhone });
   document.addEventListener('DOMContentLoaded', initialise);
 })();

@@ -1,15 +1,12 @@
-/* Showduino Studio — public creator mode safety and terminology. */
+/* Showduino Studio — creator-mode safety and terminology. */
 (function () {
   'use strict';
 
   function stopPreview() {
-    // Stop the public Studio preview only. This must never send live hardware commands.
+    // Reset the browser preview only. This must never send live hardware commands.
     if (window.timelineEditor) {
-      if (typeof window.timelineEditor.stop === 'function') {
-        window.timelineEditor.stop();
-      } else if (typeof window.timelineEditor.pause === 'function') {
-        window.timelineEditor.pause();
-      }
+      if (typeof window.timelineEditor.stop === 'function') window.timelineEditor.stop();
+      else if (typeof window.timelineEditor.pause === 'function') window.timelineEditor.pause();
     }
 
     if (window.state) {
@@ -20,20 +17,22 @@
     const playhead = document.querySelector('.playhead');
     if (playhead) playhead.style.left = '0px';
 
-    if (typeof window.studioLog === 'function') {
-      window.studioLog('Preview reset. No hardware command was sent.', 'INFO');
-    }
+    if (typeof window.studioLog === 'function') window.studioLog('Preview reset. No hardware command was sent.', 'INFO');
+    else console.info('[Showduino Studio] Preview reset. No hardware command was sent.');
   }
 
   async function sendCurrentShow() {
-    if (!window.ShowduinoDeploy?.deployCurrentProject) {
-      throw new Error('Showduino deployment tools are still starting.');
-    }
+    if (!window.ShowduinoDeploy?.deployCurrentProject) throw new Error('Showduino deployment tools are still starting.');
     return window.ShowduinoDeploy.deployCurrentProject();
   }
 
-  function prepareCreatorNavigation() {
-    // The public website is for building shows. Hardware engineering pages stay on the local Showduino Studio.
+  function prepareLegacyCreatorNavigation() {
+    // Studio v4 owns its own complete Dashboard/Timeline/Pixel/Audio/Projects/
+    // Deploy/Nodes/Diagnostics navigation. Do not rewrite it here.
+    if (document.body.classList.contains('studio-v4')) return;
+
+    // Legacy public creator shell behaviour retained for any older page that may
+    // still load this file.
     ['live-control', 'devices', 'diagnostics'].forEach((panelName) => {
       const item = document.querySelector(`.sidebar-nav li[data-panel="${panelName}"]`);
       if (item) item.hidden = true;
@@ -45,14 +44,10 @@
       connect.classList.remove('locked');
       connect.title = 'Prepare or send this show to your Showduino';
       connect.addEventListener('click', async (event) => {
-        // Stop the old navigation handler from opening engineering/network setup controls.
         event.preventDefault();
         event.stopImmediatePropagation();
-        try {
-          await sendCurrentShow();
-        } catch (error) {
-          window.alert(`Could not prepare this show for Showduino.\n\n${error.message}`);
-        }
+        try { await sendCurrentShow(); }
+        catch (error) { window.alert(`Could not prepare this show for Showduino.\n\n${error.message}`); }
       }, true);
     }
 
@@ -66,11 +61,12 @@
   function prepareResetButton() {
     const resetButton = document.querySelector('.transport-controls .panic');
     if (resetButton) {
-      resetButton.textContent = 'RESET';
+      if (!document.body.classList.contains('studio-v4')) resetButton.textContent = 'RESET';
       resetButton.title = 'Reset the browser preview only';
       resetButton.setAttribute('aria-label', 'Reset browser preview');
 
-      // app.js contains an older hardware PANIC listener. Capture the click first and stop it here.
+      // app.js still contains an older hardware PANIC listener. Capture first so
+      // the public creator can never accidentally send that legacy command path.
       resetButton.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -78,8 +74,7 @@
       }, true);
     }
 
-    // Preview Show is rendered later inside the workspace. Intercept its legacy PANIC/STOP
-    // control at document level so it can never fall through to old hardware-control code.
+    // Retain protection for any legacy preview button rendered inside panels.
     document.addEventListener('click', (event) => {
       const button = event.target.closest?.('button');
       if (!button) return;
@@ -95,7 +90,7 @@
 
   function initialise() {
     document.documentElement.dataset.studioMode = 'creator';
-    prepareCreatorNavigation();
+    prepareLegacyCreatorNavigation();
     prepareResetButton();
   }
 

@@ -1,0 +1,1 @@
+Upload the optimized product photos and fabrication clips into this directory before merging the product-media branch.

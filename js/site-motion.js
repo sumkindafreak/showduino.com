@@ -2,7 +2,6 @@
   'use strict';
 
   document.documentElement.classList.add('js');
-
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const animeApi = window.anime || null;
 
@@ -29,29 +28,28 @@
     if (!animeApi?.animate || reducedMotion) return;
     const { animate, stagger } = animeApi;
     const heroItems = document.querySelectorAll('.hero-copy > *');
-    if (heroItems.length) animate(heroItems, { opacity:[0,1], y:[24,0], delay:stagger(90), duration:700, ease:'out(3)' });
-
-    const heroVisual = document.querySelector('.hardware-schematic, .hero-console');
-    if (heroVisual) animate(heroVisual, { opacity:[0,1], scale:[.965,1], y:[18,0], duration:850, delay:260, ease:'out(4)' });
-
-    const screenTiles = document.querySelectorAll('.screen-grid i');
-    if (screenTiles.length) animate(screenTiles, { opacity:[.15,1], scale:[.92,1], delay:stagger(70,{start:520}), duration:480, ease:'out(3)' });
-
-    const emergencyButton = document.querySelector('.schematic-emergency i');
-    if (emergencyButton) animate(emergencyButton, { scale:[1,1.06,1], duration:1300, delay:900, loop:true, ease:'inOut(2)' });
+    if (heroItems.length) animate(heroItems,{opacity:[0,1],y:[24,0],delay:stagger(90),duration:700,ease:'out(3)'});
+    const heroVisual=document.querySelector('.hardware-schematic,.hero-console');
+    if (heroVisual) animate(heroVisual,{opacity:[0,1],scale:[.965,1],y:[18,0],duration:850,delay:260,ease:'out(4)'});
+    const screenTiles=document.querySelectorAll('.screen-grid i');
+    if (screenTiles.length) animate(screenTiles,{opacity:[.15,1],scale:[.92,1],delay:stagger(70,{start:520}),duration:480,ease:'out(3)'});
+    const emergencyButton=document.querySelector('.schematic-emergency i');
+    if (emergencyButton) animate(emergencyButton,{scale:[1,1.06,1],duration:1500,delay:900,loop:true,ease:'inOut(2)'});
+    const statusDot=document.querySelector('.screen-status span');
+    if (statusDot) animate(statusDot,{opacity:[.45,1],scale:[.8,1.15],duration:900,alternate:true,loop:true,ease:'inOut(2)'});
   }
 
   function animateArchitecture() {
     if (!animeApi?.animate || reducedMotion) return;
     const { animate, stagger } = animeApi;
-    const nodes = document.querySelectorAll('.architecture-node');
-    if (nodes.length) animate(nodes, { opacity:[0,1], y:[20,0], delay:stagger(110), duration:650, ease:'out(3)' });
+    const nodes=document.querySelectorAll('.architecture-node');
+    if (nodes.length) animate(nodes,{opacity:[0,1],y:[20,0],delay:stagger(110),duration:650,ease:'out(3)'});
   }
 
   function animatePixelPreviews() {
     if (!animeApi?.animate || reducedMotion) return;
     const { animate, stagger } = animeApi;
-    document.querySelectorAll('[data-pixel-preview="show"] .pixel').forEach((pixel,index) => { if (index % 10 !== 0) pixel.style.opacity='.42'; });
+    document.querySelectorAll('[data-pixel-preview="show"] .pixel').forEach((pixel,index)=>{ if (index % 10 !== 0) pixel.style.opacity='.42'; });
     const showPixels=document.querySelectorAll('[data-pixel-preview="show"] .pixel');
     if (showPixels.length) animate(showPixels,{scale:[1,1.18,1],opacity:[.42,1,.42],delay:stagger(45),duration:780,loop:true,ease:'inOut(2)'});
     const emergencyPixels=document.querySelectorAll('[data-pixel-preview="emergency"] .pixel');
@@ -68,7 +66,7 @@
         const element=entry.target;
         markVisible(element);
         if (animeApi?.animate) animeApi.animate(element,{opacity:[0,1],y:[18,0],duration:620,ease:'out(3)'});
-        const children=element.querySelectorAll('.product-feature, .build-step, .card');
+        const children=element.querySelectorAll('.product-feature,.build-step,.card');
         if (children.length && animeApi?.animate) animeApi.animate(children,{opacity:[0,1],y:[14,0],delay:animeApi.stagger(65),duration:500,ease:'out(3)'});
         observer.unobserve(element);
       });
@@ -78,7 +76,7 @@
 
   function addInteractiveLift() {
     if (!animeApi?.animate || reducedMotion) return;
-    document.querySelectorAll('.hero-console, .system-console, .hardware-schematic').forEach((element)=>{
+    document.querySelectorAll('.hero-console,.system-console,.hardware-schematic').forEach((element)=>{
       element.addEventListener('pointerenter',()=>animeApi.animate(element,{scale:[1,1.008],duration:280,ease:'out(2)'}));
       element.addEventListener('pointerleave',()=>animeApi.animate(element,{scale:[1.008,1],duration:320,ease:'out(2)'}));
     });

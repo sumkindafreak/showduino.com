@@ -1,8 +1,10 @@
 # Showduino product media
 
-This directory contains the current product photography and short fabrication clips used by the public website.
+The public site currently works without binary product media. Hardware visuals are rendered with HTML/CSS so the site can be deployed and tested immediately.
 
-Expected website assets:
+Real photography and fabrication clips can be added later as a progressive enhancement without changing the current architecture or page structure.
+
+Prepared future filenames:
 
 - `director-front.webp`
 - `director-rear.webp`
@@ -14,4 +16,4 @@ Expected website assets:
 - `build-02.mp4`
 - `build-03.mp4`
 
-The matching optimized files are prepared in the Showduino product-media upload package. Keep these filenames unchanged because the homepage, Hardware page and About page reference them directly.
+These files are optional in the current build.

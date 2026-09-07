@@ -82,16 +82,10 @@
         </div>
       </section>
 
-      <section class="section reveal">
-        <div class="principle"><strong>Studio creates it. Director operates it. P4 runs it.</strong> A live production does not need the browser, internet or touchscreen to keep the timeline alive.</div>
-      </section>
+      <section class="section reveal"><div class="principle"><strong>Studio creates it. Director operates it. P4 runs it.</strong> A live production does not need the browser, internet or touchscreen to keep the timeline alive.</div></section>
 
       <section class="section reveal">
-        <div class="section-heading">
-          <span class="eyebrow">PHYSICAL PRODUCT</span>
-          <h2>The enclosure follows the architecture.</h2>
-          <p>The current controller is built around practical operation and serviceability. The website can show the design clearly even before we add the final product photography.</p>
-        </div>
+        <div class="section-heading"><span class="eyebrow">PHYSICAL PRODUCT</span><h2>The enclosure follows the architecture.</h2><p>The current controller is built around practical operation and serviceability. This first pass uses a lightweight schematic while the final product photography is added later.</p></div>
         <div class="product-feature-grid">
           <article class="product-feature"><strong>Operator hardware</strong><h3>Adjustable touchscreen Director</h3><p>The interface is a real physical operator surface, not the thing responsible for continuing show execution.</p></article>
           <article class="product-feature"><strong>Physical safety</strong><h3>Emergency control stays obvious</h3><p>The dedicated emergency control is deliberately separated from touchscreen UI actions and normal show cues.</p></article>
@@ -99,31 +93,11 @@
         </div>
       </section>
 
-      <section class="section reveal">
-        <div class="section-heading"><span class="eyebrow">PIXEL SYSTEM</span><h2>Segmented in the show. Unmistakable in an emergency.</h2><p>Pixel lines can be divided into logical segments for show effects, while the emergency state overrides every line and drives every pixel bright white.</p></div>
-        <div class="grid two">
-          <article class="pixel-panel"><div class="pixel-label-row"><strong>SHOW MODE · EXIT SIGN SEGMENTS</strong><span>example: pixel 0 / 10 / 20 green</span></div><div class="pixel-strip" data-pixel-preview="show" data-pixel-count="30" aria-label="Animated segmented pixel preview"></div><p class="pixel-note">The same physical line can remain visually useful during a production while preserving logical emergency-sign groupings.</p></article>
-          <article class="pixel-panel"><div class="pixel-label-row"><strong>EMERGENCY OVERRIDE</strong><span>all pixels · bright white</span></div><div class="pixel-strip" data-pixel-preview="emergency" data-pixel-count="30" aria-label="Emergency white pixel preview"></div><p class="pixel-note">Emergency state wins over show effects. The visual override is system-wide, not limited to a decorative emergency strip.</p></article>
-        </div>
-      </section>
+      <section class="section reveal"><div class="section-heading"><span class="eyebrow">PIXEL SYSTEM</span><h2>Segmented in the show. Unmistakable in an emergency.</h2><p>Pixel lines can be divided into logical segments for show effects, while the emergency state overrides every line and drives every pixel bright white.</p></div><div class="grid two"><article class="pixel-panel"><div class="pixel-label-row"><strong>SHOW MODE · EXIT SIGN SEGMENTS</strong><span>example: pixel 0 / 10 / 20 green</span></div><div class="pixel-strip" data-pixel-preview="show" data-pixel-count="30" aria-label="Animated segmented pixel preview"></div><p class="pixel-note">The same physical line can remain visually useful during a production while preserving logical emergency-sign groupings.</p></article><article class="pixel-panel"><div class="pixel-label-row"><strong>EMERGENCY OVERRIDE</strong><span>all pixels · bright white</span></div><div class="pixel-strip" data-pixel-preview="emergency" data-pixel-count="30" aria-label="Emergency white pixel preview"></div><p class="pixel-note">Emergency state wins over show effects. The visual override is system-wide, not limited to a decorative emergency strip.</p></article></div></section>
 
-      <section class="section reveal">
-        <div class="section-heading"><span class="eyebrow">CURRENT ROLLOUT</span><h2>Finish the useful core first.</h2><p>The current development path concentrates on the systems that already matter to a real attraction. Unfinished future protocols are not being presented as finished features.</p></div>
-        <div class="grid four">
-          <article class="card"><div class="card-icon">RLY</div><h3>Relay outputs</h3><p class="muted">Commanded switching with node state and fault reporting as the target behaviour.</p></article>
-          <article class="card"><div class="card-icon">MOS</div><h3>MOSFET outputs</h3><p class="muted">Efficient control of compatible low-voltage effects and loads without treating everything as a relay.</p></article>
-          <article class="card"><div class="card-icon">PIX</div><h3>NeoPixel lines</h3><p class="muted">Segment-aware effects for show mode plus a hard visual emergency override across all pixels.</p></article>
-          <article class="card"><div class="card-icon">AUD</div><h3>Audio node</h3><p class="muted">Dedicated show audio nodes alongside local P4 system sounds and operator notifications.</p></article>
-        </div>
-      </section>
+      <section class="section reveal"><div class="section-heading"><span class="eyebrow">CURRENT ROLLOUT</span><h2>Finish the useful core first.</h2><p>The current development path concentrates on the systems that already matter to a real attraction.</p></div><div class="grid four"><article class="card"><div class="card-icon">RLY</div><h3>Relay outputs</h3><p class="muted">Commanded switching with node state and fault reporting as the target behaviour.</p></article><article class="card"><div class="card-icon">MOS</div><h3>MOSFET outputs</h3><p class="muted">Efficient control of compatible low-voltage effects and loads.</p></article><article class="card"><div class="card-icon">PIX</div><h3>NeoPixel lines</h3><p class="muted">Segment-aware effects plus a hard emergency-white override.</p></article><article class="card"><div class="card-icon">AUD</div><h3>Audio node</h3><p class="muted">Dedicated show audio nodes alongside local P4 system sounds.</p></article></div></section>
 
-      <section class="section reveal">
-        <div class="section-heading"><span class="eyebrow">SOFTWARE</span><h2>Create separately. Run locally.</h2></div>
-        <div class="grid two">
-          <article class="card"><span class="badge">CREATION</span><h2>Showduino Studio</h2><p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable `.shdo` project files. Studio is a creator and deployment tool — not the live show engine.</p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div></article>
-          <article class="card"><span class="badge">PROJECT HUB</span><h2>HauntSync</h2><p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p><div class="button-row"><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></div></article>
-        </div>
-      </section>
+      <section class="section reveal"><div class="section-heading"><span class="eyebrow">SOFTWARE</span><h2>Create separately. Run locally.</h2></div><div class="grid two"><article class="card"><span class="badge">CREATION</span><h2>Showduino Studio</h2><p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable `.shdo` project files. Studio is a creator and deployment tool — not the live show engine.</p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div></article><article class="card"><span class="badge">PROJECT HUB</span><h2>HauntSync</h2><p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p><div class="button-row"><a class="btn secondary" href="hauntsync.html">Open HauntSync</a></div></article></div></section>
 
       <section class="section compact reveal"><div class="callout"><div><h2>Want the architecture without the marketing?</h2><p>The System page breaks down responsibilities, transports, emergency behaviour and the current hardware scope.</p></div><a class="btn" href="system.html">Open System Guide</a></div></section>
     </div>

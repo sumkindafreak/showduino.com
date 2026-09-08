@@ -8,7 +8,9 @@
   <meta property="og:title" content="Showduino | Distributed Immersive Show Control">
   <meta property="og:description" content="Studio creates it. Director operates it. The ESP32-P4 Show Engine runs it locally.">
   <meta property="og:url" content="https://show-duino.com/">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://show-duino.com/media/showduino-product-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://show-duino.com/media/showduino-product-hero.webp">
   <title>Showduino | Distributed Immersive Show Control</title>
   <link rel="canonical" href="https://show-duino.com/">
   <link rel="stylesheet" href="css/site-pages.css">
@@ -46,25 +48,10 @@
         </div>
       </div>
 
-      <div class="hardware-schematic" aria-label="Stylised representation of the current Showduino control hardware">
-        <div class="schematic-antenna antenna-left"></div>
-        <div class="schematic-antenna antenna-right"></div>
-        <div class="schematic-screen-shell">
-          <div class="schematic-screen">
-            <div class="screen-top"><strong>SHOWDUINO</strong><span>DIRECTOR</span></div>
-            <div class="screen-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="screen-status"><span></span>P4 LINK · READY</div>
-          </div>
-        </div>
-        <div class="schematic-neck"></div>
-        <div class="schematic-base">
-          <div class="schematic-grille"><strong>Showduino</strong><span>SHOW ENGINE</span></div>
-          <div class="schematic-emergency"><i></i><span>EMERGENCY</span></div>
-          <div class="schematic-ports"><span>ETH</span><span>USB</span><span>USB</span></div>
-          <div class="schematic-terminal"><i></i><i></i><i></i><i></i></div>
-        </div>
-        <div class="schematic-caption"><strong>Current hardware architecture</strong><span>Director interface above · P4 Show Engine below</span></div>
-      </div>
+      <figure class="hardware-schematic" style="min-height:0;aspect-ratio:16/9;" aria-label="Showduino control hardware product visual">
+        <img src="media/showduino-product-hero.webp" width="1280" height="720" alt="Showduino control hardware with touchscreen Director, emergency button, antennas and accessible connections" fetchpriority="high" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+        <figcaption class="schematic-caption"><strong>Current Showduino hardware</strong><span>Product visual based on the development unit</span></figcaption>
+      </figure>
     </section>
 
     <div class="site-main wide" style="padding-top:0;">
@@ -85,7 +72,7 @@
       <section class="section reveal"><div class="principle"><strong>Studio creates it. Director operates it. P4 runs it.</strong> A live production does not need the browser, internet or touchscreen to keep the timeline alive.</div></section>
 
       <section class="section reveal">
-        <div class="section-heading"><span class="eyebrow">PHYSICAL PRODUCT</span><h2>The enclosure follows the architecture.</h2><p>The current controller is built around practical operation and serviceability. This first pass uses a lightweight schematic while the final product photography is added later.</p></div>
+        <div class="section-heading"><span class="eyebrow">PHYSICAL PRODUCT</span><h2>The enclosure follows the architecture.</h2><p>The current controller is built around practical operation and serviceability, with the touchscreen Director, physical emergency control and accessible equipment connections treated as deliberate parts of the system.</p></div>
         <div class="product-feature-grid">
           <article class="product-feature"><strong>Operator hardware</strong><h3>Adjustable touchscreen Director</h3><p>The interface is a real physical operator surface, not the thing responsible for continuing show execution.</p></article>
           <article class="product-feature"><strong>Physical safety</strong><h3>Emergency control stays obvious</h3><p>The dedicated emergency control is deliberately separated from touchscreen UI actions and normal show cues.</p></article>

@@ -35,6 +35,7 @@ jobs:
           node --check js/timeline.js
           node --check js/timeline-fx-daw.js
           node --check js/timeline-professional-inspector.js
+          node --check js/studio-inspector-drawer.js
           node --check js/studio-package.js
           node --check js/studio-projects.js
           node --check js/studio-deploy.js

@@ -8,6 +8,8 @@
   }
 
   const originalShowInspector = TimelineEditor.prototype._showInspector;
+  const TAP_MOVE_THRESHOLD_PX = 10;
+  let pointerGesture = null;
 
   function closeInspector() {
     document.body.classList.remove('studio-inspector-open');
@@ -50,8 +52,8 @@
     return true;
   }
 
-  // Selection keeps the Inspector content current, but never opens the drawer.
-  // This preserves click-and-drag as the primary DAW interaction.
+  // Selection keeps Inspector content current without forcing the drawer open.
+  // Touch/mobile taps are handled separately below so dragging stays fluid.
   TimelineEditor.prototype._showInspector = function (clipId) {
     renderInspector(this, clipId);
   };
@@ -74,6 +76,65 @@
     document.body.classList.add('studio-inspector-open');
     return true;
   }
+
+  function clipElementFromTarget(target) {
+    if (!(target instanceof Element)) return null;
+    return target.closest('.timeline-editor .tl-clip[data-clip-id]');
+  }
+
+  function shouldTapOpenInspector() {
+    if (document.body.classList.contains('studio-mobile-advanced')) return true;
+    const coarse = window.matchMedia?.('(pointer: coarse)')?.matches;
+    const noHover = window.matchMedia?.('(hover: none)')?.matches;
+    const narrow = window.matchMedia?.('(max-width: 900px)')?.matches;
+    return Boolean(coarse || noHover || narrow);
+  }
+
+  // On phones/tablets a simple tap opens the bottom-sheet Inspector. We track
+  // pointer movement so a timeline drag does not accidentally pop the drawer.
+  document.addEventListener('pointerdown', (event) => {
+    if (!shouldTapOpenInspector()) return;
+    const clip = clipElementFromTarget(event.target);
+    if (!clip) return;
+    pointerGesture = {
+      pointerId: event.pointerId,
+      clipId: clip.dataset.clipId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false
+    };
+  }, true);
+
+  document.addEventListener('pointermove', (event) => {
+    if (!pointerGesture || pointerGesture.pointerId !== event.pointerId) return;
+    if (Math.hypot(event.clientX - pointerGesture.startX, event.clientY - pointerGesture.startY) >= TAP_MOVE_THRESHOLD_PX) {
+      pointerGesture.moved = true;
+    }
+  }, true);
+
+  document.addEventListener('pointercancel', (event) => {
+    if (pointerGesture && pointerGesture.pointerId === event.pointerId) pointerGesture = null;
+  }, true);
+
+  document.addEventListener('pointerup', (event) => {
+    if (!pointerGesture || pointerGesture.pointerId !== event.pointerId) return;
+    const gesture = pointerGesture;
+    pointerGesture = null;
+    if (gesture.moved) return;
+
+    // Let the timeline's normal click/select handler run first, then open the
+    // drawer for the clip that was tapped.
+    window.setTimeout(() => openInspector(gesture.clipId), 0);
+  }, true);
+
+  // Desktop keeps single-click selection for fast DAW dragging; double-click is
+  // the direct inspect gesture. The existing More menu and context menu remain.
+  document.addEventListener('dblclick', (event) => {
+    const clip = clipElementFromTarget(event.target);
+    if (!clip) return;
+    event.preventDefault();
+    openInspector(clip.dataset.clipId);
+  });
 
   window.ShowduinoInspectorDrawer = Object.freeze({
     open: openInspector,

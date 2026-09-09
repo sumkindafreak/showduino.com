@@ -85,15 +85,118 @@
     if (actionArea) actionArea.appendChild(hint);
   }
 
+  function mobileProject() {
+    return window.state?.project || null;
+  }
+
+  function mobilePixelSummary(clip) {
+    const params = clip?.params || {};
+    const line = Math.max(1, Math.round(Number(params.line) || 1));
+    const start = Math.max(0, Math.round(Number(params.startPixel) || 0));
+    const length = Math.max(1, Math.round(Number(params.length) || 1));
+    return `L${line} · PX ${start}–${start + length - 1}`;
+  }
+
+  function ensureNativeMobilePixelLayerControls(root = document) {
+    const mobileRoot = document.getElementById('studio-mobile-app');
+    if (!mobileRoot) return;
+
+    // Remove the older injected bridge controls. Native mobile controls below
+    // survive the phone builder's full innerHTML re-renders deterministically.
+    mobileRoot.querySelectorAll('[data-sm-layer-from]').forEach((button) => button.remove());
+
+    const rows = [];
+    if (root?.matches?.('.sm-cue-row[data-sm-edit]')) rows.push(root);
+    root?.querySelectorAll?.('.sm-cue-row[data-sm-edit]').forEach((row) => rows.push(row));
+    if (!rows.length && root !== mobileRoot) {
+      mobileRoot.querySelectorAll('.sm-cue-row[data-sm-edit]').forEach((row) => rows.push(row));
+    }
+
+    rows.forEach((row) => {
+      if (!mobileRoot.contains(row)) return;
+      const clipId = String(row.dataset.smEdit || '');
+      const clip = mobileProject()?.clips?.find((item) => String(item.id) === clipId);
+      if (!clip || clip.type !== 'pixel') return;
+
+      const info = row.querySelector('.sm-cue-info span');
+      if (info && !info.dataset.mobilePixelSummary) {
+        const existing = String(info.textContent || '').trim();
+        const summary = mobilePixelSummary(clip);
+        info.textContent = existing ? `${existing} · ${summary}` : summary;
+        info.dataset.mobilePixelSummary = '1';
+      }
+
+      const parent = row.parentElement;
+      if (!parent) return;
+      const existing = Array.from(parent.querySelectorAll('[data-sm-native-layer-from]'))
+        .find((button) => String(button.dataset.smNativeLayerFrom || '') === clipId);
+      if (existing) return;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'sm-btn sm-pixel-layer-button';
+      button.dataset.smNativeLayerFrom = clipId;
+      button.innerHTML = '<strong>＋ Add overlapping pixel layer</strong><span style="display:block;margin-top:.12rem;opacity:.7;font-size:.56rem;">Same timing · independent pixel range</span>';
+      button.style.cssText = 'width:100%;margin:-.22rem 0 .5rem;border-style:dashed;min-height:46px;';
+      row.insertAdjacentElement('afterend', button);
+    });
+  }
+
+  function installNativeMobilePixelLayerBridge() {
+    ensureNativeMobilePixelLayerControls(document);
+
+    document.addEventListener('click', async (event) => {
+      const button = event.target.closest?.('[data-sm-native-layer-from]');
+      if (!button) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      const api = window.ShowduinoPixelLayers;
+      if (!api?.createLayerFromClip) {
+        window.alert('Pixel layering is still loading. Please try again in a moment.');
+        return;
+      }
+
+      button.disabled = true;
+      const original = button.innerHTML;
+      button.textContent = 'Creating pixel layer…';
+      try {
+        await api.createLayerFromClip(button.dataset.smNativeLayerFrom);
+      } catch (error) {
+        console.error('[Mobile Pixel Layers] Could not create layer', error);
+        window.alert(error?.message || 'Could not create the pixel layer.');
+        button.disabled = false;
+        button.innerHTML = original;
+      }
+    });
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.id === 'studio-mobile-app' || node.closest?.('#studio-mobile-app') || node.querySelector?.('#studio-mobile-app')) {
+            ensureNativeMobilePixelLayerControls(node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener('showduino:project-saved', () => window.setTimeout(() => ensureNativeMobilePixelLayerControls(document), 0));
+    window.addEventListener('showduino:v4-saved', () => window.setTimeout(() => ensureNativeMobilePixelLayerControls(document), 0));
+  }
+
   function modernise(root = document) {
     updateLegacyRoutingLabels(root);
     updateLegacyText(root);
     disableCurrentDmxAffordances(root);
     addArchitectureHint();
+    ensureNativeMobilePixelLayerControls(root);
   }
 
   function boot() {
     modernise(document);
+    installNativeMobilePixelLayerBridge();
 
     const workspace = document.querySelector('.workspace') || document.body;
     const observer = new MutationObserver((mutations) => {

@@ -42,8 +42,6 @@
     const now = new Date().toISOString();
     let safeProject = project && typeof project === 'object' ? project : {};
 
-    // Canonical .shdo is the portable representation; Studio V4 keeps its own
-    // timeline-friendly working model internally.
     if (safeProject.schema === window.ShowduinoPackage?.SCHEMA_NAME && window.ShowduinoPackage?.fromShdo) {
       safeProject = window.ShowduinoPackage.fromShdo(safeProject);
     }
@@ -189,13 +187,13 @@
 
   function exportCurrentProject() {
     const project = ensureProject();
-    const document = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : project;
-    if (window.ShowduinoPackage?.validateShdo && document.schema === window.ShowduinoPackage.SCHEMA_NAME) {
-      const validation = window.ShowduinoPackage.validateShdo(document);
+    const shdoDocument = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : project;
+    if (window.ShowduinoPackage?.validateShdo && shdoDocument.schema === window.ShowduinoPackage.SCHEMA_NAME) {
+      const validation = window.ShowduinoPackage.validateShdo(shdoDocument);
       if (!validation.valid) throw new Error(validation.errors[0] || 'SHDO validation failed.');
     }
 
-    const blob = new Blob([JSON.stringify(document, null, 2)], { type: 'application/vnd.showduino.production+json' });
+    const blob = new Blob([JSON.stringify(shdoDocument, null, 2)], { type: 'application/vnd.showduino.production+json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -205,7 +203,7 @@
     anchor.remove();
     URL.revokeObjectURL(url);
     notify(`Exported canonical SHDO v2 production: ${project.project.name}`, 'INFO');
-    return document;
+    return shdoDocument;
   }
 
   function importProject(file) {

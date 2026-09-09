@@ -9,7 +9,7 @@ on:
       - 'studio.html'
       - 'app.js'
       - 'js/**'
-      - 'tests/studio-shdo-v2.test.cjs'
+      - 'tests/**'
       - 'css/studio-*.css'
       - '.github/workflows/studio-validate.yml'
   pull_request:
@@ -17,7 +17,7 @@ on:
       - 'studio.html'
       - 'app.js'
       - 'js/**'
-      - 'tests/studio-shdo-v2.test.cjs'
+      - 'tests/**'
       - 'css/studio-*.css'
       - '.github/workflows/studio-validate.yml'
 
@@ -51,6 +51,9 @@ jobs:
 
       - name: Run SHDO v2 round-trip and P4 compiler test
         run: node tests/studio-shdo-v2.test.cjs
+
+      - name: Run layered pixel lane test
+        run: node tests/studio-pixel-layers.test.cjs
 
       - name: Guard the public Showduino domain
         run: |

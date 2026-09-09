@@ -9,6 +9,7 @@ on:
       - 'studio.html'
       - 'app.js'
       - 'js/**'
+      - 'tests/studio-shdo-v2.test.cjs'
       - 'css/studio-*.css'
       - '.github/workflows/studio-validate.yml'
   pull_request:
@@ -16,6 +17,7 @@ on:
       - 'studio.html'
       - 'app.js'
       - 'js/**'
+      - 'tests/studio-shdo-v2.test.cjs'
       - 'css/studio-*.css'
       - '.github/workflows/studio-validate.yml'
 
@@ -44,6 +46,9 @@ jobs:
           node --check js/current-system-ui.js
           node --check js/studio-v4.js
           node --check app.js
+
+      - name: Run SHDO v2 round-trip and P4 compiler test
+        run: node tests/studio-shdo-v2.test.cjs
 
       - name: Check Studio local asset references
         run: |

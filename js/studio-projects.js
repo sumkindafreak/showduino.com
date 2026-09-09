@@ -20,6 +20,13 @@
 
   function validatePackage(project) {
     if (!project || typeof project !== 'object') throw new Error('This is not a valid Showduino project file.');
+
+    if (project.schema === window.ShowduinoPackage?.SCHEMA_NAME) {
+      const result = window.ShowduinoPackage.validateShdo(project);
+      if (!result.valid) throw new Error(result.errors[0] || 'Invalid SHDO v2 production.');
+      return true;
+    }
+
     if (!project.package) return true;
     const expectedFormat = window.ShowduinoPackage?.FORMAT_NAME || 'showduino-production';
     const supportedVersion = window.ShowduinoPackage?.FORMAT_VERSION || 1;
@@ -33,24 +40,36 @@
   function normaliseProject(project) {
     validatePackage(project || {});
     const now = new Date().toISOString();
-    const safeProject = project && typeof project === 'object' ? project : {};
+    let safeProject = project && typeof project === 'object' ? project : {};
+
+    // Canonical .shdo is the portable representation; Studio V4 keeps its own
+    // timeline-friendly working model internally.
+    if (safeProject.schema === window.ShowduinoPackage?.SCHEMA_NAME && window.ShowduinoPackage?.fromShdo) {
+      safeProject = window.ShowduinoPackage.fromShdo(safeProject);
+    }
+
     const metadata = safeProject.project && typeof safeProject.project === 'object' ? safeProject.project : {};
     const normalised = {
       ...safeProject,
       project: {
         id: metadata.id || createProjectId(),
         name: metadata.name || 'Untitled Show',
-        version: metadata.version || '1.0.0',
+        description: metadata.description || '',
+        version: metadata.version || '2.0.0',
         createdAt: metadata.createdAt || now,
         updatedAt: now,
+        bpm: Number(metadata.bpm) > 0 ? Number(metadata.bpm) : 120,
+        duration: Number(metadata.duration) > 0 ? Math.round(Number(metadata.duration)) : 300000,
         ...metadata
       },
+      devices: Array.isArray(safeProject.devices) ? safeProject.devices : [],
       scenes: Array.isArray(safeProject.scenes) ? safeProject.scenes : [],
       tracks: Array.isArray(safeProject.tracks) ? safeProject.tracks : [],
       clips: Array.isArray(safeProject.clips) ? safeProject.clips : [],
-      globalSettings: safeProject.globalSettings || {},
-      assets: safeProject.assets || {},
-      metadata: safeProject.metadata || {}
+      markers: Array.isArray(safeProject.markers) ? safeProject.markers : [],
+      globalSettings: safeProject.globalSettings && typeof safeProject.globalSettings === 'object' ? safeProject.globalSettings : {},
+      assets: Array.isArray(safeProject.assets) ? safeProject.assets : [],
+      metadata: safeProject.metadata && typeof safeProject.metadata === 'object' ? safeProject.metadata : {}
     };
     if (window.ShowduinoPackage) window.ShowduinoPackage.ensurePackageMetadata(normalised);
     else normalised.package = { format: 'showduino-production', version: 1 };
@@ -170,7 +189,13 @@
 
   function exportCurrentProject() {
     const project = ensureProject();
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+    const document = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : project;
+    if (window.ShowduinoPackage?.validateShdo && document.schema === window.ShowduinoPackage.SCHEMA_NAME) {
+      const validation = window.ShowduinoPackage.validateShdo(document);
+      if (!validation.valid) throw new Error(validation.errors[0] || 'SHDO validation failed.');
+    }
+
+    const blob = new Blob([JSON.stringify(document, null, 2)], { type: 'application/vnd.showduino.production+json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -179,7 +204,8 @@
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
-    notify(`Exported Showduino production: ${project.project.name}`, 'INFO');
+    notify(`Exported canonical SHDO v2 production: ${project.project.name}`, 'INFO');
+    return document;
   }
 
   function importProject(file) {
@@ -191,7 +217,8 @@
           const state = getState();
           const parsed = JSON.parse(String(reader.result));
           validatePackage(parsed);
-          state.project = normaliseProject(parsed);
+          const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
+          state.project = normaliseProject(imported);
           await saveCurrentProject();
           notify(`Imported Showduino production: ${state.project.project.name}`, 'INFO');
           resolve(state.project);

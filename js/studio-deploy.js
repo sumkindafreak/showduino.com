@@ -1,101 +1,288 @@
-/* Showduino Studio — prepare or deploy a creator project to the ESP32-P4 Show Engine.
+/* Showduino Studio V4 — compile and deploy supported SHDO v2 timeline data.
  *
- * Direct install is capability-gated. Until the current P4 production-import API
- * is implemented and advertises itself, Studio exports the exact same .shdo
- * snapshot rather than pretending that a browser transfer succeeded.
+ * Local deployment is deliberately narrow:
+ *   Studio -> Communications S3 /api/studio-timeline -> P4 RAM timeline
+ *
+ * It never starts the show automatically. The public HTTPS website exports the
+ * same canonical .shdo because browsers should not be relied on for unauthenticated
+ * cleartext control of a private-network Stage. Direct upload is for the isolated
+ * Showduino commissioning SoftAP/local origin only.
  */
 (function () {
   'use strict';
 
-  const DEFAULT_HOSTS = ['http://showduino.local', 'http://showduino-studio.local', 'http://192.168.4.1'];
-  const PROBE_PATHS = ['/api/system', '/api/v1/system'];
+  const STAGE_ENDPOINT = '/api/studio-timeline';
+  const STAGE_CAPABILITY = 'studio-ram-timeline-upload';
+  const REQUEST_TIMEOUT_MS = 7000;
+  const TIMELINE_COMMAND_MAX = 63;
+  const TIMELINE_MAX_CUES = 2048;
+  const PIXEL_SEGMENT_SLOTS = 16;
 
   function notify(message, level) {
     if (typeof window.studioLog === 'function') window.studioLog(message, level || 'INFO');
     else console.log(`[Studio Deploy] ${message}`);
   }
 
-  function browserAllowsDirectLocalSend() {
-    // show-duino.com is HTTPS. Browsers may block requests from a secure public
-    // origin to an ordinary HTTP private-network device. Export remains valid.
-    return window.location.protocol !== 'https:';
+  function clamp(value, min, max, fallback = min) {
+    const number = Number(value);
+    return Math.min(max, Math.max(min, Number.isFinite(number) ? number : fallback));
   }
 
-  function advertisesProductionImport(system) {
-    if (!system || typeof system !== 'object') return false;
-    const runtime = String(system.runtimeAuthority || system.runtime_authority || system.role || '').toLowerCase();
-    const capability = Boolean(
-      system.capabilities?.productionImport ||
-      system.capabilities?.production_import ||
-      system.features?.productionImport ||
-      system.productionImport === true
-    );
-    const looksLikeP4 = runtime.includes('p4') || runtime.includes('show engine') || runtime.includes('show_engine');
-    return capability && looksLikeP4;
+  function cleanToken(value) {
+    return String(value ?? '').trim().replace(/[\r\n]/g, ' ');
+  }
+
+  function effectName(value) {
+    return cleanToken(value || 'SOLID').toUpperCase().replace(/[\s-]+/g, '_');
+  }
+
+  function hexRgb(value, fallback = [16, 24, 32]) {
+    const raw = String(value || '').trim().replace(/^#/, '');
+    if (/^[0-9a-f]{3}$/i.test(raw)) return raw.split('').map((ch) => parseInt(ch + ch, 16));
+    if (/^[0-9a-f]{6}$/i.test(raw)) return [parseInt(raw.slice(0, 2), 16), parseInt(raw.slice(2, 4), 16), parseInt(raw.slice(4, 6), 16)];
+    return fallback;
+  }
+
+  function browserAllowsDirectLocalSend() {
+    return window.location.protocol === 'http:';
+  }
+
+  function localHosts() {
+    const values = [];
+    if (browserAllowsDirectLocalSend() && window.location.origin) values.push(window.location.origin);
+    values.push('http://showduino.local', 'http://showduino-studio.local', 'http://192.168.4.1');
+    return Array.from(new Set(values));
+  }
+
+  async function fetchWithTimeout(url, options, timeoutMs = REQUEST_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...(options || {}), signal: controller.signal, cache: 'no-store' });
+    } catch (error) {
+      if (error?.name === 'AbortError') throw new Error(`No response from Showduino after ${timeoutMs} ms.`);
+      throw error;
+    } finally {
+      window.clearTimeout(timer);
+    }
   }
 
   async function probe(baseUrl) {
-    for (const path of PROBE_PATHS) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 1600);
-      try {
-        const response = await fetch(`${baseUrl}${path}`, { signal: controller.signal, cache: 'no-store' });
-        if (!response.ok) continue;
-        const system = await response.json();
-        return { baseUrl, system, importCapable: advertisesProductionImport(system) };
-      } catch (_) {
-        // Try the next probe path/host.
-      } finally {
-        clearTimeout(timer);
-      }
+    try {
+      const response = await fetchWithTimeout(`${baseUrl}${STAGE_ENDPOINT}`, { headers: { Accept: 'application/json' } }, 2200);
+      if (!response.ok) return null;
+      const payload = await response.json();
+      return {
+        baseUrl,
+        payload,
+        importCapable: payload?.capability === STAGE_CAPABILITY && payload?.state === 'ready'
+      };
+    } catch (_) {
+      return null;
     }
-    return null;
   }
 
   async function findLocalShowduino() {
     if (!browserAllowsDirectLocalSend()) return null;
-    for (const host of DEFAULT_HOSTS) {
+    for (const host of localHosts()) {
       const found = await probe(host);
       if (found) return found;
     }
     return null;
   }
 
+  function addCommand(commands, errors, timeMs, command, source) {
+    const clean = cleanToken(command);
+    if (!clean) {
+      errors.push(`${source}: compiler produced an empty command.`);
+      return;
+    }
+    if (clean.length > TIMELINE_COMMAND_MAX) {
+      errors.push(`${source}: command is ${clean.length} characters; P4 timeline limit is ${TIMELINE_COMMAND_MAX}.`);
+      return;
+    }
+    commands.push({
+      timeMs: Math.max(0, Math.round(Number(timeMs) || 0)),
+      command: clean,
+      source,
+      sequence: commands.length
+    });
+  }
+
+  function compileAudio(clip, action, device, commands, errors) {
+    if (device?.binding?.route !== 'audio-node') {
+      errors.push(`${clip.name}: target is not bound to the Specialist Audio Node.`);
+      return;
+    }
+    const file = cleanToken(action.params?.file || action.params?.asset || action.value || '');
+    if (!file) {
+      errors.push(`${clip.name}: no audio file is selected.`);
+      return;
+    }
+    if (file.includes('..')) {
+      errors.push(`${clip.name}: audio path may not contain '..'.`);
+      return;
+    }
+
+    const start = clip.startMs;
+    const volume = Math.round(clamp(action.params?.volume, 0, 100, 100));
+    addCommand(commands, errors, start, `AUDIO:NODE:VOLUME:${volume}`, clip.name);
+    addCommand(commands, errors, start, `AUDIO:NODE:${action.params?.loop ? 'LOOP' : 'PLAY'}:${file}`, clip.name);
+    if (clip.durationMs > 0) addCommand(commands, errors, start + clip.durationMs, 'AUDIO:NODE:STOP', `${clip.name} stop`);
+  }
+
+  function compilePixel(clip, action, device, segmentSlot, commands, errors) {
+    if (device?.binding?.route !== 'p4-show-pixels') {
+      errors.push(`${clip.name}: pixel target is not bound to the P4 Show Pixel line.`);
+      return;
+    }
+    if (segmentSlot >= PIXEL_SEGMENT_SLOTS) {
+      errors.push(`${clip.name}: scene needs more than ${PIXEL_SEGMENT_SLOTS} P4 pixel segment slots.`);
+      return;
+    }
+
+    const params = action.params || {};
+    const localStart = Math.max(0, Math.round(Number(params.startPixel) || 0));
+    const count = Math.max(1, Math.round(Number(params.length ?? params.count) || 1));
+    const bindingStart = Math.max(0, Math.round(Number(device.binding?.pixelStart) || 0));
+    const declaredCount = Math.max(0, Math.round(Number(device.binding?.pixelCount) || 0));
+    if (declaredCount > 0 && localStart + count > declaredCount) {
+      errors.push(`${clip.name}: segment ${localStart}..${localStart + count - 1} exceeds the device's ${declaredCount}-pixel region.`);
+      return;
+    }
+
+    const start = bindingStart + localStart;
+    const r = Math.round(clamp(params.r, 0, 255, 0));
+    const g = Math.round(clamp(params.g, 0, 255, 255));
+    const b = Math.round(clamp(params.b, 0, 255, 200));
+    const [r2, g2, b2] = hexRgb(params.secondary);
+    const brightness = Math.round(clamp(params.brightness, 0, 255, 255));
+    const speed = Math.round(clamp(params.speed, 1, 100, 50));
+    const intensity = Math.round(clamp(params.intensity, 0, 100, 100));
+    const randomness = Math.round(clamp(params.randomness, 0, 100, 0));
+    const reverse = params.reverse ? 1 : 0;
+    const prefix = `PIXEL:SEGMENT:${segmentSlot}`;
+
+    addCommand(commands, errors, clip.startMs, `${prefix}:RANGE:${start}:${count}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:FX:${effectName(params.effect)}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:COLOR:${r}:${g}:${b}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:COLOR2:${r2}:${g2}:${b2}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:BRIGHTNESS:${brightness}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:SPEED:${speed}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:INTENSITY:${intensity}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:RANDOMNESS:${randomness}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:REVERSE:${reverse}`, clip.name);
+    if (clip.durationMs > 0) addCommand(commands, errors, clip.startMs, `${prefix}:DURATION:${clip.durationMs}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:START`, clip.name);
+    if (clip.durationMs > 0 && params.blackoutAtEnd === true) {
+      addCommand(commands, errors, clip.startMs + clip.durationMs, `${prefix}:STOP`, `${clip.name} stop`);
+    }
+  }
+
+  function compileShdoForStage(shdo) {
+    const errors = [];
+    const warnings = [];
+    const commands = [];
+    const devices = new Map((shdo?.devices || []).map((device) => [String(device.id), device]));
+    let pixelSlot = 0;
+
+    if (shdo?.schema !== window.ShowduinoPackage?.SCHEMA_NAME) {
+      return { ok: false, errors: ['Deployment requires canonical SHDO v2.'], warnings, commands, uploadCommands: [] };
+    }
+
+    const clips = (shdo.clips || []).filter((clip) => clip.enabled !== false)
+      .slice().sort((a, b) => Number(a.startMs) - Number(b.startMs));
+
+    clips.forEach((clip) => {
+      const action = clip.action || {};
+      const type = String(action.type || clip.type || '').toLowerCase();
+      const targetDeviceId = action.targetDeviceId || clip.targetDeviceId || '';
+      const device = targetDeviceId ? devices.get(String(targetDeviceId)) : null;
+
+      if (type === 'audio') {
+        if (!device) errors.push(`${clip.name}: no logical Audio Node target.`);
+        else compileAudio(clip, action, device, commands, errors);
+      } else if (type === 'pixel') {
+        if (!device) errors.push(`${clip.name}: no logical pixel target.`);
+        else compilePixel(clip, action, device, pixelSlot++, commands, errors);
+      } else if (type === 'mosfet') {
+        errors.push(`${clip.name}: MOSFET Node runtime is not implemented yet.`);
+      } else if (type === 'trigger') {
+        errors.push(`${clip.name}: trigger/sensor runtime is not implemented yet.`);
+      } else if (type === 'relay') {
+        errors.push(`${clip.name}: legacy Relay actions must be migrated to MOSFET.`);
+      } else if (type === 'dmx') {
+        errors.push(`${clip.name}: DMX remains parked/out of scope.`);
+      } else {
+        errors.push(`${clip.name}: ${type || 'unknown'} has no P4 Stage compiler yet.`);
+      }
+    });
+
+    commands.sort((a, b) => a.timeMs - b.timeMs || a.sequence - b.sequence);
+    if (commands.length > TIMELINE_MAX_CUES) errors.push(`Compiled show has ${commands.length} commands; P4 RAM timeline limit is ${TIMELINE_MAX_CUES}.`);
+    if (!commands.length && !errors.length) errors.push('This production has no deployable P4 timeline commands.');
+
+    const uploadCommands = ['SHOW:TL:BEGIN'];
+    commands.forEach((item) => uploadCommands.push(`SHOW:TL:C:${item.timeMs}:${item.command}`));
+    uploadCommands.push('SHOW:TL:END');
+
+    return {
+      ok: errors.length === 0 && commands.length > 0,
+      errors,
+      warnings,
+      commands,
+      uploadCommands,
+      target: 'esp32-p4-show-engine',
+      transport: 'show-timeline-ram-v1'
+    };
+  }
+
+  async function postTimelineCommand(baseUrl, cmd) {
+    const response = await fetchWithTimeout(`${baseUrl}${STAGE_ENDPOINT}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd })
+    });
+    let payload = {};
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok || payload?.ok === false) {
+      throw new Error(`${cmd} → ${payload?.error || payload?.replies || `HTTP ${response.status}`}`);
+    }
+    return payload;
+  }
+
   function exportForShowEngine(reason) {
     window.ShowduinoProjects.exportCurrentProject();
-    notify(reason || 'Production package prepared for the P4 Show Engine.', 'INFO');
+    notify(reason || 'Canonical SHDO v2 package prepared for the P4 Show Engine.', 'INFO');
     return { deployed: false, exported: true, reason: reason || 'export' };
   }
 
   async function deployCurrentProject() {
     if (!window.ShowduinoProjects?.saveCurrentProject) throw new Error('Showduino Studio is still starting.');
-
-    // Save once and use exactly that snapshot for deployment/export.
     const project = await window.ShowduinoProjects.saveCurrentProject({ cloud: false });
+    const shdo = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : null;
+    if (!shdo) throw new Error('Canonical SHDO v2 serializer is not available.');
 
     if (!browserAllowsDirectLocalSend()) {
-      return exportForShowEngine('Direct private-network access is blocked from this HTTPS browser session. Exported the .shdo package instead.');
+      return exportForShowEngine('Public HTTPS Studio prepared the canonical .shdo file. Connect to the isolated Showduino local Studio to deploy directly.');
     }
 
-    notify('Looking for a compatible local P4 Show Engine…', 'NET');
+    const plan = compileShdoForStage(shdo);
+    if (!plan.ok) throw new Error(plan.errors.join('\n'));
+
+    notify('Looking for the Showduino Communications S3…', 'NET');
     const target = await findLocalShowduino();
-    if (!target) return exportForShowEngine('No local Showduino system answered the Studio probe. Exported the .shdo package instead.');
-    if (!target.importCapable) return exportForShowEngine('A Showduino system was found, but it did not advertise the production-import capability. Exported the .shdo package instead.');
+    if (!target) throw new Error('No local Showduino timeline endpoint answered. Check the Communications S3/P4 firmware and local Wi-Fi connection.');
+    if (!target.importCapable) throw new Error(`Showduino answered but did not advertise ${STAGE_CAPABILITY}=ready.`);
 
-    const importUrl = `${target.baseUrl}/api/production/import`;
-    const response = await fetch(importUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(project)
-    });
+    const replies = [];
+    for (const command of plan.uploadCommands) {
+      replies.push(await postTimelineCommand(target.baseUrl, command));
+    }
 
-    let result = {};
-    try { result = await response.json(); } catch (_) {}
-    if (!response.ok) throw new Error(result.error || `Show Engine returned HTTP ${response.status}`);
-
-    notify(`Installed on P4 Show Engine: ${project.project?.name || 'Untitled Show'}`, 'NET');
-    window.dispatchEvent(new CustomEvent('showduino:project-deployed', { detail: { target, result, project } }));
-    return { deployed: true, target, result };
+    notify(`Loaded on P4 RAM timeline: ${project.project?.name || 'Untitled Show'} (${plan.commands.length} commands)`, 'NET');
+    window.dispatchEvent(new CustomEvent('showduino:project-deployed', { detail: { target, replies, project, shdo, plan } }));
+    return { deployed: true, target, replies, plan };
   }
 
   function initialise() {
@@ -106,20 +293,22 @@
     button.id = 'studio-deploy-button';
     button.className = 'studio-action-btn studio-deploy-btn';
     button.type = 'button';
-    button.textContent = 'Prepare for P4';
-    button.title = 'Install on a compatible local P4 Show Engine or export the .shdo package';
+    button.textContent = browserAllowsDirectLocalSend() ? 'Deploy to P4' : 'Prepare for P4';
+    button.title = browserAllowsDirectLocalSend()
+      ? 'Compile supported V4 clips and load them into the P4 RAM timeline (does not start the show)'
+      : 'Export the canonical SHDO v2 package for the local Showduino Studio';
 
     button.addEventListener('click', async () => {
       button.disabled = true;
       const old = button.textContent;
-      button.textContent = browserAllowsDirectLocalSend() ? 'Checking P4…' : 'Preparing…';
+      button.textContent = browserAllowsDirectLocalSend() ? 'Loading P4…' : 'Preparing…';
       try {
         const result = await deployCurrentProject();
-        button.textContent = result.deployed ? 'Installed ✓' : 'Show file ready ✓';
+        button.textContent = result.deployed ? 'Loaded ✓' : 'Show file ready ✓';
         setTimeout(() => { button.textContent = old; }, 2200);
       } catch (error) {
         notify(`Deploy failed: ${error.message}`, 'ERR');
-        window.alert(`Could not prepare this production for the P4 Show Engine.\n\n${error.message}\n\nUse Export .shdo to save it manually.`);
+        window.alert(`Could not load this production onto the P4.\n\n${error.message}\n\nThe P4 was not started and existing safety authority was not changed.`);
         button.textContent = old;
       } finally {
         button.disabled = false;
@@ -133,7 +322,7 @@
     findLocalShowduino,
     deployCurrentProject,
     browserAllowsDirectLocalSend,
-    advertisesProductionImport
+    compileShdoForStage
   });
 
   document.addEventListener('DOMContentLoaded', initialise);

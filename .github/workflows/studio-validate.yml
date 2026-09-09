@@ -42,13 +42,45 @@ jobs:
           node --check js/studio-projects.js
           node --check js/studio-deploy.js
           node --check js/studio-creator-mode.js
+          node --check js/studio-creator-bootstrap.js
           node --check js/studio-mobile.js
           node --check js/current-system-ui.js
           node --check js/studio-v4.js
+          node --check js/api.js
           node --check app.js
 
       - name: Run SHDO v2 round-trip and P4 compiler test
         run: node tests/studio-shdo-v2.test.cjs
+
+      - name: Guard the public Showduino domain
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          wrong_url = re.compile(r'https?://showduino\.com(?:/|["\'?#])', re.I)
+          bad = []
+          for path in Path('.').glob('*.html'):
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              if wrong_url.search(text):
+                  bad.append(str(path))
+          if bad:
+              raise SystemExit('Wrong public Showduino domain found in website HTML: ' + ', '.join(sorted(bad)))
+
+          api = Path('js/api.js').read_text(encoding='utf-8')
+          if "host !== 'show-duino.com'" not in api or "!host.endsWith('.show-duino.com')" not in api:
+              raise SystemExit('Showduino API host detector does not protect show-duino.com as the public website.')
+          if "host !== 'showduino.com'" in api or "!host.endsWith('.showduino.com')" in api:
+              raise SystemExit('Old showduino.com public-host detector returned to js/api.js.')
+
+          guard = Path('js/studio-creator-bootstrap.js').read_text(encoding='utf-8')
+          required = ["PUBLIC_HOST = 'show-duino.com'", "WRONG_PUBLIC_HOST = 'showduino.com'", 'MutationObserver']
+          missing = [item for item in required if item not in guard]
+          if missing:
+              raise SystemExit('Studio public-domain guard incomplete: ' + ', '.join(missing))
+
+          print('Public website domain guard passed: show-duino.com is authoritative.')
+          PY
 
       - name: Check Studio local asset references
         run: |

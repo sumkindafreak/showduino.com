@@ -4,8 +4,13 @@
 
   const PROJECT_INDEX_KEY = 'showduino_local_projects';
   const PROJECT_DATA_PREFIX = 'showduino_project_';
+  const ACTIVE_PROJECT_KEY = 'showduino_active_project_id';
+  const AUTOSAVE_INTERVAL_MS = 1500;
+
   let currentUser = null;
   let pendingCloudOpenHandled = false;
+  let lastAutosavePayload = '';
+  let autosaveTimer = 0;
 
   function getState() { return window.state || null; }
 
@@ -55,7 +60,7 @@
         description: metadata.description || '',
         version: metadata.version || '2.0.0',
         createdAt: metadata.createdAt || now,
-        updatedAt: now,
+        updatedAt: metadata.updatedAt || now,
         bpm: Number(metadata.bpm) > 0 ? Number(metadata.bpm) : 120,
         duration: Number(metadata.duration) > 0 ? Math.round(Number(metadata.duration)) : 300000,
         ...metadata
@@ -84,7 +89,14 @@
     }
   }
 
-  function writeProjectIndex(index) { localStorage.setItem(PROJECT_INDEX_KEY, JSON.stringify(index)); }
+  function writeProjectIndex(index) {
+    localStorage.setItem(PROJECT_INDEX_KEY, JSON.stringify(index));
+  }
+
+  function rememberActiveProject(project) {
+    const id = String(project?.project?.id || '').trim();
+    if (id) localStorage.setItem(ACTIVE_PROJECT_KEY, id);
+  }
 
   function updateProjectIndex(project) {
     const index = readProjectIndex().filter((item) => item.id !== project.project.id);
@@ -118,12 +130,70 @@
     return state.project;
   }
 
+  function persistLocal(project, touchUpdatedAt = true) {
+    if (!project?.project?.id) return null;
+    if (touchUpdatedAt) project.project.updatedAt = new Date().toISOString();
+    const payload = JSON.stringify(project);
+    localStorage.setItem(`${PROJECT_DATA_PREFIX}${project.project.id}`, payload);
+    rememberActiveProject(project);
+    updateProjectIndex(project);
+    lastAutosavePayload = payload;
+    return project;
+  }
+
+  function autosaveCurrentProject(reason = 'timer') {
+    const state = getState();
+    const project = state?.project;
+    if (!project?.project?.id) return false;
+
+    try {
+      const currentPayload = JSON.stringify(project);
+      if (currentPayload === lastAutosavePayload) return false;
+      persistLocal(project, true);
+      updateStudioTitle(project);
+      window.dispatchEvent(new CustomEvent('showduino:project-autosaved', {
+        detail: { project, reason }
+      }));
+      return true;
+    } catch (error) {
+      console.warn('[Studio Projects] Autosave failed', error);
+      return false;
+    }
+  }
+
+  function restoreLastLocalProject() {
+    const state = getState();
+    if (!state) return null;
+
+    const activeId = String(localStorage.getItem(ACTIVE_PROJECT_KEY) || '').trim();
+    const candidates = [activeId, ...readProjectIndex().map((item) => String(item.id || '').trim())]
+      .filter((id, index, all) => id && all.indexOf(id) === index);
+
+    for (const projectId of candidates) {
+      try {
+        const raw = localStorage.getItem(`${PROJECT_DATA_PREFIX}${projectId}`);
+        if (!raw) continue;
+        const project = normaliseProject(JSON.parse(raw));
+        state.project = project;
+        rememberActiveProject(project);
+        updateProjectIndex(project);
+        updateStudioTitle(project);
+        lastAutosavePayload = JSON.stringify(project);
+        notify(`Resumed your last show: ${project.project.name}`, 'INFO');
+        window.dispatchEvent(new CustomEvent('showduino:project-restored', { detail: { project } }));
+        return project;
+      } catch (error) {
+        console.warn(`[Studio Projects] Could not resume ${projectId}`, error);
+      }
+    }
+
+    return null;
+  }
+
   async function saveCurrentProject(options) {
     const settings = { cloud: true, ...options };
     const project = ensureProject();
-    project.project.updatedAt = new Date().toISOString();
-    localStorage.setItem(`${PROJECT_DATA_PREFIX}${project.project.id}`, JSON.stringify(project));
-    updateProjectIndex(project);
+    persistLocal(project, true);
     updateStudioTitle(project);
     notify(`Saved on this device: ${project.project.name}`, 'INFO');
 
@@ -146,10 +216,13 @@
     if (!raw) throw new Error('The local project could not be found.');
     const project = normaliseProject(JSON.parse(raw));
     state.project = project;
+    rememberActiveProject(project);
     updateProjectIndex(project);
     updateStudioTitle(project);
+    lastAutosavePayload = JSON.stringify(project);
     notify(`Loaded from this device: ${project.project.name}`, 'INFO');
     if (window.timelineEditor && typeof window.timelineEditor.init === 'function') window.timelineEditor.init();
+    window.dispatchEvent(new CustomEvent('showduino:project-restored', { detail: { project } }));
     return project;
   }
 
@@ -187,6 +260,7 @@
 
   function exportCurrentProject() {
     const project = ensureProject();
+    autosaveCurrentProject('export');
     const shdoDocument = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : project;
     if (window.ShowduinoPackage?.validateShdo && shdoDocument.schema === window.ShowduinoPackage.SCHEMA_NAME) {
       const validation = window.ShowduinoPackage.validateShdo(shdoDocument);
@@ -244,6 +318,17 @@
     });
   }
 
+  function startAutosave() {
+    if (autosaveTimer) window.clearInterval(autosaveTimer);
+    autosaveTimer = window.setInterval(() => autosaveCurrentProject('timer'), AUTOSAVE_INTERVAL_MS);
+
+    window.addEventListener('pagehide', () => autosaveCurrentProject('pagehide'));
+    window.addEventListener('beforeunload', () => autosaveCurrentProject('beforeunload'));
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') autosaveCurrentProject('hidden');
+    });
+  }
+
   function initialise() {
     const saveButton = document.querySelector('.save-icon');
     if (saveButton) {
@@ -263,19 +348,26 @@
       });
     }
 
-    initialiseAuth();
-    setTimeout(() => {
+    // Restore synchronously before the phone builder's DOMContentLoaded handler
+    // runs, so returning to Studio immediately shows the last working show.
+    const restored = restoreLastLocalProject();
+    if (!restored) {
       try {
         const project = ensureProject();
-        updateStudioTitle(project);
+        persistLocal(project, false);
       } catch (error) {
         console.warn('[Studio Projects]', error);
       }
-    }, 0);
+    }
+
+    initialiseAuth();
+    startAutosave();
   }
 
   window.ShowduinoProjects = Object.freeze({
     saveCurrentProject,
+    autosaveCurrentProject,
+    restoreLastLocalProject,
     loadLocalProject,
     loadCloudProject,
     exportCurrentProject,

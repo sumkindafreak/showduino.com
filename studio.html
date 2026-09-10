@@ -16,36 +16,8 @@
   <link rel="stylesheet" href="css/timeline-drop-zones.css">
   <link rel="stylesheet" href="css/studio-inspector-drawer.css">
   <link rel="stylesheet" href="css/studio-v4.css">
-
-  <style>
-    #studio-site-home { display:none; }
-    @media (max-width:760px) {
-      body.studio-mobile-native #studio-site-home {
-        position:fixed;
-        z-index:12500;
-        top:calc(.55rem + env(safe-area-inset-top));
-        left:.72rem;
-        width:38px;
-        height:38px;
-        display:grid;
-        place-items:center;
-        box-sizing:border-box;
-        border:1px solid #304853;
-        border-radius:10px;
-        background:#0b1419;
-        color:#dce6e9;
-        text-decoration:none;
-        font-size:1.05rem;
-        font-weight:900;
-        box-shadow:0 5px 18px rgba(0,0,0,.24);
-      }
-      body.studio-mobile-native .sm-header { padding-left:4.15rem; }
-    }
-  </style>
 </head>
 <body class="studio-v4">
-  <a id="studio-site-home" href="index.html" aria-label="Back to Showduino website" title="Back to Showduino website" onclick="window.ShowduinoProjects?.saveCurrentProject?.({cloud:false}).catch(()=>{});">⌂</a>
-
   <div class="app-container">
     <aside class="sidebar" aria-label="Showduino Studio navigation">
       <div class="sidebar-header">

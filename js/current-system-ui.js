@@ -118,7 +118,9 @@
       const clip = mobileProject()?.clips?.find((item) => String(item.id) === clipId);
       if (!clip || clip.type !== 'pixel') return;
 
-      const info = row.querySelector('.sm-cue-info span');
+      // Prefer the dedicated detail line used by the simple mobile builder.
+      // The fallback keeps compatibility with the previous mobile markup.
+      const info = row.querySelector('.sm-cue-detail') || row.querySelector('.sm-cue-info span');
       if (info && !info.dataset.mobilePixelSummary) {
         const existing = String(info.textContent || '').trim();
         const summary = mobilePixelSummary(clip);

@@ -1,42 +1,42 @@
-/* Showduino Studio v4 — native mobile show builder.
+/* Showduino Studio — simple phone-first cue builder.
  *
- * Portrait phones get a purpose-built cue workflow over the exact same .shdo v2
- * project model as desktop Studio. The desktop DAW remains available as an
- * advanced landscape view. Browser preview is simulation only: no live safety
- * or show-runtime authority is moved away from the ESP32-P4 Show Engine.
+ * The phone UI edits the same SHDO v2 project used by desktop Studio. It does
+ * not create a second show format and it never becomes runtime authority.
+ * The ESP32-P4 remains responsible for live timeline execution and safety.
  */
 (function () {
   'use strict';
 
   const PHONE_QUERY = '(max-width: 760px)';
-  const CSS_PATH = 'css/studio-mobile-v4.css';
-  const CURRENT_TYPES = ['audio', 'relay', 'mosfet', 'pixel', 'fx', 'trigger'];
+  const CSS_PATH = 'css/studio-mobile-simple.css';
+  const CURRENT_TYPES = ['audio', 'relay', 'mosfet', 'pixel', 'trigger', 'fx'];
+
   const TYPE_META = Object.freeze({
-    audio:   { icon: '♪', name: 'Audio', subtitle: 'Sound cue', duration: 5000 },
-    relay:   { icon: '⚡', name: 'Relay', subtitle: 'Switch / pulse output', duration: 500 },
-    mosfet:  { icon: '▰', name: 'MOSFET', subtitle: 'Powered / PWM output', duration: 1000 },
-    pixel:   { icon: '✦', name: 'Pixel FX', subtitle: 'Segmented pixel effect', duration: 3000 },
-    fx:      { icon: '◈', name: 'FX', subtitle: 'Physical effect cue', duration: 1500 },
-    trigger: { icon: '◎', name: 'Trigger', subtitle: 'Logical event', duration: 250 }
+    audio:   { icon: '♪', name: 'Sound', subtitle: 'Play an audio file', duration: 5000 },
+    relay:   { icon: '↯', name: 'Relay', subtitle: 'Switch or pulse an output', duration: 500 },
+    mosfet:  { icon: '▰', name: 'Powered output', subtitle: 'MOSFET / PWM output', duration: 1000 },
+    pixel:   { icon: '✦', name: 'Pixels', subtitle: 'Run a segmented pixel effect', duration: 3000 },
+    trigger: { icon: '◎', name: 'Trigger', subtitle: 'Fire a logical event', duration: 250 },
+    fx:      { icon: '◈', name: 'Other FX', subtitle: 'Fog, air, motor, servo and more', duration: 1500 }
   });
 
   const PIXEL_EFFECTS = Object.freeze([
-    ['solid','Solid','STATIC'],['fade','Fade','LEVEL'],['pulse','Pulse','LEVEL'],['breathe','Breathe','LEVEL'],
-    ['flash','Flash','IMPACT'],['strobe','Strobe','IMPACT'],['lightning','Lightning','IMPACT'],
-    ['flicker','Flicker','ORGANIC'],['fire','Fire','ORGANIC'],['ember','Ember','ORGANIC'],
-    ['sparkle','Sparkle','ORGANIC'],['twinkle','Twinkle','ORGANIC'],['chase','Chase','MOTION'],
-    ['comet','Comet','MOTION'],['scanner','Scanner','MOTION'],['meteor','Meteor','MOTION'],
-    ['wipe','Colour Wipe','MOTION'],['theatre','Theatre Chase','MOTION'],['wave','Wave','MOTION'],
-    ['ripple','Ripple','MOTION'],['rainbow','Rainbow','COLOUR'],['confetti','Confetti','COLOUR'],
-    ['police','Red / Blue','COLOUR'],['uv-flicker','UV Flicker','COLOUR'],['blackout','Blackout','UTILITY']
-  ].map(([id,name,family]) => ({ id,name,family })));
+    ['solid','Solid'],['fade','Fade'],['pulse','Pulse'],['breathe','Breathe'],
+    ['flash','Flash'],['strobe','Strobe'],['lightning','Lightning'],['flicker','Flicker'],
+    ['fire','Fire'],['ember','Ember'],['sparkle','Sparkle'],['twinkle','Twinkle'],
+    ['chase','Chase'],['comet','Comet'],['scanner','Scanner'],['meteor','Meteor'],
+    ['wipe','Colour Wipe'],['theatre','Theatre Chase'],['wave','Wave'],['ripple','Ripple'],
+    ['rainbow','Rainbow'],['confetti','Confetti'],['police','Red / Blue'],
+    ['uv-flicker','UV Flicker'],['blackout','Blackout']
+  ].map(([id, name]) => ({ id, name })));
 
   let root = null;
   let activeTab = 'build';
+  let pickerOpen = false;
+  let editorOpen = false;
   let editorDraft = null;
   let editorExistingId = null;
-  let pixelEmergencyPreview = false;
-  let preview = { playing: false, paused: false, timeMs: 0, startedAt: 0, offsetMs: 0, raf: 0 };
+  let preview = { playing:false, timeMs:0, startedAt:0, offsetMs:0, raf:0 };
 
   function esc(value) {
     return String(value ?? '')
@@ -49,10 +49,17 @@
     return Number.isFinite(number) ? Math.max(min, Math.min(max, number)) : fallback;
   }
 
-  function deepCopy(value) { return JSON.parse(JSON.stringify(value)); }
+  function copy(value) { return JSON.parse(JSON.stringify(value)); }
   function isPhone() { return window.matchMedia(PHONE_QUERY).matches; }
   function isV4() { return document.body.classList.contains('studio-v4'); }
-  function isLandscape() { return window.matchMedia('(orientation: landscape)').matches; }
+
+  function makeId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
 
   function injectCss() {
     if (document.querySelector(`link[href="${CSS_PATH}"]`)) return;
@@ -73,55 +80,106 @@
   function clips() { return project()?.clips || []; }
   function tracks() { return project()?.tracks || []; }
 
+  function sortedClips(excludeId) {
+    return clips()
+      .filter((clip) => !excludeId || clip.id !== excludeId)
+      .slice()
+      .sort((a,b) => Number(a.startMs || 0) - Number(b.startMs || 0) || Number(a.durationMs || 0) - Number(b.durationMs || 0));
+  }
+
+  function projectDuration(excludeId) {
+    return sortedClips(excludeId).reduce((max, clip) => {
+      return Math.max(max, Number(clip.startMs || 0) + Math.max(0, Number(clip.durationMs || 0)));
+    }, 0);
+  }
+
+  function nextCueStart(excludeId) {
+    const end = projectDuration(excludeId);
+    return Math.ceil(end / 100) * 100;
+  }
+
   function formatMs(ms) {
-    const total = Math.max(0, Math.floor(Number(ms) || 0));
+    const total = Math.max(0, Math.round(Number(ms) || 0));
     const minutes = Math.floor(total / 60000);
     const seconds = Math.floor((total % 60000) / 1000);
     const millis = total % 1000;
     return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(millis).padStart(3,'0')}`;
   }
 
-  function projectDuration() {
-    return clips().reduce((max, clip) => Math.max(max, Number(clip.startMs || 0) + Number(clip.durationMs || 0)), 0);
+  function formatTimeInput(ms) {
+    const total = Math.max(0, Math.round(Number(ms) || 0));
+    const minutes = Math.floor(total / 60000);
+    const seconds = Math.floor((total % 60000) / 1000);
+    const millis = total % 1000;
+    return `${minutes}:${String(seconds).padStart(2,'0')}.${String(millis).padStart(3,'0')}`;
   }
 
-  function nextCueStart() {
-    if (!clips().length) return 0;
-    const end = projectDuration();
-    return Math.ceil(end / 500) * 500;
+  function parseTimeInput(value) {
+    const text = String(value ?? '').trim();
+    if (!text) return 0;
+    if (!text.includes(':')) {
+      const seconds = Number(text);
+      return Number.isFinite(seconds) ? Math.max(0, Math.round(seconds * 1000)) : 0;
+    }
+    const parts = text.split(':').map((part) => Number(part));
+    if (parts.some((part) => !Number.isFinite(part))) return 0;
+    let seconds = 0;
+    parts.forEach((part) => { seconds = seconds * 60 + part; });
+    return Math.max(0, Math.round(seconds * 1000));
   }
 
-  function projectStats() {
-    const list = clips();
-    return {
-      cues: list.length,
-      tracks: tracks().length,
-      routed: list.filter(c => String(c.routing?.nodeId || '').trim()).length,
-      duration: projectDuration()
-    };
+  function basename(path) {
+    const text = String(path || '').replaceAll('\\','/');
+    return text.split('/').filter(Boolean).pop() || '';
+  }
+
+  function knownNodes(type) {
+    const result = [];
+    clips().forEach((clip) => {
+      if (type && clip.type !== type) return;
+      const id = String(clip.routing?.nodeId || '').trim();
+      if (id && !result.includes(id)) result.push(id);
+    });
+    return result.sort((a,b) => a.localeCompare(b));
   }
 
   function routeText(clip) {
     const node = String(clip.routing?.nodeId || '').trim();
-    const output = String(clip.routing?.output || '').trim();
-    return node ? `${node}${output ? ` · ${output}` : ''}` : 'Routing not set';
+    return node || 'Device not selected yet';
   }
 
-  function sortedClips() {
-    return clips().slice().sort((a,b) => Number(a.startMs || 0) - Number(b.startMs || 0) || Number(a.durationMs || 0) - Number(b.durationMs || 0));
+  function cueDetail(clip) {
+    const p = clip.params || {};
+    if (clip.type === 'audio') return basename(p.file) || 'Choose audio file';
+    if (clip.type === 'relay') return `${String(p.out || 'out1').toUpperCase()} · ${String(p.mode || 'hold').toUpperCase()}${p.mode === 'pulse' && p.pulseMs ? ` · ${p.pulseMs}ms` : ''}`;
+    if (clip.type === 'mosfet') return `${String(p.out || 'out1').toUpperCase()} · ${clamp(p.duty,0,100,100)}% · ${String(p.mode || 'hold').toUpperCase()}`;
+    if (clip.type === 'pixel') return `${p.segmentName || 'Segment'} · ${PIXEL_EFFECTS.find((fx) => fx.id === p.effect)?.name || p.effect || 'Solid'} · L${clamp(p.line,1,32,1)}`;
+    if (clip.type === 'trigger') return p.event || 'Choose event name';
+    if (clip.type === 'fx') return `${p.effect || 'custom'} · ${clamp(p.intensity,0,100,100)}%`;
+    return clip.type || 'Cue';
+  }
+
+  function projectStats() {
+    return {
+      cues: clips().length,
+      duration: projectDuration(),
+      routed: clips().filter((clip) => clip.type === 'trigger' || String(clip.routing?.nodeId || '').trim()).length
+    };
   }
 
   function headerHtml() {
     const name = project()?.project?.name || 'Untitled Show';
     return `<header class="sm-header">
       <div class="sm-brand"><span class="sm-brand-dot"></span><div class="sm-brand-copy"><strong>SHOWDUINO STUDIO</strong><span>${esc(name)}</span></div></div>
-      <span class="sm-state">P4 RUNTIME</span>
+      <button class="sm-header-action" type="button" data-sm-header-preview>${activeTab === 'preview' ? 'Back to build' : 'Preview'}</button>
     </header>`;
   }
 
   function navHtml() {
     const tabs = [
-      ['build','＋','BUILD'],['preview','▶','PREVIEW'],['project','▣','PROJECT'],['system','⌁','SYSTEM']
+      ['build','＋','BUILD'],
+      ['preview','▶','PREVIEW'],
+      ['project','▣','PROJECT']
     ];
     return `<nav class="sm-bottom-nav" aria-label="Mobile Studio">
       ${tabs.map(([id,icon,label]) => `<button class="sm-tab ${activeTab === id ? 'active' : ''}" type="button" data-sm-tab="${id}"><b>${icon}</b><span>${label}</span></button>`).join('')}
@@ -130,112 +188,101 @@
 
   function buildHtml() {
     const stats = projectStats();
-    const cueRows = sortedClips().map((clip) => {
-      const meta = TYPE_META[clip.type] || { name: clip.type || 'Cue' };
-      return `<button class="sm-cue-row" type="button" data-sm-edit="${esc(clip.id)}">
-        <span class="sm-cue-time">${formatMs(clip.startMs)}</span>
-        <span class="sm-cue-info"><strong>${esc(clip.label || meta.name)}</strong><span>${esc(routeText(clip))}</span></span>
-        <span class="sm-cue-type">${esc(meta.name)}</span>
+    const rows = sortedClips().map((clip) => {
+      const meta = TYPE_META[clip.type] || { icon:'•', name:clip.type || 'Cue' };
+      return `<button class="sm-cue-card sm-cue-row" type="button" data-sm-edit="${esc(clip.id)}">
+        <span class="sm-cue-icon">${meta.icon}</span>
+        <span class="sm-cue-body sm-cue-info">
+          <span class="sm-cue-top"><span class="sm-cue-time">${formatMs(clip.startMs)}</span><span class="sm-cue-name">${esc(clip.label || meta.name)}</span></span>
+          <span class="sm-cue-detail">${esc(cueDetail(clip))}</span>
+          <span class="sm-cue-route">${esc(routeText(clip))}</span>
+        </span>
+        <span class="sm-cue-chevron">›</span>
       </button>`;
     }).join('');
 
     return `<section class="sm-screen">
-      <span class="sm-kicker">BUILD SHOW</span>
-      <h1 class="sm-title">Build it cue by cue.</h1>
-      <p class="sm-copy">Choose what happens, when it happens and which logical Showduino node performs it. The same production opens in desktop Studio.</p>
+      <span class="sm-kicker">BUILD</span>
+      <h1 class="sm-title">What happens next?</h1>
+      <p class="sm-copy">Add one cue at a time. Showduino handles the complicated timeline underneath.</p>
 
-      <div class="sm-stats">
-        <div class="sm-stat"><strong>${stats.cues}</strong><span>CUES</span></div>
-        <div class="sm-stat"><strong>${stats.tracks}</strong><span>TRACKS</span></div>
-        <div class="sm-stat"><strong>${formatMs(stats.duration).slice(0,5)}</strong><span>LENGTH</span></div>
+      <div class="sm-toolbar">
+        <button class="sm-add-cue" type="button" data-sm-picker-open><strong>＋ Add cue</strong><span>Sound, output, pixels or trigger</span></button>
+        <button class="sm-template-shortcut" type="button" data-sm-exit-template title="Add 10-pixel exit sign pattern">✦</button>
       </div>
 
-      <div class="sm-section">
-        <div class="sm-section-head"><h2>Add cue</h2><span>TAP TO CREATE</span></div>
-        <div class="sm-cue-grid">
-          ${CURRENT_TYPES.map(type => { const m = TYPE_META[type]; return `<button class="sm-cue-button" type="button" data-sm-add="${type}"><span class="sm-cue-icon">${m.icon}</span><strong>${m.name}</strong><span>${m.subtitle}</span></button>`; }).join('')}
-        </div>
-        <button class="sm-template" type="button" data-sm-exit-template><strong>10-pixel Exit Sign</strong><span>PX 0 green, 1–9 blackout, repeat across the line</span></button>
-      </div>
+      <div class="sm-summary"><span><strong>${stats.cues}</strong> CUE${stats.cues === 1 ? '' : 'S'}</span><span><strong>${formatMs(stats.duration).slice(0,5)}</strong> SHOW LENGTH</span></div>
 
       <div class="sm-section">
-        <div class="sm-section-head"><h2>Show sequence</h2><span>${stats.cues} CUES</span></div>
-        <div class="sm-sequence">${cueRows || '<div class="sm-empty">No cues yet. Add the first thing you want the show to do.</div>'}</div>
+        <div class="sm-section-head"><h2>Show sequence</h2><span>TAP A CUE TO EDIT</span></div>
+        <div class="sm-sequence">${rows || '<div class="sm-empty">Your show is empty.<br>Tap <strong>Add cue</strong> and choose the first thing that should happen.</div>'}</div>
       </div>
     </section>`;
   }
 
-  function currentPreviewClips(timeMs) {
-    return sortedClips().filter(c => timeMs >= Number(c.startMs || 0) && timeMs < Number(c.startMs || 0) + Math.max(1, Number(c.durationMs || 0)));
+  function currentPreviewClip(timeMs) {
+    return sortedClips().find((clip) => {
+      const start = Number(clip.startMs || 0);
+      const end = start + Math.max(1, Number(clip.durationMs || 0));
+      return timeMs >= start && timeMs < end;
+    }) || null;
   }
 
   function nextPreviewClip(timeMs) {
-    return sortedClips().find(c => Number(c.startMs || 0) > timeMs) || null;
-  }
-
-  function previewPixelHtml(clip, timeMs) {
-    if (!clip || clip.type !== 'pixel') return `<div class="sm-pixel-shell"><div class="sm-pixel-strip">${Array.from({length:30},()=>'<i class="sm-pixel"></i>').join('')}</div></div>`;
-    const p = clip.params || {};
-    const mode = p.segmentMode || 'range';
-    const start = Math.max(0, Number(p.startPixel || 0));
-    const length = Math.max(1, Number(p.length || 10));
-    const group = Math.max(1, Number(p.groupSize || 10));
-    const marker = Math.max(0, Number(p.markerOffset || 0));
-    const colour = `rgb(${clamp(p.r,0,255,0)},${clamp(p.g,0,255,255)},${clamp(p.b,0,255,200)})`;
-    const phase = Math.floor(timeMs / Math.max(40, Number(p.speed || 120))) % 30;
-    return `<div class="sm-pixel-shell"><div class="sm-pixel-strip" style="--sm-pixel:${colour}">${Array.from({length:30},(_,index) => {
-      let on = false; let cls = '';
-      if (mode === 'repeat-marker') { on = index >= start && index < start + length && ((index - start) % group) === marker; cls = on ? ' marker' : ''; }
-      else on = index >= start && index < Math.min(30, start + length);
-      if (on && ['chase','comet','scanner','meteor','wave','ripple','theatre'].includes(p.effect)) on = Math.abs(index - phase) <= 1;
-      if (on && ['flash','strobe','lightning','flicker','sparkle','twinkle'].includes(p.effect)) on = ((Math.floor(timeMs / 90) + index * 7) % 4) !== 0;
-      if (on && p.effect === 'blackout') on = false;
-      return `<i class="sm-pixel${on ? ` on${cls}` : ''}"></i>`;
-    }).join('')}</div></div>`;
+    return sortedClips().find((clip) => Number(clip.startMs || 0) > timeMs) || null;
   }
 
   function previewHtml() {
     const duration = Math.max(1, projectDuration());
-    const active = currentPreviewClips(preview.timeMs);
-    const current = active[0] || null;
+    const current = currentPreviewClip(preview.timeMs);
     const next = nextPreviewClip(preview.timeMs);
     return `<section class="sm-screen">
-      <span class="sm-kicker">BROWSER PREVIEW</span>
-      <h1 class="sm-title">Preview the production.</h1>
-      <p class="sm-copy">This simulates authored cues only. It never becomes the live show controller.</p>
+      <span class="sm-kicker">PREVIEW</span>
+      <h1 class="sm-title">Watch the cues fire.</h1>
+      <p class="sm-copy">Browser preview only. The P4 still owns the real show.</p>
 
-      <div class="sm-card sm-card-pad" style="margin-top:.8rem;">
+      <div class="sm-card sm-card-pad" style="margin-top:.75rem;">
         <div class="sm-preview-time" id="sm-preview-time">${formatMs(preview.timeMs)}</div>
         <input id="sm-preview-progress" class="sm-progress" type="range" min="0" max="${duration}" value="${Math.min(duration,preview.timeMs)}" step="10" aria-label="Preview position">
-        <div class="sm-btn-row" style="margin-top:.65rem;">
+        <div class="sm-btn-row" style="margin-top:.6rem;">
           <button class="sm-btn primary" type="button" data-sm-preview-play>${preview.playing ? 'Pause' : 'Play'}</button>
           <button class="sm-btn" type="button" data-sm-preview-stop>Stop</button>
         </div>
-        <div class="sm-now" id="sm-preview-now"><small>NOW</small><strong>${esc(current?.label || 'Waiting for cue')}</strong><span>${esc(current ? routeText(current) : 'No cue active')}</span></div>
-        <div id="sm-preview-pixels">${previewPixelHtml(current, preview.timeMs)}</div>
+        <div class="sm-now" id="sm-preview-now"><small>NOW</small><strong>${esc(current?.label || 'Waiting for cue')}</strong><span>${esc(current ? `${cueDetail(current)} · ${routeText(current)}` : 'No cue active')}</span></div>
       </div>
 
       <div class="sm-section">
-        <div class="sm-section-head"><h2>Next</h2><span>${next ? formatMs(next.startMs) : 'END'}</span></div>
-        <div class="sm-card sm-card-pad"><strong style="font-size:.78rem;">${esc(next?.label || 'End of production')}</strong><div style="margin-top:.2rem;color:#71848f;font-size:.62rem;">${esc(next ? routeText(next) : 'Preview stops here.')}</div></div>
+        <div class="sm-section-head"><h2>Next cue</h2><span>${next ? formatMs(next.startMs) : 'END'}</span></div>
+        <div class="sm-card sm-card-pad"><strong style="font-size:.75rem;">${esc(next?.label || 'End of show')}</strong><div style="margin-top:.18rem;color:#7f929c;font-size:.59rem;">${esc(next ? cueDetail(next) : 'Preview stops here.')}</div></div>
       </div>
-
-      <div class="sm-section sm-rule"><strong>Emergency rule:</strong> emergency playback is not preview-authorable. On real hardware the ESP32-P4 interrupts normal playback and commands every pixel bright white.</div>
     </section>`;
+  }
+
+  function readinessChecks() {
+    const list = clips();
+    const checks = [];
+    if (!list.length) checks.push(['warn','No cues yet']);
+    const unrouted = list.filter((clip) => clip.type !== 'trigger' && !String(clip.routing?.nodeId || '').trim());
+    if (unrouted.length) checks.push(['warn',`${unrouted.length} cue${unrouted.length === 1 ? '' : 's'} still need a device`]);
+    const missingAudio = list.filter((clip) => clip.type === 'audio' && !String(clip.params?.file || '').trim());
+    if (missingAudio.length) checks.push(['warn',`${missingAudio.length} sound cue${missingAudio.length === 1 ? '' : 's'} need a file`]);
+    if (!checks.length && list.length) checks.push(['ok','Show looks ready to deploy']);
+    return checks;
   }
 
   function projectHtml() {
     const stats = projectStats();
     const name = project()?.project?.name || 'Untitled Show';
+    const checks = readinessChecks();
     return `<section class="sm-screen">
       <span class="sm-kicker">PROJECT</span>
       <h1 class="sm-title">${esc(name)}</h1>
-      <p class="sm-copy">Local-first production storage with optional cloud sync and portable .shdo files.</p>
+      <p class="sm-copy">Save, move or deploy the same .shdo v2 production used by desktop Studio.</p>
 
-      <div class="sm-card sm-card-pad" style="margin-top:.8rem;">
-        <div class="sm-stats" style="margin-top:0;"><div class="sm-stat"><strong>${stats.cues}</strong><span>CUES</span></div><div class="sm-stat"><strong>${stats.routed}</strong><span>ROUTED</span></div><div class="sm-stat"><strong>v2</strong><span>SHDO</span></div></div>
-        <div class="sm-btn-row" style="margin-top:.75rem;">
-          <button class="sm-btn primary" type="button" data-sm-save>Save now</button>
+      <div class="sm-card sm-card-pad" style="margin-top:.75rem;">
+        <div class="sm-summary" style="margin-top:0;"><span><strong>${stats.cues}</strong> CUES</span><span><strong>${formatMs(stats.duration).slice(0,5)}</strong> LENGTH</span><span><strong>${stats.routed}/${stats.cues}</strong> ROUTED</span></div>
+        <div class="sm-btn-row" style="margin-top:.7rem;">
+          <button class="sm-btn primary" type="button" data-sm-save>Save</button>
           <button class="sm-btn" type="button" data-sm-rename>Rename</button>
           <button class="sm-btn" type="button" data-sm-export>Export .shdo</button>
           <button class="sm-btn" type="button" data-sm-import>Import</button>
@@ -243,366 +290,644 @@
       </div>
 
       <div class="sm-section">
-        <div class="sm-section-head"><h2>Advanced timeline</h2><span>LANDSCAPE</span></div>
-        <div class="sm-card sm-card-pad"><p class="sm-copy">Need precise block dragging, markers, snapping or track-level editing? Rotate the phone and open the full DAW timeline.</p><div class="sm-btn-row" style="margin-top:.65rem;"><button class="sm-btn" type="button" data-sm-advanced>Open advanced timeline</button></div></div>
-      </div>
-
-      <div class="sm-section sm-rule"><strong>One production model:</strong> mobile and desktop both edit the same tracks, clips, routing, pixel segments and .shdo v2 package.</div>
-    </section>`;
-  }
-
-  function readinessChecks() {
-    const list = clips();
-    const checks = [];
-    if (!list.length) checks.push(['warn','Empty production','Add at least one cue before deployment.']);
-    else checks.push(['ok','Production has cues',`${list.length} cue${list.length === 1 ? '' : 's'} authored.`]);
-
-    const legacy = list.filter(c => ['dmx','lighting','prop'].includes(c.type));
-    checks.push(legacy.length ? ['warn','Legacy cue types',`${legacy.length} imported legacy cue(s) remain. Review before deployment.`] : ['ok','Current cue types','No legacy DMX / lighting / prop authoring found.']);
-
-    const unrouted = list.filter(c => c.type !== 'trigger' && !String(c.routing?.nodeId || '').trim());
-    checks.push(unrouted.length ? ['warn','Unrouted hardware cues',`${unrouted.length} cue(s) need a logical node ID.`] : ['ok','Routing',list.length ? 'Hardware cues have logical node targets.' : 'Routing will be checked as cues are added.']);
-
-    const missingAudio = list.filter(c => c.type === 'audio' && !String(c.params?.file || '').trim());
-    checks.push(missingAudio.length ? ['warn','Audio files',`${missingAudio.length} audio cue(s) have no file selected.`] : ['ok','Audio files','Audio cue file references are populated.']);
-
-    const badPixels = list.filter(c => c.type === 'pixel' && (Number(c.params?.length || 0) < 1 || Number(c.params?.line || 0) < 1));
-    checks.push(badPixels.length ? ['error','Pixel segments',`${badPixels.length} pixel cue(s) contain an invalid line or segment length.`] : ['ok','Pixel segments','Segment definitions are valid.']);
-    return checks;
-  }
-
-  function nodeSummary() {
-    const map = new Map();
-    clips().forEach(c => {
-      const id = String(c.routing?.nodeId || '').trim();
-      if (!id) return;
-      if (!map.has(id)) map.set(id, { id, types:new Set(), cues:0 });
-      const entry = map.get(id); entry.types.add(c.type); entry.cues += 1;
-    });
-    return Array.from(map.values());
-  }
-
-  function systemHtml() {
-    const checks = readinessChecks();
-    const nodes = nodeSummary();
-    return `<section class="sm-screen">
-      <span class="sm-kicker">SYSTEM</span>
-      <h1 class="sm-title">Ready it for Showduino.</h1>
-      <p class="sm-copy">Studio authors the production. Director operates it. S3 Comms transports messages. The P4 owns runtime and safety.</p>
-
-      <div class="sm-section">
-        <div class="sm-section-head"><h2>Architecture</h2><span>CURRENT SYSTEM</span></div>
-        <div class="sm-list">
-          <div class="sm-list-row"><strong>Director</strong><span>ESP32-S3 touchscreen operator interface.</span></div>
-          <div class="sm-list-row"><strong>S3 Communications Controller</strong><span>ESP-NOW ↔ UART bridge. No show decisions.</span></div>
-          <div class="sm-list-row"><strong>ESP32-P4 Show Engine</strong><span>Authoritative runtime, timeline, cue dispatch and emergency state.</span></div>
-          <div class="sm-list-row"><strong>Specialist Nodes</strong><span>Relay, MOSFET, Pixel and Audio action endpoints.</span></div>
-        </div>
+        <div class="sm-section-head"><h2>Quick check</h2><span>BEFORE DEPLOY</span></div>
+        <div class="sm-list">${checks.map(([state,text]) => `<div class="sm-list-row"><strong>${state === 'ok' ? '✓' : '!'} ${esc(text)}</strong></div>`).join('')}</div>
       </div>
 
       <div class="sm-section">
-        <div class="sm-section-head"><h2>Project check</h2><span>${checks.filter(c=>c[0] === 'ok').length}/${checks.length} OK</span></div>
-        <div class="sm-list">${checks.map(([state,title,copy]) => `<div class="sm-check ${state}"><i>${state === 'ok' ? '✓' : state === 'warn' ? '!' : '×'}</i><div><strong>${esc(title)}</strong><span>${esc(copy)}</span></div></div>`).join('')}</div>
+        <button class="sm-btn primary" style="width:100%;" type="button" data-sm-deploy>Send / prepare for Showduino</button>
+        <div id="sm-deploy-result" style="margin-top:.4rem;color:#7f929c;font-size:.59rem;"></div>
       </div>
 
       <div class="sm-section">
-        <div class="sm-section-head"><h2>Logical nodes</h2><span>${nodes.length} TARGETS</span></div>
-        <div class="sm-list">${nodes.length ? nodes.map(n => `<div class="sm-list-row"><strong>${esc(n.id)}</strong><span>${esc(Array.from(n.types).join(' · '))} · ${n.cues} cue${n.cues === 1 ? '' : 's'}</span></div>`).join('') : '<div class="sm-empty">No logical node IDs have been assigned yet.</div>'}</div>
+        <div class="sm-section-head"><h2>Advanced timeline</h2><span>OPTIONAL</span></div>
+        <div class="sm-card sm-card-pad"><p class="sm-copy">Need tracks, dragging, snapping or exact block work? The original DAW editor is still here — it is no longer the normal way to build a show on your phone.</p><div class="sm-btn-row" style="margin-top:.6rem;"><button class="sm-btn" type="button" data-sm-advanced>Open advanced timeline</button></div></div>
       </div>
 
-      <div class="sm-section"><button class="sm-btn primary" style="width:100%;" type="button" data-sm-deploy>Prepare / Send to Showduino</button><div id="sm-deploy-result" style="margin-top:.45rem;color:#71848f;font-size:.62rem;"></div></div>
-      <div class="sm-section sm-rule"><strong>Emergency = every pixel bright white.</strong> That override belongs to the P4 safety state and is deliberately not an authorable timeline effect.</div>
+      <div class="sm-rule"><strong>Safety stays outside the editor.</strong> Emergency is owned by the P4 and still forces every pixel bright white.</div>
     </section>`;
   }
 
   function screenHtml() {
     if (activeTab === 'preview') return previewHtml();
     if (activeTab === 'project') return projectHtml();
-    if (activeTab === 'system') return systemHtml();
     return buildHtml();
   }
 
-  function render() {
-    if (!root) return;
-    root.innerHTML = `${headerHtml()}<main class="sm-main" id="sm-main">${screenHtml()}</main>${navHtml()}${editorShellHtml()}${rotateShellHtml()}`;
-    if (activeTab === 'preview' && preview.playing) updatePreviewDom();
+  function pickerHtml() {
+    return `<section class="sm-picker" ${pickerOpen ? '' : 'hidden'} aria-modal="true" role="dialog">
+      <div class="sm-picker-sheet">
+        <div class="sm-picker-head"><strong>What should happen?</strong><button type="button" data-sm-picker-close aria-label="Close">×</button></div>
+        <div class="sm-type-grid">
+          ${CURRENT_TYPES.map((type) => {
+            const meta = TYPE_META[type];
+            return `<button class="sm-type" type="button" data-sm-add="${type}"><b>${meta.icon}</b><strong>${meta.name}</strong><span>${meta.subtitle}</span></button>`;
+          }).join('')}
+        </div>
+        <button class="sm-btn" style="width:100%;margin-top:.55rem;" type="button" data-sm-exit-template>10-pixel exit sign pattern</button>
+      </div>
+    </section>`;
   }
 
-  function editorShellHtml() {
-    return `<section class="sm-editor" id="sm-editor" hidden aria-modal="true" role="dialog"><header class="sm-editor-head"><button type="button" data-sm-editor-close aria-label="Close editor">←</button><div class="sm-editor-title"><strong id="sm-editor-title">Cue</strong><span>SHOWDUINO CUE EDITOR</span></div></header><div class="sm-editor-body" id="sm-editor-body"></div><footer class="sm-editor-foot"><button class="sm-btn danger" type="button" id="sm-editor-delete" data-sm-editor-delete>Delete</button><button class="sm-btn primary" type="button" data-sm-editor-save>Save cue</button></footer></section>`;
-  }
-
-  function rotateShellHtml() {
-    return `<section class="sm-rotate" id="sm-rotate" hidden><div class="sm-rotate-card"><strong>Rotate for the full timeline</strong><p>The DAW timeline is deliberately a landscape editing surface on phones. Rotate your device, then open it.</p><div class="sm-btn-row" style="justify-content:center;"><button class="sm-btn" type="button" data-sm-rotate-cancel>Not now</button><button class="sm-btn primary" type="button" data-sm-rotate-open>Open anyway</button></div></div></section><button id="studio-mobile-return" type="button">← Mobile Builder</button>`;
+  function nodeFieldHtml(draft) {
+    if (draft.type === 'trigger') return '';
+    const nodes = knownNodes(draft.type);
+    const listId = `sm-node-list-${draft.type}`;
+    return `<div class="sm-field"><label>DEVICE</label><input class="sm-input" id="sm-edit-node" list="${listId}" placeholder="e.g. Audio Node 1" value="${esc(draft.routing?.nodeId || '')}"><datalist id="${listId}">${nodes.map((node) => `<option value="${esc(node)}"></option>`).join('')}</datalist></div>`;
   }
 
   function commonFieldsHtml(draft) {
-    return `<section class="sm-form-section"><h3>Cue</h3>
-      <div class="sm-field"><label>NAME</label><input class="sm-input" id="sm-edit-label" value="${esc(draft.label || TYPE_META[draft.type]?.name || 'Cue')}"></div>
-      <div class="sm-grid"><div class="sm-field"><label>START (SECONDS)</label><input class="sm-input" id="sm-edit-start" type="number" min="0" step="0.01" value="${(Number(draft.startMs || 0)/1000).toFixed(2)}"></div><div class="sm-field"><label>DURATION (SECONDS)</label><input class="sm-input" id="sm-edit-duration" type="number" min="0.01" step="0.01" value="${(Number(draft.durationMs || 1000)/1000).toFixed(2)}"></div></div>
+    return `<section class="sm-form-section"><h3>When?</h3>
+      <div class="sm-field"><label>START TIME · TYPE 12.5 OR 0:12.500</label><input class="sm-input" id="sm-edit-start" inputmode="decimal" value="${formatTimeInput(draft.startMs)}"></div>
+      <div class="sm-btn-row"><button class="sm-btn ghost" type="button" data-sm-time="after">After previous</button><button class="sm-btn ghost" type="button" data-sm-time="1">+1 sec</button><button class="sm-btn ghost" type="button" data-sm-time="5">+5 sec</button></div>
     </section>
-    <section class="sm-form-section"><h3>Routing</h3><div class="sm-field"><label>LOGICAL NODE ID</label><input class="sm-input" id="sm-edit-node" placeholder="e.g. PIXEL-HALL-01" value="${esc(draft.routing?.nodeId || '')}"></div><div class="sm-field"><label>OUTPUT / LINE</label><input class="sm-input" id="sm-edit-output" placeholder="e.g. OUT1 / LINE1" value="${esc(draft.routing?.output || '')}"></div></section>`;
+    <section class="sm-form-section"><h3>What?</h3>
+      <div class="sm-field"><label>CUE NAME</label><input class="sm-input" id="sm-edit-label" value="${esc(draft.label || TYPE_META[draft.type]?.name || 'Cue')}"></div>
+      ${nodeFieldHtml(draft)}
+    </section>`;
+  }
+
+  function pixelEffectOptions(selected) {
+    return PIXEL_EFFECTS.map((fx) => `<option value="${fx.id}" ${selected === fx.id ? 'selected' : ''}>${esc(fx.name)}</option>`).join('');
   }
 
   function typeFieldsHtml(draft) {
     const p = draft.params || {};
-    if (draft.type === 'audio') return `<section class="sm-form-section"><h3>Audio</h3><div class="sm-field"><label>AUDIO FILE</label><input class="sm-input" id="sm-audio-file" placeholder="audio/scene.wav" value="${esc(p.file || '')}"></div><div class="sm-field"><label>VOLUME · <span id="sm-audio-volume-value">${clamp(p.volume,0,100,100)}</span>%</label><input class="sm-input" id="sm-audio-volume" type="range" min="0" max="100" value="${clamp(p.volume,0,100,100)}"></div><label class="sm-checkline"><input id="sm-audio-loop" type="checkbox" ${p.loop ? 'checked' : ''}> Loop audio</label></section>`;
 
-    if (draft.type === 'relay') return `<section class="sm-form-section"><h3>Relay output</h3><div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-relay-out">${Array.from({length:8},(_,i)=>`<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div><div class="sm-field"><label>MODE</label><select class="sm-select" id="sm-relay-mode">${['hold','pulse','toggle'].map(v=>`<option ${p.mode === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div></div><div class="sm-field"><label>PULSE (MS)</label><input class="sm-input" id="sm-relay-pulse" type="number" min="0" step="10" value="${clamp(p.pulseMs,0,600000,0)}"></div><label class="sm-checkline"><input id="sm-relay-safe" type="checkbox" ${p.safeOff !== false ? 'checked' : ''}> Force OFF when stopped</label></section>`;
+    if (draft.type === 'audio') {
+      return `<section class="sm-form-section"><h3>Sound</h3>
+        <div class="sm-field"><label>AUDIO FILE</label><input class="sm-input" id="sm-audio-file" placeholder="audio/scream.wav" value="${esc(p.file || '')}"></div>
+        <div class="sm-field"><label>VOLUME · <span id="sm-audio-volume-value">${clamp(p.volume,0,100,100)}</span>%</label><input class="sm-input" id="sm-audio-volume" type="range" min="0" max="100" value="${clamp(p.volume,0,100,100)}"></div>
+        <label class="sm-checkline"><input id="sm-audio-loop" type="checkbox" ${p.loop ? 'checked' : ''}> Loop until stopped</label>
+      </section>`;
+    }
 
-    if (draft.type === 'mosfet') return `<section class="sm-form-section"><h3>MOSFET output</h3><div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-mosfet-out">${Array.from({length:8},(_,i)=>`<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div><div class="sm-field"><label>MODE</label><select class="sm-select" id="sm-mosfet-mode">${['hold','pulse'].map(v=>`<option ${p.mode === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div></div><div class="sm-field"><label>POWER · <span id="sm-mosfet-duty-value">${clamp(p.duty,0,100,100)}</span>%</label><input class="sm-input" id="sm-mosfet-duty" type="range" min="0" max="100" value="${clamp(p.duty,0,100,100)}"></div><div class="sm-field"><label>PULSE (MS)</label><input class="sm-input" id="sm-mosfet-pulse" type="number" min="0" step="10" value="${clamp(p.pulseMs,0,600000,0)}"></div><label class="sm-checkline"><input id="sm-mosfet-safe" type="checkbox" ${p.safeOff !== false ? 'checked' : ''}> Force OFF when stopped</label></section>`;
+    if (draft.type === 'relay') {
+      return `<section class="sm-form-section"><h3>Relay</h3>
+        <div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-relay-out">${Array.from({length:8},(_,i) => `<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div>
+        <div class="sm-field"><label>ACTION</label><select class="sm-select" id="sm-relay-mode"><option value="hold" ${(p.mode || 'hold') === 'hold' ? 'selected' : ''}>Switch on</option><option value="pulse" ${p.mode === 'pulse' ? 'selected' : ''}>Pulse</option><option value="toggle" ${p.mode === 'toggle' ? 'selected' : ''}>Toggle</option></select></div></div>
+        <div class="sm-field" id="sm-relay-pulse-wrap"><label>PULSE LENGTH (MS)</label><input class="sm-input" id="sm-relay-pulse" type="number" min="10" step="10" value="${clamp(p.pulseMs || 500,10,600000,500)}"></div>
+      </section>`;
+    }
+
+    if (draft.type === 'mosfet') {
+      return `<section class="sm-form-section"><h3>Powered output</h3>
+        <div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-mosfet-out">${Array.from({length:8},(_,i) => `<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div>
+        <div class="sm-field"><label>ACTION</label><select class="sm-select" id="sm-mosfet-mode"><option value="hold" ${(p.mode || 'hold') === 'hold' ? 'selected' : ''}>Hold</option><option value="pulse" ${p.mode === 'pulse' ? 'selected' : ''}>Pulse</option></select></div></div>
+        <div class="sm-field"><label>POWER · <span id="sm-mosfet-duty-value">${clamp(p.duty,0,100,100)}</span>%</label><input class="sm-input" id="sm-mosfet-duty" type="range" min="0" max="100" value="${clamp(p.duty,0,100,100)}"></div>
+        <div class="sm-field" id="sm-mosfet-pulse-wrap"><label>PULSE LENGTH (MS)</label><input class="sm-input" id="sm-mosfet-pulse" type="number" min="10" step="10" value="${clamp(p.pulseMs || 500,10,600000,500)}"></div>
+      </section>`;
+    }
 
     if (draft.type === 'pixel') {
       const mode = p.segmentMode || 'range';
-      return `<section class="sm-form-section"><h3>Pixel segment</h3>
+      return `<section class="sm-form-section"><h3>Pixels</h3>
         <div class="sm-grid"><div class="sm-field"><label>LINE</label><input class="sm-input" id="sm-pixel-line" type="number" min="1" max="32" value="${clamp(p.line,1,32,1)}"></div><div class="sm-field"><label>SEGMENT NAME</label><input class="sm-input" id="sm-pixel-name" value="${esc(p.segmentName || 'Segment A')}"></div></div>
-        <div class="sm-field"><label>SEGMENT MODE</label><select class="sm-select" id="sm-pixel-mode"><option value="range" ${mode === 'range' ? 'selected' : ''}>Range: start + length</option><option value="repeat-marker" ${mode === 'repeat-marker' ? 'selected' : ''}>Repeating marker groups</option></select></div>
-        <div class="sm-grid"><div class="sm-field"><label>START PIXEL</label><input class="sm-input" id="sm-pixel-start" type="number" min="0" value="${clamp(p.startPixel,0,100000,0)}"></div><div class="sm-field"><label>TOTAL / SEGMENT LENGTH</label><input class="sm-input" id="sm-pixel-length" type="number" min="1" value="${clamp(p.length,1,100000,10)}"></div></div>
-        <div class="sm-grid" id="sm-pixel-group-fields" ${mode === 'repeat-marker' ? '' : 'hidden'}><div class="sm-field"><label>GROUP SIZE</label><input class="sm-input" id="sm-pixel-group" type="number" min="1" value="${clamp(p.groupSize,1,1000,10)}"></div><div class="sm-field"><label>ACTIVE PIXEL IN GROUP</label><input class="sm-input" id="sm-pixel-marker" type="number" min="0" value="${clamp(p.markerOffset,0,999,0)}"></div></div>
-        <div class="sm-grid"><div class="sm-field"><label>PRIMARY COLOUR</label><input class="sm-input" id="sm-pixel-colour" type="color" value="${rgbHex(p.r,p.g,p.b)}"></div><div class="sm-field"><label>BRIGHTNESS</label><input class="sm-input" id="sm-pixel-brightness" type="number" min="0" max="255" value="${clamp(p.brightness,0,255,255)}"></div></div>
-        <div class="sm-field"><label>SPEED</label><input class="sm-input" id="sm-pixel-speed" type="number" min="1" max="1000" value="${clamp(p.speed,1,1000,120)}"></div>
-        <label class="sm-checkline"><input id="sm-pixel-blackout" type="checkbox" ${p.blackoutAtEnd ? 'checked' : ''}> Blackout this segment when cue ends</label>
-        <input id="sm-pixel-effect" type="hidden" value="${esc(p.effect || 'solid')}">
+        <div class="sm-grid"><div class="sm-field"><label>START PIXEL</label><input class="sm-input" id="sm-pixel-start" type="number" min="0" value="${clamp(p.startPixel,0,100000,0)}"></div><div class="sm-field"><label>LENGTH</label><input class="sm-input" id="sm-pixel-length" type="number" min="1" value="${clamp(p.length,1,100000,10)}"></div></div>
+        <div class="sm-field"><label>EFFECT</label><select class="sm-select" id="sm-pixel-effect">${pixelEffectOptions(p.effect || 'solid')}</select></div>
+        <div class="sm-grid"><div class="sm-field"><label>COLOUR</label><input class="sm-input" id="sm-pixel-colour" type="color" value="${rgbHex(p.r,p.g,p.b)}"></div><div class="sm-field"><label>BRIGHTNESS · <span id="sm-pixel-brightness-value">${clamp(p.brightness,0,255,255)}</span></label><input class="sm-input" id="sm-pixel-brightness" type="range" min="0" max="255" value="${clamp(p.brightness,0,255,255)}"></div></div>
         <div class="sm-pixel-shell"><div class="sm-pixel-strip" id="sm-editor-pixel-preview"></div></div>
-        <div class="sm-btn-row" style="margin-top:.55rem;"><button class="sm-btn" type="button" data-sm-editor-exit>10-pixel Exit Sign</button><button class="sm-btn" type="button" data-sm-editor-emergency>Preview Emergency</button></div>
-      </section>
-      <section class="sm-form-section"><h3>Pixel effect</h3><div class="sm-fx-grid">${PIXEL_EFFECTS.map(f=>`<button class="sm-fx ${(p.effect || 'solid') === f.id ? 'active' : ''}" type="button" data-sm-pixel-fx="${f.id}"><strong>${esc(f.name)}</strong><span>${esc(f.family)}</span></button>`).join('')}</div></section>
-      <div class="sm-rule"><strong>Emergency override is locked:</strong> every pixel becomes bright white under the P4 emergency state. Previewing it here does not add it to the show.</div>`;
+        <button class="sm-btn" style="width:100%;margin-top:.5rem;" type="button" data-sm-editor-exit>Use 10-pixel exit sign pattern</button>
+        <details class="sm-advanced"><summary>Segment options</summary><div class="sm-advanced-body">
+          <div class="sm-field"><label>SEGMENT MODE</label><select class="sm-select" id="sm-pixel-mode"><option value="range" ${mode === 'range' ? 'selected' : ''}>Normal range</option><option value="repeat-marker" ${mode === 'repeat-marker' ? 'selected' : ''}>Repeating marker groups</option></select></div>
+          <div class="sm-grid" id="sm-pixel-group-fields" ${mode === 'repeat-marker' ? '' : 'hidden'}><div class="sm-field"><label>GROUP SIZE</label><input class="sm-input" id="sm-pixel-group" type="number" min="1" value="${clamp(p.groupSize,1,1000,10)}"></div><div class="sm-field"><label>ACTIVE PIXEL</label><input class="sm-input" id="sm-pixel-marker" type="number" min="0" value="${clamp(p.markerOffset,0,999,0)}"></div></div>
+          <div class="sm-field"><label>SPEED</label><input class="sm-input" id="sm-pixel-speed" type="number" min="1" max="1000" value="${clamp(p.speed,1,1000,120)}"></div>
+          <label class="sm-checkline"><input id="sm-pixel-blackout" type="checkbox" ${p.blackoutAtEnd ? 'checked' : ''}> Blackout this segment when cue ends</label>
+        </div></details>
+      </section>`;
     }
 
-    if (draft.type === 'fx') return `<section class="sm-form-section"><h3>Physical FX</h3><div class="sm-field"><label>EFFECT</label><select class="sm-select" id="sm-fx-effect">${['custom','fog','air','vibration','scent','motor','servo','solenoid'].map(v=>`<option ${p.effect === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div><div class="sm-field"><label>INTENSITY · <span id="sm-fx-intensity-value">${clamp(p.intensity,0,100,100)}</span>%</label><input class="sm-input" id="sm-fx-intensity" type="range" min="0" max="100" value="${clamp(p.intensity,0,100,100)}"></div><label class="sm-checkline"><input id="sm-fx-safe" type="checkbox" ${p.safeStop !== false ? 'checked' : ''}> Stop during emergency</label></section>`;
+    if (draft.type === 'trigger') {
+      return `<section class="sm-form-section"><h3>Trigger</h3>
+        <div class="sm-field"><label>EVENT NAME</label><input class="sm-input" id="sm-trigger-event" placeholder="scene_complete" value="${esc(p.event || '')}"></div>
+        <details class="sm-advanced"><summary>Trigger options</summary><div class="sm-advanced-body"><div class="sm-field"><label>PAYLOAD</label><textarea class="sm-textarea" id="sm-trigger-payload">${esc(p.payload || '')}</textarea></div><div class="sm-field"><label>SCOPE</label><select class="sm-select" id="sm-trigger-scope">${['project','scene','track','node','global'].map((v) => `<option value="${v}" ${p.scope === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div><label class="sm-checkline"><input id="sm-trigger-once" type="checkbox" ${p.once ? 'checked' : ''}> Fire once only</label></div></details>
+      </section>`;
+    }
 
-    if (draft.type === 'trigger') return `<section class="sm-form-section"><h3>Trigger</h3><div class="sm-field"><label>EVENT NAME</label><input class="sm-input" id="sm-trigger-event" placeholder="scene_complete" value="${esc(p.event || '')}"></div><div class="sm-field"><label>PAYLOAD</label><textarea class="sm-textarea" id="sm-trigger-payload" placeholder="Optional text or JSON">${esc(p.payload || '')}</textarea></div><div class="sm-field"><label>SCOPE</label><select class="sm-select" id="sm-trigger-scope">${['project','scene','track','node','global'].map(v=>`<option ${p.scope === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div><label class="sm-checkline"><input id="sm-trigger-once" type="checkbox" ${p.once ? 'checked' : ''}> Fire once only</label></section>`;
+    if (draft.type === 'fx') {
+      return `<section class="sm-form-section"><h3>Other FX</h3>
+        <div class="sm-field"><label>EFFECT</label><select class="sm-select" id="sm-fx-effect">${['custom','fog','air','vibration','scent','motor','servo','solenoid'].map((v) => `<option value="${v}" ${p.effect === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+        <div class="sm-field"><label>INTENSITY · <span id="sm-fx-intensity-value">${clamp(p.intensity,0,100,100)}</span>%</label><input class="sm-input" id="sm-fx-intensity" type="range" min="0" max="100" value="${clamp(p.intensity,0,100,100)}"></div>
+      </section>`;
+    }
+
     return '';
   }
 
-  function rgbHex(r,g,b) { return `#${[r,g,b].map(v=>clamp(v,0,255,0).toString(16).padStart(2,'0')).join('')}`; }
-  function hexRgb(hex) { const h=String(hex||'#000000').replace('#','').padEnd(6,'0').slice(0,6); return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); }
+  function advancedCommonHtml(draft) {
+    return `<details class="sm-advanced"><summary>Advanced cue settings</summary><div class="sm-advanced-body">
+      <div class="sm-field"><label>DURATION (SECONDS)</label><input class="sm-input" id="sm-edit-duration" type="number" min="0.01" step="0.01" value="${(Math.max(10,Number(draft.durationMs || 1000))/1000).toFixed(2)}"></div>
+      ${draft.type === 'trigger' ? '' : `<div class="sm-field"><label>ROUTING OUTPUT OVERRIDE</label><input class="sm-input" id="sm-edit-output" placeholder="Usually leave blank" value="${esc(draft.routing?.output || '')}"></div>`}
+      ${draft.type === 'relay' ? `<label class="sm-checkline"><input id="sm-relay-safe" type="checkbox" ${draft.params?.safeOff !== false ? 'checked' : ''}> Force relay OFF when stopped</label>` : ''}
+      ${draft.type === 'mosfet' ? `<label class="sm-checkline"><input id="sm-mosfet-safe" type="checkbox" ${draft.params?.safeOff !== false ? 'checked' : ''}> Force output OFF when stopped</label>` : ''}
+      ${draft.type === 'fx' ? `<label class="sm-checkline"><input id="sm-fx-safe" type="checkbox" ${draft.params?.safeStop !== false ? 'checked' : ''}> Stop this effect during emergency</label>` : ''}
+    </div></details>`;
+  }
+
+  function editorHtml() {
+    if (!editorDraft) return '';
+    const meta = TYPE_META[editorDraft.type] || { name:'Cue' };
+    return `<section class="sm-editor" ${editorOpen ? '' : 'hidden'} aria-modal="true" role="dialog">
+      <header class="sm-editor-head"><button type="button" data-sm-editor-close aria-label="Close">←</button><div class="sm-editor-title"><strong>${editorExistingId ? 'Edit' : 'Add'} ${esc(meta.name)}</strong><span>ONLY THE IMPORTANT BITS FIRST</span></div></header>
+      <div class="sm-editor-body">${commonFieldsHtml(editorDraft)}${typeFieldsHtml(editorDraft)}${advancedCommonHtml(editorDraft)}</div>
+      <footer class="sm-editor-foot"><div class="sm-btn-row">${editorExistingId ? '<button class="sm-btn danger" type="button" data-sm-editor-delete>Delete</button><button class="sm-btn" type="button" data-sm-editor-duplicate>Duplicate after</button>' : '<button class="sm-btn" type="button" data-sm-editor-close>Cancel</button>'}</div><button class="sm-btn primary" type="button" data-sm-editor-save>Save cue</button></footer>
+    </section>`;
+  }
+
+  function rgbHex(r,g,b) {
+    return `#${[r,g,b].map((value) => clamp(value,0,255,0).toString(16).padStart(2,'0')).join('')}`;
+  }
+
+  function hexRgb(hex) {
+    const safe = String(hex || '#000000').replace('#','').padEnd(6,'0').slice(0,6);
+    return [0,2,4].map((index) => parseInt(safe.slice(index,index+2),16));
+  }
+
+  function editorShellsHtml() {
+    return `${pickerHtml()}${editorHtml()}`;
+  }
+
+  function render() {
+    if (!root) return;
+    root.innerHTML = `${headerHtml()}<main class="sm-main">${screenHtml()}</main>${navHtml()}${editorShellsHtml()}`;
+    bindLiveEditorControls();
+    if (editorOpen && editorDraft?.type === 'pixel') renderEditorPixelPreview();
+    if (activeTab === 'preview') updatePreviewDom();
+  }
+
+  function defaultNodeFor(type) {
+    const nodes = knownNodes(type);
+    return nodes.length === 1 ? nodes[0] : '';
+  }
 
   function openEditor(type, clipId, exitTemplate) {
-    const existing = clipId ? clips().find(c => c.id === clipId) : null;
-    if (existing && !CURRENT_TYPES.includes(existing.type)) {
-      window.alert('This is an imported legacy cue. Open the desktop timeline to inspect or migrate it.');
-      return;
-    }
+    if (!CURRENT_TYPES.includes(type)) return;
+    const existing = clipId ? clips().find((clip) => clip.id === clipId) : null;
     editorExistingId = existing?.id || null;
-    editorDraft = existing ? deepCopy(existing) : window.SHDOModel.createClip('pending', type, nextCueStart(), TYPE_META[type]?.duration || 1000, TYPE_META[type]?.name || type);
+    editorDraft = existing
+      ? copy(existing)
+      : window.SHDOModel.createClip('pending', type, nextCueStart(), TYPE_META[type].duration, TYPE_META[type].name);
     editorDraft.routing = editorDraft.routing || { nodeId:'', output:'' };
     editorDraft.params = editorDraft.params || window.SHDOModel._defaultParams?.(type) || {};
-    pixelEmergencyPreview = false;
-    if (exitTemplate && type === 'pixel') applyExitTemplateToDraft();
-    const editor = document.getElementById('sm-editor');
-    const body = document.getElementById('sm-editor-body');
-    document.getElementById('sm-editor-title').textContent = editorExistingId ? `Edit ${TYPE_META[type].name}` : `Add ${TYPE_META[type].name}`;
-    document.getElementById('sm-editor-delete').style.visibility = editorExistingId ? 'visible' : 'hidden';
-    body.innerHTML = commonFieldsHtml(editorDraft) + typeFieldsHtml(editorDraft);
-    editor.hidden = false;
-    bindEditorLiveControls();
-    if (type === 'pixel') renderEditorPixelPreview();
+    if (!existing && type !== 'trigger') editorDraft.routing.nodeId = defaultNodeFor(type);
+    if (exitTemplate && type === 'pixel') applyExitTemplateToDraft(editorDraft);
+    pickerOpen = false;
+    editorOpen = true;
+    render();
   }
 
   function closeEditor() {
-    const editor = document.getElementById('sm-editor');
-    if (editor) editor.hidden = true;
-    editorDraft = null; editorExistingId = null; pixelEmergencyPreview = false;
+    editorOpen = false;
+    editorDraft = null;
+    editorExistingId = null;
+    render();
   }
 
-  function applyExitTemplateToDraft() {
-    if (!editorDraft || editorDraft.type !== 'pixel') return;
-    editorDraft.label = 'Emergency Exit Sign Markers';
-    editorDraft.params = { ...editorDraft.params, line:1, segmentMode:'repeat-marker', segmentName:'Exit Sign Markers', startPixel:0, length:100, groupSize:10, markerOffset:0, r:0, g:220, b:80, brightness:255, effect:'solid', speed:120, blackoutAtEnd:false };
+  function applyExitTemplateToDraft(draft) {
+    if (!draft || draft.type !== 'pixel') return;
+    draft.label = 'Exit Sign Markers';
+    draft.durationMs = Math.max(3000, Number(draft.durationMs || 0));
+    draft.params = {
+      ...(draft.params || {}),
+      line:1,
+      segmentMode:'repeat-marker',
+      segmentName:'Exit Sign Markers',
+      startPixel:0,
+      length:100,
+      groupSize:10,
+      markerOffset:0,
+      r:0,
+      g:220,
+      b:80,
+      brightness:255,
+      effect:'solid',
+      speed:120,
+      blackoutAtEnd:false
+    };
   }
 
   function applyExitTemplateInEditor() {
     if (!editorDraft || editorDraft.type !== 'pixel') return;
-    const values = { 'sm-edit-label':'Emergency Exit Sign Markers','sm-pixel-name':'Exit Sign Markers','sm-pixel-start':'0','sm-pixel-length':'100','sm-pixel-group':'10','sm-pixel-marker':'0','sm-pixel-colour':'#00dc50','sm-pixel-brightness':'255','sm-pixel-effect':'solid' };
-    Object.entries(values).forEach(([id,value])=>{ const el=document.getElementById(id); if(el) el.value=value; });
-    const mode=document.getElementById('sm-pixel-mode'); if(mode) mode.value='repeat-marker';
+    const values = {
+      'sm-edit-label':'Exit Sign Markers',
+      'sm-pixel-name':'Exit Sign Markers',
+      'sm-pixel-start':'0',
+      'sm-pixel-length':'100',
+      'sm-pixel-group':'10',
+      'sm-pixel-marker':'0',
+      'sm-pixel-colour':'#00dc50',
+      'sm-pixel-brightness':'255',
+      'sm-pixel-effect':'solid',
+      'sm-pixel-mode':'repeat-marker'
+    };
+    Object.entries(values).forEach(([id,value]) => {
+      const element = document.getElementById(id);
+      if (element) element.value = value;
+    });
     document.getElementById('sm-pixel-group-fields')?.removeAttribute('hidden');
-    document.querySelectorAll('[data-sm-pixel-fx]').forEach(b=>b.classList.toggle('active',b.dataset.smPixelFx === 'solid'));
-    pixelEmergencyPreview=false;
     renderEditorPixelPreview();
   }
 
-  function bindEditorLiveControls() {
-    document.getElementById('sm-audio-volume')?.addEventListener('input',e=>{ const out=document.getElementById('sm-audio-volume-value'); if(out) out.textContent=e.target.value; });
-    document.getElementById('sm-mosfet-duty')?.addEventListener('input',e=>{ const out=document.getElementById('sm-mosfet-duty-value'); if(out) out.textContent=e.target.value; });
-    document.getElementById('sm-fx-intensity')?.addEventListener('input',e=>{ const out=document.getElementById('sm-fx-intensity-value'); if(out) out.textContent=e.target.value; });
-    ['sm-pixel-mode','sm-pixel-start','sm-pixel-length','sm-pixel-group','sm-pixel-marker','sm-pixel-colour','sm-pixel-line','sm-pixel-brightness','sm-pixel-speed'].forEach(id=>document.getElementById(id)?.addEventListener('input',()=>{
-      if(id === 'sm-pixel-mode') document.getElementById('sm-pixel-group-fields')?.toggleAttribute('hidden',document.getElementById('sm-pixel-mode').value !== 'repeat-marker');
-      pixelEmergencyPreview=false; renderEditorPixelPreview();
-    }));
+  function bindLiveEditorControls() {
+    if (!editorOpen) return;
+    const relayMode = document.getElementById('sm-relay-mode');
+    const relayPulse = document.getElementById('sm-relay-pulse-wrap');
+    const syncRelay = () => { if (relayPulse && relayMode) relayPulse.hidden = relayMode.value !== 'pulse'; };
+    relayMode?.addEventListener('change',syncRelay); syncRelay();
+
+    const mosfetMode = document.getElementById('sm-mosfet-mode');
+    const mosfetPulse = document.getElementById('sm-mosfet-pulse-wrap');
+    const syncMosfet = () => { if (mosfetPulse && mosfetMode) mosfetPulse.hidden = mosfetMode.value !== 'pulse'; };
+    mosfetMode?.addEventListener('change',syncMosfet); syncMosfet();
+
+    document.getElementById('sm-audio-volume')?.addEventListener('input',(event) => {
+      const out = document.getElementById('sm-audio-volume-value'); if (out) out.textContent = event.target.value;
+    });
+    document.getElementById('sm-mosfet-duty')?.addEventListener('input',(event) => {
+      const out = document.getElementById('sm-mosfet-duty-value'); if (out) out.textContent = event.target.value;
+    });
+    document.getElementById('sm-fx-intensity')?.addEventListener('input',(event) => {
+      const out = document.getElementById('sm-fx-intensity-value'); if (out) out.textContent = event.target.value;
+    });
+    document.getElementById('sm-pixel-brightness')?.addEventListener('input',(event) => {
+      const out = document.getElementById('sm-pixel-brightness-value'); if (out) out.textContent = event.target.value;
+    });
+
+    ['sm-pixel-line','sm-pixel-start','sm-pixel-length','sm-pixel-group','sm-pixel-marker','sm-pixel-colour','sm-pixel-mode','sm-pixel-effect','sm-pixel-brightness'].forEach((id) => {
+      document.getElementById(id)?.addEventListener('input',() => {
+        if (id === 'sm-pixel-mode') {
+          const fields = document.getElementById('sm-pixel-group-fields');
+          if (fields) fields.hidden = document.getElementById('sm-pixel-mode').value !== 'repeat-marker';
+        }
+        renderEditorPixelPreview();
+      });
+    });
   }
 
   function renderEditorPixelPreview() {
-    const target=document.getElementById('sm-editor-pixel-preview'); if(!target) return;
-    if(pixelEmergencyPreview) { target.innerHTML=Array.from({length:30},()=>'<i class="sm-pixel white"></i>').join(''); return; }
-    const mode=document.getElementById('sm-pixel-mode')?.value || 'range';
-    const start=clamp(document.getElementById('sm-pixel-start')?.value,0,100000,0);
-    const length=clamp(document.getElementById('sm-pixel-length')?.value,1,100000,10);
-    const group=clamp(document.getElementById('sm-pixel-group')?.value,1,1000,10);
-    const marker=clamp(document.getElementById('sm-pixel-marker')?.value,0,group-1,0);
-    const colour=document.getElementById('sm-pixel-colour')?.value || '#00ffc8';
+    const target = document.getElementById('sm-editor-pixel-preview');
+    if (!target) return;
+    const mode = document.getElementById('sm-pixel-mode')?.value || 'range';
+    const start = clamp(document.getElementById('sm-pixel-start')?.value,0,100000,0);
+    const length = clamp(document.getElementById('sm-pixel-length')?.value,1,100000,10);
+    const group = clamp(document.getElementById('sm-pixel-group')?.value,1,1000,10);
+    const marker = clamp(document.getElementById('sm-pixel-marker')?.value,0,group-1,0);
+    const colour = document.getElementById('sm-pixel-colour')?.value || '#00ffc8';
+    const effect = document.getElementById('sm-pixel-effect')?.value || 'solid';
     target.style.setProperty('--sm-pixel',colour);
-    target.innerHTML=Array.from({length:30},(_,i)=>{
-      const inRange=i>=start && i<start+length;
-      const on=mode==='repeat-marker' ? inRange && ((i-start)%group)===marker : inRange;
-      return `<i class="sm-pixel${on ? (mode==='repeat-marker' ? ' on marker' : ' on') : ''}"></i>`;
+    target.innerHTML = Array.from({length:30},(_,index) => {
+      const inRange = index >= start && index < start + length;
+      let on = mode === 'repeat-marker' ? inRange && ((index - start) % group) === marker : inRange;
+      if (effect === 'blackout') on = false;
+      return `<i class="sm-pixel${on ? (mode === 'repeat-marker' ? ' on marker' : ' on') : ''}"></i>`;
     }).join('');
+  }
+
+  function derivedOutput(type, params) {
+    if (type === 'relay' || type === 'mosfet') return String(params.out || 'out1').toUpperCase();
+    if (type === 'pixel') return `LINE${clamp(params.line,1,32,1)}`;
+    return '';
   }
 
   function readEditor() {
     if (!editorDraft) return null;
-    const d=deepCopy(editorDraft); const p=d.params || (d.params={});
-    d.label=document.getElementById('sm-edit-label')?.value.trim() || TYPE_META[d.type]?.name || d.type;
-    d.startMs=Math.round(Math.max(0,Number(document.getElementById('sm-edit-start')?.value || 0))*1000);
-    d.durationMs=Math.max(10,Math.round(Math.max(.01,Number(document.getElementById('sm-edit-duration')?.value || 1))*1000));
-    d.routing={ nodeId:document.getElementById('sm-edit-node')?.value.trim() || '', output:document.getElementById('sm-edit-output')?.value.trim() || '' };
-    if(d.type==='audio'){ p.file=document.getElementById('sm-audio-file')?.value.trim()||''; p.volume=clamp(document.getElementById('sm-audio-volume')?.value,0,100,100); p.loop=Boolean(document.getElementById('sm-audio-loop')?.checked); }
-    if(d.type==='relay'){ p.out=document.getElementById('sm-relay-out')?.value||'out1'; p.mode=document.getElementById('sm-relay-mode')?.value||'hold'; p.pulseMs=clamp(document.getElementById('sm-relay-pulse')?.value,0,600000,0); p.state=true; p.safeOff=Boolean(document.getElementById('sm-relay-safe')?.checked); }
-    if(d.type==='mosfet'){ p.out=document.getElementById('sm-mosfet-out')?.value||'out1'; p.mode=document.getElementById('sm-mosfet-mode')?.value||'hold'; p.duty=clamp(document.getElementById('sm-mosfet-duty')?.value,0,100,100); p.pulseMs=clamp(document.getElementById('sm-mosfet-pulse')?.value,0,600000,0); p.state=true; p.safeOff=Boolean(document.getElementById('sm-mosfet-safe')?.checked); }
-    if(d.type==='pixel'){ const [r,g,b]=hexRgb(document.getElementById('sm-pixel-colour')?.value); p.line=clamp(document.getElementById('sm-pixel-line')?.value,1,32,1); p.segmentName=document.getElementById('sm-pixel-name')?.value.trim()||'Segment A'; p.segmentMode=document.getElementById('sm-pixel-mode')?.value||'range'; p.startPixel=clamp(document.getElementById('sm-pixel-start')?.value,0,100000,0); p.length=clamp(document.getElementById('sm-pixel-length')?.value,1,100000,10); p.groupSize=clamp(document.getElementById('sm-pixel-group')?.value,1,1000,10); p.markerOffset=clamp(document.getElementById('sm-pixel-marker')?.value,0,p.groupSize-1,0); p.r=r;p.g=g;p.b=b;p.brightness=clamp(document.getElementById('sm-pixel-brightness')?.value,0,255,255); p.speed=clamp(document.getElementById('sm-pixel-speed')?.value,1,1000,120); p.effect=document.getElementById('sm-pixel-effect')?.value||'solid'; p.blackoutAtEnd=Boolean(document.getElementById('sm-pixel-blackout')?.checked); }
-    if(d.type==='fx'){ p.effect=document.getElementById('sm-fx-effect')?.value||'custom'; p.intensity=clamp(document.getElementById('sm-fx-intensity')?.value,0,100,100); p.safeStop=Boolean(document.getElementById('sm-fx-safe')?.checked); }
-    if(d.type==='trigger'){ p.event=document.getElementById('sm-trigger-event')?.value.trim()||''; p.payload=document.getElementById('sm-trigger-payload')?.value||''; p.scope=document.getElementById('sm-trigger-scope')?.value||'project'; p.once=Boolean(document.getElementById('sm-trigger-once')?.checked); }
-    return d;
+    const draft = copy(editorDraft);
+    const params = draft.params || (draft.params = {});
+
+    draft.label = document.getElementById('sm-edit-label')?.value.trim() || TYPE_META[draft.type]?.name || 'Cue';
+    draft.startMs = parseTimeInput(document.getElementById('sm-edit-start')?.value);
+    draft.durationMs = Math.max(10,Math.round(Math.max(.01,Number(document.getElementById('sm-edit-duration')?.value || (draft.durationMs / 1000) || 1)) * 1000));
+
+    const nodeId = draft.type === 'trigger' ? '' : (document.getElementById('sm-edit-node')?.value.trim() || '');
+
+    if (draft.type === 'audio') {
+      params.file = document.getElementById('sm-audio-file')?.value.trim() || '';
+      params.volume = clamp(document.getElementById('sm-audio-volume')?.value,0,100,100);
+      params.loop = Boolean(document.getElementById('sm-audio-loop')?.checked);
+    }
+
+    if (draft.type === 'relay') {
+      params.out = document.getElementById('sm-relay-out')?.value || 'out1';
+      params.mode = document.getElementById('sm-relay-mode')?.value || 'hold';
+      params.pulseMs = params.mode === 'pulse' ? clamp(document.getElementById('sm-relay-pulse')?.value,10,600000,500) : 0;
+      params.state = true;
+      params.safeOff = document.getElementById('sm-relay-safe') ? Boolean(document.getElementById('sm-relay-safe').checked) : params.safeOff !== false;
+    }
+
+    if (draft.type === 'mosfet') {
+      params.out = document.getElementById('sm-mosfet-out')?.value || 'out1';
+      params.mode = document.getElementById('sm-mosfet-mode')?.value || 'hold';
+      params.duty = clamp(document.getElementById('sm-mosfet-duty')?.value,0,100,100);
+      params.pulseMs = params.mode === 'pulse' ? clamp(document.getElementById('sm-mosfet-pulse')?.value,10,600000,500) : 0;
+      params.state = true;
+      params.safeOff = document.getElementById('sm-mosfet-safe') ? Boolean(document.getElementById('sm-mosfet-safe').checked) : params.safeOff !== false;
+    }
+
+    if (draft.type === 'pixel') {
+      const [r,g,b] = hexRgb(document.getElementById('sm-pixel-colour')?.value);
+      params.line = clamp(document.getElementById('sm-pixel-line')?.value,1,32,1);
+      params.segmentName = document.getElementById('sm-pixel-name')?.value.trim() || 'Segment A';
+      params.segmentMode = document.getElementById('sm-pixel-mode')?.value || 'range';
+      params.startPixel = clamp(document.getElementById('sm-pixel-start')?.value,0,100000,0);
+      params.length = clamp(document.getElementById('sm-pixel-length')?.value,1,100000,10);
+      params.groupSize = clamp(document.getElementById('sm-pixel-group')?.value,1,1000,10);
+      params.markerOffset = clamp(document.getElementById('sm-pixel-marker')?.value,0,params.groupSize-1,0);
+      params.r = r; params.g = g; params.b = b;
+      params.brightness = clamp(document.getElementById('sm-pixel-brightness')?.value,0,255,255);
+      params.effect = document.getElementById('sm-pixel-effect')?.value || 'solid';
+      params.speed = clamp(document.getElementById('sm-pixel-speed')?.value,1,1000,120);
+      params.blackoutAtEnd = Boolean(document.getElementById('sm-pixel-blackout')?.checked);
+    }
+
+    if (draft.type === 'trigger') {
+      params.event = document.getElementById('sm-trigger-event')?.value.trim() || '';
+      params.payload = document.getElementById('sm-trigger-payload')?.value || '';
+      params.scope = document.getElementById('sm-trigger-scope')?.value || 'project';
+      params.once = Boolean(document.getElementById('sm-trigger-once')?.checked);
+    }
+
+    if (draft.type === 'fx') {
+      params.effect = document.getElementById('sm-fx-effect')?.value || 'custom';
+      params.intensity = clamp(document.getElementById('sm-fx-intensity')?.value,0,100,100);
+      params.safeStop = document.getElementById('sm-fx-safe') ? Boolean(document.getElementById('sm-fx-safe').checked) : params.safeStop !== false;
+    }
+
+    const override = document.getElementById('sm-edit-output')?.value.trim() || '';
+    draft.routing = { nodeId, output: override || derivedOutput(draft.type,params) };
+    return draft;
   }
 
   function findOrCreateTrack(type) {
-    let track=tracks().find(t=>t.type===type && !t.locked);
-    if(track) return track;
-    track=window.SHDOModel.createTrack(type,TYPE_META[type]?.name || `${type} Track`,tracks().length);
-    project().tracks.push(track); return track;
+    let track = tracks().find((item) => item.type === type && !item.locked);
+    if (track) return track;
+    track = window.SHDOModel.createTrack(type,TYPE_META[type]?.name || `${type} Track`,tracks().length);
+    project().tracks.push(track);
+    return track;
+  }
+
+  async function saveLocal() {
+    try { await window.ShowduinoProjects?.saveCurrentProject?.({cloud:false}); }
+    catch (error) { console.warn('[Mobile Studio] local save failed',error); }
+    window.ShowduinoStudioV4?.refreshProjectStats?.();
   }
 
   async function saveEditorCue() {
-    const d=readEditor(); if(!d) return;
-    const p=project();
-    if(editorExistingId){ const index=p.clips.findIndex(c=>c.id===editorExistingId); if(index>=0){ d.id=editorExistingId; d.trackId=p.clips[index].trackId; p.clips[index]=d; } }
-    else { const track=findOrCreateTrack(d.type); d.trackId=track.id; p.clips.push(d); }
-    p.project.updatedAt=new Date().toISOString();
-    try { await window.ShowduinoProjects?.saveCurrentProject?.({cloud:false}); } catch(error){ console.warn('[Mobile Studio] local save failed',error); }
-    window.ShowduinoStudioV4?.refreshProjectStats?.();
-    closeEditor(); activeTab='build'; render();
+    const draft = readEditor();
+    if (!draft) return;
+    const current = project();
+    if (editorExistingId) {
+      const index = current.clips.findIndex((clip) => clip.id === editorExistingId);
+      if (index >= 0) {
+        draft.id = editorExistingId;
+        draft.trackId = current.clips[index].trackId;
+        current.clips[index] = draft;
+      }
+    } else {
+      const track = findOrCreateTrack(draft.type);
+      draft.trackId = track.id;
+      current.clips.push(draft);
+    }
+    current.project.updatedAt = new Date().toISOString();
+    await saveLocal();
+    editorOpen = false;
+    editorDraft = null;
+    editorExistingId = null;
+    activeTab = 'build';
+    render();
   }
 
   async function deleteEditorCue() {
-    if(!editorExistingId) return;
-    const clip=clips().find(c=>c.id===editorExistingId); if(!clip) return;
-    if(!window.confirm(`Delete "${clip.label || clip.type}"?`)) return;
-    project().clips=clips().filter(c=>c.id!==editorExistingId);
-    try { await window.ShowduinoProjects?.saveCurrentProject?.({cloud:false}); } catch(_) {}
-    closeEditor(); activeTab='build'; render();
+    if (!editorExistingId) return;
+    const clip = clips().find((item) => item.id === editorExistingId);
+    if (!clip || !window.confirm(`Delete "${clip.label || clip.type}"?`)) return;
+    project().clips = clips().filter((item) => item.id !== editorExistingId);
+    project().project.updatedAt = new Date().toISOString();
+    await saveLocal();
+    editorOpen = false;
+    editorDraft = null;
+    editorExistingId = null;
+    render();
+  }
+
+  async function duplicateEditorCue() {
+    if (!editorExistingId) return;
+    const source = readEditor();
+    if (!source) return;
+    const duplicate = copy(source);
+    duplicate.id = makeId();
+    duplicate.label = `${source.label || TYPE_META[source.type]?.name || 'Cue'} copy`;
+    duplicate.startMs = Math.ceil((Number(source.startMs || 0) + Math.max(10,Number(source.durationMs || 0))) / 100) * 100;
+    duplicate.trackId = source.trackId || findOrCreateTrack(source.type).id;
+    project().clips.push(duplicate);
+    project().project.updatedAt = new Date().toISOString();
+    await saveLocal();
+    editorOpen = false;
+    editorDraft = null;
+    editorExistingId = null;
+    activeTab = 'build';
+    render();
+  }
+
+  function adjustEditorTime(mode) {
+    const input = document.getElementById('sm-edit-start');
+    if (!input) return;
+    if (mode === 'after') {
+      input.value = formatTimeInput(nextCueStart(editorExistingId));
+      return;
+    }
+    const addMs = Math.max(0,Number(mode) || 0) * 1000;
+    input.value = formatTimeInput(parseTimeInput(input.value) + addMs);
   }
 
   function startPreview() {
-    if(preview.playing){ preview.playing=false; preview.paused=true; if(preview.raf) cancelAnimationFrame(preview.raf); render(); return; }
-    const duration=projectDuration(); if(duration<=0) return;
-    preview.playing=true; preview.paused=false; preview.offsetMs=preview.timeMs; preview.startedAt=performance.now();
-    tickPreview(); render();
+    if (preview.playing) {
+      preview.playing = false;
+      if (preview.raf) cancelAnimationFrame(preview.raf);
+      render();
+      return;
+    }
+    const duration = projectDuration();
+    if (duration <= 0) return;
+    if (preview.timeMs >= duration) preview.timeMs = 0;
+    preview.playing = true;
+    preview.offsetMs = preview.timeMs;
+    preview.startedAt = performance.now();
+    render();
+    preview.raf = requestAnimationFrame(tickPreview);
   }
 
-  function stopPreview() { if(preview.raf) cancelAnimationFrame(preview.raf); preview={playing:false,paused:false,timeMs:0,startedAt:0,offsetMs:0,raf:0}; render(); }
+  function stopPreview() {
+    if (preview.raf) cancelAnimationFrame(preview.raf);
+    preview = { playing:false, timeMs:0, startedAt:0, offsetMs:0, raf:0 };
+    render();
+  }
 
   function tickPreview() {
-    if(!preview.playing) return;
-    preview.timeMs=preview.offsetMs+(performance.now()-preview.startedAt);
-    const duration=projectDuration();
-    if(preview.timeMs>=duration){ preview.timeMs=duration; preview.playing=false; updatePreviewDom(); return; }
-    updatePreviewDom(); preview.raf=requestAnimationFrame(tickPreview);
+    if (!preview.playing) return;
+    preview.timeMs = preview.offsetMs + (performance.now() - preview.startedAt);
+    const duration = projectDuration();
+    if (preview.timeMs >= duration) {
+      preview.timeMs = duration;
+      preview.playing = false;
+      updatePreviewDom();
+      return;
+    }
+    updatePreviewDom();
+    preview.raf = requestAnimationFrame(tickPreview);
   }
 
-  function seekPreview(ms) { const duration=projectDuration(); preview.timeMs=clamp(ms,0,duration,0); if(preview.playing){ preview.offsetMs=preview.timeMs; preview.startedAt=performance.now(); } updatePreviewDom(); }
+  function seekPreview(ms) {
+    const duration = projectDuration();
+    preview.timeMs = clamp(ms,0,duration,0);
+    if (preview.playing) {
+      preview.offsetMs = preview.timeMs;
+      preview.startedAt = performance.now();
+    }
+    updatePreviewDom();
+  }
 
   function updatePreviewDom() {
-    if(activeTab!=='preview') return;
-    const time=document.getElementById('sm-preview-time'); if(time) time.textContent=formatMs(preview.timeMs);
-    const progress=document.getElementById('sm-preview-progress'); if(progress) progress.value=String(Math.floor(preview.timeMs));
-    const active=currentPreviewClips(preview.timeMs); const current=active[0]||null;
-    const now=document.getElementById('sm-preview-now'); if(now) now.innerHTML=`<small>NOW</small><strong>${esc(current?.label || 'Waiting for cue')}</strong><span>${esc(current ? routeText(current) : 'No cue active')}</span>`;
-    const pixels=document.getElementById('sm-preview-pixels'); if(pixels) pixels.innerHTML=previewPixelHtml(current,preview.timeMs);
+    if (activeTab !== 'preview') return;
+    const time = document.getElementById('sm-preview-time');
+    if (time) time.textContent = formatMs(preview.timeMs);
+    const progress = document.getElementById('sm-preview-progress');
+    if (progress) progress.value = String(Math.floor(preview.timeMs));
+    const current = currentPreviewClip(preview.timeMs);
+    const now = document.getElementById('sm-preview-now');
+    if (now) now.innerHTML = `<small>NOW</small><strong>${esc(current?.label || 'Waiting for cue')}</strong><span>${esc(current ? `${cueDetail(current)} · ${routeText(current)}` : 'No cue active')}</span>`;
   }
 
-  async function saveProjectNow() { try{ await window.ShowduinoProjects?.saveCurrentProject?.({cloud:true}); render(); }catch(error){ window.alert(error.message||'Could not save this production.'); } }
+  async function saveProjectNow() {
+    try { await window.ShowduinoProjects?.saveCurrentProject?.({cloud:true}); render(); }
+    catch (error) { window.alert(error?.message || 'Could not save this production.'); }
+  }
 
-  function requestAdvancedTimeline(force) {
-    if(!force && !isLandscape()){ const rotate=document.getElementById('sm-rotate'); if(rotate) rotate.hidden=false; return; }
-    document.body.classList.remove('studio-mobile-native'); document.body.classList.add('studio-mobile-advanced');
+  function openAdvancedTimeline() {
+    document.body.classList.remove('studio-mobile-native');
+    document.body.classList.add('studio-mobile-advanced');
     window.ShowduinoStudioV4?.openPanel?.('timeline-editor');
   }
 
-  function returnToMobile() { document.body.classList.remove('studio-mobile-advanced'); if(isPhone()) document.body.classList.add('studio-mobile-native'); activeTab='build'; render(); }
-
   async function deploy() {
-    const out=document.getElementById('sm-deploy-result'); if(out) out.textContent='Preparing production…';
-    try { const result=await window.ShowduinoDeploy?.deployCurrentProject?.(); if(out) out.textContent=result?.deployed ? 'Production sent to the local Showduino.' : 'A .shdo production file has been prepared for transfer.'; }
-    catch(error){ if(out) out.textContent=`Could not prepare production: ${error.message}`; }
+    const out = document.getElementById('sm-deploy-result');
+    if (out) out.textContent = 'Preparing production…';
+    try {
+      const result = await window.ShowduinoDeploy?.deployCurrentProject?.();
+      if (out) out.textContent = result?.deployed ? 'Production sent to the local Showduino.' : 'A .shdo production file has been prepared for transfer.';
+    } catch (error) {
+      if (out) out.textContent = `Could not prepare production: ${error?.message || error}`;
+    }
   }
 
   function handleClick(event) {
-    const tab=event.target.closest('[data-sm-tab]'); if(tab){ activeTab=tab.dataset.smTab; if(activeTab!=='preview' && preview.playing){ preview.playing=false; if(preview.raf) cancelAnimationFrame(preview.raf); } render(); return; }
-    const add=event.target.closest('[data-sm-add]'); if(add){ openEditor(add.dataset.smAdd,null,false); return; }
-    if(event.target.closest('[data-sm-exit-template]')){ openEditor('pixel',null,true); return; }
-    const edit=event.target.closest('[data-sm-edit]'); if(edit){ const c=clips().find(x=>x.id===edit.dataset.smEdit); if(c) openEditor(c.type,c.id,false); return; }
-    if(event.target.closest('[data-sm-editor-close]')){ closeEditor(); return; }
-    if(event.target.closest('[data-sm-editor-save]')){ saveEditorCue(); return; }
-    if(event.target.closest('[data-sm-editor-delete]')){ deleteEditorCue(); return; }
-    const fx=event.target.closest('[data-sm-pixel-fx]'); if(fx){ document.getElementById('sm-pixel-effect').value=fx.dataset.smPixelFx; document.querySelectorAll('[data-sm-pixel-fx]').forEach(b=>b.classList.toggle('active',b===fx)); pixelEmergencyPreview=false; renderEditorPixelPreview(); return; }
-    if(event.target.closest('[data-sm-editor-exit]')){ applyExitTemplateInEditor(); return; }
-    if(event.target.closest('[data-sm-editor-emergency]')){ pixelEmergencyPreview=!pixelEmergencyPreview; renderEditorPixelPreview(); return; }
-    if(event.target.closest('[data-sm-preview-play]')){ startPreview(); return; }
-    if(event.target.closest('[data-sm-preview-stop]')){ stopPreview(); return; }
-    if(event.target.closest('[data-sm-save]')){ saveProjectNow(); return; }
-    if(event.target.closest('[data-sm-rename]')){ window.ShowduinoProjects?.renameCurrentProject?.(); window.setTimeout(render,50); return; }
-    if(event.target.closest('[data-sm-export]')){ window.ShowduinoProjects?.exportCurrentProject?.(); return; }
-    if(event.target.closest('[data-sm-import]')){ document.getElementById('studio-import-file')?.click(); return; }
-    if(event.target.closest('[data-sm-advanced]')){ requestAdvancedTimeline(false); return; }
-    if(event.target.closest('[data-sm-rotate-cancel]')){ document.getElementById('sm-rotate').hidden=true; return; }
-    if(event.target.closest('[data-sm-rotate-open]')){ requestAdvancedTimeline(true); return; }
-    if(event.target.closest('#studio-mobile-return')){ returnToMobile(); return; }
-    if(event.target.closest('[data-sm-deploy]')){ deploy(); }
+    const tab = event.target.closest('[data-sm-tab]');
+    if (tab) {
+      activeTab = tab.dataset.smTab;
+      if (activeTab !== 'preview' && preview.playing) {
+        preview.playing = false;
+        if (preview.raf) cancelAnimationFrame(preview.raf);
+      }
+      render();
+      return;
+    }
+
+    if (event.target.closest('[data-sm-header-preview]')) {
+      activeTab = activeTab === 'preview' ? 'build' : 'preview';
+      render();
+      return;
+    }
+
+    if (event.target.closest('[data-sm-picker-open]')) { pickerOpen = true; render(); return; }
+    if (event.target.closest('[data-sm-picker-close]')) { pickerOpen = false; render(); return; }
+
+    const add = event.target.closest('[data-sm-add]');
+    if (add) { openEditor(add.dataset.smAdd,null,false); return; }
+
+    if (event.target.closest('[data-sm-exit-template]')) { openEditor('pixel',null,true); return; }
+
+    const edit = event.target.closest('[data-sm-edit]');
+    if (edit) {
+      const clip = clips().find((item) => item.id === edit.dataset.smEdit);
+      if (!clip) return;
+      if (!CURRENT_TYPES.includes(clip.type)) {
+        window.alert('This imported legacy cue needs the Advanced Timeline to edit it.');
+        return;
+      }
+      openEditor(clip.type,clip.id,false);
+      return;
+    }
+
+    if (event.target.closest('[data-sm-editor-close]')) { closeEditor(); return; }
+    if (event.target.closest('[data-sm-editor-save]')) { saveEditorCue(); return; }
+    if (event.target.closest('[data-sm-editor-delete]')) { deleteEditorCue(); return; }
+    if (event.target.closest('[data-sm-editor-duplicate]')) { duplicateEditorCue(); return; }
+    if (event.target.closest('[data-sm-editor-exit]')) { applyExitTemplateInEditor(); return; }
+
+    const timeButton = event.target.closest('[data-sm-time]');
+    if (timeButton) { adjustEditorTime(timeButton.dataset.smTime); return; }
+
+    if (event.target.closest('[data-sm-preview-play]')) { startPreview(); return; }
+    if (event.target.closest('[data-sm-preview-stop]')) { stopPreview(); return; }
+    if (event.target.closest('[data-sm-save]')) { saveProjectNow(); return; }
+    if (event.target.closest('[data-sm-rename]')) { window.ShowduinoProjects?.renameCurrentProject?.(); window.setTimeout(render,50); return; }
+    if (event.target.closest('[data-sm-export]')) { window.ShowduinoProjects?.exportCurrentProject?.(); return; }
+    if (event.target.closest('[data-sm-import]')) { document.getElementById('studio-import-file')?.click(); return; }
+    if (event.target.closest('[data-sm-advanced]')) { openAdvancedTimeline(); return; }
+    if (event.target.closest('[data-sm-deploy]')) { deploy(); }
   }
 
   function handleInput(event) {
-    if(event.target.id==='sm-preview-progress') seekPreview(Number(event.target.value));
+    if (event.target.id === 'sm-preview-progress') seekPreview(Number(event.target.value));
   }
 
   function mount() {
-    if(!isV4() || !isPhone()) return;
+    if (!isV4() || !isPhone()) return;
     injectCss();
     document.body.classList.add('studio-mobile-native');
     document.body.classList.remove('studio-mobile-advanced');
-    if(!root){ root=document.createElement('div'); root.id='studio-mobile-app'; document.body.appendChild(root); root.addEventListener('click',handleClick); root.addEventListener('input',handleInput); }
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'studio-mobile-app';
+      document.body.appendChild(root);
+      root.addEventListener('click',handleClick);
+      root.addEventListener('input',handleInput);
+    }
+    root.style.display = '';
     render();
   }
 
   function syncViewport() {
-    if(!isV4()) return;
-    if(isPhone()) {
-      if(document.body.classList.contains('studio-mobile-advanced') && isLandscape()) return;
+    if (!isV4()) return;
+    if (isPhone()) {
+      if (document.body.classList.contains('studio-mobile-advanced')) return;
       mount();
     } else {
       document.body.classList.remove('studio-mobile-native','studio-mobile-advanced');
-      if(root) root.style.display='none';
+      if (root) root.style.display = 'none';
     }
   }
 
   function initialise() {
-    if(!isV4()) return;
+    if (!isV4()) return;
     injectCss();
     syncViewport();
-    const media=window.matchMedia(PHONE_QUERY);
-    if(media.addEventListener) media.addEventListener('change',syncViewport); else media.addListener(syncViewport);
-    window.addEventListener('orientationchange',()=>window.setTimeout(syncViewport,120));
-    window.addEventListener('resize',()=>window.setTimeout(syncViewport,80));
-    window.addEventListener('showduino:project-saved',()=>{ if(document.body.classList.contains('studio-mobile-native')) render(); });
-    window.addEventListener('showduino:v4-saved',()=>{ if(document.body.classList.contains('studio-mobile-native')) render(); });
+    const media = window.matchMedia(PHONE_QUERY);
+    if (media.addEventListener) media.addEventListener('change',syncViewport);
+    else media.addListener(syncViewport);
+    window.addEventListener('orientationchange',() => window.setTimeout(syncViewport,120));
+    window.addEventListener('resize',() => window.setTimeout(syncViewport,80));
+    window.addEventListener('showduino:project-saved',() => {
+      if (document.body.classList.contains('studio-mobile-native')) render();
+    });
+    window.addEventListener('showduino:v4-saved',() => {
+      if (document.body.classList.contains('studio-mobile-native')) render();
+    });
   }
 
-  window.ShowduinoMobileStudio=Object.freeze({
+  window.ShowduinoMobileStudio = Object.freeze({
     isPhone,
-    openCue:(type)=>openEditor(type,null,false),
-    returnToMobile,
-    openAdvancedTimeline:()=>requestAdvancedTimeline(false),
+    openCue:(type) => openEditor(type,null,false),
+    openAdvancedTimeline,
     render
   });
 

@@ -117,13 +117,13 @@ jobs:
               if path and not (root / path).exists():
                   missing.append(path)
 
-          mobile_css = root / 'css/studio-mobile-v4.css'
-          if not mobile_css.exists():
-              missing.append(str(mobile_css))
+          for mobile_css in [root / 'css/studio-mobile-v4.css', root / 'css/studio-mobile-simple.css']:
+              if not mobile_css.exists():
+                  missing.append(str(mobile_css))
 
           if missing:
               raise SystemExit('Missing Studio assets: ' + ', '.join(sorted(set(missing))))
-          print(f'Checked {len(parser.refs)} Studio script/stylesheet references plus native mobile stylesheet: all local assets exist.')
+          print(f'Checked {len(parser.refs)} Studio script/stylesheet references plus mobile stylesheets: all local assets exist.')
           PY
 
       - name: Check current-scope authoring rules
@@ -135,7 +135,7 @@ jobs:
           library = Path('js/timeline-fx-daw.js').read_text(encoding='utf-8')
           v4 = Path('js/studio-v4.js').read_text(encoding='utf-8')
           mobile = Path('js/studio-mobile.js').read_text(encoding='utf-8')
-          mobile_css = Path('css/studio-mobile-v4.css').read_text(encoding='utf-8')
+          mobile_css = Path('css/studio-mobile-simple.css').read_text(encoding='utf-8')
 
           required = [
               'Pixel FX Lab',
@@ -154,20 +154,23 @@ jobs:
           if bad:
               raise SystemExit('Out-of-scope presets returned to current library: ' + ', '.join(bad))
 
+          # Phone authoring is deliberately simpler than the desktop DAW. Keep
+          # the essentials, the exit-sign helper and an explicit route back to
+          # the advanced timeline without forcing the old System tab into the UI.
           mobile_required = [
               "['build','＋','BUILD']",
               "['preview','▶','PREVIEW']",
               "['project','▣','PROJECT']",
-              "['system','⌁','SYSTEM']",
               'data-sm-exit-template',
-              '10-pixel Exit Sign',
-              'P4 RUNTIME',
+              '10-pixel exit sign pattern',
+              'What happens next?',
+              'Open advanced timeline',
               'studio-mobile-native',
           ]
           mobile_combined = mobile + '\n' + mobile_css
           mobile_missing = [item for item in mobile_required if item not in mobile_combined]
           if mobile_missing:
-              raise SystemExit('Missing native mobile Studio requirements: ' + ', '.join(mobile_missing))
+              raise SystemExit('Missing simple mobile Studio requirements: ' + ', '.join(mobile_missing))
 
-          print('Current Showduino authoring-scope and native mobile workflow checks passed.')
+          print('Current Showduino authoring-scope and simple mobile workflow checks passed.')
           PY

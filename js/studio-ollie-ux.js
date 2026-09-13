@@ -55,51 +55,204 @@
     style.id = STYLE_ID;
     style.textContent = `
       @media (min-width:761px) {
-        .studio-v4 .showduino-ollie-shelf{flex:0 0 auto;padding:12px 14px 10px;border:1px solid #263a44;border-bottom:0;border-radius:12px 12px 0 0;background:linear-gradient(180deg,#10191e,#0b1216)}
-        .showduino-ollie-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:9px}
-        .showduino-ollie-head strong{display:block;color:#edf5f7;font:850 14px/1.2 Inter,system-ui,sans-serif}
-        .showduino-ollie-head span{display:block;margin-top:3px;color:#70848e;font:650 10px/1.35 Inter,system-ui,sans-serif}
-        .showduino-ollie-mode{flex:0 0 auto;min-height:32px;padding:6px 10px;border:1px solid #304650;border-radius:8px;background:#0b1419;color:#94a7af;cursor:pointer;font:800 10px/1 Inter,system-ui,sans-serif}
+        /* Keep cue creation visible without stealing the actual timeline. */
+        .studio-v4 .showduino-ollie-shelf{
+          flex:0 0 auto !important;
+          display:grid !important;
+          grid-template-columns:168px minmax(0,1fr) auto;
+          align-items:center;
+          gap:8px;
+          min-height:0 !important;
+          max-height:64px !important;
+          padding:6px 8px !important;
+          overflow:hidden;
+          border:1px solid #263a44;
+          border-bottom:0;
+          border-radius:12px 12px 0 0;
+          background:linear-gradient(180deg,#10191e,#0b1216);
+          box-sizing:border-box;
+        }
+        .showduino-ollie-head{display:contents !important}
+        .showduino-ollie-head>div{min-width:0}
+        .showduino-ollie-head strong{
+          display:block;color:#edf5f7;
+          font:850 12px/1.15 Inter,system-ui,sans-serif;
+          white-space:nowrap
+        }
+        .showduino-ollie-head span{display:none !important}
+        .showduino-ollie-mode{
+          grid-column:3;
+          min-height:28px !important;
+          height:28px;
+          padding:4px 9px !important;
+          border:1px solid #304650;border-radius:7px;
+          background:#0b1419;color:#94a7af;cursor:pointer;
+          font:800 9px/1 Inter,system-ui,sans-serif;
+          white-space:nowrap
+        }
         .showduino-ollie-mode:hover{border-color:rgba(0,255,200,.4);color:#c9fff2}
-        .showduino-ollie-grid{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:7px}
-        .showduino-ollie-cue{min-width:0;min-height:62px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;padding:8px;border:1px solid #2b414a;border-radius:10px;background:linear-gradient(145deg,#121d22,#0b1317);color:#e5eef0;text-align:left;cursor:grab;user-select:none}
-        .showduino-ollie-cue:hover{border-color:rgba(0,255,200,.45);background:linear-gradient(145deg,#14262b,#0d171b);transform:translateY(-1px)}
-        .showduino-ollie-cue:active{cursor:grabbing;transform:none}
-        .showduino-ollie-icon{width:32px;height:32px;display:grid;place-items:center;border:1px solid #314a54;border-radius:8px;background:#071014;color:#00ffc8;font:750 17px/1 Inter,system-ui,sans-serif}
-        .showduino-ollie-copy{min-width:0}.showduino-ollie-copy b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:850 11px/1.15 Inter,system-ui,sans-serif}.showduino-ollie-copy small{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#71858f;font:650 9px/1.2 Inter,system-ui,sans-serif}
-        .showduino-ollie-foot{margin-top:7px;color:#60747e;font:650 9px/1.35 Inter,system-ui,sans-serif}
+        .showduino-ollie-grid{
+          grid-column:2;
+          min-width:0;
+          display:grid !important;
+          grid-template-columns:repeat(6,minmax(104px,1fr));
+          gap:5px;
+          overflow-x:auto;
+          overflow-y:hidden;
+          scrollbar-width:none
+        }
+        .showduino-ollie-grid::-webkit-scrollbar{display:none}
+        .showduino-ollie-cue{
+          min-width:104px !important;
+          min-height:44px !important;
+          height:44px !important;
+          display:grid !important;
+          grid-template-columns:26px minmax(0,1fr);
+          gap:6px;align-items:center;
+          padding:4px 6px !important;
+          border:1px solid #2b414a;border-radius:8px;
+          background:linear-gradient(145deg,#121d22,#0b1317);
+          color:#e5eef0;text-align:left;cursor:grab;user-select:none;
+          box-sizing:border-box
+        }
+        .showduino-ollie-cue:hover{
+          border-color:rgba(0,255,200,.45);
+          background:linear-gradient(145deg,#14262b,#0d171b)
+        }
+        .showduino-ollie-cue:active{cursor:grabbing}
+        .showduino-ollie-icon{
+          width:26px;height:26px;display:grid;place-items:center;
+          border:1px solid #314a54;border-radius:7px;
+          background:#071014;color:#00ffc8;
+          font:750 14px/1 Inter,system-ui,sans-serif
+        }
+        .showduino-ollie-copy{min-width:0}
+        .showduino-ollie-copy b{
+          display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+          font:850 9.5px/1.1 Inter,system-ui,sans-serif
+        }
+        .showduino-ollie-copy small{display:none !important}
+        .showduino-ollie-foot{display:none !important}
 
-        .timeline-editor.showduino-ollie-ready{background:#0d1418 !important;border-color:#263a44 !important}
-        .timeline-editor.showduino-ollie-ready .tl-left{width:190px !important;min-width:190px !important;background:#10181d !important}
-        .timeline-editor.showduino-ollie-ready .tl-track-list-header{padding:0 11px !important;background:#0d1519 !important;color:#82969f !important;font:850 10px/1 Inter,system-ui,sans-serif !important;letter-spacing:.08em;text-transform:uppercase}
-        .timeline-editor.showduino-ollie-ready .tl-track-header{padding:7px 8px !important;background:#111b20 !important;border-bottom-color:#26363e !important;font-family:Inter,system-ui,sans-serif !important}
-        .timeline-editor.showduino-ollie-ready .tl-track-row{background:#0e161a !important;border-bottom-color:#22323a !important}
-        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-empty-lane::before{content:attr(data-empty-hint);position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#526872;font:650 10px/1 Inter,system-ui,sans-serif;pointer-events:none;z-index:1}
-        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-drop-ok{outline:2px solid rgba(0,255,200,.65);outline-offset:-2px;background:rgba(0,255,200,.065) !important}
-        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-drop-bad{outline:2px solid rgba(255,91,112,.55);outline-offset:-2px;background:rgba(255,91,112,.045) !important}
-        body.showduino-cue-dragging .tl-track-row.sd-empty-lane::before{content:'Drop here';color:#6fd2ba}
-        .timeline-editor.showduino-ollie-ready .tl-clip{min-width:30px;border-radius:7px !important;box-shadow:0 3px 10px rgba(0,0,0,.24)}
-        .timeline-editor.showduino-ollie-ready .tl-clip span{font:900 10px/1 Inter,system-ui,sans-serif !important;color:#061012 !important}
+        .timeline-editor.showduino-ollie-ready{
+          height:100% !important;
+          min-height:0 !important;
+          display:flex !important;
+          flex-direction:column !important;
+          overflow:hidden !important;
+          background:#0d1418 !important;
+          border-color:#263a44 !important
+        }
+        .timeline-editor.showduino-ollie-ready .timeline-main{
+          flex:1 1 auto !important;
+          min-height:0 !important;
+          height:auto !important;
+          overflow:hidden !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-canvas-scroll{min-height:0 !important}
+        .timeline-editor.showduino-ollie-ready .tl-left{
+          width:190px !important;min-width:190px !important;background:#10181d !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-list-header{
+          padding:0 11px !important;background:#0d1519 !important;color:#82969f !important;
+          font:850 10px/1 Inter,system-ui,sans-serif !important;
+          letter-spacing:.08em;text-transform:uppercase
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-header{
+          padding:7px 8px !important;background:#111b20 !important;
+          border-bottom-color:#26363e !important;font-family:Inter,system-ui,sans-serif !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-row{
+          background:#0e161a !important;border-bottom-color:#22323a !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-empty-lane::before{
+          content:attr(data-empty-hint);position:absolute;left:18px;top:50%;
+          transform:translateY(-50%);color:#526872;
+          font:650 10px/1 Inter,system-ui,sans-serif;pointer-events:none;z-index:1
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-drop-ok{
+          outline:2px solid rgba(0,255,200,.65);outline-offset:-2px;
+          background:rgba(0,255,200,.065) !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-row.sd-drop-bad{
+          outline:2px solid rgba(255,91,112,.55);outline-offset:-2px;
+          background:rgba(255,91,112,.045) !important
+        }
+        body.showduino-cue-dragging .tl-track-row.sd-empty-lane::before{
+          content:'Drop here';color:#6fd2ba
+        }
+        .timeline-editor.showduino-ollie-ready .tl-clip{
+          min-width:30px;border-radius:7px !important;box-shadow:0 3px 10px rgba(0,0,0,.24)
+        }
+        .timeline-editor.showduino-ollie-ready .tl-clip span{
+          font:900 10px/1 Inter,system-ui,sans-serif !important;color:#061012 !important
+        }
 
-        .timeline-editor.showduino-ollie-ready .daw-library,.timeline-editor.showduino-ollie-ready .mixer-toolbar,.timeline-editor.showduino-ollie-ready .sd-advanced-only{display:none !important}
+        .timeline-editor.showduino-ollie-ready .daw-library,
+        .timeline-editor.showduino-ollie-ready .mixer-toolbar,
+        .timeline-editor.showduino-ollie-ready .sd-advanced-only{display:none !important}
+        .timeline-editor.showduino-ollie-ready .daw-shortcuts{display:none !important}
         .timeline-editor.showduino-ollie-ready.sd-advanced .daw-library{display:block !important}
         .timeline-editor.showduino-ollie-ready.sd-advanced .mixer-toolbar{display:flex !important}
         .timeline-editor.showduino-ollie-ready.sd-advanced .sd-advanced-only{display:initial !important}
+        .timeline-editor.showduino-ollie-ready.sd-advanced .daw-shortcuts{display:block !important}
 
-        .timeline-editor.showduino-ollie-ready .tl-toolbar{min-height:38px !important;padding:6px 9px !important;gap:5px !important;background:#172127 !important;border-bottom-color:#2a3b43 !important}
-        .timeline-editor.showduino-ollie-ready .tl-toolbar button{min-height:28px;border-radius:6px !important}
-        .timeline-editor.showduino-ollie-ready #tl-timecode{font-size:13px !important}
+        .timeline-editor.showduino-ollie-ready .tl-toolbar{
+          flex:0 0 38px !important;
+          min-height:38px !important;
+          max-height:38px !important;
+          padding:4px 8px !important;
+          gap:4px !important;
+          overflow-x:auto !important;
+          overflow-y:hidden !important;
+          flex-wrap:nowrap !important;
+          align-items:center !important;
+          background:#172127 !important;
+          border-bottom-color:#2a3b43 !important;
+          box-sizing:border-box
+        }
+        .timeline-editor.showduino-ollie-ready .tl-toolbar button{
+          min-height:26px !important;height:26px !important;
+          padding:3px 8px !important;border-radius:6px !important
+        }
+        .timeline-editor.showduino-ollie-ready #tl-timecode{
+          font-size:12px !important;line-height:26px !important
+        }
 
-        .sd-empty-show{position:absolute;left:50%;top:72px;z-index:160;width:min(440px,calc(100% - 60px));transform:translateX(-50%);padding:18px;border:1px dashed #344c56;border-radius:14px;background:rgba(12,20,24,.96);box-shadow:0 15px 45px rgba(0,0,0,.28);text-align:center;font-family:Inter,system-ui,sans-serif}
-        .sd-empty-show strong{display:block;color:#eaf3f5;font-size:15px}.sd-empty-show p{margin:7px auto 0;max-width:340px;color:#7c919a;font-size:11px;line-height:1.5}
+        .sd-empty-show{
+          position:absolute;left:50%;top:72px;z-index:160;
+          width:min(440px,calc(100% - 60px));transform:translateX(-50%);
+          padding:18px;border:1px dashed #344c56;border-radius:14px;
+          background:rgba(12,20,24,.96);box-shadow:0 15px 45px rgba(0,0,0,.28);
+          text-align:center;font-family:Inter,system-ui,sans-serif
+        }
+        .sd-empty-show strong{display:block;color:#eaf3f5;font-size:15px}
+        .sd-empty-show p{
+          margin:7px auto 0;max-width:340px;color:#7c919a;font-size:11px;line-height:1.5
+        }
       }
-      @media (min-width:761px) and (max-width:1250px){.showduino-ollie-grid{grid-template-columns:repeat(3,minmax(120px,1fr))}}
+
+      @media (min-width:761px) and (max-width:1180px){
+        .studio-v4 .showduino-ollie-shelf{
+          grid-template-columns:118px minmax(0,1fr) auto
+        }
+        .showduino-ollie-head strong{font-size:10px}
+        .showduino-ollie-grid{
+          grid-template-columns:repeat(6,minmax(125px,1fr))
+        }
+      }
     `;
     document.head.appendChild(style);
   }
 
   function renameNavigation() {
-    const names = {'timeline-editor':'Build Show','playback':'Lighting FX','audio-manager':'Sounds','connect':'Send to Showduino','devices':'Devices'};
+    const names = {
+      'timeline-editor':'Build Show',
+      'playback':'Lighting FX',
+      'audio-manager':'Sounds',
+      'connect':'Send to Showduino',
+      'devices':'Devices'
+    };
     document.querySelectorAll('.sidebar-nav li[data-panel]').forEach((item) => {
       const label = item.querySelector('span:last-child');
       if (label && names[item.dataset.panel]) label.textContent = names[item.dataset.panel];
@@ -108,31 +261,59 @@
 
   function bestTrack(editor, cue) {
     const all = typeof editor._tracks === 'function' ? editor._tracks() : [];
-    const selected = all.find((track) => track.id === editor._selectedTrackId && !track.locked && trackAccepts(track, cue.type));
+    const selected = all.find((track) =>
+      track.id === editor._selectedTrackId && !track.locked && trackAccepts(track, cue.type)
+    );
     if (selected) return selected;
+
     if (cue.type === 'mosfet') {
-      const lighting = all.find((track) => !track.locked && String(track.type) === 'mixed' && /light/i.test(track.name || ''));
+      const lighting = all.find((track) =>
+        !track.locked && String(track.type) === 'mixed' && /light/i.test(track.name || '')
+      );
       if (lighting) return lighting;
     }
-    return all.find((track) => !track.locked && trackAccepts(track, cue.type) && (String(track.type) === cue.trackType || String(track.type) === 'mixed')) || null;
+
+    return all.find((track) =>
+      !track.locked &&
+      trackAccepts(track, cue.type) &&
+      (String(track.type) === cue.trackType || String(track.type) === 'mixed')
+    ) || null;
   }
 
   function ensureTrack(editor, cue) {
     const existing = bestTrack(editor, cue);
     if (existing) return existing;
-    return typeof editor.addTrack === 'function' ? editor.addTrack(cue.trackType, `${cue.name} Lane`) : null;
+    return typeof editor.addTrack === 'function'
+      ? editor.addTrack(cue.trackType, `${cue.name} Lane`)
+      : null;
   }
 
   function addCue(editor, cue) {
     if (!editor || typeof editor._addClip !== 'function') return;
     const track = ensureTrack(editor, cue);
     if (!track) return;
+
     const start = Math.max(0, Number(editor._state?.playhead || 0));
     const clip = editor._addClip(track.id, cue.type, start, cue.duration);
+
     window.requestAnimationFrame(() => {
-      const element = clip?.id ? editor._canvas?.querySelector(`[data-clip-id="${CSS.escape(clip.id)}"]`) : null;
-      element?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+      const element = clip?.id
+        ? editor._canvas?.querySelector(`[data-clip-id="${CSS.escape(clip.id)}"]`)
+        : null;
+      element?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
     });
+  }
+
+  function clearHoverRow() {
+    if (!lastHoverRow) return;
+    lastHoverRow.classList.remove('sd-drop-ok', 'sd-drop-bad');
+    lastHoverRow = null;
+  }
+
+  function clearDragState() {
+    activeDragType = '';
+    clearHoverRow();
+    document.body.classList.remove('showduino-cue-dragging');
   }
 
   function cueButton(editor, cue) {
@@ -142,7 +323,10 @@
     button.className = 'showduino-ollie-cue';
     button.dataset.cueType = cue.type;
     button.title = `Drag ${cue.name} onto the timeline, or click to add at the playhead`;
-    button.innerHTML = `<span class="showduino-ollie-icon">${cue.icon}</span><span class="showduino-ollie-copy"><b>${cue.name}</b><small>${cue.hint}</small></span>`;
+    button.innerHTML =
+      `<span class="showduino-ollie-icon">${cue.icon}</span>` +
+      `<span class="showduino-ollie-copy"><b>${cue.name}</b><small>${cue.hint}</small></span>`;
+
     button.addEventListener('click', () => addCue(editor, cue));
     button.addEventListener('dragstart', (event) => {
       activeDragType = cue.type;
@@ -158,7 +342,10 @@
   function buildShelf(editor) {
     const shelf = document.createElement('section');
     shelf.className = 'showduino-ollie-shelf';
-    shelf.innerHTML = '<div class="showduino-ollie-head"><div><strong>What should happen?</strong><span>Drag an action onto the timeline, or click it to add at the playhead.</span></div></div>';
+    shelf.innerHTML =
+      '<div class="showduino-ollie-head">' +
+        '<div><strong>Add action</strong><span>Drag or click to add at the playhead.</span></div>' +
+      '</div>';
 
     const mode = document.createElement('button');
     mode.type = 'button';
@@ -177,7 +364,8 @@
 
     const foot = document.createElement('div');
     foot.className = 'showduino-ollie-foot';
-    foot.textContent = 'Start with the effect. Showduino keeps the relay / MOSFET / hardware detail underneath.';
+    foot.textContent =
+      'Start with the effect. Showduino keeps the relay / MOSFET / hardware detail underneath.';
     shelf.appendChild(foot);
     return shelf;
   }
@@ -185,13 +373,22 @@
   function simplifyToolbar(editor) {
     const toolbar = editor._el?.querySelector('.tl-toolbar');
     if (!toolbar) return;
+
     Array.from(toolbar.children).forEach((child) => {
-      if (child.textContent?.trim().startsWith('Add Track:')) child.classList.add('sd-advanced-only');
+      const text = child.textContent?.trim() || '';
+      if (text.startsWith('Add Track:') || text.startsWith('Zoom:')) {
+        child.classList.add('sd-advanced-only');
+      }
     });
+
     toolbar.querySelectorAll('button').forEach((button) => {
       const text = button.textContent.trim();
-      if (/^(🔍\+|🔍-|Fit|⋮ Grid:|📌 Marker|💾 Save|📂 Open|⬇ Export|⬆ Import|＋ New)/.test(text)) button.classList.add('sd-advanced-only');
+      if (/^(🔍\+|🔍-|Fit|⋮ Grid:|📌 Marker|💾 Save|📂 Open|⬇ Export|⬆ Import|＋ New)/.test(text)) {
+        button.classList.add('sd-advanced-only');
+      }
     });
+
+    toolbar.querySelector('.daw-shortcuts')?.classList.add('sd-advanced-only');
   }
 
   function decorateTracks(editor) {
@@ -221,22 +418,31 @@
     if (!scroll) return;
     const allClips = typeof editor._clips === 'function' ? editor._clips() : [];
     const existing = scroll.querySelector('.sd-empty-show');
-    if (allClips.length) { existing?.remove(); return; }
+
+    if (allClips.length) {
+      existing?.remove();
+      return;
+    }
     if (existing) return;
+
     const empty = document.createElement('div');
     empty.className = 'sd-empty-show';
-    empty.innerHTML = '<strong>Your show is empty.</strong><p>Pick Sound, Lighting, Prop or Pixels above. Click adds it at the playhead; dragging lets you place it exactly where you want it.</p>';
+    empty.innerHTML =
+      '<strong>Your show is empty.</strong>' +
+      '<p>Pick Sound, Lighting, Prop or Pixels above. Click adds it at the playhead; dragging lets you place it exactly where you want it.</p>';
     scroll.appendChild(empty);
   }
 
   function enhance(editor) {
     if (!isDesktop() || !editor?._el) return;
     editor._el.classList.add('showduino-ollie-ready');
+
     if (!editor._el.querySelector('.showduino-ollie-shelf')) {
       const toolbar = editor._el.querySelector('.tl-toolbar');
       const shelf = buildShelf(editor);
       toolbar ? editor._el.insertBefore(shelf, toolbar) : editor._el.prepend(shelf);
     }
+
     simplifyToolbar(editor);
     decorateTracks(editor);
     emptyState(editor);
@@ -272,26 +478,16 @@
     if (window.timelineEditor) enhance(window.timelineEditor);
   }
 
-  function clearHoverRow() {
-    if (!lastHoverRow) return;
-    lastHoverRow.classList.remove('sd-drop-ok','sd-drop-bad');
-    lastHoverRow = null;
-  }
-
-  function clearDragState() {
-    activeDragType = '';
-    clearHoverRow();
-    document.body.classList.remove('showduino-cue-dragging');
-  }
-
   function bindDragGuard() {
     document.addEventListener('dragover', (event) => {
       if (!activeDragType || !(event.target instanceof Element)) return;
       const row = event.target.closest('.tl-track-row');
+
       if (row !== lastHoverRow) {
         clearHoverRow();
         lastHoverRow = row;
       }
+
       if (!row || !window.timelineEditor) return;
       const track = window.timelineEditor._tracks?.().find((item) => item.id === row.dataset.trackId);
       row.classList.toggle('sd-drop-ok', trackAccepts(track, activeDragType));
@@ -301,6 +497,7 @@
     document.addEventListener('drop', (event) => {
       if (!activeDragType || !(event.target instanceof Element)) return;
       const row = event.target.closest('.tl-track-row');
+
       if (row && window.timelineEditor) {
         const track = window.timelineEditor._tracks?.().find((item) => item.id === row.dataset.trackId);
         if (!trackAccepts(track, activeDragType)) {
@@ -308,6 +505,7 @@
           event.stopImmediatePropagation();
         }
       }
+
       clearDragState();
     }, true);
 
@@ -319,14 +517,21 @@
     renameNavigation();
     patchTimeline();
     bindDragGuard();
+
     setTimeout(() => {
       renameNavigation();
       patchTimeline();
       if (window.timelineEditor) enhance(window.timelineEditor);
     }, 250);
-    window.addEventListener('resize', () => window.timelineEditor && enhance(window.timelineEditor));
+
+    window.addEventListener('resize', () => {
+      if (window.timelineEditor) enhance(window.timelineEditor);
+    });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
-  else boot();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  } else {
+    boot();
+  }
 })();

@@ -215,6 +215,16 @@
     document.querySelector('.sidebar-nav li[data-panel="diagnostics"]')?.click();
   }
 
+  function makeToolbarButton(editor, label, onClick) {
+    if (typeof editor?._toolbarBtn === 'function') return editor._toolbarBtn(label, onClick);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn-toolbar';
+    button.textContent = label;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+
   function enhanceDesktopToolbar(editor) {
     if (!window.matchMedia(DESKTOP_QUERY).matches || !editor?._el) return;
     const toolbar = editor._el.querySelector('.tl-toolbar');
@@ -225,31 +235,23 @@
       group = document.createElement('div');
       group.className = 'sth-toolbar-actions';
 
-      const undo = editor._toolbarBtn
-        ? editor._toolbarBtn('↶ Undo', () => { editor._undo?.(); requestAnimationFrame(() => updateDesktopHistoryButtons(editor)); })
-        : document.createElement('button');
-      undo.type = 'button';
+      const undo = makeToolbarButton(editor, '↶ Undo', () => {
+        editor._undo?.();
+        requestAnimationFrame(() => updateDesktopHistoryButtons(editor));
+      });
       undo.dataset.sthUndo = '1';
       undo.title = 'Undo the last timeline edit (Ctrl+Z)';
-      if (!undo.classList.contains('btn-toolbar')) undo.classList.add('btn-toolbar');
-      if (!undo.textContent) undo.textContent = '↶ Undo';
 
-      const redo = editor._toolbarBtn
-        ? editor._toolbarBtn('↷ Redo', () => { editor._redo?.(); requestAnimationFrame(() => updateDesktopHistoryButtons(editor)); })
-        : document.createElement('button');
-      redo.type = 'button';
+      const redo = makeToolbarButton(editor, '↷ Redo', () => {
+        editor._redo?.();
+        requestAnimationFrame(() => updateDesktopHistoryButtons(editor));
+      });
       redo.dataset.sthRedo = '1';
       redo.title = 'Redo the last timeline edit (Ctrl+Y)';
-      if (!redo.classList.contains('btn-toolbar')) redo.classList.add('btn-toolbar');
-      if (!redo.textContent) redo.textContent = '↷ Redo';
 
-      const check = editor._toolbarBtn
-        ? editor._toolbarBtn('✓ Check Show', openProjectCheck)
-        : document.createElement('button');
-      check.type = 'button';
-      check.classList.add('btn-toolbar', 'sth-check-show');
+      const check = makeToolbarButton(editor, '✓ Check Show', openProjectCheck);
+      check.classList.add('sth-check-show');
       check.title = 'Check routing, files and cue readiness before testing';
-      if (!check.textContent) check.textContent = '✓ Check Show';
 
       group.append(undo, redo, check);
       const timecode = toolbar.querySelector('#tl-timecode');
@@ -280,17 +282,19 @@
   }
 
   function replaceExactText(element, from, to) {
-    if (element && element.textContent?.trim() === from) element.textContent = to;
+    if (element && element.textContent?.trim() === from && from !== to) element.textContent = to;
+  }
+
+  function setTextIfNeeded(element, text) {
+    if (element && element.textContent !== text) element.textContent = text;
   }
 
   function decorateMobileLanguage(root) {
     Object.entries(FRIENDLY_TYPES).forEach(([type, meta]) => {
       const button = root.querySelector(`[data-sm-add="${type}"]`);
       if (button) {
-        const strong = button.querySelector('strong');
-        const subtitle = button.querySelector('span');
-        if (strong) strong.textContent = meta.name;
-        if (subtitle) subtitle.textContent = meta.subtitle;
+        setTextIfNeeded(button.querySelector('strong'), meta.name);
+        setTextIfNeeded(button.querySelector('span'), meta.subtitle);
       }
     });
 
@@ -313,8 +317,7 @@
       replaceExactText(heading, 'Other FX', 'Other Effect');
     });
 
-    const addCueHint = root.querySelector('[data-sm-picker-open] span');
-    if (addCueHint) addCueHint.textContent = 'Sound, lighting, prop, pixels or trigger';
+    setTextIfNeeded(root.querySelector('[data-sm-picker-open] span'), 'Sound, lighting, prop, pixels or trigger');
   }
 
   function updateMobileHistoryButtons() {
@@ -345,14 +348,14 @@
   }
 
   function decorateMobileRows(root) {
-    const head = root.querySelector('.sm-section-head');
-    if (head?.querySelector('h2')?.textContent?.trim() === 'Show sequence') {
+    root.querySelectorAll('.sm-section-head').forEach((head) => {
+      if (head.querySelector('h2')?.textContent?.trim() !== 'Show sequence') return;
       const hint = head.querySelector('span');
       if (hint) {
-        hint.textContent = 'TAP TO EDIT · DRAG ↕ TO REORDER';
+        setTextIfNeeded(hint, 'TAP TO EDIT · DRAG ↕ TO REORDER');
         hint.classList.add('sth-sequence-help');
       }
-    }
+    });
 
     root.querySelectorAll('.sm-cue-row[data-sm-edit]').forEach((row) => {
       if (row.querySelector('.sth-reorder-handle')) return;

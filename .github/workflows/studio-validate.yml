@@ -46,6 +46,7 @@ jobs:
           node --check js/studio-mobile.js
           node --check js/current-system-ui.js
           node --check js/studio-v4.js
+          node --check js/studio-testing-hardening.js
           node --check js/api.js
           node --check app.js
 

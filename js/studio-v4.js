@@ -316,7 +316,7 @@
   function buildMosfetInspector(clip) {
     const p = ensureMosfetParams(clip.params || (clip.params = {}));
     return `
-      <section class="v4-inspector-section"><h4>MOSFET output</h4>
+      <section class="v4-inspector-section"><h4>Lighting</h4>
         <div class="v4-inspector-grid">${inspectorField('v4-mosfet-output','Output',p.out,'text','placeholder="out1"')}${inspectorSelect('v4-mosfet-mode','Mode',p.mode,['hold','pulse','pwm'])}</div>
         <div class="v4-inspector-grid">${inspectorField('v4-mosfet-duty','Duty / level %',p.duty,'number','min="0" max="100"')}${inspectorField('v4-mosfet-pulse','Pulse (ms)',p.pulseMs,'number','min="0"')}</div>
         <label class="v4-check"><input id="v4-mosfet-state" type="checkbox" ${p.state ? 'checked' : ''}> Active state</label>

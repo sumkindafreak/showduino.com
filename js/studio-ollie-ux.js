@@ -10,12 +10,12 @@
   const PATCH_FLAG = '__showduinoOllieUxPatched';
 
   const CUES = Object.freeze([
-    { type:'audio',   trackType:'audio',   icon:'♪', name:'Sound',         hint:'Scream, ambience, music', duration:5000 },
-    { type:'mosfet',  trackType:'mixed',   icon:'☀', name:'Lighting',      hint:'On, dim or pulse a light', duration:1000 },
-    { type:'relay',   trackType:'relay',   icon:'⚙', name:'Prop / Switch', hint:'Prop, solenoid or switch', duration:500 },
-    { type:'pixel',   trackType:'pixel',   icon:'✦', name:'Pixels / LEDs', hint:'Colour and animated LED FX', duration:3000 },
-    { type:'trigger', trackType:'trigger', icon:'◎', name:'Trigger',       hint:'Fire a logical event', duration:250 },
-    { type:'fx',      trackType:'fx',      icon:'◈', name:'Other Effect',  hint:'Fog, air, motor, servo…', duration:1500 }
+    { type:'audio',   trackType:'audio',   icon:'♪', name:'Sound',         bar:'Sound',   hint:'Scream, ambience, music', duration:5000 },
+    { type:'mosfet',  trackType:'mixed',   icon:'☀', name:'Lighting',      bar:'Lighting', hint:'On, dim or pulse a light', duration:1000 },
+    { type:'relay',   trackType:'relay',   icon:'⚙', name:'Prop / Switch', bar:'Prop',    hint:'Prop, solenoid or switch', duration:500 },
+    { type:'pixel',   trackType:'pixel',   icon:'✦', name:'Pixels / LEDs', bar:'Pixels',  hint:'Colour and animated LED FX', duration:3000 },
+    { type:'trigger', trackType:'trigger', icon:'◎', name:'Trigger',       bar:'Trigger', hint:'Fire a logical event', duration:250 },
+    { type:'fx',      trackType:'fx',      icon:'◈', name:'Other Effect',  bar:'Other',   hint:'Fog, air, motor, servo…', duration:1500 }
   ]);
 
   const META = Object.freeze({
@@ -55,81 +55,59 @@
     style.id = STYLE_ID;
     style.textContent = `
       @media (min-width:761px) {
-        /* Keep cue creation visible without stealing the actual timeline. */
         .studio-v4 .showduino-ollie-shelf{
           flex:0 0 auto !important;
-          display:grid !important;
-          grid-template-columns:168px minmax(0,1fr) auto;
+          display:flex !important;
           align-items:center;
-          gap:8px;
-          min-height:0 !important;
-          max-height:64px !important;
-          padding:6px 8px !important;
-          overflow:hidden;
-          border:1px solid #263a44;
-          border-bottom:0;
-          border-radius:12px 12px 0 0;
-          background:linear-gradient(180deg,#10191e,#0b1216);
-          box-sizing:border-box;
+          gap:6px;
+          min-height:36px !important;
+          max-height:40px !important;
+          padding:4px 10px !important;
+          overflow:visible;
+          border:0 !important;
+          border-bottom:1px solid #1e2c34 !important;
+          border-radius:0 !important;
+          background:#0b1216 !important;
+          box-sizing:border-box
         }
-        .showduino-ollie-head{display:contents !important}
-        .showduino-ollie-head>div{min-width:0}
-        .showduino-ollie-head strong{
-          display:block;color:#edf5f7;
-          font:850 12px/1.15 Inter,system-ui,sans-serif;
-          white-space:nowrap
-        }
-        .showduino-ollie-head span{display:none !important}
-        .showduino-ollie-mode{
-          grid-column:3;
-          min-height:28px !important;
-          height:28px;
-          padding:4px 9px !important;
-          border:1px solid #304650;border-radius:7px;
-          background:#0b1419;color:#94a7af;cursor:pointer;
-          font:800 9px/1 Inter,system-ui,sans-serif;
-          white-space:nowrap
-        }
-        .showduino-ollie-mode:hover{border-color:rgba(0,255,200,.4);color:#c9fff2}
+        .showduino-ollie-head{display:none !important}
         .showduino-ollie-grid{
-          grid-column:2;
+          display:flex !important;
+          flex-wrap:nowrap;
+          align-items:center;
+          gap:2px;
           min-width:0;
-          display:grid !important;
-          grid-template-columns:repeat(6,minmax(104px,1fr));
-          gap:5px;
+          flex:1 1 auto;
           overflow-x:auto;
-          overflow-y:hidden;
           scrollbar-width:none
         }
         .showduino-ollie-grid::-webkit-scrollbar{display:none}
         .showduino-ollie-cue{
-          min-width:104px !important;
-          min-height:44px !important;
-          height:44px !important;
-          display:grid !important;
-          grid-template-columns:26px minmax(0,1fr);
-          gap:6px;align-items:center;
-          padding:4px 6px !important;
-          border:1px solid #2b414a;border-radius:8px;
-          background:linear-gradient(145deg,#121d22,#0b1317);
-          color:#e5eef0;text-align:left;cursor:grab;user-select:none;
-          box-sizing:border-box
+          min-width:0 !important;
+          min-height:28px !important;
+          height:28px !important;
+          display:inline-flex !important;
+          align-items:center;
+          gap:5px;
+          padding:0 8px !important;
+          border:0 !important;
+          border-radius:6px;
+          background:transparent;
+          color:#d7e3e7;
+          cursor:grab;
+          user-select:none;
+          white-space:nowrap
         }
-        .showduino-ollie-cue:hover{
-          border-color:rgba(0,255,200,.45);
-          background:linear-gradient(145deg,#14262b,#0d171b)
+        .showduino-ollie-cue:hover,
+        .showduino-ollie-cue:focus-visible{
+          background:rgba(0,255,200,.08);
+          color:#edf5f7;
+          outline:none
         }
         .showduino-ollie-cue:active{cursor:grabbing}
-        .showduino-ollie-icon{
-          width:26px;height:26px;display:grid;place-items:center;
-          border:1px solid #314a54;border-radius:7px;
-          background:#071014;color:#00ffc8;
-          font:750 14px/1 Inter,system-ui,sans-serif
-        }
-        .showduino-ollie-copy{min-width:0}
+        .showduino-ollie-icon{display:none}
         .showduino-ollie-copy b{
-          display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-          font:850 9.5px/1.1 Inter,system-ui,sans-serif
+          font:750 12px/1 Inter,system-ui,sans-serif
         }
         .showduino-ollie-copy small{display:none !important}
         .showduino-ollie-foot{display:none !important}
@@ -141,7 +119,7 @@
           flex-direction:column !important;
           overflow:hidden !important;
           background:#0d1418 !important;
-          border-color:#263a44 !important
+          border-color:transparent !important
         }
         .timeline-editor.showduino-ollie-ready .timeline-main{
           flex:1 1 auto !important;
@@ -151,19 +129,25 @@
         }
         .timeline-editor.showduino-ollie-ready .tl-canvas-scroll{min-height:0 !important}
         .timeline-editor.showduino-ollie-ready .tl-left{
-          width:190px !important;min-width:190px !important;background:#10181d !important
+          width:168px !important;min-width:168px !important;background:#0e1519 !important;
+          border-right:1px solid #1e2c34 !important
         }
         .timeline-editor.showduino-ollie-ready .tl-track-list-header{
-          padding:0 11px !important;background:#0d1519 !important;color:#82969f !important;
+          min-height:36px !important;height:auto !important;
+          padding:0 11px !important;background:transparent !important;color:#82969f !important;
           font:850 10px/1 Inter,system-ui,sans-serif !important;
-          letter-spacing:.08em;text-transform:uppercase
+          letter-spacing:.08em;text-transform:uppercase;
+          border-bottom:1px solid #1e2c34 !important
         }
         .timeline-editor.showduino-ollie-ready .tl-track-header{
-          padding:7px 8px !important;background:#111b20 !important;
-          border-bottom-color:#26363e !important;font-family:Inter,system-ui,sans-serif !important
+          padding:8px 10px 6px !important;background:transparent !important;
+          border-bottom-color:#1e2c34 !important;font-family:Inter,system-ui,sans-serif !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-track-header span{
+          font:750 12px/1.2 Inter,system-ui,sans-serif !important
         }
         .timeline-editor.showduino-ollie-ready .tl-track-row{
-          background:#0e161a !important;border-bottom-color:#22323a !important
+          background:#0e161a !important;border-bottom-color:#1a272e !important
         }
         .timeline-editor.showduino-ollie-ready .tl-track-row.sd-empty-lane::before{
           content:attr(data-empty-hint);position:absolute;left:18px;top:50%;
@@ -181,6 +165,8 @@
         body.showduino-cue-dragging .tl-track-row.sd-empty-lane::before{
           content:'Drop here';color:#6fd2ba
         }
+        .timeline-editor.showduino-ollie-ready .tl-empty-drop,
+        .timeline-editor.showduino-ollie-ready .timeline-lane-hint{display:none !important}
         .timeline-editor.showduino-ollie-ready .tl-clip{
           min-width:30px;border-radius:7px !important;box-shadow:0 3px 10px rgba(0,0,0,.24)
         }
@@ -196,34 +182,49 @@
         .timeline-editor.showduino-ollie-ready.sd-advanced .mixer-toolbar{display:flex !important}
         .timeline-editor.showduino-ollie-ready.sd-advanced .sd-advanced-only{display:initial !important}
         .timeline-editor.showduino-ollie-ready.sd-advanced .daw-shortcuts{display:block !important}
+        .timeline-editor.showduino-ollie-ready.sd-advanced .sd-overflow-source{display:none !important}
 
         .timeline-editor.showduino-ollie-ready .tl-toolbar{
-          flex:0 0 38px !important;
-          min-height:38px !important;
-          max-height:38px !important;
-          padding:4px 8px !important;
+          flex:0 0 36px !important;
+          min-height:36px !important;
+          max-height:36px !important;
+          padding:3px 8px !important;
           gap:4px !important;
-          overflow-x:auto !important;
-          overflow-y:hidden !important;
+          overflow:visible !important;
           flex-wrap:nowrap !important;
           align-items:center !important;
-          background:#172127 !important;
-          border-bottom-color:#2a3b43 !important;
+          background:transparent !important;
+          border-bottom:1px solid #1e2c34 !important;
           box-sizing:border-box
         }
         .timeline-editor.showduino-ollie-ready .tl-toolbar button{
           min-height:26px !important;height:26px !important;
-          padding:3px 8px !important;border-radius:6px !important
+          padding:3px 8px !important;border-radius:6px !important;
+          border-color:transparent !important;background:transparent !important
+        }
+        .timeline-editor.showduino-ollie-ready .tl-toolbar button:hover,
+        .timeline-editor.showduino-ollie-ready .tl-toolbar button:focus-visible{
+          background:rgba(0,255,200,.08) !important;border-color:transparent !important
+        }
+        .timeline-editor.showduino-ollie-ready #tl-play-btn{
+          color:#00ffc8 !important;font-weight:800
         }
         .timeline-editor.showduino-ollie-ready #tl-timecode{
-          font-size:12px !important;line-height:26px !important
+          font-size:12px !important;line-height:26px !important;
+          background:transparent !important;border:0 !important;padding:0 6px !important
         }
 
+        .sd-overflow-menu .sd-track-extra{
+          display:block !important;width:100%;min-height:32px !important;
+          margin:0;padding:6px 8px !important;border:0 !important;border-radius:5px;
+          background:transparent !important;color:#d5dee2 !important;text-align:left
+        }
+        .sd-overflow-menu[hidden]{display:none !important}
         .sd-empty-show{
-          position:absolute;left:50%;top:72px;z-index:160;
-          width:min(440px,calc(100% - 60px));transform:translateX(-50%);
-          padding:18px;border:1px dashed #344c56;border-radius:14px;
-          background:rgba(12,20,24,.96);box-shadow:0 15px 45px rgba(0,0,0,.28);
+          position:absolute;left:50%;top:48px;z-index:160;
+          width:min(420px,calc(100% - 60px));transform:translateX(-50%);
+          padding:16px;border:0;border-radius:12px;
+          background:rgba(12,20,24,.92);
           text-align:center;font-family:Inter,system-ui,sans-serif
         }
         .sd-empty-show strong{display:block;color:#eaf3f5;font-size:15px}
@@ -233,13 +234,8 @@
       }
 
       @media (min-width:761px) and (max-width:1180px){
-        .studio-v4 .showduino-ollie-shelf{
-          grid-template-columns:118px minmax(0,1fr) auto
-        }
-        .showduino-ollie-head strong{font-size:10px}
-        .showduino-ollie-grid{
-          grid-template-columns:repeat(6,minmax(125px,1fr))
-        }
+        .showduino-ollie-cue{padding:0 6px !important}
+        .showduino-ollie-copy b{font-size:11px}
       }
     `;
     document.head.appendChild(style);
@@ -257,6 +253,45 @@
       const label = item.querySelector('span:last-child');
       if (label && names[item.dataset.panel]) label.textContent = names[item.dataset.panel];
     });
+  }
+
+  function syncBuildShowClass() {
+    const on = Boolean(document.querySelector('.workspace .timeline-editor'));
+    document.body.classList.toggle('studio-build-show', on);
+  }
+
+  function closeAllMenus() {
+    document.querySelectorAll('.sd-overflow-menu, #studio-header-menu').forEach((menu) => {
+      menu.hidden = true;
+    });
+    document.getElementById('studio-header-more')?.setAttribute('aria-expanded', 'false');
+  }
+
+  function moreWrap(label) {
+    const wrap = document.createElement('div');
+    wrap.className = 'sd-action-more';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'sd-more-btn';
+    button.setAttribute('aria-label', label);
+    button.setAttribute('aria-haspopup', 'menu');
+    button.setAttribute('aria-expanded', 'false');
+    button.title = label;
+    button.textContent = '•••';
+    const menu = document.createElement('div');
+    menu.className = 'sd-overflow-menu';
+    menu.hidden = true;
+    menu.setAttribute('role', 'menu');
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const open = menu.hidden;
+      closeAllMenus();
+      menu.hidden = !open;
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    wrap.append(button, menu);
+    return wrap;
   }
 
   function bestTrack(editor, cue) {
@@ -322,10 +357,11 @@
     button.draggable = true;
     button.className = 'showduino-ollie-cue';
     button.dataset.cueType = cue.type;
-    button.title = `Drag ${cue.name} onto the timeline, or click to add at the playhead`;
+    button.setAttribute('aria-label', `Add ${cue.name}`);
+    button.title = `Add ${cue.name}. Drag onto the timeline, or click to add at the playhead`;
     button.innerHTML =
       `<span class="showduino-ollie-icon">${cue.icon}</span>` +
-      `<span class="showduino-ollie-copy"><b>${cue.name}</b><small>${cue.hint}</small></span>`;
+      `<span class="showduino-ollie-copy"><b>+ ${cue.bar}</b><small>${cue.hint}</small></span>`;
 
     button.addEventListener('click', () => addCue(editor, cue));
     button.addEventListener('dragstart', (event) => {
@@ -342,25 +378,31 @@
   function buildShelf(editor) {
     const shelf = document.createElement('section');
     shelf.className = 'showduino-ollie-shelf';
+    shelf.setAttribute('aria-label', 'Add action');
     shelf.innerHTML =
       '<div class="showduino-ollie-head">' +
         '<div><strong>Add action</strong><span>Drag or click to add at the playhead.</span></div>' +
       '</div>';
 
-    const mode = document.createElement('button');
-    mode.type = 'button';
-    mode.className = 'showduino-ollie-mode';
-    mode.textContent = 'Advanced tools';
-    mode.addEventListener('click', () => {
-      const advanced = editor._el.classList.toggle('sd-advanced');
-      mode.textContent = advanced ? 'Simple view' : 'Advanced tools';
-    });
-    shelf.querySelector('.showduino-ollie-head').appendChild(mode);
-
     const grid = document.createElement('div');
     grid.className = 'showduino-ollie-grid';
     CUES.forEach((cue) => grid.appendChild(cueButton(editor, cue)));
     shelf.appendChild(grid);
+
+    const advancedWrap = moreWrap('More authoring tools');
+    advancedWrap.className = 'sd-action-more';
+    const menu = advancedWrap.querySelector('.sd-overflow-menu');
+    const advanced = document.createElement('button');
+    advanced.type = 'button';
+    advanced.className = 'sd-overflow-item';
+    advanced.textContent = 'Advanced tools';
+    advanced.addEventListener('click', () => {
+      const on = editor._el.classList.toggle('sd-advanced');
+      advanced.textContent = on ? 'Simple view' : 'Advanced tools';
+      closeAllMenus();
+    });
+    menu.appendChild(advanced);
+    shelf.appendChild(advancedWrap);
 
     const foot = document.createElement('div');
     foot.className = 'showduino-ollie-foot';
@@ -370,6 +412,27 @@
     return shelf;
   }
 
+  function syncPlayPauseButton(editor) {
+    const button = editor._el?.querySelector('#tl-play-btn');
+    if (!button) return;
+    const playing = Boolean(editor._playing);
+    button.textContent = playing ? '❚❚ Pause' : '▶ Play';
+    button.setAttribute('aria-label', playing ? 'Pause preview' : 'Play preview');
+    button.title = playing ? 'Pause preview' : 'Play preview';
+  }
+
+  function wirePlayPause(editor) {
+    const button = editor._el?.querySelector('#tl-play-btn');
+    if (!button || button.dataset.sdTogglePlay) return;
+    button.dataset.sdTogglePlay = '1';
+    button.addEventListener('click', (event) => {
+      if (!editor._playing) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      editor.pause();
+    }, true);
+  }
+
   function simplifyToolbar(editor) {
     const toolbar = editor._el?.querySelector('.tl-toolbar');
     if (!toolbar) return;
@@ -377,18 +440,63 @@
     Array.from(toolbar.children).forEach((child) => {
       const text = child.textContent?.trim() || '';
       if (text.startsWith('Add Track:') || text.startsWith('Zoom:')) {
-        child.classList.add('sd-advanced-only');
+        child.classList.add('sd-advanced-only', 'sd-overflow-source', 'sd-overflow-group');
       }
     });
 
     toolbar.querySelectorAll('button').forEach((button) => {
       const text = button.textContent.trim();
+      if (text === '⏸ Pause') {
+        button.classList.add('sd-hidden-transport');
+        button.setAttribute('aria-hidden', 'true');
+        button.tabIndex = -1;
+      }
       if (/^(🔍\+|🔍-|Fit|⋮ Grid:|📌 Marker|💾 Save|📂 Open|⬇ Export|⬆ Import|＋ New)/.test(text)) {
-        button.classList.add('sd-advanced-only');
+        button.classList.add('sd-advanced-only', 'sd-overflow-source');
+      }
+      if (/^(⏮ Rewind|🔁 Loop|✓ Check Show)/.test(text) || button.classList.contains('sth-check-show')) {
+        button.classList.add('sd-overflow-source');
       }
     });
 
     toolbar.querySelector('.daw-shortcuts')?.classList.add('sd-advanced-only');
+    wirePlayPause(editor);
+    syncPlayPauseButton(editor);
+    ensureTransportOverflow(toolbar);
+  }
+
+  function ensureTransportOverflow(toolbar) {
+    let wrap = toolbar.querySelector('.sd-transport-more');
+    if (!wrap) {
+      wrap = moreWrap('More timeline tools');
+      wrap.className = 'sd-transport-more';
+      const timecode = toolbar.querySelector('#tl-timecode');
+      if (timecode) toolbar.insertBefore(wrap, timecode);
+      else toolbar.appendChild(wrap);
+    }
+
+    const menu = wrap.querySelector('.sd-overflow-menu');
+    menu.innerHTML = '';
+    const seen = new Set();
+    toolbar.querySelectorAll('.sd-overflow-source').forEach((source) => {
+      const buttons = source.classList.contains('sd-overflow-group')
+        ? [...source.querySelectorAll('button')]
+        : (source.matches('button') ? [source] : []);
+      buttons.forEach((button) => {
+        if (seen.has(button) || button.closest('.sd-overflow-menu')) return;
+        seen.add(button);
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'sd-overflow-item';
+        item.setAttribute('role', 'menuitem');
+        item.textContent = button.textContent.trim() || button.title || 'Tool';
+        item.addEventListener('click', () => {
+          button.click();
+          closeAllMenus();
+        });
+        menu.appendChild(item);
+      });
+    });
   }
 
   function decorateTracks(editor) {
@@ -410,6 +518,26 @@
       const clip = allClips.find((item) => item.id === element.dataset.clipId);
       const label = element.querySelector('span');
       if (clip && label) label.textContent = `${meta(clip.type).icon} ${clip.label || meta(clip.type).name}`;
+    });
+
+    editor._el?.querySelectorAll('.tl-track-header').forEach((trackHeader) => {
+      const buttons = [...trackHeader.querySelectorAll('button')];
+      buttons.forEach((button) => {
+        if (button.title && !button.getAttribute('aria-label')) {
+          button.setAttribute('aria-label', button.title);
+        }
+      });
+      if (trackHeader.querySelector('.sd-track-more')) return;
+      const extras = buttons.filter((button) => /Duplicate|Delete/i.test(button.title || ''));
+      if (!extras.length) return;
+      const wrap = moreWrap('More track actions');
+      wrap.className = 'sd-track-more';
+      const menu = wrap.querySelector('.sd-overflow-menu');
+      extras.forEach((button) => {
+        button.classList.add('sd-track-extra');
+        menu.appendChild(button);
+      });
+      buttons[0]?.parentElement?.appendChild(wrap);
     });
   }
 
@@ -434,6 +562,7 @@
   }
 
   function enhance(editor) {
+    syncBuildShowClass();
     if (!isDesktop() || !editor?._el) return;
     editor._el.classList.add('showduino-ollie-ready');
 
@@ -446,6 +575,9 @@
     simplifyToolbar(editor);
     decorateTracks(editor);
     emptyState(editor);
+    requestAnimationFrame(() => {
+      if (editor?._el) simplifyToolbar(editor);
+    });
   }
 
   function patchTimeline() {
@@ -474,6 +606,16 @@
       requestAnimationFrame(() => enhance(this));
       return result;
     };
+
+    ['play', 'pause', 'stop'].forEach((name) => {
+      const original = proto[name];
+      if (typeof original !== 'function') return;
+      proto[name] = function () {
+        const result = original.apply(this, arguments);
+        syncPlayPauseButton(this);
+        return result;
+      };
+    });
 
     if (window.timelineEditor) enhance(window.timelineEditor);
   }
@@ -512,19 +654,56 @@
     document.addEventListener('dragend', clearDragState, true);
   }
 
+  function bindChrome() {
+    const more = document.getElementById('studio-header-more');
+    const menu = document.getElementById('studio-header-menu');
+    if (more && menu && !more.dataset.sdBound) {
+      more.dataset.sdBound = '1';
+      more.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const open = menu.hidden;
+        closeAllMenus();
+        menu.hidden = !open;
+        more.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest('.sd-overflow-menu, .sd-more-btn, .studio-header-overflow')) return;
+      closeAllMenus();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeAllMenus();
+    });
+
+    const workspace = document.querySelector('.workspace');
+    if (workspace && !workspace.dataset.sdBuildShowBound) {
+      workspace.dataset.sdBuildShowBound = '1';
+      const observer = new MutationObserver(syncBuildShowClass);
+      observer.observe(workspace, { childList: true, subtree: false });
+    }
+    syncBuildShowClass();
+  }
+
   function boot() {
     injectStyles();
     renameNavigation();
     patchTimeline();
     bindDragGuard();
+    bindChrome();
 
     setTimeout(() => {
       renameNavigation();
       patchTimeline();
+      bindChrome();
       if (window.timelineEditor) enhance(window.timelineEditor);
     }, 250);
 
     window.addEventListener('resize', () => {
+      syncBuildShowClass();
       if (window.timelineEditor) enhance(window.timelineEditor);
     });
   }

@@ -27,7 +27,7 @@ class TimelineEditor {
     this._markerTrackHeight = 28;
     this._rulerHeight = 30;
     this._headerWidth = 160;
-    this._inspectorWidth = 280;
+    this._inspectorWidth = 360;
     this._scrollLeft = 0;
   }
 
@@ -64,7 +64,7 @@ class TimelineEditor {
     this._el.style.display = 'flex';
     this._el.style.flexDirection = 'column';
     this._el.style.height = '100%';
-    this._el.style.minHeight = '520px';
+    this._el.style.minHeight = '0';
     this._el.style.background = '#1a1a1a';
     this._el.style.color = '#eee';
     this._el.style.fontFamily = 'monospace, sans-serif';
@@ -293,8 +293,10 @@ class TimelineEditor {
   _buildInspector() {
     const insp = document.createElement('div');
     insp.className = 'tl-inspector inspector';
-    insp.style.cssText = `width:${this._inspectorWidth}px;min-width:${this._inspectorWidth}px;background:#2a2a2a;border-left:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:12px;box-sizing:border-box;`;
-    insp.innerHTML = '<h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3><p style="color:#888;font-size:12px;">Select a clip to inspect.</p>';
+    insp.setAttribute('role', 'complementary');
+    insp.setAttribute('aria-label', 'Inspector');
+    insp.style.cssText = `width:${this._inspectorWidth}px;min-width:${this._inspectorWidth}px;background:#2a2a2a;border-left:1px solid #444;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;padding:0;box-sizing:border-box;`;
+    insp.innerHTML = '<div class="inspector-empty" role="status"><p><strong>Select an action on the timeline</strong><br>to edit its settings.</p></div>';
     return insp;
   }
 

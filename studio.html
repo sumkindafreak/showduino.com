@@ -58,31 +58,31 @@
       <header class="top-bar">
         <div class="studio-top-left">
           <button id="studio-mobile-menu" class="studio-icon-button studio-mobile-only" type="button" aria-label="Open Studio menu">☰</button>
-          <div class="connection-status offline" role="status">CREATOR MODE</div>
-          <span class="runtime-authority-chip" title="The browser creates the production. The ESP32-P4 owns live runtime.">P4 RUNTIME AUTHORITY</span>
-        </div>
-
-        <div class="show-info">
-          <span class="show-label">PRODUCTION</span>
-          <span class="show-name" role="button" tabindex="0" aria-label="Rename show">Untitled Show</span>
-          <span id="studio-save-state" class="studio-save-state">LOCAL</span>
+          <div class="show-info">
+            <span class="show-name" role="button" tabindex="0" aria-label="Rename show">Untitled Show</span>
+          </div>
         </div>
 
         <div class="studio-project-actions" aria-label="Project actions">
           <button id="studio-save-button" class="studio-action-btn studio-primary-action" type="button">Save</button>
-          <button id="studio-import-button" class="studio-action-btn" type="button">Import</button>
-          <button id="studio-export-button" class="studio-action-btn" type="button">Export .shdo</button>
+          <button id="studio-preview-button" class="studio-action-btn" type="button" title="Play a browser preview of this production">Preview</button>
+          <div class="studio-header-overflow">
+            <button id="studio-header-more" class="studio-icon-button" type="button" aria-label="More project actions" aria-haspopup="menu" aria-expanded="false" title="More project actions">•••</button>
+            <div id="studio-header-menu" class="studio-overflow-menu" hidden role="menu">
+              <button id="studio-import-button" class="studio-overflow-item" type="button" role="menuitem">Import</button>
+              <button id="studio-export-button" class="studio-overflow-item" type="button" role="menuitem">Export .shdo</button>
+              <button id="studio-reset-preview-button" class="studio-overflow-item panic" type="button" role="menuitem" title="Reset the browser preview only">Reset Preview</button>
+            </div>
+          </div>
           <input id="studio-import-file" type="file" accept=".shdo,.json,application/json" hidden>
         </div>
 
-        <div class="transport-controls" aria-label="Studio preview controls">
-          <button type="button" aria-label="Play Studio preview" title="Play browser preview">▶</button>
-          <button type="button" aria-label="Stop Studio preview" title="Stop browser preview">■</button>
-          <button type="button" aria-label="Open Timeline" title="Open Timeline" onclick="window.loadPanel?.('timeline-editor')">TL</button>
-          <button type="button" class="panic" title="Reset browser preview only">RESET PREVIEW</button>
+        <div class="studio-status-quiet" aria-label="Studio status">
+          <div class="connection-status offline" role="status">CREATOR MODE</div>
+          <span class="runtime-authority-chip" title="P4 RUNTIME AUTHORITY. Studio authors production data. The ESP32-P4 owns live runtime. Emergency behaviour is not authored here.">P4</span>
+          <span id="studio-save-state" class="studio-save-state">LOCAL</span>
+          <span class="system-info"><span class="clock">--:--:--</span></span>
         </div>
-
-        <div class="system-info"><span class="clock">--:--:--</span><span class="latency">CREATOR</span></div>
       </header>
 
       <div class="studio-context-strip" aria-label="Studio context">
@@ -94,18 +94,21 @@
       <div class="workspace"><!-- Panels are loaded by app.js. --></div>
     </main>
 
-    <footer class="bottom-dock collapsed">
+    <footer class="bottom-dock collapsed" aria-label="Studio Log">
       <div class="terminal">
         <div class="terminal-header">
-          <span>STUDIO LOG</span>
+          <button class="studio-log-toggle" type="button" onclick="window.toggleTerminal()" aria-expanded="false" aria-controls="studio-log-output">
+            <span>Studio Log</span>
+            <span id="studio-log-counts" class="studio-log-counts" hidden></span>
+            <span class="toggle-terminal" aria-hidden="true">↑</span>
+          </button>
           <div class="terminal-controls">
-            <div class="filters">
+            <div class="filters" aria-label="Log filters">
               <button class="active" type="button">ALL</button><button type="button">INFO</button><button type="button">WARN</button><button type="button">ERR</button><button type="button">NET</button><button type="button">FX</button>
             </div>
-            <button class="toggle-terminal" type="button" onclick="window.toggleTerminal()" aria-label="Toggle Studio log">▲</button>
           </div>
         </div>
-        <div class="terminal-output" aria-live="polite"></div>
+        <div id="studio-log-output" class="terminal-output" aria-live="polite"></div>
       </div>
     </footer>
   </div>
@@ -195,10 +198,21 @@
       window.setInterval(refreshCloudStatus, 5000);
 
       const saveButton = document.getElementById('studio-save-button');
+      const previewButton = document.getElementById('studio-preview-button');
       const importButton = document.getElementById('studio-import-button');
       const exportButton = document.getElementById('studio-export-button');
       const importFile = document.getElementById('studio-import-file');
       const saveState = document.getElementById('studio-save-state');
+
+      previewButton?.addEventListener('click', () => {
+        const playPreview = () => window.timelineEditor?.play?.();
+        if (document.querySelector('.timeline-editor') && window.timelineEditor?.play) {
+          playPreview();
+          return;
+        }
+        window.loadPanel?.('timeline-editor');
+        window.setTimeout(playPreview, 180);
+      });
 
       saveButton?.addEventListener('click', async () => {
         try {

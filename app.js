@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const workspace = document.querySelector('.workspace');
   const terminalOutput = document.querySelector('.terminal-output');
   const clockElement = document.querySelector('.clock');
-  const playButton = document.querySelector('.transport-controls button:nth-child(1)');
+  const playButton = document.getElementById('studio-preview-button') || document.querySelector('.transport-controls button:nth-child(1)');
   const stopButton = document.querySelector('.transport-controls button:nth-child(2)');
-  const panicButton = document.querySelector('.transport-controls .panic');
+  const panicButton = document.getElementById('studio-reset-preview-button') || document.querySelector('.transport-controls .panic');
 
   let animationFrameId;
 
@@ -49,6 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.logs.length > 500) {
           state.logs.shift();
       }
+      refreshLogBadge();
+  }
+
+  function refreshLogBadge() {
+      const badge = document.getElementById('studio-log-counts');
+      if (!badge) return;
+      const warns = state.logs.filter((entry) => entry.level === 'WARN').length;
+      const errs = state.logs.filter((entry) => entry.level === 'ERR').length;
+      const parts = [];
+      if (errs) parts.push(`${errs} ${errs === 1 ? 'error' : 'errors'}`);
+      if (warns) parts.push(`${warns} ${warns === 1 ? 'warning' : 'warnings'}`);
+      badge.textContent = parts.join(', ');
+      badge.hidden = parts.length === 0;
   }
   
   // Terminal filter buttons
@@ -831,9 +844,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
-  playButton.addEventListener('click', play);
-  stopButton.addEventListener('click', stop);
-  panicButton.addEventListener('click', panic);
+  if (playButton && playButton.id !== 'studio-preview-button') {
+      playButton.addEventListener('click', play);
+  }
+  stopButton?.addEventListener('click', stop);
+  panicButton?.addEventListener('click', panic);
 
   document.querySelectorAll('.sidebar-nav li').forEach(item => {
       item.addEventListener('click', () => {
@@ -1185,13 +1200,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Terminal toggle function
   window.toggleTerminal = () => {
       const dock = document.querySelector('.bottom-dock');
-      if (dock) {
-          dock.classList.toggle('collapsed');
-          const btn = document.querySelector('.toggle-terminal');
-          if (btn) {
-              btn.textContent = dock.classList.contains('collapsed') ? '▲' : '▼';
-          }
-      }
+      if (!dock) return;
+      dock.classList.toggle('collapsed');
+      const collapsed = dock.classList.contains('collapsed');
+      const chevron = document.querySelector('.toggle-terminal');
+      if (chevron) chevron.textContent = collapsed ? '↑' : '↓';
+      const toggle = document.querySelector('.studio-log-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   };
 
   // Clip inspector update functions

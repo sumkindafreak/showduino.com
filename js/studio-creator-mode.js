@@ -59,7 +59,7 @@
   }
 
   function prepareResetButton() {
-    const resetButton = document.querySelector('.transport-controls .panic');
+    const resetButton = document.getElementById('studio-reset-preview-button') || document.querySelector('.transport-controls .panic, .panic');
     if (resetButton) {
       if (!document.body.classList.contains('studio-v4')) resetButton.textContent = 'RESET';
       resetButton.title = 'Reset the browser preview only';

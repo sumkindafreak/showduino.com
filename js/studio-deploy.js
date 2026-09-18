@@ -315,7 +315,9 @@
       }
     });
 
-    actions.appendChild(button);
+    const more = document.getElementById('studio-header-more');
+    if (more) actions.insertBefore(button, more.parentElement || more);
+    else actions.appendChild(button);
   }
 
   window.ShowduinoDeploy = Object.freeze({

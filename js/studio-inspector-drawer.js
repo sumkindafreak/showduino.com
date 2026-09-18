@@ -9,7 +9,20 @@
 
   const originalShowInspector = TimelineEditor.prototype._showInspector;
   const TAP_MOVE_THRESHOLD_PX = 10;
+  const DESKTOP_QUERY = '(min-width: 761px)';
   let pointerGesture = null;
+
+  function isDesktop() {
+    return Boolean(window.matchMedia?.(DESKTOP_QUERY)?.matches);
+  }
+
+  function emptyInspectorHtml() {
+    return (
+      '<div class="inspector-empty" role="status">' +
+        '<p><strong>Select an action on the timeline</strong><br>to edit its settings.</p>' +
+      '</div>'
+    );
+  }
 
   function closeInspector() {
     document.body.classList.remove('studio-inspector-open');
@@ -41,19 +54,23 @@
     return Boolean(editor && clipId && editor._clips().some((clip) => clip.id === clipId));
   }
 
+  function showEmptyInspector(editor) {
+    if (!editor?._inspectorPanel) return;
+    editor._inspectorPanel.innerHTML = emptyInspectorHtml();
+    closeInspector();
+  }
+
   function renderInspector(editor, clipId) {
     if (!selectedClipExists(editor, clipId)) {
-      closeInspector();
+      showEmptyInspector(editor);
       return false;
     }
 
     originalShowInspector.call(editor, clipId);
-    addDrawerBar(editor._inspectorPanel);
+    if (!isDesktop()) addDrawerBar(editor._inspectorPanel);
     return true;
   }
 
-  // Selection keeps Inspector content current without forcing the drawer open.
-  // Touch/mobile taps are handled separately below so dragging stays fluid.
   TimelineEditor.prototype._showInspector = function (clipId) {
     renderInspector(this, clipId);
   };
@@ -63,7 +80,7 @@
     TimelineEditor.prototype._deleteClip = function (clipId) {
       const result = originalDeleteClip.call(this, clipId);
       if (!this._selectedClipId || !this._clips().some((clip) => clip.id === this._selectedClipId)) {
-        closeInspector();
+        showEmptyInspector(this);
       }
       return result;
     };
@@ -73,7 +90,7 @@
     const editor = window.timelineEditor;
     const targetClipId = clipId || (editor && editor._selectedClipId);
     if (!renderInspector(editor, targetClipId)) return false;
-    document.body.classList.add('studio-inspector-open');
+    if (!isDesktop()) document.body.classList.add('studio-inspector-open');
     return true;
   }
 
@@ -86,12 +103,10 @@
     if (document.body.classList.contains('studio-mobile-advanced')) return true;
     const coarse = window.matchMedia?.('(pointer: coarse)')?.matches;
     const noHover = window.matchMedia?.('(hover: none)')?.matches;
-    const narrow = window.matchMedia?.('(max-width: 900px)')?.matches;
+    const narrow = window.matchMedia?.('(max-width: 760px)')?.matches;
     return Boolean(coarse || noHover || narrow);
   }
 
-  // On phones/tablets a simple tap opens the bottom-sheet Inspector. We track
-  // pointer movement so a timeline drag does not accidentally pop the drawer.
   document.addEventListener('pointerdown', (event) => {
     if (!shouldTapOpenInspector()) return;
     const clip = clipElementFromTarget(event.target);
@@ -121,17 +136,13 @@
     const gesture = pointerGesture;
     pointerGesture = null;
     if (gesture.moved) return;
-
-    // Let the timeline's normal click/select handler run first, then open the
-    // drawer for the clip that was tapped.
     window.setTimeout(() => openInspector(gesture.clipId), 0);
   }, true);
 
-  // Desktop keeps single-click selection for fast DAW dragging; double-click is
-  // the direct inspect gesture. The existing More menu and context menu remain.
   document.addEventListener('dblclick', (event) => {
     const clip = clipElementFromTarget(event.target);
     if (!clip) return;
+    if (isDesktop()) return;
     event.preventDefault();
     openInspector(clip.dataset.clipId);
   });

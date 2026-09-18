@@ -37,7 +37,6 @@ body { overflow: hidden; }
   .timeline-editor { min-height: 0 !important; height: calc(100dvh - 108px) !important; border: 1px solid var(--studio-border); border-radius: var(--studio-radius); overflow: hidden !important; box-shadow: 0 14px 45px rgba(0,0,0,.25); }
   .timeline-main { min-height: 0; }
   .timeline-editor .tl-left { width: 220px !important; min-width: 220px !important; }
-  .timeline-editor .tl-inspector { width: 300px !important; min-width: 300px !important; }
 }
 
 /* Professional toolbar */
@@ -89,10 +88,8 @@ body { overflow: hidden; }
   .main-content { height:100dvh; }
   .top-bar { min-height:54px; padding:6px 8px; flex-wrap:nowrap; overflow-x:auto; }
   .workspace { padding:6px; overflow:hidden; }
-  .bottom-dock { display:none; }
   .timeline-editor { height:calc(100dvh - 70px)!important; min-height:0!important; border:1px solid var(--studio-border); border-radius:6px; }
   .timeline-editor .tl-left { width:180px!important; min-width:180px!important; }
-  .timeline-editor .tl-inspector { display:none!important; }
 }
 
 /* ---------- Phone: dedicated companion editor ---------- */

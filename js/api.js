@@ -10,6 +10,10 @@ class ShowduinoAPI {
   }
 
   _detectBaseURL() {
+    try {
+      const configured = window.localStorage?.getItem('showduino_target_url');
+      if (configured) return configured.replace(/\/$/, '');
+    } catch (_) {}
     const host = window.location.hostname;
     if (host === '192.168.4.1' || host.startsWith('192.168.4.')) {
       return `http://${host}`;

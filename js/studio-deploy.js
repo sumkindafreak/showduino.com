@@ -117,7 +117,10 @@
   }
 
   async function findLocalShowduino() {
-    if (!browserAllowsDirectLocalSend()) return null;
+    // A configured target is also useful while the public Studio is open:
+    // Test can report reachability/capability. Actual deployment remains
+    // protected below and still requires a local HTTP Studio origin.
+    if (!browserAllowsDirectLocalSend() && !configuredTarget()) return null;
     for (const host of localHosts()) {
       const found = await probe(host);
       if (found) return found;

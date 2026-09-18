@@ -363,7 +363,14 @@
       `<span class="showduino-ollie-icon">${cue.icon}</span>` +
       `<span class="showduino-ollie-copy"><b>+ ${cue.bar}</b><small>${cue.hint}</small></span>`;
 
-    button.addEventListener('click', () => addCue(editor, cue));
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      // The timeline DOM can be rebuilt when panels/projects change. Always
+      // resolve the live editor instead of relying only on the instance that
+      // originally created this shelf.
+      addCue(window.timelineEditor || editor, cue);
+    });
     button.addEventListener('dragstart', (event) => {
       activeDragType = cue.type;
       event.dataTransfer?.setData('blockType', cue.type);
@@ -490,7 +497,11 @@
         item.className = 'sd-overflow-item';
         item.setAttribute('role', 'menuitem');
         item.textContent = button.textContent.trim() || button.title || 'Tool';
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          // Run the canonical timeline control. Close after dispatch so a
+          // document-level click handler cannot tear the menu down first.
           button.click();
           closeAllMenus();
         });
@@ -659,6 +670,11 @@
     const menu = document.getElementById('studio-header-menu');
     if (more && menu && !more.dataset.sdBound) {
       more.dataset.sdBound = '1';
+      // Keep menu interaction inside the menu. Some Studio layers install
+      // document-level dismissal handlers; without this, the menu can be
+      // removed before its button click reaches the real action.
+      menu.addEventListener('pointerdown', (event) => event.stopPropagation());
+      menu.addEventListener('click', (event) => event.stopPropagation());
       more.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -673,7 +689,7 @@
       if (!(event.target instanceof Element)) return;
       if (event.target.closest('.sd-overflow-menu, .sd-more-btn, .studio-header-overflow')) return;
       closeAllMenus();
-    });
+    }, false);
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeAllMenus();

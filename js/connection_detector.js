@@ -12,6 +12,18 @@ class ConnectionDetector {
   async detectMode() {
     const host = window.location.hostname;
 
+    // Prefer an operator-configured Communications S3 target. This lets Studio
+    // work on normal LANs where mDNS is unavailable or the S3 has a known IP.
+    let configured = '';
+    try { configured = window.localStorage?.getItem('showduino_target_url') || ''; } catch (_) {}
+    configured = configured.replace(/\/$/, '');
+    if (configured && await this._probe(`${configured}/status`, 2000)) {
+      this.mode = configured.includes('192.168.4.') ? 'ap' : 'lan';
+      this._probeURL = `${configured}/status`;
+      this._notify();
+      return this.mode;
+    }
+
     // If served from 192.168.4.x assume AP mode
     if (host === '192.168.4.1' || host.startsWith('192.168.4.')) {
       this.mode = 'ap';

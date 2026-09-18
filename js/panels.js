@@ -780,6 +780,21 @@ else updateAuth(null);
   </div>
 
   <div class="control-section">
+    <h3>Showduino Connection</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div>
+        <div style="font-size:13px;color:#eee;">Communications S3 address</div>
+        <div style="font-size:11px;color:#666;margin-top:2px;">Optional LAN hostname or IP, for example showduino.local or 192.168.1.50. Leave blank for automatic discovery.</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="settings-showduino-target" type="text" inputmode="url" autocomplete="off" placeholder="Automatic discovery" style="flex:1;min-width:220px;background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:12px;">
+        <button class="btn-secondary" type="button" style="font-size:12px;" onclick="window._testShowduinoTarget()">Test</button>
+      </div>
+      <div id="settings-showduino-target-status" style="font-size:11px;color:#888;min-height:16px;">Automatic discovery is enabled.</div>
+    </div>
+  </div>
+
+  <div class="control-section">
     <h3>🗑 Clear Data</h3>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="btn-secondary" style="font-size:12px;text-align:left;" onclick="window._clearLogs()">🧹 Clear Logs</button>
@@ -805,8 +820,47 @@ window._saveSettings = () => {
   if (window.timelineEditor) { window.timelineEditor._snapMs = snap; }
   if (window.state?.project?.config) window.state.project.config.snapMs = snap;
   localStorage.setItem('showduino_settings', JSON.stringify({ snap }));
+  const targetInput = document.getElementById('settings-showduino-target');
+  if (targetInput && window.ShowduinoDeploy?.setConfiguredTarget) {
+    try {
+      const target = window.ShowduinoDeploy.setConfiguredTarget(targetInput.value);
+      if (window.api?.setBaseURL && target) window.api.setBaseURL(target);
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+  }
   alert('Settings saved!');
 };
+
+window._testShowduinoTarget = async () => {
+  const input = document.getElementById('settings-showduino-target');
+  const status = document.getElementById('settings-showduino-target-status');
+  if (!input || !status || !window.ShowduinoDeploy) return;
+  try {
+    const target = window.ShowduinoDeploy.normaliseTarget(input.value);
+    if (input.value.trim() && !target) throw new Error('Enter a valid hostname or IP address.');
+    window.ShowduinoDeploy.setConfiguredTarget(input.value);
+    status.style.color = '#888';
+    status.textContent = 'Looking for Showduino…';
+    const found = await window.ShowduinoDeploy.findLocalShowduino();
+    if (!found) throw new Error('No Showduino answered at that address.');
+    if (window.api?.setBaseURL) window.api.setBaseURL(found.baseUrl);
+    status.style.color = '#00ffcc';
+    status.textContent = 'Connected: ' + found.baseUrl + (found.importCapable ? ' · P4 timeline ready' : ' · Showduino found');
+  } catch (error) {
+    status.style.color = '#ff6666';
+    status.textContent = error.message;
+  }
+};
+
+setTimeout(() => {
+  const input = document.getElementById('settings-showduino-target');
+  const status = document.getElementById('settings-showduino-target-status');
+  const target = window.ShowduinoDeploy?.getConfiguredTarget?.() || '';
+  if (input) input.value = target;
+  if (status && target) status.textContent = 'Saved target: ' + target;
+}, 0);
 window._clearLogs = () => {
   if (window.state) window.state.logs = [];
   document.querySelector('.terminal-output').innerHTML = '';

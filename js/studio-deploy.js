@@ -17,6 +17,38 @@
   const TIMELINE_COMMAND_MAX = 63;
   const TIMELINE_MAX_CUES = 2048;
   const PIXEL_SEGMENT_SLOTS = 16;
+  const TARGET_STORAGE_KEY = 'showduino_target_url';
+
+  function normaliseTarget(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const withScheme = /^https?:\/\//i.test(raw) ? raw : `http://${raw}`;
+    try {
+      const url = new URL(withScheme);
+      if (!url.hostname) return '';
+      url.pathname = '';
+      url.search = '';
+      url.hash = '';
+      return url.origin;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function configuredTarget() {
+    try { return normaliseTarget(window.localStorage?.getItem(TARGET_STORAGE_KEY)); }
+    catch (_) { return ''; }
+  }
+
+  function setConfiguredTarget(value) {
+    const target = normaliseTarget(value);
+    if (String(value || '').trim() && !target) throw new Error('Enter a valid Showduino hostname or IP address.');
+    try {
+      if (target) window.localStorage?.setItem(TARGET_STORAGE_KEY, target);
+      else window.localStorage?.removeItem(TARGET_STORAGE_KEY);
+    } catch (_) {}
+    return target;
+  }
 
   function notify(message, level) {
     if (typeof window.studioLog === 'function') window.studioLog(message, level || 'INFO');
@@ -49,6 +81,8 @@
 
   function localHosts() {
     const values = [];
+    const saved = configuredTarget();
+    if (saved) values.push(saved);
     if (browserAllowsDirectLocalSend() && window.location.origin) values.push(window.location.origin);
     values.push('http://showduino.local', 'http://showduino-studio.local', 'http://192.168.4.1');
     return Array.from(new Set(values));
@@ -324,7 +358,10 @@
     findLocalShowduino,
     deployCurrentProject,
     browserAllowsDirectLocalSend,
-    compileShdoForStage
+    compileShdoForStage,
+    getConfiguredTarget: configuredTarget,
+    setConfiguredTarget,
+    normaliseTarget
   });
 
   document.addEventListener('DOMContentLoaded', initialise);

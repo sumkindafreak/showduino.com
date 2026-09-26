@@ -52,7 +52,8 @@
   }
 
   function deviceTypeForClip(clip) {
-    const node = String(clip?.routing?.nodeId || '').trim().toLowerCase();
+    const node = String(clip?.routing?.nodeId || '').trim();
+    const nodeLower = node.toLowerCase();
     const pixels = window.ShowduinoPixelAuthoring;
     switch (clip?.type) {
       case 'audio': return 'audio-node';
@@ -60,9 +61,12 @@
       case 'trigger': return 'input-node';
       case 'pixel':
         if (pixels?.typeForNodeId) return pixels.typeForNodeId(node);
-        if (node === 'p4' || node === 'p4-local' || node.includes('show-pixel')) return 'p4-pixel-line';
-        if (node === 'audio-node' || (node.includes('audio') && node.includes('pixel')) || node === 'gpio22') {
+        if (nodeLower === 'p4' || nodeLower === 'p4-local' || nodeLower.includes('show-pixel')) return 'p4-pixel-line';
+        if (nodeLower === 'audio-node' || (nodeLower.includes('audio') && nodeLower.includes('pixel')) || nodeLower === 'gpio22') {
           return 'audio-node-pixels';
+        }
+        if (/^estop-[0-9]{1,4}$/i.test(node) || (nodeLower.startsWith('estop-') && nodeLower.endsWith('-pixels'))) {
+          return 'estop-node-pixels';
         }
         return 'pixel-node';
       case 'lighting': return 'lantern-node';
@@ -72,7 +76,8 @@
   }
 
   function bindingRouteForClip(clip) {
-    const node = String(clip?.routing?.nodeId || '').trim().toLowerCase();
+    const node = String(clip?.routing?.nodeId || '').trim();
+    const nodeLower = node.toLowerCase();
     const pixels = window.ShowduinoPixelAuthoring;
     switch (clip?.type) {
       case 'audio': return 'audio-node';
@@ -80,9 +85,12 @@
       case 'trigger': return 'input-node';
       case 'pixel':
         if (pixels?.routeForNodeId) return pixels.routeForNodeId(node);
-        if (node === 'p4' || node === 'p4-local' || node.includes('show-pixel')) return 'p4-show-pixels';
-        if (node === 'audio-node' || (node.includes('audio') && node.includes('pixel')) || node === 'gpio22') {
+        if (nodeLower === 'p4' || nodeLower === 'p4-local' || nodeLower.includes('show-pixel')) return 'p4-show-pixels';
+        if (nodeLower === 'audio-node' || (nodeLower.includes('audio') && nodeLower.includes('pixel')) || nodeLower === 'gpio22') {
           return 'audio-node-pixels';
+        }
+        if (/^estop-[0-9]{1,4}$/i.test(node) || (nodeLower.startsWith('estop-') && nodeLower.endsWith('-pixels'))) {
+          return 'estop-node-pixels';
         }
         return 'pixel-node';
       case 'lighting': return 'lantern-node';
@@ -154,10 +162,20 @@
       const key = `${type}|${nodeId.toLowerCase()}|${outputRaw.toLowerCase()}`;
       let deviceId = routeMap.get(key);
       if (!deviceId) {
-        const base = `device-${slug(nodeId)}-${slug(outputRaw || clip.type, clip.type || 'output')}`;
-        deviceId = base;
-        let suffix = 2;
-        while (ids.has(deviceId)) deviceId = `${base}-${suffix++}`;
+        const pixels = window.ShowduinoPixelAuthoring;
+        if (clip?.type === 'pixel' && pixels?.packageDeviceId) {
+          deviceId = pixels.packageDeviceId(nodeId);
+        }
+        if (!deviceId) {
+          const base = `device-${slug(nodeId)}-${slug(outputRaw || clip.type, clip.type || 'output')}`;
+          deviceId = base;
+          let suffix = 2;
+          while (ids.has(deviceId)) deviceId = `${base}-${suffix++}`;
+        } else if (ids.has(deviceId)) {
+          let suffix = 2;
+          const base = deviceId;
+          while (ids.has(deviceId)) deviceId = `${base}-${suffix++}`;
+        }
 
         const binding = { route: bindingRouteForClip(clip), nodeId };
         if (outputRaw) {
@@ -169,15 +187,32 @@
           binding.outputLabel = binding.outputLabel || 'gpio22';
           binding.parentNodeId = 'audio-node';
         }
+        if (binding.route === 'estop-node-pixels') {
+          const estopId = window.ShowduinoPixelAuthoring?.parseEstopLogicalId?.(nodeId) ||
+            (String(nodeId).match(/^ESTOP-[0-9]{1,4}$/i) ? String(nodeId).toUpperCase() : nodeId);
+          binding.nodeId = estopId;
+          binding.outputLabel = binding.outputLabel || 'gpio2';
+          binding.parentNodeId = estopId;
+        }
+
+        const metadata = { derivedFromLegacyRouting: true };
+        if (binding.route === 'estop-node-pixels') {
+          metadata.parentRole = 'EMERGENCY';
+          metadata.pin = 2;
+        }
 
         devices.push({
           id: deviceId,
-          name: outputRaw ? `${nodeId} · ${outputRaw}` : nodeId,
+          name: outputRaw ? `${binding.nodeId} · ${outputRaw}` : binding.nodeId,
           type,
           enabled: true,
           binding,
-          capabilities: {},
-          metadata: { derivedFromLegacyRouting: true }
+          capabilities: binding.route === 'estop-node-pixels' ? {
+            segmentedPixels: true,
+            maxPixels: 512,
+            segments: 16
+          } : {},
+          metadata
         });
         ids.add(deviceId);
         routeMap.set(key, deviceId);

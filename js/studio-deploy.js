@@ -174,7 +174,8 @@
     const prefixBase = pixels?.commandPrefix?.(device) ||
       (route === 'p4-show-pixels' ? 'PIXEL:' :
         (route === 'audio-node-pixels' ? 'AUDIO:NODE:PIXEL:' :
-          (route === 'pixel-node' && device?.binding?.nodeId ? `PIXEL:NODE:${device.binding.nodeId}:` : null)));
+          (route === 'estop-node-pixels' ? 'ESTOP:NODE:PIXEL:' :
+            (route === 'pixel-node' && device?.binding?.nodeId ? `PIXEL:NODE:${device.binding.nodeId}:` : null))));
     if (!prefixBase) {
       errors.push(`${clip.name}: pixel target is not bound to a Showduino pixel output.`);
       return;

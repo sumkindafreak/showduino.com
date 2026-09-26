@@ -53,11 +53,18 @@
 
   function deviceTypeForClip(clip) {
     const node = String(clip?.routing?.nodeId || '').trim().toLowerCase();
+    const pixels = window.ShowduinoPixelAuthoring;
     switch (clip?.type) {
       case 'audio': return 'audio-node';
       case 'mosfet': return 'mosfet-node';
       case 'trigger': return 'input-node';
-      case 'pixel': return node === 'p4' || node === 'p4-local' || node.includes('show-pixel') ? 'p4-pixel-line' : 'pixel-node';
+      case 'pixel':
+        if (pixels?.typeForNodeId) return pixels.typeForNodeId(node);
+        if (node === 'p4' || node === 'p4-local' || node.includes('show-pixel')) return 'p4-pixel-line';
+        if (node === 'audio-node' || (node.includes('audio') && node.includes('pixel')) || node === 'gpio22') {
+          return 'audio-node-pixels';
+        }
+        return 'pixel-node';
       case 'lighting': return 'lantern-node';
       case 'video': return 'projection';
       default: return 'custom';
@@ -66,11 +73,18 @@
 
   function bindingRouteForClip(clip) {
     const node = String(clip?.routing?.nodeId || '').trim().toLowerCase();
+    const pixels = window.ShowduinoPixelAuthoring;
     switch (clip?.type) {
       case 'audio': return 'audio-node';
       case 'mosfet': return 'mosfet-node';
       case 'trigger': return 'input-node';
-      case 'pixel': return node === 'p4' || node === 'p4-local' || node.includes('show-pixel') ? 'p4-show-pixels' : 'pixel-node';
+      case 'pixel':
+        if (pixels?.routeForNodeId) return pixels.routeForNodeId(node);
+        if (node === 'p4' || node === 'p4-local' || node.includes('show-pixel')) return 'p4-show-pixels';
+        if (node === 'audio-node' || (node.includes('audio') && node.includes('pixel')) || node === 'gpio22') {
+          return 'audio-node-pixels';
+        }
+        return 'pixel-node';
       case 'lighting': return 'lantern-node';
       case 'video': return 'projection';
       default: return 'unbound';
@@ -149,6 +163,11 @@
         if (outputRaw) {
           if (/^\d+$/.test(outputRaw)) binding.output = Number(outputRaw);
           else binding.outputLabel = outputRaw;
+        }
+        if (binding.route === 'audio-node-pixels') {
+          binding.nodeId = 'audio-node';
+          binding.outputLabel = binding.outputLabel || 'gpio22';
+          binding.parentNodeId = 'audio-node';
         }
 
         devices.push({

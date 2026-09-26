@@ -92,14 +92,23 @@
         <section class="inspector-section">
           <h4>Routing</h4>
           <div class="inspector-route">
-            ${field('route-node', 'Target node', clip.routing.nodeId || '', 'text', 'placeholder="SUE, IAN or device ID"')}
+            ${clip.type === 'pixel' && window.ShowduinoPixelAuthoring?.selectHtml
+              ? `<div class="v4-field"><label>Pixel output</label>${window.ShowduinoPixelAuthoring.selectHtml({
+                  selectedId: clip.routing.nodeId || '',
+                  project: this._state?.project,
+                  id: 'route-node'
+                })}</div>`
+              : field('route-node', 'Target node', clip.routing.nodeId || '', 'text', 'placeholder="audio-node / p4 / LED-01"')}
             <div class="inspector-grid">
-              ${field('route-output', 'Output', clip.routing.output || '', 'text', 'placeholder="OUT1 / Line 1"')}
+              ${field('route-output', 'Output', clip.routing.output || '', 'text',
+                clip.type === 'pixel' ? 'placeholder="gpio22 / Line 1"' : 'placeholder="OUT1 / Line 1"')}
               ${field('route-channel', 'Channel', clip.routing.channel || 1, 'number', 'min="1" max="512"')}
             </div>
             ${field('route-universe', 'DMX universe', clip.routing.universe || 1, 'number', 'min="1" max="63999"')}
           </div>
-          <p class="inspector-note">Routing is stored in the project now and will later map directly to connected Showduino hardware.</p>
+          <p class="inspector-note">${clip.type === 'pixel'
+            ? 'Pixel cues target P4 GPIO23, standalone Pixel Nodes, or the Audio Node GPIO22 line. Audio playback stays on the same Audio Node identity.'
+            : 'Routing is stored in the project and maps to connected Showduino hardware via logical device IDs.'}</p>
         </section>
 
         ${this._buildProfessionalTypeInspector(clip)}

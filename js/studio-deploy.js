@@ -168,13 +168,19 @@
     if (clip.durationMs > 0) addCommand(commands, errors, start + clip.durationMs, 'AUDIO:NODE:STOP', `${clip.name} stop`);
   }
 
-  function compilePixel(clip, action, device, segmentSlot, commands, errors) {
-    if (device?.binding?.route !== 'p4-show-pixels') {
-      errors.push(`${clip.name}: pixel target is not bound to the P4 Show Pixel line.`);
+  function compilePixel(clip, action, device, segmentSlot, commands, errors, warnings) {
+    const pixels = window.ShowduinoPixelAuthoring;
+    const route = device?.binding?.route || '';
+    const prefixBase = pixels?.commandPrefix?.(device) ||
+      (route === 'p4-show-pixels' ? 'PIXEL:' :
+        (route === 'audio-node-pixels' ? 'AUDIO:NODE:PIXEL:' :
+          (route === 'pixel-node' && device?.binding?.nodeId ? `PIXEL:NODE:${device.binding.nodeId}:` : null)));
+    if (!prefixBase) {
+      errors.push(`${clip.name}: pixel target is not bound to a Showduino pixel output.`);
       return;
     }
     if (segmentSlot >= PIXEL_SEGMENT_SLOTS) {
-      errors.push(`${clip.name}: scene needs more than ${PIXEL_SEGMENT_SLOTS} P4 pixel segment slots.`);
+      errors.push(`${clip.name}: scene needs more than ${PIXEL_SEGMENT_SLOTS} pixel segment slots.`);
       return;
     }
 
@@ -188,6 +194,12 @@
       return;
     }
 
+    const effect = pixels ? (pixels.canonicalizeEffect(params.effect) || '') : effectName(params.effect);
+    if (!effect) {
+      errors.push(`${clip.name}: unsupported pixel effect.`);
+      return;
+    }
+
     const start = bindingStart + localStart;
     const r = Math.round(clamp(params.r, 0, 255, 0));
     const g = Math.round(clamp(params.g, 0, 255, 255));
@@ -198,10 +210,10 @@
     const intensity = Math.round(clamp(params.intensity, 0, 100, 100));
     const randomness = Math.round(clamp(params.randomness, 0, 100, 0));
     const reverse = params.reverse ? 1 : 0;
-    const prefix = `PIXEL:SEGMENT:${segmentSlot}`;
+    const prefix = `${prefixBase}SEGMENT:${segmentSlot}`;
 
     addCommand(commands, errors, clip.startMs, `${prefix}:RANGE:${start}:${count}`, clip.name);
-    addCommand(commands, errors, clip.startMs, `${prefix}:FX:${effectName(params.effect)}`, clip.name);
+    addCommand(commands, errors, clip.startMs, `${prefix}:FX:${effect}`, clip.name);
     addCommand(commands, errors, clip.startMs, `${prefix}:COLOR:${r}:${g}:${b}`, clip.name);
     addCommand(commands, errors, clip.startMs, `${prefix}:COLOR2:${r2}:${g2}:${b2}`, clip.name);
     addCommand(commands, errors, clip.startMs, `${prefix}:BRIGHTNESS:${brightness}`, clip.name);
@@ -214,6 +226,13 @@
     if (clip.durationMs > 0 && params.blackoutAtEnd === true) {
       addCommand(commands, errors, clip.startMs + clip.durationMs, `${prefix}:STOP`, `${clip.name} stop`);
     }
+
+    if (Array.isArray(warnings) && pixels?.validatePixelTarget) {
+      const check = pixels.validatePixelTarget(device?.binding?.nodeId || '', pixels.getLiveSnapshot?.());
+      (check?.warnings || []).forEach((warning) => {
+        warnings.push(`${clip.name}: ${warning.message}`);
+      });
+    }
   }
 
   function compileShdoForStage(shdo) {
@@ -221,7 +240,7 @@
     const warnings = [];
     const commands = [];
     const devices = new Map((shdo?.devices || []).map((device) => [String(device.id), device]));
-    let pixelSlot = 0;
+    const pixelSlots = Object.create(null);
 
     if (shdo?.schema !== window.ShowduinoPackage?.SCHEMA_NAME) {
       return { ok: false, errors: ['Deployment requires canonical SHDO v2.'], warnings, commands, uploadCommands: [] };
@@ -241,7 +260,13 @@
         else compileAudio(clip, action, device, commands, errors);
       } else if (type === 'pixel') {
         if (!device) errors.push(`${clip.name}: no logical pixel target.`);
-        else compilePixel(clip, action, device, pixelSlot++, commands, errors);
+        else {
+          const key = String(device.id || device.binding?.nodeId || 'pixel');
+          const authored = window.ShowduinoPixelAuthoring?.authoredSegment?.(action.params || {}, null);
+          const slot = Number.isFinite(authored) && authored !== null ? authored : (pixelSlots[key] || 0);
+          if (!(Number.isFinite(authored) && authored !== null)) pixelSlots[key] = slot + 1;
+          compilePixel(clip, action, device, slot, commands, errors, warnings);
+        }
       } else if (type === 'mosfet') {
         errors.push(`${clip.name}: MOSFET Node runtime is not implemented yet.`);
       } else if (type === 'trigger') {

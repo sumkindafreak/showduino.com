@@ -269,7 +269,16 @@
           compilePixel(clip, action, device, slot, commands, errors, warnings);
         }
       } else if (type === 'mosfet') {
-        errors.push(`${clip.name}: MOSFET Node runtime is not implemented yet.`);
+        const mosfet = window.ShowduinoMosfetAuthoring;
+        if (!mosfet?.compileClip) {
+          errors.push(`${clip.name}: MOSFET authoring helper is unavailable.`);
+        } else {
+          const params = mosfet.migrateParams(action.params || clip.params || {});
+          const compiledClip = Object.assign({}, clip, { params, startMs: clip.startMs, durationMs: clip.durationMs, routing: clip.routing });
+          mosfet.compileClip(compiledClip, device, (timeMs, command) => {
+            addCommand(commands, errors, timeMs, command, clip.name);
+          }, errors);
+        }
       } else if (type === 'trigger') {
         errors.push(`${clip.name}: trigger/sensor runtime is not implemented yet.`);
       } else if (type === 'relay') {

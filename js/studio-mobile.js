@@ -372,10 +372,12 @@
 
     if (draft.type === 'mosfet') {
       return `<section class="sm-form-section"><h3>Powered output</h3>
-        <div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-mosfet-out">${Array.from({length:8},(_,i) => `<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div>
-        <div class="sm-field"><label>ACTION</label><select class="sm-select" id="sm-mosfet-mode"><option value="hold" ${(p.mode || 'hold') === 'hold' ? 'selected' : ''}>Hold</option><option value="pulse" ${p.mode === 'pulse' ? 'selected' : ''}>Pulse</option></select></div></div>
+        <div class="sm-grid"><div class="sm-field"><label>OUTPUT</label><select class="sm-select" id="sm-mosfet-out">${Array.from({length:4},(_,i) => `<option value="out${i+1}" ${(p.out || 'out1') === `out${i+1}` ? 'selected' : ''}>OUT${i+1}</option>`).join('')}</select></div>
+        <div class="sm-field"><label>ACTION</label><select class="sm-select" id="sm-mosfet-mode"><option value="hold" ${(p.mode || 'hold') === 'hold' || p.mode === 'pwm' ? 'selected' : ''}>Hold</option><option value="pulse" ${p.mode === 'pulse' ? 'selected' : ''}>Pulse</option><option value="fade" ${p.mode === 'fade' ? 'selected' : ''}>Fade</option></select></div></div>
         <div class="sm-field"><label>POWER · <span id="sm-mosfet-duty-value">${clamp(p.duty,0,100,100)}</span>%</label><input class="sm-input" id="sm-mosfet-duty" type="range" min="0" max="100" value="${clamp(p.duty,0,100,100)}"></div>
         <div class="sm-field" id="sm-mosfet-pulse-wrap"><label>PULSE LENGTH (MS)</label><input class="sm-input" id="sm-mosfet-pulse" type="number" min="10" step="10" value="${clamp(p.pulseMs || 500,10,600000,500)}"></div>
+        <div class="sm-grid"><div class="sm-field"><label>FADE IN (MS)</label><input class="sm-input" id="sm-mosfet-fade-in" type="number" min="0" step="10" value="${clamp(p.fadeInMs || 0,0,600000,0)}"></div><div class="sm-field"><label>FADE OUT (MS)</label><input class="sm-input" id="sm-mosfet-fade-out" type="number" min="0" step="10" value="${clamp(p.fadeOutMs || 0,0,600000,0)}"></div></div>
+        <p class="sm-help">Powered outputs always switch OFF when the cue/show stops.</p>
       </section>`;
     }
 
@@ -419,7 +421,7 @@
       <div class="sm-field"><label>DURATION (SECONDS)</label><input class="sm-input" id="sm-edit-duration" type="number" min="0.01" step="0.01" value="${(Math.max(10,Number(draft.durationMs || 1000))/1000).toFixed(2)}"></div>
       ${draft.type === 'trigger' ? '' : `<div class="sm-field"><label>ROUTING OUTPUT OVERRIDE</label><input class="sm-input" id="sm-edit-output" placeholder="Usually leave blank" value="${esc(draft.routing?.output || '')}"></div>`}
       ${draft.type === 'relay' ? `<label class="sm-checkline"><input id="sm-relay-safe" type="checkbox" ${draft.params?.safeOff !== false ? 'checked' : ''}> Force relay OFF when stopped</label>` : ''}
-      ${draft.type === 'mosfet' ? `<label class="sm-checkline"><input id="sm-mosfet-safe" type="checkbox" ${draft.params?.safeOff !== false ? 'checked' : ''}> Force output OFF when stopped</label>` : ''}
+      ${draft.type === 'mosfet' ? `<p class="sm-help">Powered outputs always switch OFF when the cue/show stops.</p>` : ''}
       ${draft.type === 'fx' ? `<label class="sm-checkline"><input id="sm-fx-safe" type="checkbox" ${draft.params?.safeStop !== false ? 'checked' : ''}> Stop this effect during emergency</label>` : ''}
     </div></details>`;
   }
@@ -619,8 +621,10 @@
       params.mode = document.getElementById('sm-mosfet-mode')?.value || 'hold';
       params.duty = clamp(document.getElementById('sm-mosfet-duty')?.value,0,100,100);
       params.pulseMs = params.mode === 'pulse' ? clamp(document.getElementById('sm-mosfet-pulse')?.value,10,600000,500) : 0;
+      params.fadeInMs = clamp(document.getElementById('sm-mosfet-fade-in')?.value,0,600000,0);
+      params.fadeOutMs = clamp(document.getElementById('sm-mosfet-fade-out')?.value,0,600000,0);
       params.state = true;
-      params.safeOff = document.getElementById('sm-mosfet-safe') ? Boolean(document.getElementById('sm-mosfet-safe').checked) : params.safeOff !== false;
+      params.safeOff = true;
     }
 
     if (draft.type === 'pixel') {

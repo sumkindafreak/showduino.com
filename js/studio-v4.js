@@ -317,10 +317,11 @@
     const p = ensureMosfetParams(clip.params || (clip.params = {}));
     return `
       <section class="v4-inspector-section"><h4>Lighting</h4>
-        <div class="v4-inspector-grid">${inspectorField('v4-mosfet-output','Output',p.out,'text','placeholder="out1"')}${inspectorSelect('v4-mosfet-mode','Mode',p.mode,['hold','pulse','pwm'])}</div>
-        <div class="v4-inspector-grid">${inspectorField('v4-mosfet-duty','Duty / level %',p.duty,'number','min="0" max="100"')}${inspectorField('v4-mosfet-pulse','Pulse (ms)',p.pulseMs,'number','min="0"')}</div>
-        <label class="v4-check"><input id="v4-mosfet-state" type="checkbox" ${p.state ? 'checked' : ''}> Active state</label>
-        <label class="v4-check"><input id="v4-mosfet-safe" type="checkbox" ${p.safeOff ? 'checked' : ''}> Force OFF when stopped / safety reset</label>
+        <div class="v4-inspector-grid">${inspectorSelect('v4-mosfet-output','Output',p.out || 'out1',['out1','out2','out3','out4'])}${inspectorSelect('v4-mosfet-mode','Mode',(p.mode === 'pwm' ? 'hold' : (p.mode || 'hold')),['hold','pulse','fade'])}</div>
+        <div class="v4-inspector-grid">${inspectorField('v4-mosfet-duty','Level %',p.duty,'number','min="0" max="100"')}${inspectorField('v4-mosfet-pulse','Pulse (ms)',p.pulseMs,'number','min="0"')}</div>
+        <div class="v4-inspector-grid">${inspectorField('v4-mosfet-fade-in','Fade in (ms)',p.fadeInMs || 0,'number','min="0"')}${inspectorField('v4-mosfet-fade-out','Fade out (ms)',p.fadeOutMs || 0,'number','min="0"')}</div>
+        <label class="v4-check"><input id="v4-mosfet-state" type="checkbox" ${p.state !== false ? 'checked' : ''}> Active state</label>
+        <p class="v4-help">Powered outputs always switch OFF when the cue/show stops.</p>
       </section>`;
   }
 
@@ -488,8 +489,10 @@
     });
     checks.push({ level: invalidPixels.length ? 'error' : 'ok', title: 'Pixel segment bounds', detail: invalidPixels.length ? `${invalidPixels.length} pixel cue${invalidPixels.length === 1 ? '' : 's'} contain invalid segment/group bounds.` : 'Pixel segments and repeating marker groups are valid.', code: `${invalidPixels.length} ERR` });
 
-    const unsafeOutputs = clips.filter((clip) => (clip.type === 'relay' || clip.type === 'mosfet') && clip.params?.safeOff === false);
-    checks.push({ level: unsafeOutputs.length ? 'warn' : 'ok', title: 'Output stop behaviour', detail: unsafeOutputs.length ? `${unsafeOutputs.length} relay/MOSFET cue${unsafeOutputs.length === 1 ? '' : 's'} are configured not to force OFF on stop.` : 'Relay and MOSFET cues use safe OFF behaviour.', code: `${unsafeOutputs.length} REVIEW` });
+    const unsafeRelay = clips.filter((clip) => clip.type === 'relay' && clip.params?.safeOff === false);
+    const mosfetClips = clips.filter((clip) => clip.type === 'mosfet');
+    mosfetClips.forEach((clip) => { if (clip.params) clip.params.safeOff = true; });
+    checks.push({ level: unsafeRelay.length ? 'warn' : 'ok', title: 'Output stop behaviour', detail: unsafeRelay.length ? `${unsafeRelay.length} relay cue${unsafeRelay.length === 1 ? '' : 's'} are configured not to force OFF on stop.` : 'MOSFET cues always force OFF on stop; relay cues use safe OFF behaviour.', code: `${unsafeRelay.length} REVIEW` });
 
     const legacy = clips.filter((clip) => LEGACY_TYPES.has(clip.type));
     checks.push({ level: legacy.length ? 'warn' : 'ok', title: 'Legacy clip types', detail: legacy.length ? `${legacy.length} old DMX / lighting / prop cue${legacy.length === 1 ? '' : 's'} are preserved for compatibility but are outside the current system scope.` : 'No out-of-scope legacy clip types are present.', code: `${legacy.length} LEGACY` });
@@ -688,11 +691,13 @@
           const save = () => { this._refreshClipEl?.(clip.id); this._autosave?.(); };
           const bind = (id, fn) => { const element=document.getElementById(id); element?.addEventListener('change',()=>{fn(element);save();}); };
           bind('v4-mosfet-output',(el)=>{p.out=el.value.trim()||'out1';});
-          bind('v4-mosfet-mode',(el)=>{p.mode=el.value;});
+          bind('v4-mosfet-mode',(el)=>{p.mode=(window.ShowduinoMosfetAuthoring?.normaliseMode?.(el.value)||el.value);});
           bind('v4-mosfet-duty',(el)=>{p.duty=clamp(el.value,0,100,100);});
           bind('v4-mosfet-pulse',(el)=>{p.pulseMs=clamp(el.value,0,600000,0);});
+          bind('v4-mosfet-fade-in',(el)=>{p.fadeInMs=clamp(el.value,0,600000,0);});
+          bind('v4-mosfet-fade-out',(el)=>{p.fadeOutMs=clamp(el.value,0,600000,0);});
           bind('v4-mosfet-state',(el)=>{p.state=el.checked;});
-          bind('v4-mosfet-safe',(el)=>{p.safeOff=el.checked;});
+          p.safeOff = true;
           return;
         }
 

@@ -17,6 +17,14 @@ create table if not exists public.shared_shows (
     and document#>>'{package,version}' = '2'
     and document#>>'{safety,policy}' = 'firmware-authoritative'
     and document#>>'{safety,emergency,pixelOverride}' = 'all-white'
+    and document#>>'{safety,emergency,stopTimeline}' = 'true'
+    and document#>>'{safety,emergency,requiresManualClear}' = 'true'
+    and document#>>'{safety,emergency,autoResume}' = 'false'
+    and document#>>'{safety,emergency,productionCannotDisable}' = 'true'
+    and document#>>'{metadata,communityTemplate}' = 'true'
+    and document->'assets' = '[]'::jsonb
+    and document->'globalSettings' = '{}'::jsonb
+    and not jsonb_path_exists(document, '$.devices[*].binding.nodeId')
     and octet_length(document::text) <= 262144
   ),
   created_at timestamptz not null default now()
@@ -34,7 +42,9 @@ create policy "shared_shows_publish_own" on public.shared_shows
 create policy "shared_shows_remove_own" on public.shared_shows
   for delete to authenticated using ((select auth.uid()) = author_id);
 
--- Administrators can hide or delete inappropriate publications from the service role.\n-- Client users cannot update visibility or any other field.\n\n-- Deny database writes from unsigned visitors and refuse any update by default.
+-- Administrators can hide or delete inappropriate publications from the service role.
+-- Client users cannot update visibility or any other field.
+-- Deny database writes from unsigned visitors and refuse any update by default.
 revoke all on table public.shared_shows from anon, authenticated;
 grant select on table public.shared_shows to anon, authenticated;
 grant insert, delete on table public.shared_shows to authenticated;

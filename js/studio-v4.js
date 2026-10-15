@@ -143,6 +143,7 @@
           <div class="v4-button-row"><button class="v4-btn primary" type="button" onclick="ShowduinoStudioV4.openPanel('timeline-editor')">Open Timeline</button><button class="v4-btn" type="button" onclick="ShowduinoStudioV4.openPanel('playback')">Pixel FX Lab</button></div>
         </div>
 
+        <div class="fsw-launch"><button type="button" data-fsw="open">Create my first show →</button><span>Four guided steps · no JSON · your advanced tools stay available</span></div>
         <div class="v4-grid four" id="v4-project-stats">
           <article class="v4-card"><span class="v4-eyebrow">TRACKS</span><strong class="v4-stat" data-v4-stat="tracks">${stats.tracks}</strong><div class="v4-meta">AUTHORING LANES</div></article>
           <article class="v4-card"><span class="v4-eyebrow">CUES</span><strong class="v4-stat" data-v4-stat="clips">${stats.clips}</strong><div class="v4-meta">TIMELINE CLIPS</div></article>

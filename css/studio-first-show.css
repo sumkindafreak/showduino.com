@@ -1,0 +1,54 @@
+/* First Show wizard — the same stage-green visual language as Studio.
+   Modal sits above the legacy phone editor; no controller or safety state. */
+body.fsw-open{overflow:hidden!important}
+.fsw-root{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:14px;color:#f1fff0;font-family:Inter,system-ui,sans-serif}
+.fsw-shade{position:absolute;inset:0;background:rgba(0,4,2,.89);backdrop-filter:blur(8px);cursor:pointer}
+.fsw-dialog{z-index:1;position:relative;width:min(660px,100%);max-height:min(93dvh,900px);overflow:hidden;display:flex;flex-direction:column;
+ border:1px solid #477944;border-radius:16px;background:radial-gradient(circle at 90% 0%,rgba(116,255,67,.11),transparent 20rem),#09140c;
+ box-shadow:0 24px 90px #000d,0 0 34px #72ff3020}
+.fsw-dialog header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid #23482b}
+.fsw-dialog header span{letter-spacing:.14em;font-weight:900;font-size:.73rem;color:#98ff7b}
+.fsw-dialog header button{background:transparent;color:#f2fff0;border:0;border-radius:8px;font-size:2rem;line-height:1;min-width:44px;min-height:44px;cursor:pointer}
+.fsw-progress{display:flex;gap:6px;padding:1rem 1.25rem .2rem}
+.fsw-progress i{flex:1;height:5px;border-radius:6px;background:#2b402d}
+.fsw-progress i.current{background:#78ff43;box-shadow:0 0 12px #78ff4344}
+.fsw-body{min-height:0;overflow:auto;padding:1rem 1.35rem 1.5rem;overscroll-behavior:contain}
+.fsw-body>small{font-size:.68rem;color:#96dd7d;font-weight:900;letter-spacing:.1em}
+.fsw-body h2{font-size:clamp(1.5rem,5vw,2.1rem);letter-spacing:-.045em;margin:.3rem 0 .65rem;color:#f7fff6}
+.fsw-body p{color:#bfd0bd;font-size:.9rem;line-height:1.6}
+.fsw-field{display:grid;gap:.4rem;margin:1rem 0;color:#ecffe7;font-size:.84rem;font-weight:750}
+.fsw-field input,.fsw-field select{min-width:0;min-height:45px;padding:.68rem .8rem;background:#101e12;border:1px solid #4a7049;border-radius:9px;color:#f4fff1;font:inherit}
+.fsw-field input[type=color]{width:105px;cursor:pointer}
+.fsw-fieldset{border:0;margin:1rem 0;padding:0;display:grid;gap:.6rem}
+.fsw-fieldset legend{font-size:.82rem;font-weight:850;margin-bottom:.7rem}
+.fsw-fieldset label{display:flex;align-items:center;gap:.7rem;padding:.75rem;border:1px solid #385a3a;background:#142015;border-radius:9px;cursor:pointer}
+.fsw-fieldset input,.fsw-pick input{accent-color:#81ff51;flex:none;width:18px;height:18px}
+.fsw-pick{display:flex;gap:.9rem;align-items:center;padding:1rem;margin:.6rem 0;border:1px solid #38593b;border-radius:11px;background:linear-gradient(145deg,#122016,#0a150d);cursor:pointer}
+.fsw-pick strong{display:block;color:#f1fff0;font-size:.95rem}
+.fsw-pick small{display:block;color:#a8bca8;margin-top:.25rem;font-size:.8rem;line-height:1.4}
+.fsw-tip{background:rgba(120,255,67,.065);border-left:3px solid #81ff50;padding:.8rem .9rem;border-radius:6px;font-size:.81rem!important}
+.fsw-error{background:#371717;border:1px solid #c95151;border-radius:8px;color:#ffd2d2!important;padding:.7rem .9rem;font-weight:750}
+.fsw-dialog footer{display:flex;justify-content:space-between;gap:.7rem;border-top:1px solid #27442b;padding:1rem 1.25rem;background:#0a150c}
+.fsw-dialog footer button{cursor:pointer;min-height:45px;padding:.7rem 1rem;border:1px solid #527656;border-radius:9px;background:#142317;color:#efffed;font-weight:850;font-size:.87rem}
+.fsw-dialog footer button.fsw-primary{border-color:#7aff46;color:#07170a;background:#80ff51;padding-inline:1.2rem}
+.fsw-dialog footer button:disabled{opacity:.4;cursor:not-allowed}
+.fsw-root button:focus-visible,.fsw-root input:focus-visible,.fsw-root select:focus-visible{outline:2px solid #a4ff87;outline-offset:2px}
+.fsw-summary{border:1px solid #3e6f40;background:#101e13;border-radius:11px;padding:1rem}
+.fsw-summary>strong{display:block;font-size:1.15rem}
+.fsw-summary>small{display:block;color:#adcda7}
+.fsw-summary ol{padding:0;margin:.9rem 0 0;list-style:none;display:grid;gap:.6rem}
+.fsw-summary li{display:grid;grid-template-columns:48px 1fr;column-gap:.6rem;row-gap:.1rem;border-top:1px solid #315032;padding-top:.6rem}
+.fsw-summary li span{grid-row:span 2;font:700 .8rem ui-monospace,monospace;color:#93ff70}
+.fsw-summary li strong{font-size:.87rem}
+.fsw-summary li small{grid-column:2;font-size:.75rem;color:#bed0b9}
+.fsw-launch{margin:.7rem 0 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.fsw-launch button{background:#80ff51;color:#071506;border:1px solid #9fff82;border-radius:9px;min-height:46px;padding:.8rem 1.05rem;font-weight:900;cursor:pointer}
+.fsw-launch span{color:#9fb39d;font-size:.8rem}
+@media(max-width:760px){
+ .fsw-root{padding:0;align-items:end}
+ .fsw-dialog{width:100%;max-height:96dvh;border-radius:17px 17px 0 0}
+ .fsw-body{padding:.85rem 1rem 1.4rem}
+ .fsw-dialog footer{padding:.7rem 1rem max(.7rem,env(safe-area-inset-bottom))}
+ .fsw-dialog header{padding:.8rem 1rem}
+}
+@media(prefers-reduced-motion:reduce){.fsw-root *{transition:none!important;animation:none!important}}

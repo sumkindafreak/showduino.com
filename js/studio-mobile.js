@@ -276,6 +276,7 @@
     const checks = readinessChecks();
     return `<section class="sm-screen">
       <span class="sm-kicker">PROJECT</span>
+      <div class="fsw-launch"><button type="button" data-fsw="open">Create my first show →</button></div>
       <h1 class="sm-title">${esc(name)}</h1>
       <p class="sm-copy">Save, move or deploy the same .shdo v2 production used by desktop Studio.</p>
 

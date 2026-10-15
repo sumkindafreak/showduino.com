@@ -46,6 +46,7 @@ jobs:
           node --check js/studio-mobile.js
           node --check js/current-system-ui.js
           node --check js/studio-v4.js
+          node --check js/studio-first-show.js
           node --check js/studio-ollie-ux.js
           node --check js/studio-testing-hardening.js
           node --check js/api.js
@@ -53,6 +54,9 @@ jobs:
 
       - name: Run SHDO v2 round-trip and P4 compiler test
         run: node tests/studio-shdo-v2.test.cjs
+
+      - name: Run beginner First Show authoring regression test
+        run: node tests/studio-first-show.test.cjs
 
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs

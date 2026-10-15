@@ -42,7 +42,7 @@
       card.append(txt('span', optionLabel(item.category), 'eyebrow'));
       card.append(txt('h3', item.title));
       card.append(txt('p', item.summary || 'No description yet.', 'hs-blurb'));
-      card.append(txt('p', 'by '+item.author_label+' · '+shortDate(item.created_at), 'hs-meta'));
+      card.append(txt('p', 'by '+item.author_label+' · '+shortDate(item.created_at)+' · '+(item.license === 'cc0-1.0' ? 'CC0' : 'CC BY 4.0'), 'hs-meta'));
       const btn = txt('button', 'Preview & download', 'btn secondary');
       btn.type = 'button';
       btn.addEventListener('click', ()=>openShow(item.id));
@@ -74,7 +74,7 @@
       window.HauntSyncShare.validate(entry.document);
       selected = entry;
       els.previewTitle.textContent = entry.title;
-      els.previewAuthor.textContent = 'Shared by '+entry.author_label+' · '+optionLabel(entry.category);
+      els.previewAuthor.textContent = 'Shared by '+entry.author_label+' · '+optionLabel(entry.category)+' · '+(entry.license === 'cc0-1.0' ? 'CC0 1.0' : 'CC BY 4.0');
       els.previewSummary.textContent = entry.summary || 'No description provided.';
       els.previewStats.replaceChildren();
       for (const label of [
@@ -85,6 +85,7 @@
         'No bundled media'
       ]) els.previewStats.append(txt('span', label, 'hs-tag'));
       els.remove.hidden = !viewer || entry.author_id !== viewer.id;
+      els.report.href = 'mailto:showduino38@gmail.com?subject='+encodeURIComponent('HauntSync shared show report: '+entry.id)+'&body='+encodeURIComponent('Please review this shared show.\nID: '+entry.id+'\nTitle: '+entry.title+'\nReason: ');
       els.preview.showModal();
       els.download.focus();
       status('Template verified for download. Review all effects and assignments in Studio.','success');
@@ -132,12 +133,13 @@
         '',
         'Hardware bindings, original project ID, asset paths and notes are removed.',
         'Scene titles, cue names and clip labels remain visible. Please check they contain nothing private.',
+        'Reuse licence: '+(els.license.value === 'cc0-1.0' ? 'CC0 1.0 (public domain dedication)' : 'CC BY 4.0 (credit required)'),
         'Others can download a copy. This does not affect your private shows.'
       ].join('\n');
       if (!window.confirm(confirmation)) { status('Sharing cancelled. Nothing was uploaded.'); return; }
       status('Publishing your sanitised template…');
       await window.ShowduinoSupabase.publishSharedShow({
-        document, title:document.project.name, summary:els.summary.value.trim(), category:els.category.value
+        document, title:document.project.name, summary:els.summary.value.trim(), category:els.category.value, license:els.license.value
       });
       els.form.reset();
       status('Your show template was published to the HauntSync community.','success');
@@ -172,12 +174,12 @@
     els.status=byId('hs-share-status'); els.list=byId('hs-shared-list');
     els.filter=byId('hs-category-filter'); els.file=byId('hs-share-file');
     els.title=byId('hs-share-title'); els.summary=byId('hs-share-summary');
-    els.category=byId('hs-share-category'); els.consent=byId('hs-share-consent');
+    els.category=byId('hs-share-category'); els.license=byId('hs-share-license'); els.consent=byId('hs-share-consent');
     els.form=byId('hs-publish-form'); els.submit=byId('hs-share-submit');
     els.authNote=byId('hs-share-auth-note'); els.preview=byId('hs-show-preview');
     els.previewTitle=byId('hs-preview-title'); els.previewAuthor=byId('hs-preview-author');
     els.previewSummary=byId('hs-preview-summary'); els.previewStats=byId('hs-preview-stats');
-    els.download=byId('hs-preview-download'); els.remove=byId('hs-preview-remove');
+    els.download=byId('hs-preview-download'); els.remove=byId('hs-preview-remove'); els.report=byId('hs-preview-report');
     els.filter.addEventListener('change',refresh);
     els.form.addEventListener('submit',publish);
     els.download.addEventListener('click',download);

@@ -65,11 +65,19 @@
                 <option value="pixels">Pixel FX</option><option value="interactive">Interactive scenes</option>
                 <option value="props">Practical effects</option><option value="other">Other</option>
               </select></div>
+            <div class="form-group">
+              <label for="hs-share-license">How may others reuse your work?</label>
+              <select class="form-control" id="hs-share-license" required>
+                <option value="cc-by-4.0">CC BY 4.0 — reuse and adapt with attribution</option>
+                <option value="cc0-1.0">CC0 1.0 — share without requiring attribution</option>
+              </select>
+              <small class="muted">You must own or have permission to license all content in the template. A licence cannot recall copies already downloaded.</small>
+            </div>
             <div class="form-group"><label for="hs-share-summary">What's included?</label>
               <textarea class="form-control" id="hs-share-summary" rows="3" maxlength="500" placeholder="Describe the sequence and which effects it uses."></textarea></div>
             <div class="hs-publish-warning">
               <strong>Public sharing is permanent unless you unshare it.</strong>
-              Your displayed creator name, title, description and sanitised show template will be visible publicly.
+              Your displayed creator name, title, description, reuse licence and sanitised show template will be visible publicly.
               We remove hardware bindings, asset paths and other known private fields. Review your own scene and clip names before publishing.
             </div>
             <label class="hs-publish-confirm"><input type="checkbox" id="hs-share-consent" required> I own or have permission to share this show, and I understand others can download it.</label>
@@ -97,6 +105,7 @@
         <div class="button-row">
           <button type="button" id="hs-preview-download" class="btn">Download .shdo</button>
           <button type="button" id="hs-preview-remove" class="btn secondary" hidden>Unshare my show</button>
+          <a id="hs-preview-report" class="btn secondary" href="mailto:showduino38@gmail.com?subject=HauntSync%20shared%20show%20report">Report this show</a>
         </div>
       </div>
     </dialog>

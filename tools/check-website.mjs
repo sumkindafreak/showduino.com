@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html','system.html','studio.html','hauntsync.html','profile.html','account.html',
+const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','account.html',
   'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html'];
 const content = (p) => readFileSync(path.join(root, p), 'utf8');
 const localAsset = (url) => {
@@ -78,6 +78,12 @@ assert.ok(!content('hauntsync.html').includes('js/cloud/firebase-service.js'),
 assert.ok(content('profile.html').includes('id="hs-profile-form"'),
   'Creator profile editor missing');
 
+const community = content('community.html');
+for(const asset of ['js/hauntsync-share-model.js','js/hauntsync-library.js','js/cloud/supabase-service.js']) {
+  assert.ok(community.includes(asset), 'HauntSync community page missing ' + asset);
+}
+assert.ok(content('hauntsync.html').includes('community.html'), 'Missing dashboard link to community');
+assert.ok(community.includes('id="hs-share-consent"'), 'Community sharing must be opt-in');
 const studio = content('studio.html');
 for (const panel of ['introduction','timeline-editor','playback','audio-manager',
   'hauntsync','connect','devices','diagnostics','settings','help']) {

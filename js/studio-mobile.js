@@ -8,7 +8,7 @@
   'use strict';
 
   const PHONE_QUERY = '(max-width: 760px)';
-  const CSS_PATH = 'css/studio-mobile-simple.css';
+  const CSS_PATH = 'css/studio-mobile-simple.css?v=20261015-stage-green';
   const CURRENT_TYPES = ['audio', 'relay', 'mosfet', 'pixel', 'trigger', 'fx'];
 
   const TYPE_META = Object.freeze({

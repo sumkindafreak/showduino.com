@@ -1,0 +1,89 @@
+/* Showduino Studio: align creator controls with the public stage-green identity.
+   Visual layer only; FX pixels and semantic WARN/EMERGENCY colours stay distinct. */
+:root{
+  --dark-bg:#060a07;--panel-bg:#121a13;--border-color:#2e4a31;
+  --text-color:#f4fff0;--accent-color:#74ff42;--glow-color:rgba(116,255,66,.42);
+  --studio-v4-bg:#050906;--studio-v4-bg-soft:#0a110b;
+  --studio-v4-surface:#101912;--studio-v4-surface-2:#172419;
+  --studio-v4-surface-3:#203124;--studio-v4-border:#305137;
+  --studio-v4-border-bright:#537a53;--studio-v4-text:#f5fff3;
+  --studio-v4-muted:#b6c9b6;--studio-v4-accent:#76ff43;
+  --studio-v4-accent-soft:rgba(118,255,67,.12);
+  --studio-v4-blue:#9edb9e;--studio-v4-shadow:0 16px 46px rgba(0,0,0,.43);
+}
+body.studio-v4{
+  background:
+    radial-gradient(ellipse 22rem 42rem at 2% 0%,rgba(85,231,45,.12),transparent 77%),
+    radial-gradient(ellipse 24rem 42rem at 98% 0%,rgba(85,231,45,.10),transparent 77%),
+    #050906;
+  color:var(--studio-v4-text);
+}
+.studio-v4 .sidebar{background:linear-gradient(180deg,#0e190f,#070d08 65%,#050806);border-right-color:#2b4b2d}
+.studio-v4 .sidebar-header{border-bottom-color:rgba(118,255,67,.24)}
+.studio-v4 .studio-brand{gap:.65rem}
+.studio-v4 .studio-brand strong{
+  background:linear-gradient(90deg,#fff 0 45%,#79ff49 46%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:950;letter-spacing:-.055em
+}
+.studio-v4 .studio-brand small{color:#a8ff8b;letter-spacing:.3em}
+.studio-v4 .studio-brand-dot,.studio-v4 .context-dot{
+  background:#78ff49;box-shadow:0 0 19px rgba(117,255,67,.8)
+}
+.studio-v4 .studio-brand-rule{color:#a7c5a3}
+.studio-v4 .sidebar-nav li{border-color:transparent;border-radius:7px;cursor:pointer}
+.studio-v4 .sidebar-nav li:hover{background:rgba(106,249,68,.065);border-color:rgba(118,255,67,.20)}
+.studio-v4 .sidebar-nav li.active{color:#abff83;background:linear-gradient(90deg,rgba(118,255,67,.19),rgba(118,255,67,.025));border-color:rgba(118,255,67,.27);box-shadow:inset 3px 0 0 #76ff43}
+.studio-v4 .sidebar-nav li:focus-visible{outline:2px solid #a5ff84;outline-offset:2px}
+.studio-v4 .nav-code{color:#9dc29d}
+.studio-v4 .top-bar{background:rgba(7,14,8,.95);border-bottom-color:rgba(118,255,67,.22);box-shadow:0 10px 28px rgba(0,0,0,.24)}
+.studio-v4 .main-content{position:relative;isolation:isolate}
+.studio-v4 .main-content::before{
+  content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;
+  background:conic-gradient(from 145deg at 9% 0%,transparent,rgba(101,250,53,.075) 9deg,transparent 25deg),
+             conic-gradient(from 183deg at 91% 0%,transparent,rgba(101,250,53,.065) 9deg,transparent 25deg);
+}
+.studio-v4 .studio-context-strip{background:rgba(14,26,15,.87);border-bottom:1px solid rgba(118,255,67,.15)}
+.studio-v4 .workspace{background:transparent}
+.studio-v4 .v4-card,.studio-v4 .node-role-card,.studio-v4 .v4-role{
+  border-color:rgba(104,168,93,.30);
+  background:linear-gradient(143deg,rgba(22,38,22,.98),rgba(10,19,11,.98));
+  box-shadow:0 13px 30px rgba(0,0,0,.19)
+}
+.studio-v4 .v4-card:hover,.studio-v4 .node-role-card:hover{border-color:rgba(118,255,67,.35)}
+.studio-v4 .v4-panel-head h1{letter-spacing:-.055em;text-wrap:balance}
+.studio-v4 .v4-eyebrow,.studio-v4 .v4-role small{color:#9cff73;letter-spacing:.13em}
+.studio-v4 .v4-stat{color:#eaffdf}
+.studio-v4 button:not([disabled]):focus-visible,.studio-v4 input:focus-visible,
+.studio-v4 select:focus-visible,.studio-v4 textarea:focus-visible{
+  outline:2px solid #a0ff7d;outline-offset:2px;
+}
+.studio-v4 .studio-action-btn.studio-primary-action,.studio-v4 .v4-btn.primary{
+  border-color:#7aff4c;background:#76ff43;color:#071408;font-weight:900
+}
+.studio-v4 .studio-action-btn:hover,.studio-v4 .v4-btn:hover{border-color:#76ff43}
+.studio-v4 .studio-action-btn[disabled],.studio-v4 .v4-btn[disabled]{opacity:.55;cursor:not-allowed}
+.studio-v4 .runtime-authority-chip{color:#a5ff80;border-color:rgba(118,255,67,.3)}
+.studio-v4 .bottom-dock{border-top-color:rgba(118,255,67,.25);background:#081109}
+.studio-v4 .studio-overflow-menu{background:#111e12;border-color:#446e43}
+.studio-v4 .studio-overflow-item:hover{background:rgba(118,255,67,.13)}
+.studio-v4 .v4-rule.warning,.studio-v4 .panic,.studio-v4 .btn-panic{
+  /* Warning / emergency controls keep their pre-existing red or amber palette. */
+  border-color:var(--studio-v4-orange)
+}
+.studio-v4 .studio-state-banner{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font:.7rem ui-monospace,SFMono-Regular,monospace;color:#b7ff99;
+  padding:.3rem .55rem;border:1px solid rgba(118,255,67,.23);
+  border-radius:6px;background:rgba(85,180,49,.09)
+}
+.studio-v4 .studio-state-banner::before{content:"";width:6px;height:6px;background:#76ff43;border-radius:50%}
+@media(max-width:760px){
+  body.studio-v4{background:#060d07}
+  .studio-v4 .main-content::before{display:none}
+  .studio-v4 .sidebar{box-shadow:20px 0 60px #0009}
+}
+@media(prefers-reduced-motion:reduce){
+  .studio-v4 .main-content::before{display:none}
+  .studio-v4 .v4-card,.studio-v4 .node-role-card{transition:none!important}
+}

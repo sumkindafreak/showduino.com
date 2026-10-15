@@ -34,6 +34,7 @@
   async function loadProfile(user) {
     const seq = ++latestLoad;
     els.section.hidden = !user;
+    els.gate.hidden = !!user;
     if (!user) return;
     if (busy) return;
     status('Loading your creator profile…');
@@ -82,6 +83,7 @@
   function init() {
     els.section = byId('creator-profile');
     if (!els.section) return;
+    els.gate = byId('hs-profile-signed-out');
     els.status = byId('hs-profile-status');
     els.avatar = byId('hs-profile-avatar');
     els.name = byId('hs-profile-name');
@@ -101,7 +103,7 @@
       return;
     }
     window.ShowduinoSupabase.onAuthChanged((user) => {
-      if (!user) { ++latestLoad; els.section.hidden = true; return; }
+      if (!user) { ++latestLoad; els.section.hidden = true; els.gate.hidden = false; return; }
       loadProfile(user);
     });
   }

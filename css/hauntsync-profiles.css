@@ -37,3 +37,11 @@
 .hs-workspace-empty h3 { margin:0 0 .5rem; }
 @media(max-width:850px) { .hs-profile-grid { grid-template-columns:1fr; } .hs-profile-banner { min-height:0; } }
 @media(max-width:620px) { .hs-workspace-intro { flex-wrap:wrap; } .hs-workspace-intro .hs-workspace-action { margin:0; width:100%; text-align:center; } .hs-profile-banner { padding:1.35rem; } }
+
+/* Distinct HauntSync identity — crimson circuit-skull and bone-white lettering. */
+.hs-brand-heading { display:flex; gap:clamp(1.2rem,3vw,2.5rem); align-items:center; }
+.hs-identity-logo { width:clamp(108px,18vw,180px); height:auto; aspect-ratio:1; object-fit:contain; flex:none; border:1px solid rgba(255,93,62,.25); border-radius:18px; box-shadow:0 10px 40px rgba(0,0,0,.45); }
+.hs-brand-heading h1 { margin:.2rem 0 1rem; }
+.hs-sidebar-logo { width:64px; height:64px; object-fit:contain; border-radius:10px; }
+.hs-profile-identity-logo { display:block; width:105px; height:auto; border:1px solid rgba(255,93,62,.25); border-radius:12px; margin-bottom:1.4rem; }
+@media(max-width:580px) { .hs-brand-heading { align-items:flex-start; gap:1rem; } .hs-identity-logo { width:86px; border-radius:12px; } .hs-brand-heading h1 { font-size:clamp(2.3rem,10vw,4rem); } }

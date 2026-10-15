@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create and edit your HauntSync creator profile for immersive shows, projects and builds.">
+  <title>Creator Profile | HauntSync</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <link rel="stylesheet" href="css/showduino-stage-theme.css">
+  <link rel="stylesheet" href="css/hauntsync-profiles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="system.html">System</a>
+      <a href="studio.html">Studio</a>
+      <a href="hauntsync.html" aria-current="page">HauntSync</a>
+      <a href="tools.html">Hardware</a>
+      <a href="aboutme.html">About</a>
+      <a href="docs.html">Docs</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+  <main class="site-main">
+    <section class="page-heading hs-brand-heading">
+      <img class="hs-identity-logo" src="media/hauntsync-official-logo.webp" width="180" height="180" alt="HauntSync circuit skull and wordmark">
+      <div>
+      <span class="eyebrow">HAUNTSYNC · YOUR SHOWDUINO ID</span>
+      <h1>Meet the <span class="accent">creator.</span></h1>
+      <p>Inspired by Writelite's creator profiles, built for attraction designers, makers and show-control engineers. Your profile stays private to your account during this first phase.</p>
+      </div>
+    </section>
+    <section id="hs-profile-signed-out" class="card hs-profile-section" aria-label="Sign in required">
+      <span class="badge">SHOWDUINO ID</span>
+      <h2>Sign in to build your profile</h2>
+      <p class="muted">Create a free Showduino account or sign in to edit your HauntSync identity. Your projects and hardware remain separate from your public profile.</p>
+      <div class="button-row"><a class="btn" href="account.html">Sign in or create account</a><a class="btn secondary" href="hauntsync.html">Back to HauntSync</a></div>
+    </section>
+    <section id="creator-profile" class="hs-profile-section" hidden aria-labelledby="hs-profile-heading">
+      <div class="section-heading">
+        <span class="eyebrow">MY CREATOR PROFILE</span>
+        <h2 id="hs-profile-heading">Your profile. Your projects.</h2>
+        <p>Create a recognisable identity across your Showduino projects. Public sharing and community profiles are not enabled yet.</p>
+      </div>
+      <p id="hs-profile-status" class="hs-inline-status" role="status" aria-live="polite">Checking your profile…</p>
+      <div class="hs-profile-grid">
+        <article class="hs-profile-banner" aria-label="Creator profile preview">
+          <img class="hs-profile-identity-logo" src="media/hauntsync-official-logo.webp" width="105" height="105" alt="HauntSync">
+          <div id="hs-profile-avatar" class="hs-avatar" aria-hidden="true">HS</div>
+          <h2 id="hs-profile-name">Showduino Creator</h2>
+          <p id="hs-profile-username" class="hs-handle">Choose your creator username</p>
+          <p id="hs-profile-bio-preview" class="hs-profile-about">Tell fellow creators what you build, design or operate.</p>
+          <span id="hs-profile-focus-label" class="hs-profile-focus">Creative technology</span>
+        </article>
+        <form id="hs-profile-form" class="card hs-profile-form">
+          <div class="form-group">
+            <label for="hs-profile-display">Display name</label>
+            <input id="hs-profile-display" class="form-control" type="text" minlength="1" maxlength="60" autocomplete="name" required>
+          </div>
+          <div class="form-group">
+            <label for="hs-profile-handle">Creator username</label>
+            <input id="hs-profile-handle" class="form-control" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9_-]{3,30}" placeholder="your_creator_name" autocapitalize="off" autocomplete="off">
+            <span class="hs-field-hint">Optional. 3–30 letters, numbers, underscores or hyphens; usernames must be unique.</span>
+          </div>
+          <div class="form-group">
+            <label for="hs-profile-focus">What do you create?</label>
+            <select id="hs-profile-focus" class="form-control">
+              <option value="">Select your focus</option>
+              <option>Immersive Attractions</option>
+              <option>Escape Rooms</option>
+              <option>Show Control</option>
+              <option>Practical Effects</option>
+              <option>Electronics &amp; Making</option>
+              <option>Live Events</option>
+              <option>Other Creative Work</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="hs-profile-bio">About you</label>
+            <textarea id="hs-profile-bio" class="form-control" rows="5" maxlength="500" placeholder="Tell the community about your attractions, builds and projects…"></textarea>
+            <span class="hs-field-hint">Maximum 500 characters.</span>
+          </div>
+          <div class="form-group">
+            <label for="hs-profile-website">Website (optional)</label>
+            <input id="hs-profile-website" class="form-control" type="url" inputmode="url" maxlength="240" placeholder="https://your-website.com">
+          </div>
+          <div class="button-row">
+            <button id="hs-profile-save" class="btn" type="submit">Save creator profile</button>
+            <a class="btn secondary" href="hauntsync.html">Open my dashboard</a>
+          </div>
+        </form>
+      </div>
+    </section>
+    <section class="card" aria-label="Privacy and show safety">
+      <span class="badge">YOUR DATA</span>
+      <h2>Creator identity ≠ live show control</h2>
+      <p class="muted">Profiles live in your optional Showduino account. Local hardware inventory stays in this browser, and no cloud account is ever required for a P4 Show Engine to continue a loaded show.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>
+  <script src="config/runtime-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+  <script src="js/cloud/supabase-service.js"></script>
+  <script src="js/hauntsync-profile.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
+</body>
+</html>

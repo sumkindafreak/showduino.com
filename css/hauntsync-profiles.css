@@ -1,0 +1,47 @@
+/* HauntSync: Writelite-inspired creator identity and project workspace, in Showduino green. */
+.hs-profile-section[hidden], .hs-hidden[hidden] { display:none !important; }
+.hs-profile-section { margin:1.2rem 0 2.5rem; }
+.hs-profile-grid { display:grid; grid-template-columns:minmax(240px,.86fr) minmax(0,1.14fr); gap:1rem; align-items:start; }
+.hs-profile-banner { position:relative; overflow:hidden; border:1px solid var(--site-border); border-radius:18px; padding:2rem 1.5rem; background:
+  radial-gradient(ellipse at 80% 0%,rgba(120,255,67,.18),transparent 55%),
+  linear-gradient(145deg,#192420,#09110f 65%,#0e1715);
+  min-height:100%; }
+.hs-profile-banner:before { content:''; position:absolute; top:-80px; right:-80px; height:230px; width:230px; border-radius:50%; border:1px solid rgba(120,255,67,.15); box-shadow:0 0 0 35px rgba(120,255,67,.025),0 0 0 70px rgba(120,255,67,.02); pointer-events:none; }
+.hs-avatar { display:grid; place-items:center; flex-shrink:0; width:80px; height:80px; border-radius:20px; border:1px solid rgba(120,255,67,.55); background:linear-gradient(135deg,#24362a,#101812); color:#a1ff76; font-size:1.6rem; font-weight:900; box-shadow:0 12px 40px rgba(0,0,0,.28); }
+.hs-avatar.sm { width:55px; height:55px; border-radius:14px; font-size:1.1rem; }
+.hs-profile-banner h2 { margin:1rem 0 .3rem; overflow-wrap:anywhere; }
+.hs-handle { color:var(--site-accent); font-size:.95rem; font-weight:700; overflow-wrap:anywhere; }
+.hs-profile-about { margin:1.3rem 0; color:var(--site-muted); line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere; }
+.hs-profile-focus { display:inline-flex; border:1px solid rgba(120,255,67,.3); padding:.45rem .7rem; border-radius:999px; color:#d9ffd0; background:rgba(120,255,67,.07); font-weight:700; font-size:.85rem; }
+.hs-profile-form { display:grid; gap:1rem; }
+.hs-profile-form .form-group { margin:0; }
+.hs-profile-form input, .hs-profile-form textarea, .hs-profile-form select { max-width:100%; }
+.hs-inline-status { margin:0 0 1rem; padding:.85rem 1rem; border-radius:10px; border:1px solid var(--site-border); color:var(--site-muted); background:#0c1511; }
+.hs-inline-status.success { border-color:rgba(120,255,67,.3); color:#cefac1; }
+.hs-inline-status.error { border-color:rgba(255,107,107,.55); color:#ffd1d1; }
+.hs-field-hint { display:block; font-size:.8rem; color:var(--site-muted); margin-top:.25rem; line-height:1.45; }
+.hs-workspace-intro { display:flex; align-items:center; gap:1rem; border:1px solid var(--site-border); border-radius:14px; padding:1.1rem; background:linear-gradient(115deg,#152019,#0a1212); }
+.hs-workspace-intro .hs-avatar { width:64px; height:64px; }
+.hs-workspace-intro h2 { margin:0 0 .25rem; font-size:1.25rem; overflow-wrap:anywhere; }
+.hs-workspace-intro p { margin:.1rem 0; color:var(--site-muted); overflow-wrap:anywhere; }
+.hs-workspace-intro .hs-workspace-action { margin-left:auto; white-space:nowrap; }
+.hs-local-notice { padding:.8rem 1rem; margin:.75rem 0 0; border-left:2px solid var(--site-accent); color:var(--site-muted); background:rgba(120,255,67,.055); font-size:.9rem; }
+.hs-tag { display:inline-block; border:1px solid var(--site-border-bright); border-radius:999px; padding:.2rem .6rem; font-size:.7rem; font-weight:800; letter-spacing:.05em; }
+.hs-tag.cloud { border-color:rgba(120,255,67,.45); color:#b5ff83; }
+.hs-dashboard-sidebar-head { display:flex; gap:.7rem; align-items:center; }
+.hs-dashboard-sidebar-head h2 { font-size:1.15rem; margin:0 0 .25rem; overflow-wrap:anywhere; }
+.hs-dashboard-sidebar-head p { font-size:.85rem; margin:0; overflow-wrap:anywhere; }
+.hs-profile-links { display:grid; gap:.45rem; margin-top:1rem; }
+.hs-profile-links .btn { text-align:center; }
+.hs-workspace-empty { border:1px dashed var(--site-border-bright); padding:2rem 1rem; border-radius:12px; text-align:center; }
+.hs-workspace-empty h3 { margin:0 0 .5rem; }
+@media(max-width:850px) { .hs-profile-grid { grid-template-columns:1fr; } .hs-profile-banner { min-height:0; } }
+@media(max-width:620px) { .hs-workspace-intro { flex-wrap:wrap; } .hs-workspace-intro .hs-workspace-action { margin:0; width:100%; text-align:center; } .hs-profile-banner { padding:1.35rem; } }
+
+/* Distinct HauntSync identity — crimson circuit-skull and bone-white lettering. */
+.hs-brand-heading { display:flex; gap:clamp(1.2rem,3vw,2.5rem); align-items:center; }
+.hs-identity-logo { width:clamp(108px,18vw,180px); height:auto; aspect-ratio:1; object-fit:contain; flex:none; border:1px solid rgba(255,93,62,.25); border-radius:18px; box-shadow:0 10px 40px rgba(0,0,0,.45); }
+.hs-brand-heading h1 { margin:.2rem 0 1rem; }
+.hs-sidebar-logo { width:64px; height:64px; object-fit:contain; border-radius:10px; }
+.hs-profile-identity-logo { display:block; width:105px; height:auto; border:1px solid rgba(255,93,62,.25); border-radius:12px; margin-bottom:1.4rem; }
+@media(max-width:580px) { .hs-brand-heading { align-items:flex-start; gap:1rem; } .hs-identity-logo { width:86px; border-radius:12px; } .hs-brand-heading h1 { font-size:clamp(2.3rem,10vw,4rem); } }

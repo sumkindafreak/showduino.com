@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/timeline-drop-zones.css">
   <link rel="stylesheet" href="css/studio-inspector-drawer.css">
   <link rel="stylesheet" href="css/studio-v4.css">
+  <link rel="stylesheet" href="css/showduino-studio-theme.css">
 </head>
 <body class="studio-v4">
   <div class="app-container">
@@ -28,7 +29,7 @@
         <p class="studio-brand-rule">CREATE HERE · RUN ON P4</p>
       </div>
 
-      <nav class="sidebar-nav" aria-label="Studio workspace">
+      <nav class="sidebar-nav" id="studio-workspace-navigation" aria-label="Studio workspace">
         <span class="studio-nav-heading">WORKSPACE</span>
         <ul>
           <li class="active" data-panel="introduction" tabindex="0"><span class="nav-code">01</span><span>Dashboard</span></li>
@@ -79,6 +80,7 @@
 
         <div class="studio-status-quiet" aria-label="Studio status">
           <div class="connection-status offline" role="status">CREATOR MODE</div>
+          <span class="studio-state-banner" title="Studio is a production creator and browser preview, not the live Show Engine">CREATOR · TESTING</span>
           <span class="runtime-authority-chip" title="P4 RUNTIME AUTHORITY. Studio authors production data. The ESP32-P4 owns live runtime. Emergency behaviour is not authored here.">P4</span>
           <span id="studio-save-state" class="studio-save-state">LOCAL</span>
           <span class="system-info"><span class="clock">--:--:--</span></span>
@@ -206,14 +208,30 @@
       const importFile = document.getElementById('studio-import-file');
       const saveState = document.getElementById('studio-save-state');
 
-      previewButton?.addEventListener('click', () => {
-        const playPreview = () => window.timelineEditor?.play?.();
-        if (document.querySelector('.timeline-editor') && window.timelineEditor?.play) {
-          playPreview();
-          return;
+      previewButton?.addEventListener('click', async () => {
+        // The timeline initialises asynchronously after its panel opens.
+        // Wait for it instead of racing one fixed delay (browser preview only).
+        previewButton.disabled = true;
+        previewButton.textContent = 'Opening…';
+        try {
+          if (!document.querySelector('.timeline-editor')) {
+            await window.loadPanel?.('timeline-editor');
+          }
+          let ready = false;
+          for (let attempt = 0; attempt < 20; attempt += 1) {
+            ready = Boolean(document.querySelector('.timeline-editor') &&
+              typeof window.timelineEditor?.play === 'function');
+            if (ready) break;
+            await new Promise((resolve) => window.setTimeout(resolve, 100));
+          }
+          if (!ready) throw new Error('Timeline preview did not start. Open Timeline and check the Studio Log.');
+          window.timelineEditor.play();
+        } catch (error) {
+          window.alert(error.message);
+        } finally {
+          previewButton.disabled = false;
+          previewButton.textContent = 'Preview';
         }
-        window.loadPanel?.('timeline-editor');
-        window.setTimeout(playPreview, 180);
       });
 
       saveButton?.addEventListener('click', async () => {

@@ -709,8 +709,21 @@
 
   function patchMobileMenu() {
     const button = document.getElementById('studio-mobile-menu');
-    button?.addEventListener('click', () => document.body.classList.toggle('studio-v4-menu-open'));
-    document.querySelectorAll('.sidebar-nav li').forEach((item) => item.addEventListener('click', () => document.body.classList.remove('studio-v4-menu-open')));
+    if (!button) return;
+    const close = () => {
+      document.body.classList.remove('studio-v4-menu-open');
+      button.setAttribute('aria-expanded', 'false');
+    };
+    button.setAttribute('aria-controls', 'studio-workspace-navigation');
+    button.setAttribute('aria-expanded', 'false');
+    button.addEventListener('click', () => {
+      const open = document.body.classList.toggle('studio-v4-menu-open');
+      button.setAttribute('aria-expanded', String(open));
+    });
+    document.querySelectorAll('.sidebar-nav li').forEach((item) => item.addEventListener('click', close));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
   }
 
   function boot() {
@@ -727,7 +740,6 @@
           const observer = new MutationObserver((mutations) => mutations.forEach((mutation) => mutation.addedNodes.forEach((node) => { if (node instanceof Element) hydratePanel(node); })));
           observer.observe(workspace, { childList: true, subtree: false });
         }
-        window.setInterval(unlockCurrentPanels, 1800);
       }, 0);
     }, { once: true });
 

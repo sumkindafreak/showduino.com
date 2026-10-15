@@ -87,7 +87,7 @@ assert.ok(community.includes('id="hs-share-consent"'), 'Community sharing must b
 // HauntSync and Showduino have their own identity. Never publish cross-project
 // attributions, links or internal inspiration notes in website assets.
 // Walk the deployed source tree, not just the top-level page templates.
-const forbiddenCrossBrand = /\\bwrite[\\s-]?lite\\b|novels[-_]community|github\\.com\\/sumkindafreak\\/novels/i;
+const forbiddenCrossBrand = /\bwrite[\s-]?lite\b|novels[-_]community|github\.com\/sumkindafreak\/novels/i;
 const checkedExtensions = new Set(['.html', '.css', '.js', '.md', '.sql', '.json']);
 const excludedDirs = new Set(['.git', '.github', 'node_modules', 'tests', 'tools']);
 const unwantedReferences = [];

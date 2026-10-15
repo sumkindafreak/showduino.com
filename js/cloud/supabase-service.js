@@ -117,7 +117,7 @@
   async function getProfile() {
     const user = await getCurrentUser();
     if (!user) return null;
-    const { data, error } = await getClient().from('profiles').select('id,display_name,created_at,updated_at').eq('id', user.id).maybeSingle();
+    const { data, error } = await getClient().from('profiles').select('id,display_name,avatar_url,created_at,updated_at').eq('id', user.id).maybeSingle();
     if (error) throw error;
     return data;
   }

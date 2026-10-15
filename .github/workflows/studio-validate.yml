@@ -58,6 +58,9 @@ jobs:
       - name: Run beginner First Show authoring regression test
         run: node tests/studio-first-show.test.cjs
 
+      - name: Review mobile branding, project preservation and wizard accessibility
+        run: node tests/studio-mobile-brand-review.test.cjs
+
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs
 

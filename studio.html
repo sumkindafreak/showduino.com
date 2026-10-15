@@ -208,14 +208,30 @@
       const importFile = document.getElementById('studio-import-file');
       const saveState = document.getElementById('studio-save-state');
 
-      previewButton?.addEventListener('click', () => {
-        const playPreview = () => window.timelineEditor?.play?.();
-        if (document.querySelector('.timeline-editor') && window.timelineEditor?.play) {
-          playPreview();
-          return;
+      previewButton?.addEventListener('click', async () => {
+        // The timeline initialises asynchronously after its panel opens.
+        // Wait for it instead of racing one fixed delay (browser preview only).
+        previewButton.disabled = true;
+        previewButton.textContent = 'Opening…';
+        try {
+          if (!document.querySelector('.timeline-editor')) {
+            await window.loadPanel?.('timeline-editor');
+          }
+          let ready = false;
+          for (let attempt = 0; attempt < 20; attempt += 1) {
+            ready = Boolean(document.querySelector('.timeline-editor') &&
+              typeof window.timelineEditor?.play === 'function');
+            if (ready) break;
+            await new Promise((resolve) => window.setTimeout(resolve, 100));
+          }
+          if (!ready) throw new Error('Timeline preview did not start. Open Timeline and check the Studio Log.');
+          window.timelineEditor.play();
+        } catch (error) {
+          window.alert(error.message);
+        } finally {
+          previewButton.disabled = false;
+          previewButton.textContent = 'Preview';
         }
-        window.loadPanel?.('timeline-editor');
-        window.setTimeout(playPreview, 180);
       });
 
       saveButton?.addEventListener('click', async () => {

@@ -223,9 +223,9 @@
       <div class="v4-panel deploy-panel">
         <div class="v4-panel-head"><div><span class="v4-eyebrow">DEPLOYMENT</span><h1>Creator → Show Engine.</h1><p>Deployment moves a finished production toward the ESP32-P4. It does not turn this browser into a live controller.</p></div></div>
         <div class="v4-grid three">
-          <article class="v4-card"><span class="v4-eyebrow">01 / SAVE</span><h3>Freeze the project snapshot</h3><p>Save the current `.shdo` data locally before transfer. Cloud backup is optional and never part of live runtime.</p></article>
+          <article class="v4-card"><span class="v4-eyebrow">01 / SAVE</span><h3>Freeze the project snapshot</h3><p>Save the current <code>.shdo</code> data locally before transfer. Cloud backup is optional and never part of live runtime.</p></article>
           <article class="v4-card"><span class="v4-eyebrow">02 / CHECK</span><h3>Validate routing + assets</h3><p>Make sure node IDs, audio references, pixel segments and output safety settings are complete.</p></article>
-          <article class="v4-card"><span class="v4-eyebrow">03 / INSTALL</span><h3>Install on the P4</h3><p>When a compatible local Show Engine import API is available, Studio can send directly. Until then Studio exports the same `.shdo` snapshot.</p></article>
+          <article class="v4-card"><span class="v4-eyebrow">03 / INSTALL</span><h3>Install on the P4</h3><p>When a compatible local Show Engine import API is available, Studio can send directly. Until then Studio exports the same <code>.shdo</code> snapshot.</p></article>
         </div>
         <div class="v4-rule warning" style="margin-top:.8rem;"><strong>Current implementation reality:</strong> direct browser-to-P4 install is capability-gated. If the local import API is not available, Studio safely falls back to exporting the production file rather than pretending deployment succeeded.</div>
         <div class="v4-grid two" style="margin-top:.8rem;">
@@ -269,7 +269,7 @@
           <article class="v4-card"><h3>3. Route targets</h3><p>Give output clips a logical node ID and output. Pixel clips also define the exact physical segment they own.</p></article>
           <article class="v4-card"><h3>4. Preview</h3><p>Browser playback is a design preview only. It does not represent the P4's authoritative live clock.</p></article>
           <article class="v4-card"><h3>5. Validate</h3><p>Run Project Check before deployment to find missing routes, files, invalid segments and legacy clips.</p></article>
-          <article class="v4-card"><h3>6. Deploy</h3><p>Install on a compatible local Show Engine or export the exact same `.shdo` production package.</p></article>
+          <article class="v4-card"><h3>6. Deploy</h3><p>Install on a compatible local Show Engine or export the exact same <code>.shdo</code> production package.</p></article>
         </div>
         <div class="v4-rule danger" style="margin-top:.8rem;"><strong>Emergency:</strong> Studio does not author or clear emergency state. On the live P4, emergency interrupts the show, drives all pixels bright white, latches, and requires deliberate recovery.</div>
         <div class="v4-rule warning" style="margin-top:.6rem;"><strong>DMX:</strong> deliberately outside the current implementation scope. Legacy DMX clips are preserved when importing old projects, but Studio v4 does not offer new DMX authoring.</div>

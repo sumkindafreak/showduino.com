@@ -6,6 +6,8 @@ create table if not exists public.shared_shows (
   author_label text not null default 'HauntSync creator' check (char_length(author_label) between 1 and 60),
   title text not null check (char_length(title) between 3 and 100),
   summary text not null default '' check (char_length(summary) <= 500),
+  license text not null check (license in ('cc-by-4.0','cc0-1.0')),
+  is_listed boolean not null default true,
   category text not null default 'other'
     check (category in ('ambience','lighting','pixels','interactive','props','other')),
   document jsonb not null check (
@@ -26,13 +28,13 @@ alter table public.shared_shows enable row level security;
 -- Published templates are intentionally public. Only a signed-in creator can
 -- publish or unpublish their own work. UPDATE is not supported in this first release.
 create policy "shared_shows_read_public" on public.shared_shows
-  for select to anon, authenticated using (true);
+  for select to anon, authenticated using (is_listed = true);
 create policy "shared_shows_publish_own" on public.shared_shows
-  for insert to authenticated with check ((select auth.uid()) = author_id);
+  for insert to authenticated with check ((select auth.uid()) = author_id and is_listed = true);
 create policy "shared_shows_remove_own" on public.shared_shows
   for delete to authenticated using ((select auth.uid()) = author_id);
 
--- Deny database writes from unsigned visitors and refuse any update by default.
+-- Administrators can hide or delete inappropriate publications from the service role.\n-- Client users cannot update visibility or any other field.\n\n-- Deny database writes from unsigned visitors and refuse any update by default.
 revoke all on table public.shared_shows from anon, authenticated;
 grant select on table public.shared_shows to anon, authenticated;
 grant insert, delete on table public.shared_shows to authenticated;

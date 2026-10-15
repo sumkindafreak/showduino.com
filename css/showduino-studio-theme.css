@@ -67,8 +67,8 @@ body.studio-v4{
 .studio-v4 .bottom-dock{border-top-color:rgba(118,255,67,.25);background:#081109}
 .studio-v4 .studio-overflow-menu{background:#111e12;border-color:#446e43}
 .studio-v4 .studio-overflow-item:hover{background:rgba(118,255,67,.13)}
-.studio-v4 .v4-rule.warning,.studio-v4 .panic,.studio-v4 .btn-panic{
-  /* Warning / emergency controls keep their pre-existing red or amber palette. */
+.studio-v4 .v4-rule.warning{
+  /* Preserve amber warnings; red emergency controls are not re-themed. */
   border-color:var(--studio-v4-orange)
 }
 .studio-v4 .studio-state-banner{

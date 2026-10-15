@@ -117,12 +117,12 @@
   async function getProfile() {
     const user = await getCurrentUser();
     if (!user) return null;
-    const { data, error } = await getClient().from('profiles').select('id,display_name,created_at,updated_at').eq('id', user.id).maybeSingle();
+    const { data, error } = await getClient().from('profiles').select('id,display_name,avatar_url,created_at,updated_at').eq('id', user.id).maybeSingle();
     if (error) throw error;
     return data;
   }
 
-  const CREATOR_FIELDS = 'id,display_name,username,bio,creator_focus,website_url,created_at,updated_at';
+  const CREATOR_FIELDS = 'id,display_name,username,bio,creator_focus,website_url,avatar_url,created_at,updated_at';
 
   async function getCreatorProfile() {
     const user = await getCurrentUser();
@@ -166,6 +166,75 @@
       if (error.code === '23505') throw new Error('That username is already taken. Try another one.');
       throw error;
     }
+    return data;
+  }
+
+  // Only public-facing avatar images are stored here; private projects stay in owner-scoped tables.
+  const AVATAR_BUCKET = 'hauntsync-avatars';
+  const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+  const AVATAR_TYPES = Object.freeze({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' });
+
+  function ownedAvatarPath(publicUrl, uid) {
+    if (!publicUrl || !uid) return null;
+    const prefix = getClient().storage.from(AVATAR_BUCKET).getPublicUrl(uid + '/').data.publicUrl;
+    if (!publicUrl.startsWith(prefix)) return null;
+    const leaf = publicUrl.slice(prefix.length);
+    return /^avatar-[a-f0-9-]+\.(?:jpg|png|webp)$/.test(leaf) ? uid + '/' + leaf : null;
+  }
+
+  async function clearOwnedAvatar(publicUrl, uid) {
+    const path = ownedAvatarPath(publicUrl, uid);
+    if (!path) return;
+    const { error } = await getClient().storage.from(AVATAR_BUCKET).remove([path]);
+    if (error) console.warn('[HauntSync] Could not remove previous avatar.', error);
+  }
+
+  async function uploadCreatorAvatar(file) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in before uploading a profile photo.');
+    if (!file || !Object.hasOwn(AVATAR_TYPES, file.type)) throw new Error('Choose a JPG, PNG or WebP image.');
+    if (!Number.isFinite(file.size) || file.size < 1 || file.size > AVATAR_MAX_BYTES) {
+      throw new Error('Profile photos must be 2 MB or smaller.');
+    }
+    const uuid = window.crypto?.randomUUID?.();
+    if (!uuid) throw new Error('Profile photo upload requires a secure HTTPS browser.');
+    const previous = await getCreatorProfile();
+    const path = user.id + '/avatar-' + uuid + '.' + AVATAR_TYPES[file.type];
+    const store = getClient().storage.from(AVATAR_BUCKET);
+    const { error: uploadError } = await store.upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type
+    });
+    if (uploadError) throw uploadError;
+    try {
+      const url = store.getPublicUrl(path).data.publicUrl;
+      const { data, error } = await getClient().from('profiles').update({
+        avatar_url: url,
+        updated_at: new Date().toISOString()
+      }).eq('id', user.id).select(CREATOR_FIELDS).single();
+      if (error) throw error;
+      // The old file is removed only after the new profile change succeeds.
+      if (previous?.avatar_url) await clearOwnedAvatar(previous.avatar_url, user.id);
+      return data;
+    } catch (error) {
+      // Failed profile updates must not leave newly uploaded public files behind.
+      await store.remove([path]).catch(() => {});
+      throw error;
+    }
+  }
+
+  async function removeCreatorAvatar() {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in before removing a profile photo.');
+    const previous = await getCreatorProfile();
+    if (!previous?.avatar_url) return previous;
+    const { data, error } = await getClient().from('profiles').update({
+      avatar_url: null,
+      updated_at: new Date().toISOString()
+    }).eq('id', user.id).select(CREATOR_FIELDS).single();
+    if (error) throw error;
+    await clearOwnedAvatar(previous.avatar_url, user.id);
     return data;
   }
 
@@ -224,6 +293,6 @@
 
   window.ShowduinoSupabase = Object.freeze({
     enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
-    onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, saveProject, listProjects, loadProject, deleteProject
+    onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject
   });
 })();

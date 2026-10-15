@@ -45,3 +45,19 @@
 .hs-sidebar-logo { width:64px; height:64px; object-fit:contain; border-radius:10px; }
 .hs-profile-identity-logo { display:block; width:105px; height:auto; border:1px solid rgba(255,93,62,.25); border-radius:12px; margin-bottom:1.4rem; }
 @media(max-width:580px) { .hs-brand-heading { align-items:flex-start; gap:1rem; } .hs-identity-logo { width:86px; border-radius:12px; } .hs-brand-heading h1 { font-size:clamp(2.3rem,10vw,4rem); } }
+
+/* Writelite-inspired personal images: rounded editor preview with accessible controls. */
+.hs-avatar { position:relative; overflow:hidden; }
+.hs-avatar-photo { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; border-radius:inherit; }
+.hs-avatar-photo[hidden] { display:none !important; }
+.hs-photo-editor { border:1px solid rgba(120,255,67,.22); border-radius:14px; padding:1.1rem; margin:0; min-width:0; background:rgba(120,255,67,.04); }
+.hs-photo-editor legend { padding:0 .4rem; font-weight:800; color:var(--site-text); }
+.hs-photo-editor p { margin:.1rem 0 1rem; }
+.hs-photo-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.65rem; }
+.hs-photo-upload-label { display:inline-flex; align-items:center; justify-content:center; border-radius:10px; padding:.7rem 1rem; background:var(--site-accent); color:#081108; font-weight:850; cursor:pointer; }
+.hs-photo-upload-label:hover { filter:brightness(1.1); }
+.hs-photo-upload-label:focus-within { outline:2px solid var(--site-accent); outline-offset:3px; }
+.hs-file-input { max-width:260px; min-width:0; font-size:.8rem; color:var(--site-muted); }
+.hs-file-input::file-selector-button { border:1px solid var(--site-border); border-radius:7px; padding:.45rem; background:#152119; color:var(--site-text); }
+.hs-photo-controls button:disabled,.hs-photo-upload-label:has(+ input:disabled) { opacity:.55; cursor:default; }
+@media(max-width:620px) { .hs-photo-controls { align-items:stretch; flex-direction:column; } .hs-photo-controls>* { max-width:100%; width:100%; } .hs-file-input { font-size:.9rem; } }

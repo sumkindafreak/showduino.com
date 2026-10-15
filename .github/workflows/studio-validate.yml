@@ -64,6 +64,9 @@ jobs:
       - name: Run HauntSync creator profile and account isolation tests
         run: node tests/hauntsync-profile.test.cjs
 
+      - name: Run HauntSync image upload and rollback tests
+        run: node tests/hauntsync-avatar.test.cjs
+
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs
 

@@ -49,13 +49,23 @@
       <div class="hs-profile-grid">
         <article class="hs-profile-banner" aria-label="Creator profile preview">
           <img class="hs-profile-identity-logo" src="media/hauntsync-official-logo.webp" width="105" height="105" alt="HauntSync">
-          <div id="hs-profile-avatar" class="hs-avatar" aria-hidden="true">HS</div>
+          <div id="hs-profile-avatar" class="hs-avatar" aria-hidden="true"><img id="hs-profile-photo" class="hs-avatar-photo" alt="" hidden><span id="hs-profile-initials">HS</span></div>
           <h2 id="hs-profile-name">Showduino Creator</h2>
           <p id="hs-profile-username" class="hs-handle">Choose your creator username</p>
           <p id="hs-profile-bio-preview" class="hs-profile-about">Tell fellow creators what you build, design or operate.</p>
           <span id="hs-profile-focus-label" class="hs-profile-focus">Creative technology</span>
         </article>
         <form id="hs-profile-form" class="card hs-profile-form">
+          <fieldset class="hs-photo-editor">
+            <legend>Profile photo</legend>
+            <p class="hs-field-hint">Make HauntSync your own. Choose a JPG, PNG or WebP image (up to 2 MB). It will be publicly viewable by anyone with its image URL.</p>
+            <div class="hs-photo-controls">
+              <label class="hs-photo-upload-label" for="hs-profile-file">Choose a photo</label>
+              <input id="hs-profile-file" class="hs-file-input" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="hs-photo-help">
+              <button id="hs-profile-photo-remove" class="btn secondary" type="button" disabled>Remove photo</button>
+            </div>
+            <small id="hs-photo-help" class="hs-field-hint">Your photo uploads as soon as you select it. Other profile fields save separately using the button below.</small>
+          </fieldset>
           <div class="form-group">
             <label for="hs-profile-display">Display name</label>
             <input id="hs-profile-display" class="form-control" type="text" minlength="1" maxlength="60" autocomplete="name" required>
@@ -97,7 +107,7 @@
     <section class="card" aria-label="Privacy and show safety">
       <span class="badge">YOUR DATA</span>
       <h2>Creator identity ≠ live show control</h2>
-      <p class="muted">Profiles live in your optional Showduino account. Local hardware inventory stays in this browser, and no cloud account is ever required for a P4 Show Engine to continue a loaded show.</p>
+      <p class="muted">Profile details are private to your account for now; an uploaded profile photo is publicly accessible through its image URL. Local hardware inventory stays in this browser, and no cloud account is ever required for a P4 Show Engine to continue a loaded show.</p>
     </section>
   </main>
   <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>

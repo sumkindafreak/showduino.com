@@ -190,6 +190,22 @@
     if (button) removeDevice(button.dataset.removeDevice);
   }
 
+  function showWorkspaceAvatar(displayName, avatarUrl) {
+    const surface = elements.workspaceAvatar;
+    surface.replaceChildren();
+    const initialsNode = document.createElement('span');
+    initialsNode.textContent = initials(displayName);
+    surface.append(initialsNode);
+    if (!avatarUrl || !/^https:\/\//i.test(avatarUrl)) return;
+    const photo = document.createElement('img');
+    photo.className = 'hs-avatar-photo';
+    photo.alt = '';
+    photo.loading = 'lazy';
+    photo.src = avatarUrl;
+    photo.addEventListener('error', () => photo.remove());
+    surface.append(photo);
+  }
+
   async function updateAccount(user) {
     const seq = ++authSequence;
     currentUser = user;
@@ -205,7 +221,7 @@
     elements.workspaceDescription.textContent = user
       ? 'Your browser projects are below. Checking your Showduino cloud library…'
       : 'Create shows in Studio now, or make a Showduino ID to use your cloud library and creator profile.';
-    elements.workspaceAvatar.textContent = initials(name);
+    showWorkspaceAvatar(name, null);
     renderProjects(); updateStats();
 
     if (!user || !cloudConfigured()) {
@@ -226,7 +242,7 @@
       const displayName = profile?.display_name || name;
       elements.accountName.textContent = displayName;
       elements.workspaceTitle.textContent = 'Welcome back, ' + displayName;
-      elements.workspaceAvatar.textContent = initials(displayName);
+      showWorkspaceAvatar(displayName, profile?.avatar_url || null);
       elements.workspaceDescription.textContent = 'Your productions and devices, together in one workspace.';
       renderProjects(); updateStats();
       setStatus('Workspace loaded. Cloud shows are available; hardware inventory remains local to this browser.', 'success');

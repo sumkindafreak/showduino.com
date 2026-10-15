@@ -1,4 +1,4 @@
-/* HauntSync profile editor: authenticated, private Supabase records only. */
+/* HauntSync creator profile editor — owner-scoped Supabase fields and public avatar upload. */
 (function () {
   'use strict';
 
@@ -6,6 +6,7 @@
   const els = {};
   let latestLoad = 0;
   let busy = false;
+  let persistedProfile = null;
 
   function initials(name) {
     return String(name || 'Creator').trim().split(/\s+/).filter(Boolean)
@@ -17,13 +18,34 @@
     els.status.className = 'hs-inline-status' + (kind ? ' ' + kind : '');
   }
 
-  function render(profile) {
+  function setBusy(value) {
+    busy = value;
+    els.saveButton.disabled = value;
+    els.photoInput.disabled = value;
+    els.removePhoto.disabled = value || !persistedProfile?.avatar_url;
+  }
+
+  function displayAvatar(url, name) {
+    els.initials.textContent = initials(name);
+    els.photo.hidden = !url;
+    els.initials.hidden = !!url;
+    if (url) {
+      els.photo.src = url;
+    } else {
+      els.photo.removeAttribute('src');
+    }
+  }
+
+  function render(profile, syncForm = true) {
+    persistedProfile = profile;
     const name = profile?.display_name || 'Showduino Creator';
-    els.avatar.textContent = initials(name);
+    displayAvatar(profile?.avatar_url || '', name);
+    els.removePhoto.disabled = busy || !profile?.avatar_url;
     els.name.textContent = name;
     els.usernameLabel.textContent = profile?.username ? '@' + profile.username : 'Choose your creator username';
     els.bioPreview.textContent = profile?.bio || 'Tell fellow creators what you build, design or operate.';
     els.focusLabel.textContent = profile?.creator_focus || 'Creative technology';
+    if (!syncForm) return; // Photo saves must not discard other unsaved text edits.
     els.nameInput.value = profile?.display_name || '';
     els.usernameInput.value = profile?.username || '';
     els.bioInput.value = profile?.bio || '';
@@ -35,19 +57,17 @@
     const seq = ++latestLoad;
     els.section.hidden = !user;
     els.gate.hidden = !!user;
-    if (!user) return;
+    if (!user) { persistedProfile = null; return; }
     if (busy) return;
     status('Loading your creator profile…');
     try {
       const profile = await window.ShowduinoSupabase.getCreatorProfile();
       if (seq !== latestLoad) return;
       render(profile);
-      status('Your profile is private to your account for now. Public profiles are coming later.', 'success');
+      status('Your creator profile is private for now. Uploaded profile photos are visible to anyone with their URL.', 'success');
     } catch (error) {
       if (seq !== latestLoad) return;
-      status('Profile editing is unavailable. The HauntSync database migration may still need applying. ' +
-        (error?.message || ''), 'error');
-      // Never claim that a failed cloud save created a profile.
+      status('Profile editing could not be loaded: ' + (error?.message || 'account service unavailable'), 'error');
     }
   }
 
@@ -65,18 +85,67 @@
       status('Please use an HTTPS website URL.', 'error');
       return;
     }
-    busy = true;
-    els.saveButton.disabled = true;
+    const seq = latestLoad;
+    setBusy(true);
     status('Saving your profile securely…');
     try {
       const profile = await window.ShowduinoSupabase.saveCreatorProfile(values);
+      if (seq !== latestLoad) return;
       render(profile);
       status('Creator profile saved to your Showduino account.', 'success');
     } catch (error) {
-      status(error?.message || 'Could not save your profile. Your changes are still in the form.', 'error');
+      if (seq === latestLoad) status(error?.message || 'Could not save your profile. Your edits remain in the form.', 'error');
     } finally {
-      busy = false;
-      els.saveButton.disabled = false;
+      setBusy(false);
+    }
+  }
+
+  async function choosePhoto() {
+    const file = els.photoInput.files?.[0];
+    if (!file || busy) return;
+    const seq = latestLoad;
+    const oldProfile = persistedProfile;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type) || file.size < 1 || file.size > 2 * 1024 * 1024) {
+      els.photoInput.value = '';
+      status('Choose a JPG, PNG or WebP photo, maximum 2 MB.', 'error');
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setBusy(true);
+    displayAvatar(previewUrl, oldProfile?.display_name || 'Showduino Creator');
+    status('Uploading and saving your new profile photo…');
+    try {
+      const profile = await window.ShowduinoSupabase.uploadCreatorAvatar(file);
+      if (seq !== latestLoad) return;
+      render(profile, false);
+      status('Profile photo saved. You can replace or remove it at any time.', 'success');
+    } catch (error) {
+      if (seq === latestLoad) {
+        render(oldProfile, false);
+        status(error?.message || 'Photo upload failed; your old picture is unchanged.', 'error');
+      }
+    } finally {
+      URL.revokeObjectURL(previewUrl);
+      els.photoInput.value = '';
+      setBusy(false);
+    }
+  }
+
+  async function removePhoto() {
+    if (busy || !persistedProfile?.avatar_url) return;
+    const seq = latestLoad;
+    setBusy(true);
+    status('Removing your profile photo…');
+    try {
+      const profile = await window.ShowduinoSupabase.removeCreatorAvatar();
+      if (seq !== latestLoad) return;
+      render(profile, false);
+      status('Profile photo removed. Your initials are showing again.', 'success');
+    } catch (error) {
+      if (seq === latestLoad) status(error?.message || 'Could not remove the photo.', 'error');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -85,11 +154,14 @@
     if (!els.section) return;
     els.gate = byId('hs-profile-signed-out');
     els.status = byId('hs-profile-status');
-    els.avatar = byId('hs-profile-avatar');
     els.name = byId('hs-profile-name');
     els.usernameLabel = byId('hs-profile-username');
     els.bioPreview = byId('hs-profile-bio-preview');
     els.focusLabel = byId('hs-profile-focus-label');
+    els.initials = byId('hs-profile-initials');
+    els.photo = byId('hs-profile-photo');
+    els.photoInput = byId('hs-profile-file');
+    els.removePhoto = byId('hs-profile-photo-remove');
     els.nameInput = byId('hs-profile-display');
     els.usernameInput = byId('hs-profile-handle');
     els.bioInput = byId('hs-profile-bio');
@@ -97,13 +169,23 @@
     els.websiteInput = byId('hs-profile-website');
     els.saveButton = byId('hs-profile-save');
     byId('hs-profile-form').addEventListener('submit', save);
+    els.photoInput.addEventListener('change', choosePhoto);
+    els.removePhoto.addEventListener('click', removePhoto);
+    els.photo.addEventListener('error', () => { els.photo.hidden = true; els.initials.hidden = false; });
 
     if (!window.ShowduinoSupabase?.enabled()) {
       els.section.hidden = true;
+      els.gate.hidden = false;
       return;
     }
     window.ShowduinoSupabase.onAuthChanged((user) => {
-      if (!user) { ++latestLoad; els.section.hidden = true; els.gate.hidden = false; return; }
+      if (!user) {
+        ++latestLoad;
+        persistedProfile = null;
+        els.section.hidden = true;
+        els.gate.hidden = false;
+        return;
+      }
       loadProfile(user);
     });
   }

@@ -3,6 +3,7 @@
 create table if not exists public.shared_shows (
   id uuid primary key default gen_random_uuid(),
   author_id uuid not null references auth.users(id) on delete cascade,
+  author_label text not null default 'HauntSync creator' check (char_length(author_label) between 1 and 60),
   title text not null check (char_length(title) between 3 and 100),
   summary text not null default '' check (char_length(summary) <= 500),
   category text not null default 'other'

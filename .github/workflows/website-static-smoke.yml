@@ -1,0 +1,25 @@
+name: Website static smoke
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'app.js'
+      - 'tools/check-website.mjs'
+      - '.github/workflows/website-static-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check asset paths, Studio navigation and JavaScript syntax
+        run: node tools/check-website.mjs

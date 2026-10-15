@@ -7,6 +7,7 @@
   <title>HauntSync | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
+  <link rel="stylesheet" href="css/hauntsync-profiles.css">
   <style>
     .dashboard-shell { display:grid; grid-template-columns:240px minmax(0,1fr); gap:1rem; align-items:start; }
     .dashboard-sidebar { position:sticky; top:88px; display:grid; gap:1rem; }
@@ -43,10 +44,21 @@
   </header>
 
   <main class="site-main">
-    <section class="page-heading">
-      <span class="eyebrow">PROJECT + HARDWARE HUB</span>
-      <h1>Haunt<span class="accent">Sync</span></h1>
-      <p>Keep local Showduino projects together with an inventory that now matches the current hardware architecture instead of the retired SUE/IAN generations.</p>
+    <section class="page-heading hs-brand-heading">
+      <img class="hs-identity-logo" src="media/hauntsync-official-logo.webp" width="180" height="180" alt="HauntSync red circuit-skull emblem and wordmark">
+      <div>
+        <span class="eyebrow">YOUR IMMERSIVE CREATOR WORKSPACE</span>
+        <h1>Haunt<span class="accent">Sync</span></h1>
+        <p>Build productions, manage your modules, and shape your creative identity. Made for attraction builders, makers and immersive storytellers.</p>
+      </div>
+    </section>
+    <section class="hs-workspace-intro" aria-label="Creator workspace">
+      <div id="hs-workspace-avatar" class="hs-avatar" aria-hidden="true">HS</div>
+      <div>
+        <h2 id="hs-workspace-title">Your creative workspace</h2>
+        <p id="hs-workspace-description">Local shows and hardware inventory, plus optional Showduino cloud projects.</p>
+      </div>
+      <a class="btn secondary hs-workspace-action" href="profile.html">My creator profile</a>
     </section>
 
     <div id="hauntsync-status" class="status-banner" role="status" aria-live="polite">Loading HauntSync…</div>
@@ -54,13 +66,16 @@
     <div class="dashboard-shell">
       <aside class="dashboard-sidebar">
         <article class="card">
-          <span class="badge">WORKSPACE</span>
-          <h2 id="account-name" style="margin-top:1rem;">Local workspace</h2>
+          <div class="hs-dashboard-sidebar-head">
+            <img src="media/hauntsync-official-logo.webp" width="64" height="64" alt="" class="hs-sidebar-logo">
+            <div><span class="badge">WORKSPACE</span><h2 id="account-name" style="margin-top:.5rem;">Local workspace</h2></div>
+          </div>
           <p id="account-email" class="muted">Projects and devices are stored in this browser.</p>
-          <a id="account-link" class="btn secondary" href="account.html">Open account</a>
+          <div class="hs-profile-links"><a id="account-link" class="btn secondary" href="account.html">Create a Showduino ID</a><a class="btn secondary" href="profile.html">Creator profile</a></div>
         </article>
         <nav class="card dashboard-nav" aria-label="HauntSync sections">
           <a href="#overview">Overview</a>
+          <a href="profile.html">My Profile</a>
           <a href="#projects">Projects</a>
           <a href="#devices">Hardware</a>
           <a href="studio.html">Open Studio</a>
@@ -71,12 +86,12 @@
         <section id="overview" class="dashboard-stats reveal">
           <article class="card stat-card"><span id="project-count" class="stat-value">0</span><span class="muted">Projects</span></article>
           <article class="card stat-card"><span id="device-count" class="stat-value">0</span><span class="muted">Hardware entries</span></article>
-          <article class="card stat-card"><span id="cloud-count" class="stat-value">Off</span><span class="muted">Cloud status</span></article>
+          <article class="card stat-card"><span id="cloud-count" class="stat-value">Checking</span><span class="muted">Cloud library</span></article>
         </section>
 
         <section id="projects" class="card reveal">
           <div class="section-heading-inline">
-            <div><span class="badge">PRODUCTIONS</span><h2>Your projects</h2><p class="muted" style="margin:0;">Projects saved in Studio appear here automatically.</p></div>
+            <div><span class="badge">PRODUCTIONS</span><h2>Your projects</h2><p class="muted" style="margin:0;">Projects created in Studio on this browser appear here. Signed-in cloud shows are also shown.</p></div>
             <a class="btn" href="studio.html">Create a show</a>
           </div>
           <div id="project-list" class="dashboard-list"></div>
@@ -88,6 +103,7 @@
             <a class="btn secondary" href="system.html">Architecture guide</a>
           </div>
 
+          <p class="hs-local-notice">Private inventory on this browser only. Registering a device here does not connect, discover or control real hardware.</p>
           <form id="device-form" class="grid three" style="margin-top:1.25rem;">
             <div class="form-group">
               <label for="device-name">Device name</label>
@@ -129,7 +145,8 @@
   <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>
 
   <script src="config/runtime-config.js"></script>
-  <script src="js/cloud/firebase-service.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+  <script src="js/cloud/supabase-service.js"></script>
   <script src="js/hauntsync-dashboard.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
   <script src="js/site-motion.js"></script>

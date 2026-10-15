@@ -1,7 +1,7 @@
 // Static site smoke check. Run: node tools/check-website.mjs
 // Checks deployment asset paths and JavaScript syntax without emulating hardware.
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -84,6 +84,29 @@ for(const asset of ['js/hauntsync-share-model.js','js/hauntsync-library.js','js/
 }
 assert.ok(content('hauntsync.html').includes('community.html'), 'Missing dashboard link to community');
 assert.ok(community.includes('id="hs-share-consent"'), 'Community sharing must be opt-in');
+// HauntSync and Showduino have their own identity. Never publish cross-project
+// attributions, links or internal inspiration notes in website assets.
+// Walk the deployed source tree, not just the top-level page templates.
+const forbiddenCrossBrand = /\\bwrite[\\s-]?lite\\b|novels[-_]community|github\\.com\\/sumkindafreak\\/novels/i;
+const checkedExtensions = new Set(['.html', '.css', '.js', '.md', '.sql', '.json']);
+const excludedDirs = new Set(['.git', '.github', 'node_modules', 'tests', 'tools']);
+const unwantedReferences = [];
+function checkBrandReferences(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (!excludedDirs.has(entry.name)) checkBrandReferences(fullPath);
+      continue;
+    }
+    if (!entry.isFile() || !checkedExtensions.has(path.extname(entry.name).toLowerCase())) continue;
+    if (forbiddenCrossBrand.test(readFileSync(fullPath, 'utf8'))) {
+      unwantedReferences.push(path.relative(root, fullPath));
+    }
+  }
+}
+checkBrandReferences(root);
+assert.deepEqual(unwantedReferences, [], 'Cross-project branding is not allowed in Showduino website files');
+
 const studio = content('studio.html');
 for (const panel of ['introduction','timeline-editor','playback','audio-manager',
   'hauntsync','connect','devices','diagnostics','settings','help']) {

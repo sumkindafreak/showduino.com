@@ -22,10 +22,11 @@ body.studio-v4{
 .studio-v4 .sidebar-header{border-bottom-color:rgba(118,255,67,.24)}
 .studio-v4 .studio-brand{gap:.65rem}
 .studio-v4 .studio-brand strong{
-  background:linear-gradient(90deg,#fff 0 45%,#79ff49 46%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background:none;color:#fff;
   font-weight:950;letter-spacing:-.055em
 }
+.studio-v4 .studio-brand strong .brand-show{color:#fff;-webkit-text-fill-color:#fff}
+.studio-v4 .studio-brand strong .brand-duino{color:#79ff49;-webkit-text-fill-color:#79ff49}
 .studio-v4 .studio-brand small{color:#a8ff8b;letter-spacing:.3em}
 .studio-v4 .studio-brand-dot,.studio-v4 .context-dot{
   background:#78ff49;box-shadow:0 0 19px rgba(117,255,67,.8)

@@ -8,6 +8,7 @@ const THEMES = Object.freeze({
 });
 const EFFECTS=['FLICKER','FIRE','LIGHTNING','PULSE','BREATHE','SOLID','RAINBOW'];
 let root=null, draft=null, step=0, busy=false, error='', previousFocus=null;
+let inertTargets=[];
 function clean(v,n=120){return String(v??'').trim().slice(0,n)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function num(v,min,max,fallback){const x=Number(v);return Number.isFinite(x)?Math.min(max,Math.max(min,Math.round(x))):fallback}
@@ -18,7 +19,7 @@ function validate(d,through=3){
   if(!clean(d.name,80))issues.push('Give your show a name.');
   if(through>=1&&!selected(d))issues.push('Choose at least one connected output.');
   if(through>=2){
-    if(d.pixel&&!/^[a-z][a-z0-9_-]{1,11}$/i.test(clean(d.pixelNode)))issues.push('Enter your Pixel Node ID, for example PIXEL-01.');
+    if(d.pixel && (!/^[a-z][a-z0-9_-]{1,11}$/i.test(clean(d.pixelNode)) || !window.ShowduinoPixelAuthoring?.pixelNodeIdOk?.(clean(d.pixelNode))))issues.push('Enter a dedicated Pixel Node ID, for example PIXEL-01. P4, Audio and Emergency IDs are reserved.');
     if(d.audio&&!/^[a-z0-9][a-z0-9 _/.-]*\.wav$/i.test(clean(d.audioFile)))issues.push('Enter the WAV filename already on your Audio Node, for example scare.wav.');
     if(d.audio&&!/^[a-z0-9_-]{2,32}$/i.test(clean(d.audioNode)))issues.push('Enter your Audio Node ID, for example audio-1.');
     if(d.mosfet&&!/^MOSFET-0*[1-8]$/i.test(clean(d.mosfetNode)))issues.push('Enter a MOSFET Node ID from MOSFET-01 to MOSFET-08.');
@@ -123,7 +124,8 @@ function render(){
     <footer><button type="button" data-fsw="back" ${step===0?'disabled':''}>Back</button>
       <button type="button" class="fsw-primary" data-fsw="${step===3?'create':'next'}" ${busy?'disabled':''}>${busy?'Saving…':step===3?'Create my show':'Continue'}</button></footer>
     </section>`;
-  root.querySelector('.fsw-dialog button[data-fsw="close"]')?.focus({preventScroll:true});
+  const target=root.querySelector('.fsw-dialog button[data-fsw="close"]');
+  target?.focus({preventScroll:true});
 }
 function sync(input){
   const key=input.name;
@@ -141,7 +143,10 @@ function sync(input){
 }
 function close(){
   if(busy)return;
-  root?.remove();root=null;document.body.classList.remove('fsw-open');previousFocus?.focus?.();
+  root?.remove();root=null;document.body.classList.remove('fsw-open');
+  inertTargets.forEach(({node,old})=>{node.inert=old;});
+  inertTargets=[];
+  previousFocus?.focus?.();
 }
 function open(){
   if(root)return;
@@ -150,7 +155,12 @@ function open(){
   }
   previousFocus=document.activeElement;step=0;error='';busy=false;draft=initial();
   root=document.createElement('div');root.id='showduino-first-show';root.className='fsw-root';
-  document.body.appendChild(root);document.body.classList.add('fsw-open');render();
+  document.body.appendChild(root);document.body.classList.add('fsw-open');
+  // Hide all non-dialog focus targets from keyboard and assistive technology.
+  inertTargets=Array.from(document.body.children).filter(node=>node!==root)
+    .map(node=>({node,old:node.inert}));
+  inertTargets.forEach(({node})=>{node.inert=true;});
+  render();
 }
 async function create(){
   const problems=validate(draft);if(problems.length){error=problems[0];render();return;}
@@ -160,13 +170,25 @@ async function create(){
   try{
     if(window.state.project)await window.ShowduinoProjects.saveCurrentProject({cloud:false});
     const project=createProject(draft);
-    window.state.project=window.ShowduinoProjects.normaliseProject(project);
+    const nextProject=window.ShowduinoProjects.normaliseProject(project);
+    window.state.project=nextProject;
     await window.ShowduinoProjects.saveCurrentProject({cloud:false});
+    // Restore from the exact newly-saved project ID so no stale in-memory
+    // timeline snapshot or prior local active ID can replace this new show.
+    const saved=window.ShowduinoProjects.loadLocalProject(nextProject.project.id);
+    if (!saved || saved.project.id!==nextProject.project.id) throw Error('New show verification failed.');
+    window.state.project=saved;
     window.dispatchEvent(new CustomEvent('showduino:first-show-created',{detail:{projectId:window.state.project.project.id}}));
     busy=false;close();
     window.ShowduinoStudioV4?.refreshProjectStats?.();
-    const timeline=document.querySelector('.sidebar-nav li[data-panel="timeline-editor"]');
-    if(timeline)timeline.click();else window.loadPanel?.('timeline-editor');
+    if (document.body.classList.contains('studio-mobile-native')) {
+      // Phone layout hides the desktop timeline; render the populated native
+      // Build screen instead of navigating into an obscured panel.
+      window.ShowduinoMobileStudio?.showBuild?.();
+    } else {
+      const timeline=document.querySelector('.sidebar-nav li[data-panel="timeline-editor"]');
+      if(timeline)timeline.click();else window.loadPanel?.('timeline-editor');
+    }
   }catch(e){busy=false;error=e.message;render();}
 }
 document.addEventListener('click',ev=>{
@@ -185,6 +207,16 @@ document.addEventListener('click',ev=>{
 });
 document.addEventListener('input',ev=>{if(root?.contains(ev.target)&&ev.target.type!=='checkbox'&&ev.target.type!=='radio')sync(ev.target)});
 document.addEventListener('change',ev=>{if(root?.contains(ev.target)&&(ev.target.type==='checkbox'||ev.target.type==='radio'))sync(ev.target)});
-document.addEventListener('keydown',ev=>{if(root&&ev.key==='Escape'){ev.preventDefault();close();}});
+document.addEventListener('keydown',ev=>{
+  if(!root)return;
+  if(ev.key==='Escape'){ev.preventDefault();close();return;}
+  if(ev.key!=='Tab')return;
+  const focusable=Array.from(root.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'))
+    .filter(el=>el.getClientRects().length>0);
+  if(!focusable.length)return;
+  const first=focusable[0],last=focusable[focusable.length-1];
+  if(ev.shiftKey&&(document.activeElement===first||!root.contains(document.activeElement))){ev.preventDefault();last.focus();}
+  else if(!ev.shiftKey&&(document.activeElement===last||!root.contains(document.activeElement))){ev.preventDefault();first.focus();}
+});
 window.ShowduinoFirstShow=Object.freeze({open,close,createProject,validate,initial,events});
 })();

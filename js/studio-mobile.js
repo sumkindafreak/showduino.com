@@ -8,7 +8,7 @@
   'use strict';
 
   const PHONE_QUERY = '(max-width: 760px)';
-  const CSS_PATH = 'css/studio-mobile-simple.css';
+  const CSS_PATH = 'css/studio-mobile-simple.css?v=20261015-stage-green';
   const CURRENT_TYPES = ['audio', 'relay', 'mosfet', 'pixel', 'trigger', 'fx'];
 
   const TYPE_META = Object.freeze({
@@ -170,7 +170,7 @@
   function headerHtml() {
     const name = project()?.project?.name || 'Untitled Show';
     return `<header class="sm-header">
-      <div class="sm-brand"><span class="sm-brand-dot"></span><div class="sm-brand-copy"><strong>SHOWDUINO STUDIO</strong><span>${esc(name)}</span></div></div>
+      <div class="sm-brand"><span class="sm-brand-dot"></span><div class="sm-brand-copy"><strong><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span> <span class="sm-studio-word">STUDIO</span></strong><span>${esc(name)}</span></div></div>
       <button class="sm-header-action" type="button" data-sm-header-preview>${activeTab === 'preview' ? 'Back to build' : 'Preview'}</button>
     </header>`;
   }
@@ -924,6 +924,10 @@
     window.addEventListener('showduino:project-saved',() => {
       if (document.body.classList.contains('studio-mobile-native')) render();
     });
+    window.addEventListener('showduino:first-show-created',() => {
+      activeTab='build';
+      if (document.body.classList.contains('studio-mobile-native')) render();
+    });
     window.addEventListener('showduino:v4-saved',() => {
       if (document.body.classList.contains('studio-mobile-native')) render();
     });
@@ -933,6 +937,7 @@
     isPhone,
     openCue:(type) => openEditor(type,null,false),
     openAdvancedTimeline,
+    showBuild: () => { activeTab='build'; render(); },
     render
   });
 

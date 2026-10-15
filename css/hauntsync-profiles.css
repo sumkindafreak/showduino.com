@@ -1,4 +1,4 @@
-/* HauntSync: Writelite-inspired creator identity and project workspace, in Showduino green. */
+/* HauntSync creator identities and project workspace, styled for the Showduino ecosystem. */
 .hs-profile-section[hidden], .hs-hidden[hidden] { display:none !important; }
 .hs-profile-section { margin:1.2rem 0 2.5rem; }
 .hs-profile-grid { display:grid; grid-template-columns:minmax(240px,.86fr) minmax(0,1.14fr); gap:1rem; align-items:start; }
@@ -46,7 +46,7 @@
 .hs-profile-identity-logo { display:block; width:105px; height:auto; border:1px solid rgba(255,93,62,.25); border-radius:12px; margin-bottom:1.4rem; }
 @media(max-width:580px) { .hs-brand-heading { align-items:flex-start; gap:1rem; } .hs-identity-logo { width:86px; border-radius:12px; } .hs-brand-heading h1 { font-size:clamp(2.3rem,10vw,4rem); } }
 
-/* Writelite-inspired personal images: rounded editor preview with accessible controls. */
+/* HauntSync creator photos: responsive avatar preview with accessible controls. */
 .hs-avatar { position:relative; overflow:hidden; }
 .hs-avatar-photo { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; border-radius:inherit; }
 .hs-avatar-photo[hidden] { display:none !important; }

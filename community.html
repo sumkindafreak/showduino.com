@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse and share Showduino .shdo v2 templates with the HauntSync creator community.">
+  <title>Community Show Library | HauntSync</title>
+  <link rel="stylesheet" href="css/site-pages.css">
+  <link rel="stylesheet" href="css/showduino-stage-theme.css">
+  <link rel="stylesheet" href="css/hauntsync-profiles.css">
+  <link rel="stylesheet" href="css/hauntsync-library.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a>
+      <a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a>
+      <a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a>
+    </nav>
+  </header>
+  <main class="site-main wide">
+    <section class="page-heading hs-brand-heading">
+      <img src="media/hauntsync-official-logo.webp" class="hs-identity-logo" width="160" height="160" alt="HauntSync red circuit-skull logo">
+      <div>
+        <span class="eyebrow">HAUNTSYNC · SHARED PRODUCTIONS</span>
+        <h1>Show <span class="accent">Library.</span></h1>
+        <p>Explore effects, scenes and show-control ideas made by fellow creators. Take a copy, make it your own, and bring it into Studio.</p>
+      </div>
+    </section>
+
+    <p id="hs-share-status" class="status-banner" role="status" aria-live="polite">Loading community shows…</p>
+
+    <div class="hs-library-layout">
+      <section class="card" id="hs-browse" aria-labelledby="hs-library-title">
+        <div class="hs-library-heading">
+          <div><span class="eyebrow">DISCOVER</span><h2 id="hs-library-title">Community templates</h2><p class="muted">Browse public templates. You don't need an account to download a shared show.</p></div>
+          <div class="form-group"><label for="hs-category-filter">Category</label>
+            <select class="form-control" id="hs-category-filter"><option value="">All categories</option>
+              <option value="ambience">Ambience &amp; sound</option><option value="lighting">Lighting</option>
+              <option value="pixels">Pixel FX</option><option value="interactive">Interactive scenes</option>
+              <option value="props">Practical effects</option><option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="hs-shared-list" class="hs-shared-list" aria-live="polite"></div>
+      </section>
+
+      <aside class="hs-library-sidebar">
+        <section class="card" aria-labelledby="hs-publish-title">
+          <span class="eyebrow">CONTRIBUTE</span>
+          <h2 id="hs-publish-title">Share your show</h2>
+          <p class="muted">Export a <code>.shdo</code> v2 file from Studio, then share a stripped-down reusable copy. Nothing is published until you confirm.</p>
+          <form id="hs-publish-form" class="hs-publish-form">
+            <div class="form-group">
+              <label for="hs-share-file">Select a Studio-exported .shdo file</label>
+              <input class="form-control" id="hs-share-file" type="file" accept=".shdo,application/json" required aria-describedby="hs-file-info">
+              <small id="hs-file-info" class="muted">Max 512 KB input. Legacy formats need re-exporting through Studio.</small>
+            </div>
+            <div class="form-group"><label for="hs-share-title">Template name</label>
+              <input class="form-control" id="hs-share-title" maxlength="100" minlength="3" required placeholder="Haunted corridor ambience"></div>
+            <div class="form-group"><label for="hs-share-category">Category</label>
+              <select id="hs-share-category" class="form-control" required>
+                <option value="ambience">Ambience &amp; sound</option><option value="lighting">Lighting</option>
+                <option value="pixels">Pixel FX</option><option value="interactive">Interactive scenes</option>
+                <option value="props">Practical effects</option><option value="other">Other</option>
+              </select></div>
+            <div class="form-group"><label for="hs-share-summary">What's included?</label>
+              <textarea class="form-control" id="hs-share-summary" rows="3" maxlength="500" placeholder="Describe the sequence and which effects it uses."></textarea></div>
+            <div class="hs-publish-warning">
+              <strong>Public sharing is permanent unless you unshare it.</strong>
+              Your displayed creator name, title, description and sanitised show template will be visible publicly.
+              We remove hardware bindings, asset paths and other known private fields. Review your own scene and clip names before publishing.
+            </div>
+            <label class="hs-publish-confirm"><input type="checkbox" id="hs-share-consent" required> I own or have permission to share this show, and I understand others can download it.</label>
+            <button id="hs-share-submit" class="btn" type="submit">Publish to HauntSync</button>
+            <p id="hs-share-auth-note" class="muted">Sign in to publish. Browsing and downloading are open to everyone.</p>
+          </form>
+        </section>
+        <section class="card" aria-labelledby="hs-sharing-safety">
+          <span class="eyebrow">IMPORT SAFELY</span>
+          <h2 id="hs-sharing-safety">Templates, not live commands</h2>
+          <p class="muted">Community files never connect to your Showduino hardware or start a production. Download, review, import to Studio manually, and reassign your own devices and audio files. Check every cue before deployment.</p>
+          <a class="btn secondary" href="studio.html">Open Studio</a>
+        </section>
+      </aside>
+    </div>
+
+    <dialog id="hs-show-preview" class="hs-show-dialog" aria-labelledby="hs-preview-title">
+      <div class="hs-dialog-inner">
+        <div class="hs-dialog-top"><span class="eyebrow">SHARED .SHDO V2</span><button type="button" class="btn secondary" id="hs-preview-close">Close</button></div>
+        <h2 id="hs-preview-title">Community show</h2>
+        <p id="hs-preview-author" class="muted"></p>
+        <p id="hs-preview-summary"></p>
+        <div id="hs-preview-stats" class="hs-preview-stats"></div>
+        <p class="hs-publish-warning">This is an untrusted community template. Its hardware mapping and audio assets have been removed. Download it, inspect it, and only deploy after your own testing.</p>
+        <div class="button-row">
+          <button type="button" id="hs-preview-download" class="btn">Download .shdo</button>
+          <button type="button" id="hs-preview-remove" class="btn secondary" hidden>Unshare my show</button>
+        </div>
+      </div>
+    </dialog>
+  </main>
+  <footer class="site-footer"><p>&copy; 2026 Showduino · <a href="hauntsync.html">HauntSync</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="support.html">Support</a></p></footer>
+
+  <script src="config/runtime-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+  <script src="js/cloud/supabase-service.js"></script>
+  <script src="js/hauntsync-share-model.js"></script>
+  <script src="js/hauntsync-library.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/site-motion.js"></script>
+</body>
+</html>

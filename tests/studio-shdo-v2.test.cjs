@@ -94,16 +94,16 @@ blocked.clips.push({
   trackId: pixelTrack.id,
   sceneId: blocked.scenes[0].id,
   cueId: blocked.scenes[0].cues[0].id,
-  name: 'Unsupported MOSFET',
+  name: 'Unrouted MOSFET',
   type: 'mosfet',
   startMs: 5000,
   durationMs: 100,
   enabled: true,
-  action: { type: 'mosfet', label: 'Unsupported MOSFET', delayMs: 0, durationMs: 100, value: '', notes: '', params: {} }
+  action: { type: 'mosfet', label: 'Unrouted MOSFET', delayMs: 0, durationMs: 100, value: '', notes: '', params: {} }
 });
 const blockedPlan = ShowduinoDeploy.compileShdoForStage(blocked);
 assert.strictEqual(blockedPlan.ok, false);
-assert.ok(blockedPlan.errors.some((error) => error.includes('MOSFET Node runtime is not implemented')));
+assert.ok(blockedPlan.errors.some((error) => error.includes('MOSFET Node ID missing or invalid')));
 
 const tampered = JSON.parse(JSON.stringify(shdo));
 tampered.safety.emergency.autoResume = true;

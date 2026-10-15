@@ -34,13 +34,18 @@
 
   async function upsertProfile(user, displayName) {
     if (!user) return null;
-    const name = (displayName || user.user_metadata?.display_name || 'Showduino Creator').trim().slice(0, 60);
-    const { data, error } = await getClient()
-      .from('profiles')
-      .upsert({ id: user.id, display_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' })
-      .select()
-      .single();
+    // Do not overwrite a user's edited name whenever they sign in again.
+    const { data: existing, error: readError } = await getClient()
+      .from('profiles').select('id,display_name').eq('id', user.id).maybeSingle();
+    if (readError) throw readError;
+    if (existing) return existing;
+    const name = String(displayName || user.user_metadata?.display_name || 'Showduino Creator').trim().slice(0, 60) || 'Showduino Creator';
+    const { error } = await getClient().from('profiles')
+      .upsert({ id: user.id, display_name: name }, { onConflict: 'id', ignoreDuplicates: true });
     if (error) throw error;
+    const { data, error: finalError } = await getClient()
+      .from('profiles').select('id,display_name').eq('id', user.id).maybeSingle();
+    if (finalError) throw finalError;
     return data;
   }
 
@@ -117,6 +122,53 @@
     return data;
   }
 
+  const CREATOR_FIELDS = 'id,display_name,username,bio,creator_focus,website_url,created_at,updated_at';
+
+  async function getCreatorProfile() {
+    const user = await getCurrentUser();
+    if (!user) return null;
+    await upsertProfile(user);
+    const { data, error } = await getClient().from('profiles')
+      .select(CREATOR_FIELDS).eq('id', user.id).maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function saveCreatorProfile(values) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in before editing your creator profile.');
+    const displayName = String(values?.display_name || '').trim();
+    const username = String(values?.username || '').trim().toLowerCase();
+    const bio = String(values?.bio || '').trim();
+    const creatorFocus = String(values?.creator_focus || '').trim();
+    const website = String(values?.website_url || '').trim();
+    if (!displayName || displayName.length > 60) throw new Error('Display name must be between 1 and 60 characters.');
+    if (username && !/^[a-z0-9_-]{3,30}$/.test(username)) throw new Error('Username must be 3–30 letters, numbers, underscores or hyphens.');
+    if (bio.length > 500) throw new Error('Bio must be 500 characters or fewer.');
+    if (creatorFocus.length > 60) throw new Error('Specialism must be 60 characters or fewer.');
+    if (website) {
+      let url;
+      try { url = new URL(website); } catch (_) { throw new Error('Enter a valid HTTPS website URL.'); }
+      if (url.protocol !== 'https:' || url.username || url.password || website.length > 240) {
+        throw new Error('Use an HTTPS website URL, without a username or password.');
+      }
+    }
+    await upsertProfile(user);
+    const { data, error } = await getClient().from('profiles').update({
+      display_name: displayName,
+      username: username || null,
+      bio,
+      creator_focus: creatorFocus,
+      website_url: website || null,
+      updated_at: new Date().toISOString()
+    }).eq('id', user.id).select(CREATOR_FIELDS).single();
+    if (error) {
+      if (error.code === '23505') throw new Error('That username is already taken. Try another one.');
+      throw error;
+    }
+    return data;
+  }
+
   function isUuid(value) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
   }
@@ -172,6 +224,6 @@
 
   window.ShowduinoSupabase = Object.freeze({
     enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
-    onAuthChanged, getCurrentUser, getProfile, saveProject, listProjects, loadProject, deleteProject
+    onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, saveProject, listProjects, loadProject, deleteProject
   });
 })();

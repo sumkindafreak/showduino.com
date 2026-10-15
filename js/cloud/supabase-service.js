@@ -291,8 +291,65 @@
     if (error) throw error;
   }
 
+  // Community shows are intentionally PUBLIC copies; never link them to private cloud projects.
+  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at';
+
+  async function listSharedShows(category) {
+    const allowed = new Set(['ambience','lighting','pixels','interactive','props','other']);
+    let query = getClient().from('shared_shows').select(PUBLIC_SHARE_FIELDS).order('created_at', {ascending:false}).limit(50);
+    if (category && allowed.has(category)) query = query.eq('category', category);
+    const {data,error} = await query;
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function loadSharedShow(id) {
+    if (!isUuid(id)) throw new Error('Invalid community show ID.');
+    const {data,error} = await getClient().from('shared_shows')
+      .select(PUBLIC_SHARE_FIELDS+',document').eq('id',id).single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function publishSharedShow(payload) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in to share a show.');
+    if (!window.HauntSyncShare) throw new Error('Show sharing is not ready yet.');
+    window.HauntSyncShare.validate(payload?.document);
+    const title = String(payload?.title || '').trim();
+    const summary = String(payload?.summary || '').trim();
+    const category = String(payload?.category || '');
+    const license = String(payload?.license || '');
+    if (title.length < 3 || title.length > 100 || summary.length > 500) throw new Error('Please check the title and description.');
+    if (!['ambience','lighting','pixels','interactive','props','other'].includes(category)) throw new Error('Choose a valid show category.');
+    if (!['cc-by-4.0','cc0-1.0'].includes(license)) throw new Error('Select a permitted sharing licence.');
+    if (!payload.document.metadata?.communityTemplate || payload.document.assets?.length ||
+        payload.document.devices?.some(d => d?.binding?.nodeId)) {
+      throw new Error('The production must be sanitised as a community template before sharing.');
+    }
+    const profile = await getProfile();
+    const authorLabel = String(profile?.display_name || 'HauntSync creator').slice(0,60);
+    const {data,error} = await getClient().from('shared_shows').insert({
+      author_id:user.id, author_label:authorLabel, title, summary, category, license, document:payload.document
+    }).select('id').single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function removeSharedShow(id) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in to unshare a show.');
+    if (!isUuid(id)) throw new Error('Invalid community show ID.');
+    const {data,error} = await getClient().from('shared_shows').delete()
+      .eq('id',id).eq('author_id',user.id).select('id');
+    if (error) throw error;
+    if (!data?.length) throw new Error('This share does not belong to your account or was already removed.');
+    return true;
+  }
+
   window.ShowduinoSupabase = Object.freeze({
     enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
-    onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject
+    onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
+    listSharedShows, loadSharedShow, publishSharedShow, removeSharedShow
   });
 })();

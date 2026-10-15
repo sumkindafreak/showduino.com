@@ -20,9 +20,12 @@ body::before{z-index:0;opacity:.22;mask-image:linear-gradient(#000,transparent 9
 .site-header{border-bottom:1px solid rgba(115,255,64,.24);background:rgba(4,9,6,.94);box-shadow:0 10px 40px rgba(0,0,0,.38)}
 .site-brand{
   font-weight:950;letter-spacing:-.045em;font-size:clamp(1.15rem,2vw,1.55rem);
-  background:linear-gradient(90deg,#fff 0 45%,#7aff48 46% 100%);
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  background:none;color:#fafff8;white-space:nowrap;
 }
+.site-brand .brand-show{color:#fff}
+.site-brand .brand-duino{color:#78ff43}
+.site-brand .brand-show,.site-brand .brand-duino{-webkit-text-fill-color:currentColor}
+
 .site-brand::before{background:var(--site-accent);box-shadow:0 0 22px rgba(115,255,64,.8)}
 .site-nav a{font-weight:780;letter-spacing:.025em}
 .site-nav a:hover,.site-nav a[aria-current="page"]{border-color:rgba(115,255,64,.3);background:rgba(115,255,64,.09)}
@@ -78,4 +81,30 @@ body::before{z-index:0;opacity:.22;mask-image:linear-gradient(#000,transparent 9
 @media(prefers-reduced-motion:reduce){
   .hero::before{opacity:.2}
   .btn,.card,.product-feature{transition:none!important}
+}
+
+/* Small-screen audit: fit the actual content instead of hiding horizontal spill. */
+@media(max-width:760px){
+  .site-header{min-width:0;max-width:100%;overflow:visible;gap:.55rem}
+  .site-brand{width:max-content;max-width:100%;font-size:clamp(1.1rem,5.8vw,1.55rem)}
+  .site-nav{max-width:100%;min-width:0;flex:0 1 auto;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain}
+  .site-nav a{flex:0 0 auto}
+  .hero{width:min(100% - 1.6rem,1320px);display:grid;grid-template-columns:minmax(0,1fr);gap:1.4rem;padding:2rem 0 2.5rem}
+  .hero-copy,.hero-lede,.hero-actions,.product-proof,.hardware-schematic{min-width:0;max-width:100%}
+  .hero-kicker,.showduino-stage-note{max-width:100%;white-space:normal;flex-wrap:wrap;overflow-wrap:anywhere;line-height:1.5}
+  .hero-kicker{display:flex;align-items:flex-start;gap:.35rem;font-size:.64rem;letter-spacing:.09em}
+  .showduino-stage-note{display:inline-flex;border-radius:12px;letter-spacing:.06em}
+  .hero h1{font-size:clamp(2.2rem,9vw,4.5rem);line-height:1;letter-spacing:-.055em;overflow-wrap:normal;text-wrap:balance}
+  .hero h1 .accent{overflow-wrap:normal}
+  .hero-lede{font-size:clamp(.95rem,3.8vw,1.08rem);line-height:1.6;overflow-wrap:break-word}
+  .hero-actions{gap:.55rem}
+  .hero-actions .btn{min-width:0;max-width:100%;font-size:.95rem;padding:.7rem .85rem}
+  .product-proof{grid-template-columns:minmax(0,1fr)}
+  .product-proof>div{min-width:0}
+  .hardware-schematic{width:100%;margin:0}
+  .site-main,.site-main.wide{width:calc(100% - 1.6rem)}
+}
+@media(max-width:375px){
+  .hero h1{font-size:clamp(2rem,8.7vw,3.2rem)}
+  .hero-actions .btn{flex:1 1 100%}
 }

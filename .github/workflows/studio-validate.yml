@@ -54,6 +54,9 @@ jobs:
       - name: Run SHDO v2 round-trip and P4 compiler test
         run: node tests/studio-shdo-v2.test.cjs
 
+      - name: Validate local Showduino LAN handoff and target restrictions
+        run: node tests/studio-lan-connection.test.cjs
+
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs
 

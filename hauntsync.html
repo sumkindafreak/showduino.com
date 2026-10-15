@@ -82,6 +82,22 @@
           <div id="project-list" class="dashboard-list"></div>
         </section>
 
+        <section class="card reveal" id="lan-connection">
+          <span class="badge">LOCAL HARDWARE ACCESS</span>
+          <h2>Connect to your Communications S3</h2>
+          <p class="muted">Your home network makes the local console accessible without joining the Showduino access point. Enter the S3's LAN IP (not the P4's IP). This remembers an address; it does not silently connect to hardware.</p>
+          <form id="hauntsync-lan-form" class="lan-connect-form">
+            <label for="hauntsync-lan-address">Communications S3 LAN address</label>
+            <div class="lan-address-row">
+              <input class="form-control" id="hauntsync-lan-address" type="text" inputmode="url" autocomplete="off" placeholder="192.168.1.50 or showduino.local" required>
+              <button class="btn" type="submit">Save address</button>
+              <a class="btn secondary" href="#" data-lan-console-link data-lan-action="open">Open Local Console</a>
+            </div>
+          </form>
+          <p class="muted" id="hauntsync-lan-status" role="status" aria-live="polite">Use the S3's STA/LAN IP from your router or the Communications diagnostics screen. Phone/computer must be on the same local network.</p>
+          <p class="muted">To install a show: <a href="studio.html">open Website Studio</a> → export a .shdo → open the local console → Productions → Persist to SD. The P4 checks and stores the show without starting it.</p>
+        </section>
+
         <section id="devices" class="card reveal">
           <div class="section-heading-inline">
             <div><span class="badge">CURRENT ARCHITECTURE</span><h2>Registered hardware</h2><p class="muted" style="margin:0;">Track Directors, Comms Controllers, P4 Show Engines and specialist nodes.</p></div>
@@ -131,6 +147,7 @@
   <script src="config/runtime-config.js"></script>
   <script src="js/cloud/firebase-service.js"></script>
   <script src="js/hauntsync-dashboard.js"></script>
+  <script src="js/studio-lan-connection.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
   <script src="js/site-motion.js"></script>
 </body>

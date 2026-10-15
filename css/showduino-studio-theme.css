@@ -87,3 +87,29 @@ body.studio-v4{
   .studio-v4 .main-content::before{display:none}
   .studio-v4 .v4-card,.studio-v4 .node-role-card{transition:none!important}
 }
+
+
+/* LAN connection and deliberate SHDO export -> P4 handoff. */
+.lan-address-row{
+  display:flex;flex-wrap:wrap;gap:.65rem;align-items:stretch;margin:.65rem 0;
+}
+.lan-address-row input{flex:1 1 240px;min-width:0}
+.lan-address-row .btn,.lan-address-row .v4-btn{min-height:44px;white-space:normal}
+.lan-connect-form label,.studio-lan-card label{
+  display:block;font-size:.82rem;font-weight:850;color:#d0f5c4;margin-top:.65rem
+}
+.studio-lan-card{margin-top:1rem;max-width:none}
+.studio-lan-card p{line-height:1.65}
+.studio-lan-card .lan-help{
+  border-top:1px solid rgba(116,255,66,.2);padding-top:.75rem;
+  color:#c1d3bf;font-size:.8rem
+}
+.lan-status,[id="hauntsync-lan-status"]{display:block;margin:.5rem 0 .8rem;line-height:1.55}
+.lan-status[data-state="error"],[id="hauntsync-lan-status"][data-state="error"]{color:#ff9e9e}
+.lan-status[data-state="ready"],[id="hauntsync-lan-status"][data-state="ready"]{color:#acff94}
+@media(max-width:620px){
+  .lan-address-row{display:flex;flex-direction:column}
+  .lan-address-row input,.lan-address-row .btn,.lan-address-row .v4-btn{
+    width:100%;flex:0 0 auto
+  }
+}

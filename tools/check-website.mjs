@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html','system.html','studio.html','hauntsync.html',
+const pages = ['index.html','system.html','studio.html','hauntsync.html','profile.html','account.html',
   'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html'];
 const content = (p) => readFileSync(path.join(root, p), 'utf8');
 const localAsset = (url) => {
@@ -59,6 +59,24 @@ for (const asset of imageFiles) {
 }
 assert.ok(home.includes('media="(max-width: 760px)"'), 'Mobile image source missing');
 assert.ok(home.includes('og:image" content="https://show-duino.com/media/showduino-chosen-main-hero.webp"'), 'Social preview is stale');
+
+// HauntSync uses its official logo (not a placeholder) and its own account identity.
+const hsLogo = 'media/hauntsync-official-logo.webp';
+const hsLogoFile = path.join(root, hsLogo);
+assert.ok(existsSync(hsLogoFile), 'HauntSync logo was not committed');
+const hsLogoData = readFileSync(hsLogoFile);
+assert.ok(hsLogoData.length > 3000, 'HauntSync logo is missing or truncated');
+assert.equal(hsLogoData.toString('ascii', 0, 4), 'RIFF', 'HauntSync logo must be a WebP image');
+assert.equal(hsLogoData.toString('ascii', 8, 12), 'WEBP', 'HauntSync logo must be a WebP image');
+for (const page of ['hauntsync.html', 'profile.html']) {
+  assert.ok(content(page).includes(hsLogo), 'Official HauntSync logo missing from ' + page);
+}
+assert.ok(content('hauntsync.html').includes('js/cloud/supabase-service.js'),
+  'HauntSync must use the same Supabase account service as Studio');
+assert.ok(!content('hauntsync.html').includes('js/cloud/firebase-service.js'),
+  'HauntSync unexpectedly reverted to the retired Firebase service');
+assert.ok(content('profile.html').includes('id="hs-profile-form"'),
+  'Creator profile editor missing');
 
 const studio = content('studio.html');
 for (const panel of ['introduction','timeline-editor','playback','audio-manager',

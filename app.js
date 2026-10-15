@@ -84,6 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateUIForTier() {
+      // All creator panels are available while subscription billing is disabled.
+      // Legacy free/pro localStorage values must not block working tools.
+      if (!window.SHOWDUINO_CONFIG?.features?.subscriptions) {
+          document.querySelectorAll('.sidebar-nav li').forEach((item) => {
+              item.classList.remove('locked');
+              item.removeAttribute('aria-disabled');
+              item.title = '';
+          });
+          return;
+      }
       const { subscription } = state.user;
       const sidebarItems = document.querySelectorAll('.sidebar-nav li');
       const permissions = {
@@ -167,6 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
               html = panelManager.help();
           }
 
+          if (!html || !String(html).trim()) {
+              throw new Error('This panel is unavailable in this Studio build.');
+          }
           workspace.innerHTML = html;
           log(`Loaded panel: ${panelName}`);
 
@@ -188,6 +201,17 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       } catch (error) {
           log(`Error loading panel ${panelName}: ${error.message}`, 'ERR');
+          workspace.replaceChildren();
+          const message = document.createElement('div');
+          message.className = 'v4-rule warning';
+          message.setAttribute('role', 'alert');
+          message.textContent = `Couldn't open ${panelName}: ${error.message}`;
+          const retry = document.createElement('button');
+          retry.type = 'button';
+          retry.className = 'v4-btn';
+          retry.textContent = 'Retry panel';
+          retry.addEventListener('click', () => loadPanel(panelName));
+          workspace.append(message, retry);
       }
   }
 
@@ -850,15 +874,28 @@ document.addEventListener('DOMContentLoaded', () => {
   stopButton?.addEventListener('click', stop);
   panicButton?.addEventListener('click', panic);
 
-  document.querySelectorAll('.sidebar-nav li').forEach(item => {
+  document.querySelectorAll('.sidebar-nav li[data-panel]').forEach(item => {
+      // List navigation works with keyboard, touch and mouse.
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
       item.addEventListener('click', () => {
           if (item.classList.contains('locked')) {
               log(`Access to ${item.dataset.panel} is locked for your current subscription tier.`, 'WARN');
               return;
           }
-          document.querySelectorAll('.sidebar-nav li').forEach(i => i.classList.remove('active'));
+          document.querySelectorAll('.sidebar-nav li[data-panel]').forEach(i => {
+              i.classList.remove('active');
+              i.removeAttribute('aria-current');
+          });
           item.classList.add('active');
+          item.setAttribute('aria-current', 'page');
           loadPanel(item.dataset.panel);
+      });
+      item.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              item.click();
+          }
       });
   });
 

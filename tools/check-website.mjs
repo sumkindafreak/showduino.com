@@ -37,6 +37,29 @@ for (const page of pages) {
   assert.ok(html.includes('showduino-stage-theme.css') || page === 'studio.html',
     `Missing stage theme on ${page}`);
 }
+// The homepage image must be committed to GitHub, not linked to temporary
+// chat media. Validate both formats as binaries and that markup uses them.
+const home = content('index.html');
+const imageFiles = [
+  { path: 'media/showduino-chosen-main-hero.webp', minimum: 50000, format: 'webp' },
+  { path: 'media/showduino-chosen-main-hero-mobile.avif', minimum: 8000, format: 'avif' }
+];
+for (const asset of imageFiles) {
+  const fullPath = path.join(root, asset.path);
+  assert.ok(existsSync(fullPath), `Homepage media missing: ${asset.path}`);
+  const data = readFileSync(fullPath);
+  assert.ok(data.length >= asset.minimum, `Homepage media looks truncated: ${asset.path}`);
+  if (asset.format === 'webp') {
+    assert.equal(data.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(data.toString('ascii', 8, 12), 'WEBP');
+  } else {
+    assert.equal(data.toString('ascii', 4, 12), 'ftypavif');
+  }
+  assert.ok(home.includes(asset.path), `Homepage does not use ${asset.path}`);
+}
+assert.ok(home.includes('media="(max-width: 760px)"'), 'Mobile image source missing');
+assert.ok(home.includes('og:image" content="https://show-duino.com/media/showduino-chosen-main-hero.webp"'), 'Social preview is stale');
+
 const studio = content('studio.html');
 for (const panel of ['introduction','timeline-editor','playback','audio-manager',
   'hauntsync','connect','devices','diagnostics','settings','help']) {

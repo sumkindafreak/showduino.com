@@ -1,0 +1,81 @@
+/* Showduino public identity — stage lights, theatre-black and signal green.
+   Presentation only: no controller state, safety, network or runtime logic. */
+:root{
+  --site-bg:#050806;--site-bg-soft:#090f0a;--site-panel:#101811;
+  --site-panel-soft:#152117;--site-panel-strong:#1c2a1e;
+  --site-border:#28422d;--site-border-bright:#436a45;
+  --site-text:#f7fff4;--site-muted:#b5c6b3;
+  --site-accent:#73ff40;--site-accent-soft:rgba(115,255,64,.12);
+  --site-blue:#a5fcb1;--site-shadow:0 24px 62px rgba(0,0,0,.46);
+}
+html{scroll-padding-top:5.2rem}
+body{
+  background:
+    radial-gradient(ellipse 30rem 44rem at 3% 4%,rgba(73,240,35,.12),transparent 74%),
+    radial-gradient(ellipse 30rem 44rem at 97% 4%,rgba(73,240,35,.11),transparent 74%),
+    radial-gradient(ellipse 75rem 38rem at 50% 62%,rgba(36,100,28,.07),transparent 82%),
+    linear-gradient(180deg,#040704 0%,#09100b 43%,#040705 100%);
+}
+body::before{z-index:0;opacity:.22;mask-image:linear-gradient(#000,transparent 94%);background-size:42px 42px}
+.site-header{border-bottom:1px solid rgba(115,255,64,.24);background:rgba(4,9,6,.94);box-shadow:0 10px 40px rgba(0,0,0,.38)}
+.site-brand{
+  font-weight:950;letter-spacing:-.045em;font-size:clamp(1.15rem,2vw,1.55rem);
+  background:linear-gradient(90deg,#fff 0 45%,#7aff48 46% 100%);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+.site-brand::before{background:var(--site-accent);box-shadow:0 0 22px rgba(115,255,64,.8)}
+.site-nav a{font-weight:780;letter-spacing:.025em}
+.site-nav a:hover,.site-nav a[aria-current="page"]{border-color:rgba(115,255,64,.3);background:rgba(115,255,64,.09)}
+.hero{position:relative;isolation:isolate}
+.hero::before{
+  content:"";position:absolute;z-index:-1;inset:0 -3vw 8%;pointer-events:none;
+  background:
+    conic-gradient(from 153deg at 6% 0%,transparent 0deg,rgba(113,255,64,.15) 10deg,transparent 25deg),
+    conic-gradient(from 185deg at 94% 0%,transparent 0deg,rgba(113,255,64,.15) 10deg,transparent 25deg);
+  opacity:.75;
+}
+.hero-kicker,.eyebrow{letter-spacing:.16em}
+.hero h1{font-weight:950;text-transform:uppercase;letter-spacing:-.065em;text-wrap:balance}
+.hero-lede{color:#c2d1bf}
+.hero-actions .btn{box-shadow:0 0 24px rgba(115,255,64,.16)}
+.hero-actions .btn.secondary{box-shadow:none}
+.hardware-schematic,.hardware-hero-photo,.about-product-shot{
+  border-color:rgba(115,255,64,.4);
+  box-shadow:0 28px 80px rgba(0,0,0,.58),0 0 65px rgba(83,245,52,.12);
+}
+.hardware-schematic img{object-position:center}
+.schematic-caption{padding:.55rem .75rem;border:1px solid rgba(115,255,64,.2);border-radius:7px;background:rgba(2,7,3,.76);backdrop-filter:blur(9px)}
+.product-proof>div,.product-feature,.card,.architecture-node,.callout{
+  border-color:rgba(89,152,85,.27);
+  background:linear-gradient(150deg,rgba(19,34,20,.94),rgba(6,13,8,.96));
+}
+.product-proof strong,.product-feature strong{color:#9dff77}
+.architecture-node:hover,.card:hover,.product-feature:hover{border-color:rgba(115,255,64,.38)}
+.section-heading h2,.callout h2{letter-spacing:-.035em;text-wrap:balance}
+.btn{border-color:var(--site-accent);background:var(--site-accent);color:#061208}
+.btn.secondary{background:#0b140c;color:#f1fff1;border-color:#45674b}
+.btn:focus-visible,.site-nav a:focus-visible,.site-brand:focus-visible{
+  outline:2px solid #a3ff80;outline-offset:3px;
+}
+.btn.danger{border-color:rgba(255,86,108,.65);background:transparent;color:#ff8c9c}
+.site-footer{border-top-color:rgba(115,255,64,.2);background:rgba(2,6,3,.9)}
+.showduino-stage-note{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.48rem .73rem;margin-bottom:.65rem;
+  border:1px solid rgba(115,255,64,.4);border-radius:999px;
+  background:rgba(67,150,36,.13);color:#b8ff91;
+  font:800 .7rem/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.11em;text-transform:uppercase;
+}
+.showduino-stage-note::before{content:"";height:7px;width:7px;border-radius:50%;background:#75ff4d;box-shadow:0 0 13px #70ff4c}
+@media(max-width:760px){
+  .site-nav{scrollbar-width:thin;scrollbar-color:#4f7b49 transparent}
+  .hero{padding-top:3rem}
+  .hero h1{font-size:clamp(3rem,12vw,5.5rem)}
+  .hero::before{opacity:.45}
+  .showduino-stage-note{font-size:.6rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero::before{opacity:.2}
+  .btn,.card,.product-feature{transition:none!important}
+}

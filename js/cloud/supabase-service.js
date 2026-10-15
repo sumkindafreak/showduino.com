@@ -292,7 +292,7 @@
   }
 
   // Community shows are intentionally PUBLIC copies; never link them to private cloud projects.
-  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,author_label,author_id,created_at';
+  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at';
 
   async function listSharedShows(category) {
     const allowed = new Set(['ambience','lighting','pixels','interactive','props','other']);
@@ -319,8 +319,10 @@
     const title = String(payload?.title || '').trim();
     const summary = String(payload?.summary || '').trim();
     const category = String(payload?.category || '');
+    const license = String(payload?.license || '');
     if (title.length < 3 || title.length > 100 || summary.length > 500) throw new Error('Please check the title and description.');
     if (!['ambience','lighting','pixels','interactive','props','other'].includes(category)) throw new Error('Choose a valid show category.');
+    if (!['cc-by-4.0','cc0-1.0'].includes(license)) throw new Error('Select a permitted sharing licence.');
     if (!payload.document.metadata?.communityTemplate || payload.document.assets?.length ||
         payload.document.devices?.some(d => d?.binding?.nodeId)) {
       throw new Error('The production must be sanitised as a community template before sharing.');
@@ -328,7 +330,7 @@
     const profile = await getProfile();
     const authorLabel = String(profile?.display_name || 'HauntSync creator').slice(0,60);
     const {data,error} = await getClient().from('shared_shows').insert({
-      author_id:user.id, author_label:authorLabel, title, summary, category, document:payload.document
+      author_id:user.id, author_label:authorLabel, title, summary, category, license, document:payload.document
     }).select('id').single();
     if (error) throw error;
     return data;

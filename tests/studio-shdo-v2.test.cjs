@@ -29,6 +29,8 @@ function load(path) {
 
 load('js/shdo_model.js');
 load('js/studio-package.js');
+// Match the production script order: deploy uses the MOSFET authoring compiler.
+load('js/showduino-mosfet-authoring.js');
 load('js/studio-deploy.js');
 
 const project = SHDOModel.createProject('Phone Test');

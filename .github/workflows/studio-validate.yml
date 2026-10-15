@@ -67,6 +67,9 @@ jobs:
       - name: Run HauntSync image upload and rollback tests
         run: node tests/hauntsync-avatar.test.cjs
 
+      - name: Test HauntSync public SHDO template sanitisation and safety
+        run: node tests/hauntsync-share.test.cjs
+
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs
 

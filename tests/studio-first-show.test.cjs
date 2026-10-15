@@ -19,6 +19,7 @@ load('js/studio-first-show.js');
 
 const wizard = ShowduinoFirstShow;
 const base = wizard.initial();
+base.p4 = true;
 const starter = wizard.createProject(base);
 assert.equal(starter.project.name, 'My Halloween Show');
 assert.equal(starter.tracks.length, 1);
@@ -42,7 +43,7 @@ assert.equal(restored.clips.length, 1);
 assert.equal(restored.clips[0].routing.nodeId, 'p4');
 
 const all = wizard.initial();
-Object.assign(all, {audio:true, audioNode:'audio-1', audioFile:'scare.wav',
+Object.assign(all, {p4:true, audio:true, audioNode:'audio-1', audioFile:'scare.wav',
   pixel:true, pixelNode:'PIXEL-01', mosfet:true, mosfetNode:'MOSFET-01', pulseMs:400});
 const project = wizard.createProject(all);
 assert.equal(project.tracks.length, 4);

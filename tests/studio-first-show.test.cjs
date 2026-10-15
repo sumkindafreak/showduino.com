@@ -60,6 +60,11 @@ assert.ok(multiShdo.clips.every(x=>x.targetDeviceId), 'All first-show outputs mu
 const invalidAudio={...wizard.initial(),audio:true,audioFile:''};
 assert.ok(wizard.validate(invalidAudio).length);
 assert.throws(()=>wizard.createProject(invalidAudio),/WAV filename/);
+for (const alias of ['p4','p4-local','audio-1','audio-node','ESTOP-001','p4-show-pixels','gpio23']) {
+  const d={...wizard.initial(),pixel:true,pixelNode:alias};
+  assert.ok(wizard.validate(d).length, 'Reserved ID accepted: '+alias);
+  assert.throws(()=>wizard.createProject(d),/Pixel Node/);
+}
 const invalidProp={...wizard.initial(),mosfet:true,mosfetNode:'fake'};
 assert.throws(()=>wizard.createProject(invalidProp),/MOSFET/);
 const none={...wizard.initial(),p4:false};

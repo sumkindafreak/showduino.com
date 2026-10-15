@@ -11,7 +11,7 @@ let root=null, draft=null, step=0, busy=false, error='', previousFocus=null;
 function clean(v,n=120){return String(v??'').trim().slice(0,n)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function num(v,min,max,fallback){const x=Number(v);return Number.isFinite(x)?Math.min(max,Math.max(min,Math.round(x))):fallback}
-function initial(){return {name:'My Halloween Show',theme:'haunt',p4:true,p4Count:10,pixel:false,pixelNode:'PIXEL-01',pixelCount:10,audio:false,audioNode:'audio-1',audioFile:'',mosfet:false,mosfetNode:'MOSFET-01',mosfetOut:'out1',pulseMs:400,effect:'FLICKER',colour:'#ff7425',duration:15000}}
+function initial(){return {name:'My Halloween Show',theme:'haunt',p4:false,p4Count:10,pixel:false,pixelNode:'PIXEL-01',pixelCount:10,audio:false,audioNode:'audio-1',audioFile:'',mosfet:false,mosfetNode:'MOSFET-01',mosfetOut:'out1',pulseMs:400,effect:'FLICKER',colour:'#ff7425',duration:15000}}
 function selected(d){return Number(!!d.p4)+Number(!!d.audio)+Number(!!d.pixel)+Number(!!d.mosfet)}
 function validate(d,through=3){
   const issues=[];
@@ -38,7 +38,7 @@ function createProject(d,Model=window.SHDOModel,Package=window.ShowduinoPackage)
   if(!Model||!Package)throw Error('Studio is still starting.');
   const project=Model.createProject(clean(d.name,80)); 
   project.project.description='Created with First Show: '+(THEMES[d.theme]?.label||'Custom');
-  project.project.duration=num(d.duration,5000,120000,15000);
+  project.project.duration=num(d.duration,10000,120000,15000);
   project.tracks=[];project.clips=[];project.devices=[];project.assets=[];
   project.metadata={firstShowWizard:{version:1,hardwareVerified:false}};
   const rgb=/^#[a-f0-9]{6}$/i.test(d.colour)?d.colour:'#ff7425';
@@ -106,7 +106,7 @@ function body(){
     ${(draft.p4||draft.pixel)?`<label class="fsw-field"><span>Lighting effect</span><select name="effect">${EFFECTS.map(f=>`<option value="${f}" ${draft.effect===f?'selected':''}>${f}</option>`).join('')}</select></label>${field('colour','LED colour','color')}`:''}
     ${draft.audio?`${field('audioFile','WAV filename on Audio Node','text','maxlength="120" placeholder="scare.wav"')}<p class="fsw-tip">Copy this WAV to the Audio Node separately. Studio does not invent or upload sound files.</p>`:''}
     ${draft.mosfet?`<label class="fsw-field"><span>Prop output</span><select name="mosfetOut">${[1,2,3,4].map(n=>`<option value="out${n}" ${draft.mosfetOut==='out'+n?'selected':''}>Output ${n}</option>`).join('')}</select></label>${field('pulseMs','Pulse length (ms)','number','min="100" max="3000"')}`:''}
-    ${field('duration','Scene length (milliseconds)','number','min="5000" max="120000" step="1000"')}`;
+    ${field('duration','Scene length (milliseconds)','number','min="10000" max="120000" step="1000"')}`;
   return `<p>Here's your show! Create it, then open the standard timeline to preview, fine-tune and export a genuine .shdo file.</p>
     <div class="fsw-summary"><strong>${esc(draft.name)}</strong><small>${(draft.duration/1000)} seconds</small>
       <ol>${events(draft).map(e=>`<li><span>${e.at/1000}s</span><strong>${esc(e.name)}</strong><small>${esc(e.detail)}</small></li>`).join('')}</ol></div>
@@ -123,7 +123,7 @@ function render(){
     <footer><button type="button" data-fsw="back" ${step===0?'disabled':''}>Back</button>
       <button type="button" class="fsw-primary" data-fsw="${step===3?'create':'next'}" ${busy?'disabled':''}>${busy?'Saving…':step===3?'Create my show':'Continue'}</button></footer>
     </section>`;
-  root.querySelector('[data-fsw="close"]')?.focus({preventScroll:true});
+  root.querySelector('.fsw-dialog button[data-fsw="close"]')?.focus({preventScroll:true});
 }
 function sync(input){
   const key=input.name;

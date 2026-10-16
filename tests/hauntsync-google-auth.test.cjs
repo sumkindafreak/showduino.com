@@ -35,7 +35,7 @@ assert.match(fs.readFileSync('welcome.html','utf8'),/Continue with Google/);
   assert.equal(lastRequest.provider,'google');
   assert.equal(lastRequest.options.redirectTo,'https://show-duino.com/welcome.html');
   assert.deepEqual(Object.keys(lastRequest.options),['redirectTo']);
-  providerFailure={message:'Unsupported provider'};
+  providerFailure=new Error('Unsupported provider');
   await assert.rejects(()=>api.signInWithGoogle(),/Unsupported provider/);
   console.log('PASS: Google OAuth request, fixed redirect, account button and error propagation.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

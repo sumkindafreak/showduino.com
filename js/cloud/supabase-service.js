@@ -79,6 +79,20 @@
     return data;
   }
 
+  // Google OAuth uses the SAME Supabase user identity and private profile as email login.
+  // The browser is sent to Google by Supabase Auth. Credentials stay exclusively in
+  // the Google Cloud + Supabase provider settings, never in public website JavaScript.
+  const GOOGLE_RETURN_URL = 'https://show-duino.com/welcome.html';
+
+  async function signInWithGoogle() {
+    const { data, error } = await getClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: GOOGLE_RETURN_URL }
+    });
+    if (error) throw error;
+    return data;
+  }
+
   async function requestPasswordReset(email) {
     const { data, error } = await getClient().auth.resetPasswordForEmail(email, { redirectTo: ACCOUNT_URL });
     if (error) throw error;
@@ -417,7 +431,7 @@
   }
 
   window.ShowduinoSupabase = Object.freeze({
-    enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
+    enabled, register, resendConfirmation, signIn, signInWithGoogle, requestPasswordReset, updatePassword, signOut,
     onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
     getOwnCreatorPublication, publishCreatorProfile, unpublishCreatorProfile,
     listPublicCreators, getPublicCreator, listPublicCreatorShows,

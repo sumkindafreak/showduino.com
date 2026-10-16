@@ -5,6 +5,7 @@
   const elements = {};
   const params = new URLSearchParams(window.location.search);
   const confirmationReturn = params.get('confirmed') === '1';
+  const welcomesHauntSync = params.get('next') === 'welcome' || confirmationReturn;
   let recoveryMode = false;
 
   function byId(id) { return document.getElementById(id); }
@@ -35,19 +36,21 @@
     local.forEach((project) => { const item=document.createElement('article'); item.className='project-item'; item.innerHTML=`<div><strong>${escapeHtml(project.name || 'Untitled Show')}</strong><div class="muted">Updated ${escapeHtml(project.updatedAt || 'on this device')}</div></div><span class="badge">THIS DEVICE</span>`; elements.projectList.appendChild(item); });
   }
 
-  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; }
+  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
   async function showSignedIn(user) {
     if (recoveryMode) return; elements.authForms.hidden=true; elements.accountPanel.hidden=false; elements.recoveryPanel.hidden=true;
+    elements.hauntsyncNext.hidden = !welcomesHauntSync;
     let displayName=user.user_metadata?.display_name || 'Showduino Creator'; try { const profile=await window.ShowduinoSupabase.getProfile(); if(profile?.display_name) displayName=profile.display_name; } catch (_) {}
     elements.accountName.textContent=displayName; elements.accountEmail.textContent=user.email || '';
     setStatus(confirmationReturn ? 'Email confirmed — welcome to Showduino. Your Showduino ID is ready.' : 'Signed in. Your cloud shows are ready.','success'); await renderProjects(user);
   }
-  function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=false; setStatus('Password reset link accepted. Choose a new password below.','success'); }
+  function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=false; elements.hauntsyncNext.hidden=true; setStatus('Password reset link accepted. Choose a new password below.','success'); }
 
   async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
   async function handleRegister(event) {
     event.preventDefault(); setStatus('Creating your Showduino account…');
     try {
+      if (elements.registerPassword.value.length < 12) throw Error('Choose a password with at least 12 characters.');
       const email=elements.registerEmail.value.trim();
       const data=await window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim());
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';
@@ -68,6 +71,7 @@
   async function handleRecoverySubmit(event) {
     event.preventDefault(); const password=elements.recoveryPassword.value; const confirm=elements.recoveryPasswordConfirm.value;
     if(password!==confirm){ setStatus('The two passwords do not match.','error'); return; }
+    if(password.length<12){ setStatus('Choose a new password with at least 12 characters.','error'); return; }
     setStatus('Saving your new password…');
     try { await window.ShowduinoSupabase.updatePassword(password); recoveryMode=false; elements.recoveryForm.reset(); history.replaceState(null,'','account.html'); const user=await window.ShowduinoSupabase.getCurrentUser(); if(user) await showSignedIn(user); else { showSignedOut(); setStatus('Password updated. Sign in with your new password.','success'); } }
     catch(error){ setStatus(friendlyAuthMessage(error,'Your password could not be updated.'),'error'); }
@@ -76,7 +80,7 @@
 
   function initialise() {
     ['status','authForms','accountPanel','recoveryPanel','loginForm','registerForm','recoveryForm','loginEmail','loginPassword','registerName','registerEmail','registerPassword','recoveryPassword','recoveryPasswordConfirm','accountName','accountEmail','projectList','signOutButton','forgotPasswordButton','resendConfirmationButton'].forEach(()=>{});
-    elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
+    elements.hauntsyncNext=byId('hauntsync-account-next'); elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
     const pendingEmail=sessionStorage.getItem('showduino_pending_confirmation_email'); if(pendingEmail){ elements.registerEmail.value=pendingEmail; elements.loginEmail.value=pendingEmail; }
     elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
     if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }

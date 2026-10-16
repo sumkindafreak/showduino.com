@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Discover opt-in HauntSync creator profiles and their published Showduino productions.">
+<title>Creators | HauntSync</title><link rel="stylesheet" href="css/site-pages.css">
+<link rel="stylesheet" href="css/showduino-stage-theme.css">
+<link rel="stylesheet" href="css/hauntsync-profiles.css">
+<link rel="stylesheet" href="css/hauntsync-creators.css"></head><body>
+<header class="site-header"><a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
+<nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a><a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a><a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a></nav></header>
+<main class="site-main wide"><section class="page-heading hs-brand-heading">
+<img src="media/hauntsync-official-logo.webp" class="hs-identity-logo" width="150" height="150" alt="HauntSync logo">
+<div><span class="eyebrow">HAUNTSYNC COMMUNITY</span><h1>Meet the <span class="accent">creators.</span></h1>
+<p>Discover people making immersive attractions, props, audio, lighting and interactive shows. Only creators who publish their own profiles are listed.</p>
+<div class="button-row"><a class="btn" href="profile.html">Build my creator profile</a><a class="btn secondary" href="community.html">Explore shared shows</a></div></div></section>
+<section class="section"><div class="section-heading"><span class="eyebrow">OPT-IN DIRECTORY</span><h2>Find your people.</h2></div>
+<label for="hs-creator-search">Search creators by name, username or creative focus</label>
+<input id="hs-creator-search" class="form-control hs-creator-search" type="search" maxlength="100" placeholder="Try show control or immersive attractions">
+<p id="hs-creators-status" class="hs-inline-status" role="status" aria-live="polite">Loading public creator directory…</p>
+<div id="hs-creators-list" class="hs-creator-cards"></div></section>
+<section class="card"><h2>Private until you say otherwise.</h2><p class="muted">A Showduino account does not put you in this directory. You decide when to publish or unpublish. Private projects, device inventory and email addresses are never shown here.</p></section></main><footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="docs.html">Documentation</a></p></footer>
+<script src="config/runtime-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="js/cloud/supabase-service.js"></script>
+<script src="js/hauntsync-public-creators.js"></script></body></html>

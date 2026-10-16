@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Join HauntSync: create a Showduino ID, complete your immersive creator profile, and discover community .shdo templates.">
+<title>Welcome to HauntSync | Showduino</title>
+<link rel="stylesheet" href="css/site-pages.css">
+<link rel="stylesheet" href="css/showduino-stage-theme.css">
+<link rel="stylesheet" href="css/hauntsync-profiles.css">
+<link rel="stylesheet" href="css/hauntsync-onboarding.css">
+</head><body>
+<header class="site-header"><a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
+<nav class="site-nav" aria-label="Main navigation">
+<a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a>
+<a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a>
+<a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a><a href="account.html">Account</a>
+</nav></header>
+<main class="site-main wide">
+<section class="page-heading hs-brand-heading">
+<img class="hs-identity-logo" src="media/hauntsync-official-logo.webp" width="160" height="160" alt="HauntSync circuit-skull logo">
+<div><span class="eyebrow">JOIN THE CREATOR COMMUNITY</span>
+<h1>Make something <span class="accent">unforgettable.</span></h1>
+<p>Meet attraction builders, effects makers, technicians and immersive storytellers. Design in Studio, share reusable .shdo show templates, and discover new ideas — even if you don't own Showduino hardware.</p>
+<div class="button-row">
+<a class="btn" id="hs-onboarding-join" href="account.html?next=welcome">Create your free Showduino ID</a>
+<a class="btn secondary" href="creators.html">Explore creators</a>
+</div>
+</div></section>
+<section class="section compact" aria-labelledby="hs-onboarding-title">
+<div class="section-heading"><span class="eyebrow">THREE SIMPLE STEPS</span><h2 id="hs-onboarding-title">Make HauntSync your own.</h2>
+<p>Your account and profile stay private unless you explicitly publish a creator page or share a show. No connected hardware or cloud account is needed to run a properly loaded P4 production.</p></div>
+<p id="hs-onboarding-status" class="hs-inline-status" role="status" aria-live="polite">Checking your Showduino ID…</p>
+<div class="hs-onboarding-steps">
+<article class="card hs-onboarding-step"><span class="hs-onboarding-number">01</span>
+<h3>Create your Showduino ID</h3><p>Use an email address and a strong password. Confirm the email link to activate your identity. One login works across Studio and HauntSync.</p>
+<p id="hs-onboarding-account-state" class="hs-onboarding-step-state">Not checked</p>
+<a class="btn secondary" id="hs-onboarding-account-action" href="account.html?next=welcome">Sign up or sign in</a></article>
+<article class="card hs-onboarding-step"><span class="hs-onboarding-number">02</span>
+<h3>Build your creator profile</h3><p>Choose a public-facing username, add a photo, describe what you make and optionally publish your own creator page.</p>
+<p id="hs-onboarding-profile-state" class="hs-onboarding-step-state">Sign in to begin</p>
+<a class="btn secondary" href="profile.html">Create or edit my profile</a></article>
+<article class="card hs-onboarding-step"><span class="hs-onboarding-number">03</span>
+<h3>Create and share</h3><p>Explore others' show templates, build your own SHDO v2 production in Studio and publish only the files you deliberately choose.</p>
+<p id="hs-onboarding-share-state" class="hs-onboarding-step-state">Open to everyone</p>
+<div class="button-row"><a class="btn secondary" href="community.html">Browse .shdo shows</a><a class="btn secondary" href="studio.html">Open Studio</a></div></article>
+</div></section>
+<section class="section compact"><div class="grid two">
+<article class="card"><h2>Your work stays yours.</h2>
+<p class="muted">Your private shows and local device inventory are not published automatically. Public creator profiles and shared .shdo files are separate opt-in actions.</p>
+<a href="privacy.html">Read our privacy notice</a></article>
+<article class="card"><h2>Already a member?</h2>
+<p class="muted">Head straight to your workspace, visit your profile, or pick up a Studio project. You can sign out from your account at any time.</p>
+<div class="button-row"><a class="btn" href="hauntsync.html">Open HauntSync</a><a class="btn secondary" href="account.html">Manage account</a></div></article>
+</div></section>
+</main><footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="docs.html">Documentation</a></p></footer>
+<script src="config/runtime-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="js/cloud/supabase-service.js"></script><script src="js/hauntsync-onboarding.js"></script>
+</body></html>

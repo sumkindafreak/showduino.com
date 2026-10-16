@@ -8,6 +8,7 @@
   let selected = null;
   let loading = 0;
   let busy = false;
+  let publicCreatorsById = new Map();
 
   function status(message, kind) {
     els.status.textContent = message;
@@ -42,7 +43,16 @@
       card.append(txt('span', optionLabel(item.category), 'eyebrow'));
       card.append(txt('h3', item.title));
       card.append(txt('p', item.summary || 'No description yet.', 'hs-blurb'));
-      card.append(txt('p', 'by '+item.author_label+' · '+shortDate(item.created_at)+' · '+(item.license === 'cc0-1.0' ? 'CC0' : 'CC BY 4.0'), 'hs-meta'));
+      const meta = txt('p','','hs-meta');
+      meta.append(document.createTextNode('by '));
+      const publicCreator = publicCreatorsById.get(item.author_id);
+      if (publicCreator) {
+        const author = txt('a', item.author_label || publicCreator.display_name);
+        author.href = 'creator.html?u=' + encodeURIComponent(publicCreator.username);
+        meta.append(author);
+      } else meta.append(document.createTextNode(item.author_label || 'HauntSync creator'));
+      meta.append(document.createTextNode(' · '+shortDate(item.created_at)+' · '+(item.license === 'cc0-1.0' ? 'CC0' : 'CC BY 4.0')));
+      card.append(meta);
       const btn = txt('button', 'Preview & download', 'btn secondary');
       btn.type = 'button';
       btn.addEventListener('click', ()=>openShow(item.id));
@@ -54,7 +64,11 @@
     placeholder('Checking the community library…','Loading shows');
     try {
       if (!window.ShowduinoSupabase?.enabled()) throw Error('The community service is currently unavailable.');
-      const rows = await window.ShowduinoSupabase.listSharedShows(els.filter.value);
+      const [rows,creators] = await Promise.all([
+        window.ShowduinoSupabase.listSharedShows(els.filter.value),
+        window.ShowduinoSupabase.listPublicCreators().catch(()=>[])
+      ]);
+      publicCreatorsById = new Map(creators.map(item=>[item.creator_id,item]));
       if (seq !== loading) return;
       showSummary(rows);
       status(rows.length ? rows.length+' shared show(s) ready to explore.' :

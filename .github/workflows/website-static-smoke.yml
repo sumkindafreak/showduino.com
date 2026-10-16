@@ -25,3 +25,4 @@ jobs:
         run: |
           node tools/check-website.mjs
           node tests/hauntsync-onboarding.test.cjs
+          node tests/hauntsync-google-auth.test.cjs

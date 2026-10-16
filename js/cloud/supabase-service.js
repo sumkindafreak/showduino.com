@@ -39,7 +39,7 @@
       .from('profiles').select('id,display_name').eq('id', user.id).maybeSingle();
     if (readError) throw readError;
     if (existing) return existing;
-    const name = String(displayName || user.user_metadata?.display_name || 'Showduino Creator').trim().slice(0, 60) || 'Showduino Creator';
+    const name = String(displayName || user.user_metadata?.display_name || user.user_metadata?.full_name || 'Showduino Creator').trim().slice(0, 60) || 'Showduino Creator';
     const { error } = await getClient().from('profiles')
       .upsert({ id: user.id, display_name: name }, { onConflict: 'id', ignoreDuplicates: true });
     if (error) throw error;

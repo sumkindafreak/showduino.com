@@ -27,6 +27,8 @@ const api = context.window.ShowduinoSupabase;
 assert.equal(typeof api.signInWithGoogle, 'function');
 assert.match(fs.readFileSync('account.html','utf8'),/id="google-signin-button"/);
 assert.match(fs.readFileSync('js/account-page.js','utf8'),/addEventListener\('click',handleGoogleSignIn\)/);
+assert.match(fs.readFileSync('account.html','utf8'),/id="google-signin-button"[^>]*disabled/);
+assert.match(fs.readFileSync('js/account-page.js','utf8'),/settings\?\.external\?\.google === true/);
 assert.match(fs.readFileSync('welcome.html','utf8'),/Continue with Google/);
 
 (async()=>{

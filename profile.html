@@ -30,7 +30,7 @@
       <div>
       <span class="eyebrow">HAUNTSYNC · YOUR SHOWDUINO ID</span>
       <h1>Meet the <span class="accent">creator.</span></h1>
-      <p>Create your HauntSync identity for immersive attractions, practical effects, show control and creative technology. Your profile details stay private to your account during this first phase.</p>
+      <p>Create your HauntSync identity for immersive attractions, practical effects, show control and creative technology. Your profile stays private until you choose to publish a public creator page.</p>
       </div>
     </section>
     <section id="hs-profile-signed-out" class="card hs-profile-section" aria-label="Sign in required">
@@ -43,7 +43,7 @@
       <div class="section-heading">
         <span class="eyebrow">MY CREATOR PROFILE</span>
         <h2 id="hs-profile-heading">Your profile. Your projects.</h2>
-        <p>Create a recognisable identity across your Showduino projects. Public sharing and community profiles are not enabled yet.</p>
+        <p>Create a recognisable identity across your Showduino projects. Build your private profile first, then choose whether to publish a public creator page.</p>
       </div>
       <p id="hs-profile-status" class="hs-inline-status" role="status" aria-live="polite">Checking your profile…</p>
       <div class="hs-profile-grid">
@@ -104,10 +104,22 @@
         </form>
       </div>
     </section>
+    <section id="hs-publication-panel" class="card hs-profile-section" aria-labelledby="hs-publication-heading" hidden>
+      <span class="eyebrow">COMMUNITY VISIBILITY</span>
+      <h2 id="hs-publication-heading">Your page. Your choice.</h2>
+      <p class="muted">Your saved profile is private by default. When you publish, your display name, username, bio, specialism, website and profile photo become public. Your email, private projects and hardware never appear on your creator page. Updates to private fields will only appear publicly when you publish again.</p>
+      <p id="hs-profile-public-state" class="hs-inline-status" role="status" aria-live="polite">Not published.</p>
+      <div class="button-row">
+        <button id="hs-profile-publish" type="button" class="btn">Publish my creator page</button>
+        <button id="hs-profile-unpublish" type="button" class="btn secondary" hidden>Unpublish my page</button>
+        <a id="hs-profile-public-link" class="btn secondary" href="creators.html" hidden>View public page</a>
+        <a class="btn secondary" href="creators.html">Explore creators</a>
+      </div>
+    </section>
     <section class="card" aria-label="Privacy and show safety">
       <span class="badge">YOUR DATA</span>
       <h2>Creator identity ≠ live show control</h2>
-      <p class="muted">Profile details are private to your account for now; an uploaded profile photo is publicly accessible through its image URL. Local hardware inventory stays in this browser, and no cloud account is ever required for a P4 Show Engine to continue a loaded show.</p>
+      <p class="muted">Creator fields are private unless you explicitly publish a public snapshot. An uploaded profile photo is publicly accessible to anyone who has its image URL, even if your profile is private. Local hardware inventory stays in this browser, and no cloud account is ever required for a P4 Show Engine to continue a loaded show.</p>
     </section>
   </main>
   <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>

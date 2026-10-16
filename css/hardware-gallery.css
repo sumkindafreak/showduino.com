@@ -1,0 +1,13 @@
+/* Reference hardware gallery for serviceable, off-the-shelf Showduino modules */
+.hs-hardware-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,295px),1fr));gap:1rem;margin:1.25rem 0}
+.hs-module-card{display:flex;flex-direction:column;gap:.65rem;min-width:0}
+.hs-module-card img{display:block;width:100%;height:205px;object-fit:contain;border:1px solid var(--site-border);border-radius:12px;background:#e5e9e7;color:#18211e}
+.hs-module-card .hs-module-kind{font-size:.7rem;letter-spacing:.075em;font-weight:900;color:var(--site-accent)}
+.hs-module-card h3{margin:.15rem 0 .1rem;font-size:1.15rem}
+.hs-module-card p{margin:.1rem 0;color:var(--site-muted);line-height:1.55}
+.hs-module-card .hs-module-service{color:var(--site-ink);background:rgba(120,255,67,.05);border-left:2px solid var(--site-accent);padding:.55rem .7rem}
+.hs-module-card .button-row{margin-top:auto;gap:.7rem}
+.hs-module-card .button-row a{font-size:.84rem;overflow-wrap:anywhere}
+.hs-module-card small{font-size:.73rem;color:var(--site-muted)}
+.hs-hardware-footnote{margin:1rem 0;padding:1rem;border:1px solid var(--site-border);border-radius:12px;line-height:1.6}
+@media(max-width:600px){.hs-hardware-grid{grid-template-columns:1fr}.hs-module-card img{height:230px}}

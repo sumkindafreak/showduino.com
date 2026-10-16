@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','account.html',
+const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','creators.html','creator.html','account.html',
   'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html'];
 const content = (p) => readFileSync(path.join(root, p), 'utf8');
 const localAsset = (url) => {
@@ -77,6 +77,20 @@ assert.ok(!content('hauntsync.html').includes('js/cloud/firebase-service.js'),
   'HauntSync unexpectedly reverted to the retired Firebase service');
 assert.ok(content('profile.html').includes('id="hs-profile-form"'),
   'Creator profile editor missing');
+assert.ok(content('profile.html').includes('id="hs-profile-publish"'),
+  'Explicit public creator publishing UI missing');
+for (const page of ['creators.html','creator.html']) {
+  assert.ok(content(page).includes('js/hauntsync-public-creators.js'),
+    'Public creators page is missing its safe renderer: '+page);
+}
+assert.ok(content('creators.html').includes('id="hs-creators-list"'),
+  'Creator directory list missing');
+assert.ok(content('creator.html').includes('id="hs-public-creator-detail"'),
+  'Public creator detail missing');
+assert.ok(content('docs.html').includes('SHOWDUINO_BUILD_AND_PARTS_REGISTER.md'),
+  'Documentation hub missing new parts register');
+assert.ok(content('tools.html').includes('id="modules"'),
+  'Serviceable-module gallery missing');
 
 const community = content('community.html');
 for(const asset of ['js/hauntsync-share-model.js','js/hauntsync-library.js','js/cloud/supabase-service.js']) {

@@ -1,0 +1,15 @@
+/* HauntSync opt-in creator discovery. All content is DOM text, never injected HTML. */
+.hs-creator-search { max-width:620px; margin:.7rem 0 1.2rem; }
+.hs-creator-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr)); gap:1rem; margin:1rem 0 2rem; }
+.hs-creator-person { display:flex; align-items:center; gap:1rem; min-width:0; }
+.hs-creator-person .hs-avatar { width:76px; height:76px; }
+.hs-creator-person>div:last-child { min-width:0; }
+.hs-creator-name { font-weight:800; font-size:1.2rem; color:var(--site-ink,#fafafa); overflow-wrap:anywhere; }
+.hs-focus-text { color:var(--site-muted,#a5aaa8); margin:.3rem 0; }
+.hs-public-creator-card { display:flex; flex-direction:column; align-items:flex-start; gap:.4rem; }
+.hs-public-creator-card .btn { margin-top:auto; }
+.hs-public-creator-card .hs-profile-about { margin:.6rem 0 1rem; }
+.hs-public-profile { margin:1rem 0 2rem; }
+.hs-public-profile .hs-creator-person .hs-avatar { width:94px; height:94px; }
+.hs-public-profile[hidden], #hs-public-creator-shows[hidden], #hs-publication-panel[hidden] { display:none!important; }
+@media(max-width:560px){ .hs-public-profile .hs-creator-person { align-items:flex-start; } }

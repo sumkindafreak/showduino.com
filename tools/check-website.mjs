@@ -83,6 +83,8 @@ for (const page of ['creators.html','creator.html']) {
   assert.ok(content(page).includes('js/hauntsync-public-creators.js'),
     'Public creators page is missing its safe renderer: '+page);
 }
+assert.ok(content('account.html').includes('id="google-signin-button"'),
+  'Account page missing Google sign-in control');
 assert.ok(content('welcome.html').includes('js/hauntsync-onboarding.js'),
   'HauntSync onboarding page missing its client script');
 assert.ok(content('creators.html').includes('id="hs-creators-list"'),

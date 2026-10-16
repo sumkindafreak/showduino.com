@@ -35,24 +35,29 @@
         <div class="button-row"><button class="btn" type="submit">Sign in</button><button id="forgot-password-button" class="btn secondary" type="button">Forgot password?</button></div>
       </form>
       <form id="register-form" class="card">
-        <h2>Create an account</h2><p class="muted">Create a Showduino ID for cloud project access.</p>
+        <h2>Create an account</h2><p class="muted">Create one free Showduino ID for Studio, private cloud shows and the HauntSync creator community.</p>
         <div class="form-group"><label for="register-name">Display name</label><input id="register-name" class="form-control" type="text" autocomplete="name" maxlength="60" required></div>
         <div class="form-group"><label for="register-email">Email address</label><input id="register-email" class="form-control" type="email" autocomplete="email" required></div>
-        <div class="form-group"><label for="register-password">Password</label><input id="register-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required></div>
-        <div class="button-row"><button class="btn" type="submit">Create account</button><button id="resend-confirmation-button" class="btn secondary" type="button">Resend confirmation</button></div>
+        <div class="form-group"><label for="register-password">Password</label><input id="register-password" class="form-control" type="password" autocomplete="new-password" minlength="12" aria-describedby="register-password-help" required></div>
+        <p id="register-password-help" class="muted">Use a unique password of at least 12 characters. A password manager is recommended.</p><div class="button-row"><button class="btn" type="submit">Create account</button><button id="resend-confirmation-button" class="btn secondary" type="button">Resend confirmation</button></div>
       </form>
     </section>
     <section id="password-recovery-panel" class="card" hidden>
       <span class="badge">PASSWORD RECOVERY</span><h2>Choose a new password</h2><p class="muted">Enter a new password for your Showduino account.</p>
       <form id="password-recovery-form">
-        <div class="form-group"><label for="recovery-password">New password</label><input id="recovery-password" class="form-control" type="password" autocomplete="new-password" minlength="8" required></div>
-        <div class="form-group"><label for="recovery-password-confirm">Confirm new password</label><input id="recovery-password-confirm" class="form-control" type="password" autocomplete="new-password" minlength="8" required></div>
+        <div class="form-group"><label for="recovery-password">New password</label><input id="recovery-password" class="form-control" type="password" autocomplete="new-password" minlength="12" required></div>
+        <div class="form-group"><label for="recovery-password-confirm">Confirm new password</label><input id="recovery-password-confirm" class="form-control" type="password" autocomplete="new-password" minlength="12" required></div>
         <button class="btn" type="submit">Save new password</button>
       </form>
     </section>
     <section id="account-panel" class="grid two" hidden>
       <article class="card"><span class="badge">SIGNED IN</span><h2 id="account-name">Showduino Creator</h2><p id="account-email" class="muted"></p><div class="button-row"><a class="btn" href="profile.html">Edit HauntSync profile</a><a class="btn secondary" href="hauntsync.html">HauntSync</a><a class="btn secondary" href="studio.html">Open Studio</a><button id="sign-out-button" class="btn secondary" type="button">Sign out</button></div></article>
       <article class="card"><h2>Cloud status</h2><p class="muted">Private cloud projects are tied to your Showduino ID. The P4 Show Engine never requires this account to keep a loaded live show running.</p><span class="badge">OPTIONAL CLOUD</span></article>
+    </section>
+    <section id="hauntsync-account-next" class="card" hidden aria-labelledby="hauntsync-account-next-title" style="margin-top:1rem;">
+      <span class="eyebrow">WELCOME TO HAUNTSYNC</span><h2 id="hauntsync-account-next-title">Your creator journey starts here.</h2>
+      <p class="muted">Choose a username and profile photo, discover creators and start sharing projects. Publishing your profile or a show is always optional.</p>
+      <div class="button-row"><a class="btn" href="welcome.html">Continue to HauntSync</a><a class="btn secondary" href="profile.html">Set up creator profile</a></div>
     </section>
     <section class="card reveal" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
   </main>

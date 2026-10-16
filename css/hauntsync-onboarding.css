@@ -1,0 +1,11 @@
+/* HauntSync creator welcome steps */
+.hs-onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.25rem 0}
+.hs-onboarding-step{display:flex;flex-direction:column;gap:.8rem;align-items:flex-start;min-width:0}
+.hs-onboarding-number{font-size:.72rem;letter-spacing:.13em;color:var(--site-accent);font-weight:900}
+.hs-onboarding-step h3{margin:0}
+.hs-onboarding-step p{margin:0;line-height:1.6}
+.hs-onboarding-step .btn{margin-top:auto}
+.hs-onboarding-step .button-row{margin-top:auto}
+.hs-onboarding-step-state{padding:.5rem .7rem;border:1px solid var(--site-border);border-radius:8px;color:var(--site-muted);font-size:.85rem;font-weight:700}
+.hs-onboarding-step-state.ready{border-color:rgba(120,255,67,.32);color:#caffbe}
+@media(max-width:850px){.hs-onboarding-steps{grid-template-columns:1fr}}

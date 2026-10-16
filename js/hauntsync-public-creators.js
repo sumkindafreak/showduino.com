@@ -99,7 +99,7 @@
       item.append(txt('h3',show.title),txt('p',show.summary||'No description yet.','hs-profile-about'));
       const a=txt('a','Find in Show Library','btn secondary');
       // The library is a separate moderated/download flow; do not launch content here.
-      a.href='community.html';
+      a.href='community.html?show='+encodeURIComponent(show.id);
       item.append(a);list.append(item);
     }
     area.hidden=false;

@@ -46,6 +46,34 @@
   }
   function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.googlePanel.hidden=true; elements.recoveryPanel.hidden=false; elements.hauntsyncNext.hidden=true; setStatus('Password reset link accepted. Choose a new password below.','success'); }
 
+  async function checkGoogleProvider() {
+    elements.googleButton.disabled = true;
+    elements.googleNote.textContent = 'Checking whether Google sign-in is available…';
+    const cfg = window.SHOWDUINO_CONFIG?.supabase;
+    if (!cfg?.url || !cfg?.publishableKey) {
+      elements.googleNote.textContent = 'Google sign-in is unavailable at the moment. Email and password still work below.';
+      return;
+    }
+    try {
+      // Public read-only GoTrue settings. Do not expose or require a provider secret.
+      const endpoint = new URL('/auth/v1/settings', cfg.url);
+      const response = await fetch(endpoint.href, {
+        headers: {'apikey': cfg.publishableKey},
+        cache:'no-store'
+      });
+      if (!response.ok) throw Error('Unable to check Google sign-in settings.');
+      const settings = await response.json();
+      if (settings?.external?.google === true) {
+        elements.googleButton.disabled = false;
+        elements.googleNote.textContent = 'Continue securely with Google. You will return to HauntSync after signing in.';
+      } else {
+        elements.googleNote.textContent = 'Google sign-in is being configured. You can create your Showduino ID using email below.';
+      }
+    } catch (_) {
+      elements.googleNote.textContent = 'Google availability could not be verified. Please use email sign-in for now.';
+    }
+  }
+
   async function handleGoogleSignIn() {
     if (elements.googleButton.disabled) return;
     elements.googleButton.disabled = true;
@@ -61,6 +89,7 @@
       } else {
         setStatus(friendlyAuthMessage(error,'Google sign-in could not start. You can still use email and password.'),'error');
       }
+      // The page only enables the button after the provider-settings check succeeds.
       elements.googleButton.disabled = false;
     }
   }
@@ -99,10 +128,11 @@
 
   function initialise() {
     ['status','authForms','accountPanel','recoveryPanel','loginForm','registerForm','recoveryForm','loginEmail','loginPassword','registerName','registerEmail','registerPassword','recoveryPassword','recoveryPasswordConfirm','accountName','accountEmail','projectList','signOutButton','forgotPasswordButton','resendConfirmationButton'].forEach(()=>{});
-    elements.googlePanel=byId('google-auth-panel'); elements.googleButton=byId('google-signin-button'); elements.hauntsyncNext=byId('hauntsync-account-next'); elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
+    elements.googlePanel=byId('google-auth-panel'); elements.googleButton=byId('google-signin-button'); elements.googleNote=byId('google-signin-note'); elements.hauntsyncNext=byId('hauntsync-account-next'); elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
     const pendingEmail=sessionStorage.getItem('showduino_pending_confirmation_email'); if(pendingEmail){ elements.registerEmail.value=pendingEmail; elements.loginEmail.value=pendingEmail; }
     elements.googleButton.addEventListener('click',handleGoogleSignIn); elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
     if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.googleButton.disabled=true; elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }
+    void checkGoogleProvider();
     setStatus(confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…');
     window.ShowduinoSupabase.onAuthChanged(async(user,event)=>{
       if(event==='PASSWORD_RECOVERY'){ showRecoveryMode(); return; }

@@ -291,6 +291,75 @@
     if (error) throw error;
   }
 
+  // Public creator identities are separately and explicitly published by the owner.
+  // Never expose the private 'profiles', 'projects' or 'devices' tables to anonymous readers.
+  const PUBLIC_CREATOR_FIELDS = 'creator_id,username,display_name,bio,creator_focus,website_url,avatar_url,published_at,updated_at';
+
+  async function getOwnCreatorPublication() {
+    const user = await getCurrentUser();
+    if (!user) return null;
+    const {data,error} = await getClient().from('creator_publications')
+      .select(PUBLIC_CREATOR_FIELDS).eq('creator_id',user.id).maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function publishCreatorProfile() {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in before publishing your creator profile.');
+    const profile = await getCreatorProfile();
+    if (!profile?.username || !/^[a-z0-9_-]{3,30}$/.test(profile.username)) {
+      throw new Error('Save a unique creator username before publishing.');
+    }
+    const payload = {
+      creator_id:user.id,
+      username:profile.username,
+      display_name:profile.display_name,
+      bio:profile.bio || '',
+      creator_focus:profile.creator_focus || '',
+      website_url:profile.website_url || null,
+      avatar_url:profile.avatar_url || null,
+      updated_at:new Date().toISOString()
+    };
+    const {data,error} = await getClient().from('creator_publications')
+      .upsert(payload,{onConflict:'creator_id'}).select(PUBLIC_CREATOR_FIELDS).single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function unpublishCreatorProfile() {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Sign in before unpublishing your profile.');
+    const {error} = await getClient().from('creator_publications')
+      .delete().eq('creator_id',user.id);
+    if (error) throw error;
+  }
+
+  async function listPublicCreators() {
+    const {data,error} = await getClient().from('creator_publications')
+      .select(PUBLIC_CREATOR_FIELDS).order('updated_at',{ascending:false}).limit(100);
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function getPublicCreator(username) {
+    const handle = String(username || '').toLowerCase();
+    if (!/^[a-z0-9_-]{3,30}$/.test(handle)) throw new Error('Invalid creator username.');
+    const {data,error} = await getClient().from('creator_publications')
+      .select(PUBLIC_CREATOR_FIELDS).eq('username',handle).maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function listPublicCreatorShows(creatorId) {
+    if (!isUuid(creatorId)) throw new Error('Invalid creator identifier.');
+    const {data,error} = await getClient().from('shared_shows')
+      .select(PUBLIC_SHARE_FIELDS).eq('author_id',creatorId)
+      .order('created_at',{ascending:false}).limit(30);
+    if (error) throw error;
+    return data || [];
+  }
+
   // Community shows are intentionally PUBLIC copies; never link them to private cloud projects.
   const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at';
 
@@ -350,6 +419,8 @@
   window.ShowduinoSupabase = Object.freeze({
     enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
     onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
+    getOwnCreatorPublication, publishCreatorProfile, unpublishCreatorProfile,
+    listPublicCreators, getPublicCreator, listPublicCreatorShows,
     listSharedShows, loadSharedShow, publishSharedShow, removeSharedShow
   });
 })();

@@ -36,15 +36,34 @@
     local.forEach((project) => { const item=document.createElement('article'); item.className='project-item'; item.innerHTML=`<div><strong>${escapeHtml(project.name || 'Untitled Show')}</strong><div class="muted">Updated ${escapeHtml(project.updatedAt || 'on this device')}</div></div><span class="badge">THIS DEVICE</span>`; elements.projectList.appendChild(item); });
   }
 
-  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
+  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.googlePanel.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
   async function showSignedIn(user) {
-    if (recoveryMode) return; elements.authForms.hidden=true; elements.accountPanel.hidden=false; elements.recoveryPanel.hidden=true;
+    if (recoveryMode) return; elements.authForms.hidden=true; elements.googlePanel.hidden=true; elements.accountPanel.hidden=false; elements.recoveryPanel.hidden=true;
     elements.hauntsyncNext.hidden = !welcomesHauntSync;
     let displayName=user.user_metadata?.display_name || 'Showduino Creator'; try { const profile=await window.ShowduinoSupabase.getProfile(); if(profile?.display_name) displayName=profile.display_name; } catch (_) {}
     elements.accountName.textContent=displayName; elements.accountEmail.textContent=user.email || '';
     setStatus(confirmationReturn ? 'Email confirmed — welcome to Showduino. Your Showduino ID is ready.' : 'Signed in. Your cloud shows are ready.','success'); await renderProjects(user);
   }
-  function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=false; elements.hauntsyncNext.hidden=true; setStatus('Password reset link accepted. Choose a new password below.','success'); }
+  function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.googlePanel.hidden=true; elements.recoveryPanel.hidden=false; elements.hauntsyncNext.hidden=true; setStatus('Password reset link accepted. Choose a new password below.','success'); }
+
+  async function handleGoogleSignIn() {
+    if (elements.googleButton.disabled) return;
+    elements.googleButton.disabled = true;
+    setStatus('Opening Google sign-in…');
+    try {
+      await window.ShowduinoSupabase.signInWithGoogle();
+      // Supabase sends the browser to Google. Do not claim a completed
+      // session until the return page receives and confirms it.
+    } catch (error) {
+      const message = String(error?.message || '');
+      if (/provider.+(disabled|not enabled)|unsupported provider/i.test(message)) {
+        setStatus('Google sign-in is not enabled in Showduino Supabase yet. Use email sign-in for now or ask the site owner to finish the Google provider setup.','error');
+      } else {
+        setStatus(friendlyAuthMessage(error,'Google sign-in could not start. You can still use email and password.'),'error');
+      }
+      elements.googleButton.disabled = false;
+    }
+  }
 
   async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
   async function handleRegister(event) {
@@ -80,10 +99,10 @@
 
   function initialise() {
     ['status','authForms','accountPanel','recoveryPanel','loginForm','registerForm','recoveryForm','loginEmail','loginPassword','registerName','registerEmail','registerPassword','recoveryPassword','recoveryPasswordConfirm','accountName','accountEmail','projectList','signOutButton','forgotPasswordButton','resendConfirmationButton'].forEach(()=>{});
-    elements.hauntsyncNext=byId('hauntsync-account-next'); elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
+    elements.googlePanel=byId('google-auth-panel'); elements.googleButton=byId('google-signin-button'); elements.hauntsyncNext=byId('hauntsync-account-next'); elements.status=byId('account-status'); elements.authForms=byId('auth-forms'); elements.accountPanel=byId('account-panel'); elements.recoveryPanel=byId('password-recovery-panel'); elements.loginForm=byId('login-form'); elements.registerForm=byId('register-form'); elements.recoveryForm=byId('password-recovery-form'); elements.loginEmail=byId('login-email'); elements.loginPassword=byId('login-password'); elements.registerName=byId('register-name'); elements.registerEmail=byId('register-email'); elements.registerPassword=byId('register-password'); elements.recoveryPassword=byId('recovery-password'); elements.recoveryPasswordConfirm=byId('recovery-password-confirm'); elements.accountName=byId('account-name'); elements.accountEmail=byId('account-email'); elements.projectList=byId('project-list'); elements.signOutButton=byId('sign-out-button'); elements.forgotPasswordButton=byId('forgot-password-button'); elements.resendConfirmationButton=byId('resend-confirmation-button');
     const pendingEmail=sessionStorage.getItem('showduino_pending_confirmation_email'); if(pendingEmail){ elements.registerEmail.value=pendingEmail; elements.loginEmail.value=pendingEmail; }
-    elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
-    if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }
+    elements.googleButton.addEventListener('click',handleGoogleSignIn); elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
+    if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.googleButton.disabled=true; elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }
     setStatus(confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…');
     window.ShowduinoSupabase.onAuthChanged(async(user,event)=>{
       if(event==='PASSWORD_RECOVERY'){ showRecoveryMode(); return; }

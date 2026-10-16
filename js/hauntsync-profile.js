@@ -7,6 +7,7 @@
   let latestLoad = 0;
   let busy = false;
   let persistedProfile = null;
+  let publication = null;
 
   function initials(name) {
     return String(name || 'Creator').trim().split(/\s+/).filter(Boolean)
@@ -23,6 +24,8 @@
     els.saveButton.disabled = value;
     els.photoInput.disabled = value;
     els.removePhoto.disabled = value || !persistedProfile?.avatar_url;
+    if (els.publishButton) els.publishButton.disabled = value || !persistedProfile?.username;
+    if (els.unpublishButton) els.unpublishButton.disabled = value;
   }
 
   function displayAvatar(url, name) {
@@ -53,18 +56,63 @@
     els.websiteInput.value = profile?.website_url || '';
   }
 
+  function renderPublication(item) {
+    publication = item;
+    els.publicState.textContent = item
+      ? 'Published as @' + item.username + '. Private edits appear publicly only after you publish again.'
+      : 'Private: your creator page is not published.';
+    els.publishButton.textContent = item ? 'Update public creator page' : 'Publish my creator page';
+    els.publishButton.disabled = busy || !persistedProfile?.username;
+    els.unpublishButton.hidden = !item;
+    els.publicLink.hidden = !item;
+    if (item) els.publicLink.href = 'creator.html?u=' + encodeURIComponent(item.username);
+  }
+
+  async function publishProfile() {
+    if (busy) return;
+    if (!persistedProfile?.username) return status('Save your creator username first.', 'error');
+    if (!window.confirm('Publish your creator profile publicly? Your saved display name, username, bio, creative focus, website and avatar will become visible to anyone. Email, hardware inventory and private projects stay private.')) return;
+    setBusy(true);
+    status('Publishing your public profile…');
+    try {
+      const entry = await window.ShowduinoSupabase.publishCreatorProfile();
+      renderPublication(entry);
+      status('Public creator page published. You can unpublish it whenever you choose.', 'success');
+    } catch (error) {
+      status('Could not publish profile: ' + (error?.message || 'service unavailable'), 'error');
+    } finally { setBusy(false); }
+  }
+
+  async function unpublishProfile() {
+    if (busy || !publication) return;
+    if (!window.confirm('Unpublish your public creator page? Your private profile and previously shared .shdo templates remain unchanged.')) return;
+    setBusy(true);
+    status('Unpublishing your creator page…');
+    try {
+      await window.ShowduinoSupabase.unpublishCreatorProfile();
+      renderPublication(null);
+      status('Your public page has been unpublished. Your private profile remains intact.', 'success');
+    } catch (error) {
+      status('Could not unpublish profile: ' + (error?.message || 'service unavailable'), 'error');
+    } finally { setBusy(false); }
+  }
+
   async function loadProfile(user) {
     const seq = ++latestLoad;
     els.section.hidden = !user;
     els.gate.hidden = !!user;
-    if (!user) { persistedProfile = null; return; }
+    els.publicPanel.hidden = !user;
+    if (!user) { persistedProfile = null; renderPublication(null); return; }
     if (busy) return;
     status('Loading your creator profile…');
     try {
       const profile = await window.ShowduinoSupabase.getCreatorProfile();
       if (seq !== latestLoad) return;
       render(profile);
-      status('Your creator profile is private for now. Uploaded profile photos are visible to anyone with their URL.', 'success');
+      const publicCopy = await window.ShowduinoSupabase.getOwnCreatorPublication();
+      if (seq !== latestLoad) return;
+      renderPublication(publicCopy);
+      status('Profile loaded. Public visibility is entirely your choice; uploaded photos can be viewed with their image URL.', 'success');
     } catch (error) {
       if (seq !== latestLoad) return;
       status('Profile editing could not be loaded: ' + (error?.message || 'account service unavailable'), 'error');
@@ -92,7 +140,8 @@
       const profile = await window.ShowduinoSupabase.saveCreatorProfile(values);
       if (seq !== latestLoad) return;
       render(profile);
-      status('Creator profile saved to your Showduino account.', 'success');
+      renderPublication(publication);
+      status('Private creator profile saved. Press Publish to update any public copy.', 'success');
     } catch (error) {
       if (seq === latestLoad) status(error?.message || 'Could not save your profile. Your edits remain in the form.', 'error');
     } finally {
@@ -168,9 +217,16 @@
     els.focusInput = byId('hs-profile-focus');
     els.websiteInput = byId('hs-profile-website');
     els.saveButton = byId('hs-profile-save');
+    els.publicPanel = byId('hs-publication-panel');
+    els.publicState = byId('hs-profile-public-state');
+    els.publishButton = byId('hs-profile-publish');
+    els.unpublishButton = byId('hs-profile-unpublish');
+    els.publicLink = byId('hs-profile-public-link');
     byId('hs-profile-form').addEventListener('submit', save);
     els.photoInput.addEventListener('change', choosePhoto);
     els.removePhoto.addEventListener('click', removePhoto);
+    els.publishButton.addEventListener('click', publishProfile);
+    els.unpublishButton.addEventListener('click', unpublishProfile);
     els.photo.addEventListener('error', () => { els.photo.hidden = true; els.initials.hidden = false; });
 
     if (!window.ShowduinoSupabase?.enabled()) {
@@ -182,6 +238,8 @@
       if (!user) {
         ++latestLoad;
         persistedProfile = null;
+        renderPublication(null);
+        els.publicPanel.hidden = true;
         els.section.hidden = true;
         els.gate.hidden = false;
         return;

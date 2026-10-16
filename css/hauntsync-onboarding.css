@@ -17,3 +17,5 @@
 .hs-google-button { display:inline-flex; align-items:center; gap:.65rem; justify-content:center; }
 .hs-google-symbol { display:inline-grid; place-items:center; width:1.6rem; height:1.6rem; border-radius:50%; background:#fff; color:#1a73e8; font-weight:900; font-size:1.05rem; }
 .hs-google-note { font-size:.85rem; line-height:1.5; }
+
+.hs-google-auth[hidden] { display:none!important; }

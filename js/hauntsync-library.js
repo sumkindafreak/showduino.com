@@ -207,6 +207,11 @@
       els.authNote.textContent = 'Showduino accounts are unavailable; browsing may be temporarily unavailable.';
     }
     refresh();
+    const linkedShow = new URLSearchParams(window.location.search).get('show');
+    if (linkedShow) {
+      // A link only opens a reviewed template preview, never runs a production.
+      openShow(linkedShow);
+    }
   }
   document.addEventListener('DOMContentLoaded',init);
 })();

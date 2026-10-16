@@ -7,6 +7,7 @@
   <title>Account | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
+  <link rel="stylesheet" href="css/hauntsync-onboarding.css">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -27,6 +28,14 @@
   <main class="site-main">
     <section class="page-heading reveal"><span class="eyebrow">SHOWDUINO ID</span><h1>Your <span class="accent">account.</span></h1><p>One optional identity for cloud-saved productions and project access. Account services sit outside the live Showduino runtime path.</p></section>
     <div id="account-status" class="status-banner" role="status" aria-live="polite">Loading Showduino account services…</div>
+    <section id="google-auth-panel" class="card hs-google-auth" aria-labelledby="google-auth-heading">
+      <h2 id="google-auth-heading">Join or sign in with Google</h2>
+      <p class="muted">One Showduino ID for Studio and HauntSync. If you have already used Google for this account, continue with the same Google account.</p>
+      <button id="google-signin-button" class="btn hs-google-button" type="button">
+        <span class="hs-google-symbol" aria-hidden="true">G</span> Continue with Google
+      </button>
+      <p class="muted hs-google-note">Google sign-in opens Google's secure account screen and returns you to the HauntSync welcome page. Email/password sign-in is still available below.</p>
+    </section>
     <section id="auth-forms" class="grid two reveal">
       <form id="login-form" class="card">
         <h2>Sign in</h2><p class="muted">Open shows you saved from another computer or phone.</p>

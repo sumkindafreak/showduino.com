@@ -215,8 +215,8 @@
 
     elements.accountName.textContent = user ? name : 'Your creative workspace';
     elements.accountEmail.textContent = user?.email || 'Projects and hardware stay in this browser unless you save shows to the cloud.';
-    elements.accountLink.textContent = user ? 'Edit creator profile' : 'Create a Showduino ID';
-    elements.accountLink.href = user ? 'profile.html' : 'account.html';
+    elements.accountLink.textContent = user ? 'Edit creator profile' : 'Join HauntSync';
+    elements.accountLink.href = user ? 'profile.html' : 'welcome.html';
     elements.workspaceTitle.textContent = user ? 'Welcome back, ' + name : 'A workspace for every creator';
     elements.workspaceDescription.textContent = user
       ? 'Your browser projects are below. Checking your Showduino cloud library…'

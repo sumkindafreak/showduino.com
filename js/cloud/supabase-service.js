@@ -39,7 +39,7 @@
       .from('profiles').select('id,display_name').eq('id', user.id).maybeSingle();
     if (readError) throw readError;
     if (existing) return existing;
-    const name = String(displayName || user.user_metadata?.display_name || 'Showduino Creator').trim().slice(0, 60) || 'Showduino Creator';
+    const name = String(displayName || user.user_metadata?.display_name || user.user_metadata?.full_name || 'Showduino Creator').trim().slice(0, 60) || 'Showduino Creator';
     const { error } = await getClient().from('profiles')
       .upsert({ id: user.id, display_name: name }, { onConflict: 'id', ignoreDuplicates: true });
     if (error) throw error;
@@ -76,6 +76,20 @@
     const { data, error } = await getClient().auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (data.user) await upsertProfile(data.user);
+    return data;
+  }
+
+  // Google OAuth uses the SAME Supabase user identity and private profile as email login.
+  // The browser is sent to Google by Supabase Auth. Credentials stay exclusively in
+  // the Google Cloud + Supabase provider settings, never in public website JavaScript.
+  const GOOGLE_RETURN_URL = 'https://show-duino.com/welcome.html';
+
+  async function signInWithGoogle() {
+    const { data, error } = await getClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: GOOGLE_RETURN_URL }
+    });
+    if (error) throw error;
     return data;
   }
 
@@ -417,7 +431,7 @@
   }
 
   window.ShowduinoSupabase = Object.freeze({
-    enabled, register, resendConfirmation, signIn, requestPasswordReset, updatePassword, signOut,
+    enabled, register, resendConfirmation, signIn, signInWithGoogle, requestPasswordReset, updatePassword, signOut,
     onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
     getOwnCreatorPublication, publishCreatorProfile, unpublishCreatorProfile,
     listPublicCreators, getPublicCreator, listPublicCreatorShows,

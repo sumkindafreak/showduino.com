@@ -1,0 +1,21 @@
+/* HauntSync creator welcome steps */
+.hs-onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.25rem 0}
+.hs-onboarding-step{display:flex;flex-direction:column;gap:.8rem;align-items:flex-start;min-width:0}
+.hs-onboarding-number{font-size:.72rem;letter-spacing:.13em;color:var(--site-accent);font-weight:900}
+.hs-onboarding-step h3{margin:0}
+.hs-onboarding-step p{margin:0;line-height:1.6}
+.hs-onboarding-step .btn{margin-top:auto}
+.hs-onboarding-step .button-row{margin-top:auto}
+.hs-onboarding-step-state{padding:.5rem .7rem;border:1px solid var(--site-border);border-radius:8px;color:var(--site-muted);font-size:.85rem;font-weight:700}
+.hs-onboarding-step-state.ready{border-color:rgba(120,255,67,.32);color:#caffbe}
+@media(max-width:850px){.hs-onboarding-steps{grid-template-columns:1fr}}
+
+/* Google is an alternative auth route, not a separate identity. */
+.hs-google-auth { margin:1rem 0; display:flex; flex-direction:column; align-items:flex-start; gap:.6rem; }
+.hs-google-auth h2 { margin:0; }
+.hs-google-auth p { margin:0; }
+.hs-google-button { display:inline-flex; align-items:center; gap:.65rem; justify-content:center; }
+.hs-google-symbol { display:inline-grid; place-items:center; width:1.6rem; height:1.6rem; border-radius:50%; background:#fff; color:#1a73e8; font-weight:900; font-size:1.05rem; }
+.hs-google-note { font-size:.85rem; line-height:1.5; }
+
+.hs-google-auth[hidden] { display:none!important; }

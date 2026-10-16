@@ -31,10 +31,10 @@
     <section id="google-auth-panel" class="card hs-google-auth" aria-labelledby="google-auth-heading">
       <h2 id="google-auth-heading">Join or sign in with Google</h2>
       <p class="muted">One Showduino ID for Studio and HauntSync. If you have already used Google for this account, continue with the same Google account.</p>
-      <button id="google-signin-button" class="btn hs-google-button" type="button">
+      <button id="google-signin-button" class="btn hs-google-button" type="button" disabled>
         <span class="hs-google-symbol" aria-hidden="true">G</span> Continue with Google
       </button>
-      <p class="muted hs-google-note">Google sign-in opens Google's secure account screen and returns you to the HauntSync welcome page. Email/password sign-in is still available below.</p>
+      <p id="google-signin-note" class="muted hs-google-note" role="status" aria-live="polite">Checking whether Google sign-in is enabled. Email and password are always available below.</p>
     </section>
     <section id="auth-forms" class="grid two reveal">
       <form id="login-form" class="card">

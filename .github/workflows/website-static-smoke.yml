@@ -22,4 +22,6 @@ jobs:
         with:
           node-version: '22'
       - name: Check asset paths, Studio navigation and JavaScript syntax
-        run: node tools/check-website.mjs
+        run: |
+          node tools/check-website.mjs
+          node tests/hauntsync-onboarding.test.cjs

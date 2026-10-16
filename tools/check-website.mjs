@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','creators.html','creator.html','account.html',
+const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','creators.html','creator.html','welcome.html','account.html',
   'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html'];
 const content = (p) => readFileSync(path.join(root, p), 'utf8');
 const localAsset = (url) => {
@@ -83,6 +83,8 @@ for (const page of ['creators.html','creator.html']) {
   assert.ok(content(page).includes('js/hauntsync-public-creators.js'),
     'Public creators page is missing its safe renderer: '+page);
 }
+assert.ok(content('welcome.html').includes('js/hauntsync-onboarding.js'),
+  'HauntSync onboarding page missing its client script');
 assert.ok(content('creators.html').includes('id="hs-creators-list"'),
   'Creator directory list missing');
 assert.ok(content('creator.html').includes('id="hs-public-creator-detail"'),

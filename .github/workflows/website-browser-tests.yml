@@ -40,6 +40,8 @@ jobs:
         run: node tests/browser/site-pages.cjs
       - name: HauntSync sign-in, sign-out, community download, cloud failure (mocked Supabase)
         run: node tests/browser/hauntsync-mocked-workflows.cjs
+      - name: Creator publish / unpublish and hostile published values (mocked Supabase)
+        run: node tests/browser/hauntsync-creator-publishing.cjs
       - name: Device-supplied audio file names and errors render as text (W002)
         run: node tests/browser/studio-device-filenames.cjs
       - name: Studio import / export / reload / restore round trip

@@ -23,6 +23,20 @@
     return '00000000-0000-4000-8000-000000000000';
   }
 
+  const IMPORT_MAX_BYTES = 5 * 1048576;
+
+  // W001: an imported file must look like a Showduino production before it may
+  // replace the open project. validatePackage() alone accepts any object without
+  // a "package" field as a legacy project. Stored local/cloud projects are not
+  // affected: this check runs only for files the user chooses to import.
+  function assertImportableShape(parsed) {
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('This is not a valid Showduino project file.');
+    if (parsed.schema === window.ShowduinoPackage?.SCHEMA_NAME) return;
+    if (parsed.package && typeof parsed.package === 'object') return;
+    const legacy = parsed.project && typeof parsed.project === 'object' && Array.isArray(parsed.tracks) && Array.isArray(parsed.clips);
+    if (!legacy) throw new Error('This file is not a Showduino production (.shdo). Nothing was changed.');
+  }
+
   function validatePackage(project) {
     if (!project || typeof project !== 'object') throw new Error('This is not a valid Showduino project file.');
 
@@ -289,11 +303,14 @@
   function importProject(file) {
     return new Promise((resolve, reject) => {
       if (!file) return reject(new Error('Choose a .shdo or JSON project file.'));
+      // W001: a show file is small; refuse oversized input before reading it.
+      if (Number(file.size) > IMPORT_MAX_BYTES) return reject(new Error(`Project import failed: the file is larger than ${Math.round(IMPORT_MAX_BYTES / 1048576)} MB.`));
       const reader = new FileReader();
       reader.onload = async () => {
         try {
           const state = getState();
           const parsed = JSON.parse(String(reader.result));
+          assertImportableShape(parsed);
           validatePackage(parsed);
           const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
           state.project = normaliseProject(imported);

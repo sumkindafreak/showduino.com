@@ -1,0 +1,28 @@
+# Cloudflare Pages redirects (W002).
+# Stops serving legacy applications, a production-connected preview, and files that
+# are not part of the website. Nothing is deleted: the files stay in the repository
+# and any Firebase or Supabase data is untouched. To restore a route, delete its line.
+/HauntSyncForum_Configured      /retired  302
+/HauntSyncForum_Configured/*    /retired  302
+/preview                        /retired  302
+/preview/*                      /retired  302
+/supabase/*                     /retired  302
+/functions/*                    /retired  302
+/tests/*                        /retired  302
+/tools/*                        /retired  302
+/docs/*                         /retired  302
+/.github/*                      /retired  302
+/firebase.json                  /retired  302
+/firestore.rules                /retired  302
+/config/runtime-config.example.js  /retired  302
+/DEPLOY.md                      /retired  302
+/DEPLOYMENT_SUMMARY.md          /retired  302
+/DEPLOY-TO-GITHUB.bat           /retired  302
+/DEPLOY-TO-GITHUB.ps1           /retired  302
+/FIREBASE_SETUP.md              /retired  302
+/GITHUB_UPDATE_INSTRUCTIONS.md  /retired  302
+/PAYPAL_SETUP.md                /retired  302
+/README.md                      /retired  302
+/START_HERE.md                  /retired  302
+/_headers                       /retired  302
+/_redirects                     /retired  302

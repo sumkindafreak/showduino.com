@@ -1,0 +1,44 @@
+name: Website browser tests
+
+# W001: real headless-Chromium tests of Studio against a local copy of the site.
+# They never contact show-duino.com, Supabase or any Showduino hardware.
+on:
+  pull_request:
+    paths:
+      - 'studio.html'
+      - 'app.js'
+      - 'js/**'
+      - 'css/**'
+      - 'tests/browser/**'
+      - '*.html'
+      - '.github/workflows/website-browser-tests.yml'
+  push:
+    branches: [main, 'w002/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Hostile .shdo import executes no script (desktop and phone)
+        run: node tests/browser/studio-import-injection.cjs
+      - name: Every hostile string in an imported or stored project stays inert (all views, desktop and phone)
+        run: node tests/browser/studio-hostile-import-fuzz.cjs
+      - name: All pages load; pinned third-party scripts pass SRI
+        run: node tests/browser/site-pages.cjs
+      - name: HauntSync sign-in, sign-out, community download, cloud failure (mocked Supabase)
+        run: node tests/browser/hauntsync-mocked-workflows.cjs
+      - name: Studio import / export / reload / restore round trip
+        run: node tests/browser/studio-roundtrip.cjs

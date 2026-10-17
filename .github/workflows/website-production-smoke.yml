@@ -1,0 +1,84 @@
+name: Website production smoke
+
+# W002: read-only GET probe of the deployed site (no sign-in, no writes).
+# Evidence mode on branches; strict mode is for after a deployment of main.
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Site to probe'
+        default: 'https://show-duino.com'
+      strict:
+        description: 'Fail when a protection is missing'
+        default: 'false'
+  schedule:
+    - cron: '17 6 * * *'
+  push:
+    branches: ['w002/**']
+    paths: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Probe production (read-only)
+        run: node tools/production-smoke.mjs "${{ inputs.base_url || 'https://show-duino.com' }}" ${{ inputs.strict == 'true' && '--strict' || '' }}
+      - name: Probe this branch's Cloudflare Pages preview (strict)
+        if: github.event_name == 'push'
+        run: |
+          slug=$(echo "${GITHUB_REF_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-28 | sed 's/-*$//')
+          url="https://${slug}.showduino-com.pages.dev"
+          echo "::notice::preview ${url} for ${GITHUB_SHA}"
+          # Wait until Cloudflare has deployed this commit's Studio.
+          for i in $(seq 1 40); do
+            if curl -fsSL "${url}/js/studio-projects.js" 2>/dev/null | grep -q 'assertSafeIdentifiers' && curl -fsSI "${url}/" | grep -qi 'content-security-policy-report-only'; then break; fi
+            sleep 15
+          done
+          echo "PREVIEW_URL=${url}" >> "$GITHUB_ENV"
+          node tools/production-smoke.mjs "${url}" --strict
+      - name: CSP report-only violations on the preview (Chromium)
+        if: github.event_name == 'push'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.48.2 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          node tools/csp-report-scan.cjs "${PREVIEW_URL}"
+      - name: Legacy Firebase forum exposure (field-masked, no personal data fetched)
+        if: github.event_name == 'push'
+        run: |
+          # Asks Firestore for at most 5 thread documents, returning ONLY the createdAt
+          # field (mask), as an unauthenticated visitor would. The forum code stores the
+          # poster's email in a "user" field of each thread; that field is never requested.
+          base="https://firestore.googleapis.com/v1/projects/hauntsync-forum-4b992/databases/(default)/documents"
+          for col in threads users; do
+            code=$(curl -s -o /tmp/fs.json -w '%{http_code}' "${base}/${col}?pageSize=5&mask.fieldPaths=createdAt")
+            n=$(python3 -c "import json;d=json.load(open('/tmp/fs.json'));print(len(d.get('documents',[])))" 2>/dev/null || echo "?")
+            err=$(python3 -c "import json;d=json.load(open('/tmp/fs.json'));print(d.get('error',{}).get('status',''))" 2>/dev/null || echo "")
+            echo "::notice::legacy Firestore '${col}': HTTP ${code}, ${n} document(s) readable without sign-in ${err}"
+          done
+          rm -f /tmp/fs.json
+      - name: Supply chain - compare CDN bytes with the npm package (read-only)
+        if: github.event_name != 'schedule'
+        run: |
+          set -uo pipefail
+          status=0
+          check() { # package version path-in-package cdn-url
+            dir=$(mktemp -d)
+            if ! (cd "$dir" && npm pack --silent "$1@$2" >/dev/null 2>"$dir/err" && tar xzf ./*.tgz); then echo "::error::npm pack $1@$2 failed: $(head -c 300 "$dir/err")"; status=1; return; fi
+            if [ ! -f "$dir/package/$3" ]; then echo "::error::$1@$2 has no $3 (files: $(cd "$dir/package" && find . -name '*.js' -path '*umd*' | head -5 | tr '\n' ' '))"; status=1; return; fi
+            local_sha=$(sha384sum "$dir/package/$3" | cut -d' ' -f1)
+            cdn_sha=$(curl -fsSL "$4" | sha384sum | cut -d' ' -f1)
+            sri="sha384-$(openssl dgst -sha384 -binary "$dir/package/$3" | openssl base64 -A)"
+            if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; status=1; fi
+          }
+          check @supabase/supabase-js 2.111.0 dist/umd/supabase.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js
+          check animejs 4.5.0 dist/bundles/anime.umd.min.js https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js
+          check aos 2.3.1 dist/aos.js https://unpkg.com/aos@2.3.1/dist/aos.js
+          exit $status

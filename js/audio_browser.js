@@ -150,7 +150,17 @@ class AudioBrowser {
 
       const info = document.createElement('div');
       info.style.flex = '1';
-      info.innerHTML = `<div style="font-size:13px;color:#eee;">${filename}</div>${size ? `<div style="font-size:10px;color:#666;">${size}</div>` : ''}`;
+      // W002: file names come from the device or the user's own uploads; render as text.
+      const nameEl = document.createElement('div');
+      nameEl.style.cssText = 'font-size:13px;color:#eee;';
+      nameEl.textContent = String(filename);
+      info.appendChild(nameEl);
+      if (size) {
+        const sizeEl = document.createElement('div');
+        sizeEl.style.cssText = 'font-size:10px;color:#666;';
+        sizeEl.textContent = String(size);
+        info.appendChild(sizeEl);
+      }
 
       const previewBtn = document.createElement('button');
       previewBtn.textContent = '▶';

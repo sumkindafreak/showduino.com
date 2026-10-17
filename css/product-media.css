@@ -104,3 +104,25 @@
   .build-manifesto { min-height:390px; }
 }
 @media (prefers-reduced-motion:reduce) { .hardware-schematic * { transition:none!important; } }
+
+/* Hardware page product photo: keeps the entire portrait product visible. */
+.hardware-product-photo {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  border:1px solid var(--site-border-bright);
+  border-radius:18px;
+  background:#090e12;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+}
+.hardware-product-photo img {
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:720px;
+  object-fit:contain;
+}
+@media (max-width:980px) {
+  .hardware-product-photo img { max-height:none; }
+}

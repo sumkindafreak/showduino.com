@@ -1,3 +1,9 @@
+// W002: escape untrusted text placed into HTML strings in this file.
+function panelEsc(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 // PanelManager — Generates HTML for each sidebar panel in Showduino Studio
 
 class PanelManager {
@@ -679,13 +685,13 @@ window._loadCloudProjects = async () => {
       projects.forEach(p => {
         const row = document.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #222;';
-        row.innerHTML = '<div style="flex:1;"><div style="color:#eee;font-size:13px;">'+p.project.name+'</div>'
+        row.innerHTML = '<div style="flex:1;"><div style="color:#eee;font-size:13px;">'+panelEsc(p.project.name)+'</div>'
           +'<div style="color:#555;font-size:10px;">'+new Date(p.project.updatedAt).toLocaleString()+'</div></div>'
-          +'<button class="btn-secondary" style="font-size:11px;padding:2px 8px;" onclick="window.loadProject(\\''+p.project.id+'\\',\\'cloud\\')">Open</button>';
+          +'<button class="btn-secondary" style="font-size:11px;padding:2px 8px;" onclick="window.loadProject(\\''+panelEsc(p.project.id)+'\\',\\'cloud\\')">Open</button>';
         list.appendChild(row);
       });
     }
-  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">'+e.message+'</span>'; }
+  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">'+panelEsc(e.message)+'</span>'; }
 };
 
 // Auth state display
@@ -696,7 +702,7 @@ const offlineSection = document.querySelector('.hauntsync-offline');
 const updateAuth = (user) => {
   if (!authSection) return;
   if (user) {
-    authSection.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:32px;height:32px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div><div><div style="color:#eee;font-size:13px;">'+(user.displayName||user.email||'User')+'</div><div style="color:#666;font-size:11px;">'+(user.email||'')+'</div></div></div>'
+    authSection.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:32px;height:32px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div><div><div style="color:#eee;font-size:13px;">'+panelEsc(user.displayName||user.email||'User')+'</div><div style="color:#666;font-size:11px;">'+panelEsc(user.email||'')+'</div></div></div>'
       +'<button class="btn-secondary" style="font-size:12px;" onclick="window.firebaseAuth?.signOut()">Sign Out</button>';
     if (navigator.onLine && onlineSection) onlineSection.style.display='block';
     if (offlineSection) offlineSection.style.display = navigator.onLine ? 'none' : 'block';

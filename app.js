@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let logFilter = 'ALL';
 
+  // W002: escape untrusted text (project names, account names, file labels).
+  function appEsc(value) {
+      return String(value === undefined || value === null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function log(message, level = 'INFO') {
       const timestamp = new Date().toLocaleTimeString();
       const logEntry = document.createElement('div');
@@ -253,23 +260,23 @@ document.addEventListener('DOMContentLoaded', () => {
           <h3>Clip Inspector</h3>
           <div class="inspector-field">
               <label>ID:</label>
-              <span>${clipData.id}</span>
+              <span>${appEsc(clipData.id)}</span>
           </div>
           <div class="inspector-field">
               <label>Label:</label>
-              <input type="text" value="${clipData.label || ''}" onchange="window.updateClipLabel('${clipData.id}', this.value)">
+              <input type="text" value="${appEsc(clipData.label || '')}" onchange="window.updateClipLabel('${appEsc(clipData.id)}', this.value)">
           </div>
           <div class="inspector-field">
               <label>Start (ms):</label>
-              <input type="number" value="${clipData.startMs}" onchange="window.updateClipStart('${clipData.id}', parseInt(this.value))">
+              <input type="number" value="${appEsc(clipData.startMs)}" onchange="window.updateClipStart('${appEsc(clipData.id)}', parseInt(this.value))">
           </div>
           <div class="inspector-field">
               <label>Duration (ms):</label>
-              <input type="number" value="${clipData.durationMs}" onchange="window.updateClipDuration('${clipData.id}', parseInt(this.value))">
+              <input type="number" value="${appEsc(clipData.durationMs)}" onchange="window.updateClipDuration('${appEsc(clipData.id)}', parseInt(this.value))">
           </div>
           <div class="inspector-field">
               <label>Type:</label>
-              <span>${clipData.type}</span>
+              <span>${appEsc(clipData.type)}</span>
           </div>
       `;
   }
@@ -666,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div style="padding: 1rem; background-color: #333; border-radius: 5px; margin-bottom: 1rem;">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
                       <div>
-                          <div style="font-weight: bold; color: var(--accent-color);">${user.email || user.displayName}</div>
+                          <div style="font-weight: bold; color: var(--accent-color);">${appEsc(user.email || user.displayName)}</div>
                           <div style="font-size: 0.8rem; color: #aaa;">Signed in to HauntSync</div>
                       </div>
                       <button onclick="studioSignOut()" class="btn-secondary">Sign Out</button>
@@ -773,10 +780,10 @@ document.addEventListener('DOMContentLoaded', () => {
                       ${projects.map(p => `
                           <div style="padding: 1rem; background-color: #333; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
                               <div>
-                                  <div style="font-weight: bold;">${p.project.name}</div>
+                                  <div style="font-weight: bold;">${appEsc(p.project.name)}</div>
                                   <div style="font-size: 0.8rem; color: #aaa;">Updated: ${new Date(p.project.updatedAt).toLocaleString()}</div>
                               </div>
-                              <button onclick="loadCloudProject('${p.project.id}')" class="btn-primary">Load</button>
+                              <button onclick="loadCloudProject('${appEsc(p.project.id)}')" class="btn-primary">Load</button>
                           </div>
                       `).join('')}
                   </div>

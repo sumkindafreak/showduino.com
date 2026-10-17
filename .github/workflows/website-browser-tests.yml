@@ -10,9 +10,10 @@ on:
       - 'js/**'
       - 'css/**'
       - 'tests/browser/**'
+      - '*.html'
       - '.github/workflows/website-browser-tests.yml'
   push:
-    branches: [main]
+    branches: [main, 'w002/**']
   workflow_dispatch:
 
 permissions:
@@ -37,5 +38,7 @@ jobs:
         run: node tests/browser/studio-hostile-import-fuzz.cjs
       - name: All pages load; pinned third-party scripts pass SRI
         run: node tests/browser/site-pages.cjs
+      - name: HauntSync sign-in, sign-out, community download, cloud failure (mocked Supabase)
+        run: node tests/browser/hauntsync-mocked-workflows.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs

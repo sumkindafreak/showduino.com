@@ -15,7 +15,7 @@ on:
     - cron: '17 6 * * *'
   push:
     branches: ['w002/**']
-    paths: ['tools/production-smoke.mjs', '.github/workflows/website-production-smoke.yml', '_headers', '_redirects']
+    paths: ['**']
 
 permissions:
   contents: read
@@ -31,6 +31,21 @@ jobs:
           node-version: '22'
       - name: Probe production (read-only)
         run: node tools/production-smoke.mjs "${{ inputs.base_url || 'https://show-duino.com' }}" ${{ inputs.strict == 'true' && '--strict' || '' }}
+      - name: Probe this branch's Cloudflare Pages preview (strict)
+        if: github.event_name == 'push'
+        run: |
+          slug=$(echo "${GITHUB_REF_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-28 | sed 's/-*$//')
+          url="https://${slug}.showduino-com.pages.dev"
+          echo "::notice::preview ${url} for ${GITHUB_SHA}"
+          # Wait until Cloudflare has deployed this commit's Studio.
+          for i in $(seq 1 40); do
+            if curl -fsSL "${url}/js/studio-projects.js" 2>/dev/null | grep -q 'assertSafeIdentifiers' && curl -fsSI "${url}/" | grep -qi 'content-security-policy-report-only'; then break; fi
+            sleep 15
+          done
+          node tools/production-smoke.mjs "${url}" --strict
+          npm install --no-save --no-package-lock playwright@1.48.2 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          node tools/csp-report-scan.cjs "${url}"
       - name: Supply chain - compare CDN bytes with the npm package (read-only)
         if: github.event_name != 'schedule'
         run: |
@@ -42,6 +57,6 @@ jobs:
             sri="sha384-$(openssl dgst -sha384 -binary "$dir/package/$3" | openssl base64 -A)"
             if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; fi
           }
-          check @supabase/supabase-js 2.111.0 dist/umd/supabase.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js
+          check @supabase/supabase-js 2.111.0 dist/umd/supabase.min.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js
           check animejs 4.5.0 dist/bundles/anime.umd.min.js https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js
           check aos 2.3.1 dist/aos.js https://unpkg.com/aos@2.3.1/dist/aos.js

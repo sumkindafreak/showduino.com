@@ -35,5 +35,7 @@ jobs:
         run: node tests/browser/studio-import-injection.cjs
       - name: Every hostile string in an imported or stored project stays inert (all views, desktop and phone)
         run: node tests/browser/studio-hostile-import-fuzz.cjs
+      - name: All pages load; pinned third-party scripts pass SRI
+        run: node tests/browser/site-pages.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs

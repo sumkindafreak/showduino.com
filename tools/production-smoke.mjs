@@ -22,11 +22,11 @@ const note = (level, msg) => { console.log(inActions ? `::${level}::${msg.replac
 
 const PUBLIC = ['/', '/index.html', '/system.html', '/studio.html', '/hauntsync.html', '/community.html', '/creators.html',
   '/welcome.html', '/account.html', '/profile.html', '/tools.html', '/aboutme.html', '/docs.html', '/support.html',
-  '/privacy.html', '/terms.html', '/robots.txt', '/sitemap.xml'];
+  '/privacy.html', '/terms.html', '/retired'];
 const SHOULD_NOT_SERVE = ['/HauntSyncForum_Configured/forum.html', '/HauntSyncForum_Configured/index.html',
   '/HauntSyncForum_Configured/auth.js', '/preview/hauntsync.html', '/preview/hauntsync-preview.js',
   '/functions/index.js', '/supabase/hauntsync_shared_shows_v1.sql', '/tests/hauntsync-profile.test.cjs',
-  '/firebase.json', '/firestore.rules', '/DEPLOY.md', '/.github/workflows/studio-validate.yml'];
+  '/firebase.json', '/firestore.rules', '/DEPLOY.md', '/.github/workflows/studio-validate.yml', '/docs/LAUNCH_SETUP.md'];
 const HEADERS = ['content-security-policy', 'content-security-policy-report-only', 'strict-transport-security',
   'x-content-type-options', 'x-frame-options', 'referrer-policy', 'permissions-policy', 'cross-origin-opener-policy', 'server'];
 const FIXES = [

@@ -6,7 +6,10 @@ on:
       - 'css/**'
       - 'js/**'
       - 'app.js'
-      - 'tools/check-website.mjs'
+      - 'tools/**'
+      - '_headers'
+      - '_redirects'
+      - 'tests/site-security-config.test.cjs'
       - '.github/workflows/website-static-smoke.yml'
   workflow_dispatch:
 
@@ -26,3 +29,4 @@ jobs:
           node tools/check-website.mjs
           node tests/hauntsync-onboarding.test.cjs
           node tests/hauntsync-google-auth.test.cjs
+          node tests/site-security-config.test.cjs

@@ -42,21 +42,29 @@ jobs:
             if curl -fsSL "${url}/js/studio-projects.js" 2>/dev/null | grep -q 'assertSafeIdentifiers' && curl -fsSI "${url}/" | grep -qi 'content-security-policy-report-only'; then break; fi
             sleep 15
           done
+          echo "PREVIEW_URL=${url}" >> "$GITHUB_ENV"
           node tools/production-smoke.mjs "${url}" --strict
+      - name: CSP report-only violations on the preview (Chromium)
+        if: github.event_name == 'push'
+        run: |
           npm install --no-save --no-package-lock playwright@1.48.2 >/dev/null
           npx playwright install --with-deps chromium >/dev/null
-          node tools/csp-report-scan.cjs "${url}"
+          node tools/csp-report-scan.cjs "${PREVIEW_URL}"
       - name: Supply chain - compare CDN bytes with the npm package (read-only)
         if: github.event_name != 'schedule'
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          status=0
           check() { # package version path-in-package cdn-url
-            dir=$(mktemp -d); (cd "$dir" && npm pack --silent "$1@$2" >/dev/null && tar xzf *.tgz)
+            dir=$(mktemp -d)
+            if ! (cd "$dir" && npm pack --silent "$1@$2" >/dev/null 2>"$dir/err" && tar xzf ./*.tgz); then echo "::error::npm pack $1@$2 failed: $(head -c 300 "$dir/err")"; status=1; return; fi
+            if [ ! -f "$dir/package/$3" ]; then echo "::error::$1@$2 has no $3 (files: $(cd "$dir/package" && find . -name '*.js' -path '*umd*' | head -5 | tr '\n' ' '))"; status=1; return; fi
             local_sha=$(sha384sum "$dir/package/$3" | cut -d' ' -f1)
             cdn_sha=$(curl -fsSL "$4" | sha384sum | cut -d' ' -f1)
             sri="sha384-$(openssl dgst -sha384 -binary "$dir/package/$3" | openssl base64 -A)"
-            if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; fi
+            if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; status=1; fi
           }
           check @supabase/supabase-js 2.111.0 dist/umd/supabase.min.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js
           check animejs 4.5.0 dist/bundles/anime.umd.min.js https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js
           check aos 2.3.1 dist/aos.js https://unpkg.com/aos@2.3.1/dist/aos.js
+          exit $status

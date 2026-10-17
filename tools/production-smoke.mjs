@@ -37,28 +37,41 @@ const FIXES = [
   ['W002 project browser as text', '/js/timeline.js', "nameEl.textContent = String(p.project.name || 'Untitled Show')"]
 ];
 
+// Cloudflare Pages answers /page.html with 308 -> /page, so follow redirects and
+// record the chain. Only GET requests are made.
 async function get(path, opts = {}) {
-  const res = await fetch(base + path, { redirect: 'manual', ...opts });
-  const body = opts.method === 'HEAD' ? '' : await res.text();
-  return { res, body };
+  let url = base + path; const chain = [];
+  for (let i = 0; i < 5; i++) {
+    const res = await fetch(url, { redirect: 'manual', ...opts });
+    if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
+      chain.push(res.status); url = new URL(res.headers.get('location'), url).toString(); continue;
+    }
+    const body = await res.text();
+    return { res, body, chain, finalUrl: url };
+  }
+  throw new Error('too many redirects for ' + path);
 }
+const lines = { public: [], blocked: [], served: [], fixes: [] };
 
-const isHtml404 = (r) => r.res.status === 404 || (r.res.status === 200 && /not found|404/i.test(r.body.slice(0, 2000)) && /<html/i.test(r.body));
+const isHtml404 = (r) => r.res.status === 404 || (r.res.status === 200 && /<title>[^<]*(not found|404)/i.test(r.body.slice(0, 3000)));
 
 (async () => {
   note('notice', `Probing ${base} (read-only)`);
   for (const p of PUBLIC) {
     const r = await get(p);
-    const ok = r.res.status === 200 || (p === '/' && r.res.status < 400);
-    note(ok ? 'notice' : 'warning', `public ${p} -> ${r.res.status}`);
+    const ok = r.res.status === 200;
+    lines.public.push(`${p}=${r.chain.concat(r.res.status).join('>')}`);
     if (!ok) failures.push(`public page ${p} returned ${r.res.status}`);
   }
+  note(failures.length ? 'warning' : 'notice', `public pages: ${lines.public.join(' ')}`);
   for (const p of SHOULD_NOT_SERVE) {
     const r = await get(p);
-    const blocked = r.res.status >= 300 || isHtml404(r);
-    note(blocked ? 'notice' : 'warning', `should-not-serve ${p} -> ${r.res.status}${r.res.headers.get('location') ? ' -> ' + r.res.headers.get('location') : ''}${blocked ? '' : ' (SERVED)'}`);
+    const blocked = isHtml404(r) || r.res.status >= 400 || (r.res.status === 200 && /\/gone(\.html)?$|retired/i.test(r.finalUrl + r.body.slice(0, 400)));
+    (blocked ? lines.blocked : lines.served).push(`${p}=${r.chain.concat(r.res.status).join('>')}`);
     if (!blocked) failures.push(`${p} is still served`);
   }
+  note('notice', `not served: ${lines.blocked.join(' ') || '(none)'}`);
+  note(lines.served.length ? 'warning' : 'notice', `STILL SERVED: ${lines.served.join(' ') || '(none)'}`);
   for (const page of ['/', '/studio.html', '/account.html']) {
     const r = await get(page);
     const parts = HEADERS.map((h) => `${h}=${r.res.headers.get(h) ? r.res.headers.get(h).slice(0, 160) : '(none)'}`);
@@ -70,9 +83,10 @@ const isHtml404 = (r) => r.res.status === 404 || (r.res.status === 200 && /not f
   for (const [name, path, marker] of FIXES) {
     const r = await get(path);
     const present = r.res.status === 200 && r.body.includes(marker);
-    note(present ? 'notice' : 'warning', `fix ${name}: ${present ? 'DEPLOYED' : 'NOT DEPLOYED'} (${path} ${r.res.status})`);
+    lines.fixes.push(`${name}: ${present ? 'DEPLOYED' : 'NOT DEPLOYED'}`);
     if (!present) failures.push(`${name} not deployed`);
   }
+  note('notice', `deployed fixes: ${lines.fixes.join('; ')}`);
   // Third-party scripts referenced by public pages, with their SRI hashes.
   const seen = new Map();
   for (const p of PUBLIC.filter((x) => x.endsWith('.html') || x === '/')) {
@@ -89,7 +103,7 @@ const isHtml404 = (r) => r.res.status === 404 || (r.res.status === 200 && /not f
       const buf = Buffer.from(await res.arrayBuffer());
       const sri = 'sha384-' + createHash('sha384').update(buf).digest('base64');
       const match = info.integrity ? (info.integrity === sri ? 'MATCHES' : 'MISMATCH') : 'MISSING';
-      note(match === 'MISMATCH' ? 'error' : 'notice', `third-party ${url} status=${res.status} bytes=${buf.length} sri=${sri} page-integrity=${match} used-by=${info.pages.length} pages`);
+      note(match === 'MISMATCH' ? 'error' : 'notice', `third-party ${url} status=${res.status} bytes=${buf.length} ${sri} page-integrity=${match} pages=${info.pages.length}`);
       if (match !== 'MATCHES') failures.push(`SRI ${match} for ${url}`);
     } catch (e) { note('warning', `third-party ${url} fetch failed: ${e.message}`); }
   }

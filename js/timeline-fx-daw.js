@@ -213,7 +213,15 @@
     const content = document.createElement('div');
     content.className = 'daw-clip-content';
     const route = clip.routing?.nodeId ? ` · ${clip.routing.nodeId}` : '';
-    content.innerHTML = `<span class="daw-clip-title">${clip.label || clip.type}</span><span class="daw-clip-time">${formatMs(clip.startMs)} · ${formatMs(clip.durationMs)}${route}</span>`;
+    // W001: clip labels and node IDs come from imported .shdo files and community
+    // templates. Render them as text, never as HTML.
+    const title = document.createElement('span');
+    title.className = 'daw-clip-title';
+    title.textContent = String(clip.label || clip.type || '');
+    const time = document.createElement('span');
+    time.className = 'daw-clip-time';
+    time.textContent = `${formatMs(clip.startMs)} · ${formatMs(clip.durationMs)}${route}`;
+    content.append(title, time);
     element.insertBefore(content, element.firstChild ? element.firstChild.nextSibling : null);
   };
 

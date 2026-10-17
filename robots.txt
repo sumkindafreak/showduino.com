@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /preview/
+Disallow: /HauntSyncForum_Configured/
+Disallow: /functions/
+Disallow: /supabase/
+Disallow: /tests/
+Disallow: /tools/
+
+Sitemap: https://show-duino.com/sitemap.xml

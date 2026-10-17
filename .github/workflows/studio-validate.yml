@@ -50,6 +50,8 @@ jobs:
           node --check js/studio-ollie-ux.js
           node --check js/studio-testing-hardening.js
           node --check js/api.js
+          node --check js/showduino-pixel-authoring.js
+          node --check js/showduino-mosfet-authoring.js
           node --check app.js
 
       - name: Render every registered Studio panel
@@ -75,6 +77,17 @@ jobs:
 
       - name: Run layered pixel lane test
         run: node tests/studio-pixel-layers.test.cjs
+
+      - name: Run Audio Node and Emergency Node pixel authoring tests
+        run: |
+          node tests/studio-audio-node-pixels.test.cjs
+          node tests/studio-estop-node-pixels.test.cjs
+
+      - name: Check deploy pre-flight matches the firmware upload policy (W001)
+        run: node tests/studio-firmware-upload-policy.test.cjs
+
+      - name: Guard imported .shdo text against HTML injection (W001)
+        run: node tests/studio-imported-text-safety.test.cjs
 
       - name: Guard the public Showduino domain
         run: |

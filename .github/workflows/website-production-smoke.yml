@@ -1,0 +1,47 @@
+name: Website production smoke
+
+# W002: read-only GET probe of the deployed site (no sign-in, no writes).
+# Evidence mode on branches; strict mode is for after a deployment of main.
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Site to probe'
+        default: 'https://show-duino.com'
+      strict:
+        description: 'Fail when a protection is missing'
+        default: 'false'
+  schedule:
+    - cron: '17 6 * * *'
+  push:
+    branches: ['w002/**']
+    paths: ['tools/production-smoke.mjs', '.github/workflows/website-production-smoke.yml', '_headers', '_redirects']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Probe production (read-only)
+        run: node tools/production-smoke.mjs "${{ inputs.base_url || 'https://show-duino.com' }}" ${{ inputs.strict == 'true' && '--strict' || '' }}
+      - name: Supply chain - compare CDN bytes with the npm package (read-only)
+        if: github.event_name != 'schedule'
+        run: |
+          set -euo pipefail
+          check() { # package version path-in-package cdn-url
+            dir=$(mktemp -d); (cd "$dir" && npm pack --silent "$1@$2" >/dev/null && tar xzf *.tgz)
+            local_sha=$(sha384sum "$dir/package/$3" | cut -d' ' -f1)
+            cdn_sha=$(curl -fsSL "$4" | sha384sum | cut -d' ' -f1)
+            sri="sha384-$(openssl dgst -sha384 -binary "$dir/package/$3" | openssl base64 -A)"
+            if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; fi
+          }
+          check @supabase/supabase-js 2.111.0 dist/umd/supabase.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js
+          check animejs 4.5.0 dist/bundles/anime.umd.min.js https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js
+          check aos 2.3.1 dist/aos.js https://unpkg.com/aos@2.3.1/dist/aos.js

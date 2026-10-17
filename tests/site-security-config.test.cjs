@@ -11,6 +11,8 @@ for (const page of pages) {
   for (const m of html.matchAll(/<script[^>]+src="(https?:\/\/[^"]+)"[^>]*>/g)) {
     if (!/integrity="sha(256|384|512)-[A-Za-z0-9+/=]+"/.test(m[0]) || !/crossorigin="anonymous"/.test(m[0])) unsafe.push(`${page}: ${m[1]}`);
     if (!/@\d+\.\d+\.\d+/.test(m[1])) unsafe.push(`${page}: unpinned ${m[1]}`);
+    // jsDelivr invents .min.js files that a package does not ship; pin the published file instead.
+    if (/supabase-js@[^/]+\/dist\/umd\/supabase\.min\.js/.test(m[1])) unsafe.push(`${page}: supabase.min.js is CDN-generated, not in the npm package`);
   }
 }
 assert.deepStrictEqual(unsafe, [], 'third-party scripts without SRI or a pinned version');

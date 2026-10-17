@@ -78,7 +78,7 @@ jobs:
             sri="sha384-$(openssl dgst -sha384 -binary "$dir/package/$3" | openssl base64 -A)"
             if [ "$local_sha" = "$cdn_sha" ]; then echo "::notice::npm-verified $1@$2 $3 == CDN; $sri"; else echo "::error::CDN bytes differ from npm tarball for $1@$2 $3"; status=1; fi
           }
-          check @supabase/supabase-js 2.111.0 dist/umd/supabase.min.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js
+          check @supabase/supabase-js 2.111.0 dist/umd/supabase.js https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js
           check animejs 4.5.0 dist/bundles/anime.umd.min.js https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js
           check aos 2.3.1 dist/aos.js https://unpkg.com/aos@2.3.1/dist/aos.js
           exit $status

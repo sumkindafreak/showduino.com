@@ -18,6 +18,34 @@ Date: 2026-10-17. Repository `sumkindafreak/showduino.com`. Baseline `d7b3b93`
 * **BLOCKED**: needs access the audit did not have.
 * **NOT TESTED**
 
+## W002 update (2026-10-17)
+
+Status changes since W001. The rows below are on draft PRs #62 and #61 (not merged, not deployed) unless a row says production.
+
+| Row | W001 status | W002 status | Evidence |
+|---|---|---|---|
+| B9 Script injection from imported files | FIXED-BRANCH | **FIXED (#62), browser verified**; production still vulnerable | Fuzz over every string, all panels and phone editors: 0 executions. Original W001 file: `main` 2, hotfix 0. Production `js/timeline-fx-daw.js` still uses `innerHTML` (fetched) |
+| B11 CSP and SRI | FAIL | **IMPLEMENTED (#61)**: SRI on all third-party scripts (bytes matched to npm); CSP report-only | Preview: integrity MATCHES; CSP violations 0 on 14 of 15 pages; Studio 4 (local probes, W-017) |
+| B12 Security headers on the live site | BLOCKED | **MEASURED**: production has nosniff and Referrer-Policy only; #61 preview has HSTS, XFO, nosniff, Referrer-Policy, Permissions-Policy, COOP and CSP | CI probe run 39072112805 |
+| B17 Legacy Firebase retired | FAIL | **CONTAINED (#61)**: routes redirect to `/retired`; Firestore anonymous read is 403 | Signed-in readability not testable: BLOCKED (owner) |
+| B18 Preview writes to production | FAIL | **CONTAINED (#61)** | Preview redirect |
+| B7 Minimal grants | FAIL | Proposed fix written and tested on a throw-away PostgreSQL; **not applied** | Database RLS tests CI |
+| C3 Sign-in / sign-out | BLOCKED (PROD) | **PASS against a mocked Supabase** (global logout, session removed); production still BLOCKED | `tests/browser/hauntsync-mocked-workflows.cjs` |
+| C8 Publish and unpublish creator page | BLOCKED (PROD) | **PASS against a mocked Supabase**: own `creator_id` only, public fields only, no email; hostile published values inert; production still BLOCKED | `tests/browser/hauntsync-creator-publishing.cjs` |
+| C10 Shared template download | BLOCKED (PROD) | **PASS against a mocked Supabase**: downloaded template imports into Studio without hardware binding | mocked workflows test |
+| D8 Malformed and foreign files | FIXED-BRANCH | **FIXED (#62)**; firmware example production still imports | round-trip test; example import |
+| D9 Cloud failure | BLOCKED | **PASS against a mocked Supabase** (503 and offline: error shown, local save works) | mocked workflows test |
+| D13 Deploy sends only accepted commands | FIXED-BRANCH | **FIXED (#62)**; hardware still needed | policy test |
+| G1 All tests in CI | FIXED-BRANCH | **PASS on #62 and #61**: 4 workflows on #61 (with database), 3 on #62 | runs listed in `WEBSITE_SECURITY_HOTFIX_W002.md` §7 |
+| G3 Production smoke | FAIL | **IMPLEMENTED (#61)**: daily and manual read-only probe, strict mode after deployment | `tools/production-smoke.mjs` |
+| G4 Hosting and rollback documented | BLOCKED | **PASS**: Cloudflare Pages verified; rollback in `WEBSITE_PRODUCTION_DEPLOYMENT_W002.md` | check runs; deployments API |
+
+Still BLOCKED:
+* real-account production workflows (no test mailbox or Google credentials);
+* Firebase rules for signed-in readers;
+* which Cloudflare project is production;
+* Studio deploy to real hardware.
+
 ## Totals
 
 | Kind | Run | Pass | Fail |

@@ -18,6 +18,40 @@ project `showduino` (`fczxcvlyydcqdhjkejmd`, read-only catalogue queries only).
 
 Nothing has been deployed. "VERIFIED" means verified on the branch, not in production.
 
+## W002 status update (2026-10-17)
+
+Mission W002 split the security work into two draft PRs. Neither is merged or deployed.
+* **#62** `w002/hotfix-minimal` → `main`: Studio code fixes.
+* **#61** `w002/security-hotfix` → `w002/hotfix-minimal`: headers, redirects, SRI, schema and tests.
+
+Details are in `docs/WEBSITE_SECURITY_HOTFIX_W002.md` and `docs/WEBSITE_PRODUCTION_DEPLOYMENT_W002.md` on those branches.
+
+**Status meanings:**
+* **Impl**: implemented on a branch.
+* **Auto**: covered by an automated test in CI.
+* **Browser**: proven in real Chromium.
+* **Prod**: verified on `show-duino.com`.
+* **Owner**: awaiting owner action.
+
+| ID | W002 status | Where | Impl | Auto | Browser | Prod | Owner |
+|---|---|---|---|---|---|---|---|
+| W-001 | Fixed; original W001 file executes 2× on `main`, 0× on the hotfix | #62 | ✅ | ✅ | ✅ | ❌ production still vulnerable (fetched 2026-10-17) | merge and deploy |
+| W-002 | Fixed (pre-flight) | #62 | ✅ | ✅ | — | ❌ | merge; firmware scope; bench test |
+| W-003 | Contained in #61 (`_redirects` → `/retired`); anonymous Firestore reads return 403 | #61 | ✅ | ✅ | ✅ preview | ❌ still served | Firebase rules for signed-in readers; export or retention decision |
+| W-004 | SRI (npm-verified bytes), security headers, CSP report-only (enforced parts: `object-src`, `base-uri`, `frame-ancestors`) | #61 | ✅ | ✅ | ✅ preview | ❌ | merge; enforce CSP after a clean report-only period |
+| W-005 | Fixed | #62 | ✅ | ✅ | ✅ | ❌ | merge |
+| W-006 | Live schema baseline committed; 21 owner-isolation checks in CI on a throw-away PostgreSQL | #61 | ✅ | ✅ | — | n/a | confirm with `supabase db diff` |
+| W-008 | Preview forum no longer served | #61 | ✅ | ✅ | ✅ preview | ❌ | merge |
+| W-010, W-012, W-013, W-026 | Hardening SQL and rollback written and tested on a throw-away PostgreSQL. **Not applied** | #61 | file only | ✅ | — | ❌ | approve; Supabase branch; backup; apply |
+| W-015 | Host verified: Cloudflare Pages (3 projects); GitHub Pages last deployed 2025-05-12. Internal files no longer served after #61 | #61 | ✅ | ✅ | ✅ preview | ❌ | pick the production project; branch protection |
+| W-017 | Measured: the only CSP report-only violations (Studio local probes) | — | ❌ | — | ✅ | — | fix before enforcing CSP |
+| W-027 | **New.** Old Cloudflare branch previews (`*.pages.dev`) still serve vulnerable Studio builds against the production Supabase | — | ❌ | — | — | — | restrict previews (Cloudflare Access) or delete old deployments |
+| W-028 | **New.** Three Cloudflare Pages projects build this repository (`showduino-com`, `showduinoweb`, `showduino-web`) | — | ❌ | — | — | — | keep one; remove duplicates |
+| W-029 | **New, fixed.** More Studio sinks found by fuzzing: project-browser name and legacy inspector (inline `onclick` from IDs); unsafe identifiers on import | #62 | ✅ | ✅ | ✅ | ❌ | merge |
+| W-030 | **New, fixed.** Device SD file names and error messages written as HTML in `js/panels.js` (dormant panel) | #62 | ✅ | ✅ | ✅ | ❌ | merge |
+
+Unchanged by W002: W-007, W-009, W-011, W-014 (in #60), W-016, W-018 to W-025.
+
 ## Summary
 
 | ID | Severity | Area | Title | Status |

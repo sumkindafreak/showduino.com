@@ -25,4 +25,8 @@ const timeline = fs.readFileSync('js/timeline.js', 'utf8');
 assert.ok(timeline.includes("nameEl.textContent = String(p.project.name || 'Untitled Show')"), 'project browser renders names as text');
 const projects = fs.readFileSync('js/studio-projects.js', 'utf8');
 assert.ok(projects.includes('assertSafeIdentifiers(parsed'), 'import refuses unsafe identifiers');
+const panels = fs.readFileSync('js/panels.js', 'utf8');
+const panelSinks = panels.split('\n').filter((line) => /innerHTML|insertAdjacentHTML/.test(line));
+assert.ok(!panelSinks.some((line) => /\+\s*name\s*\+/.test(line)), 'device audio file names must not be concatenated into HTML');
+assert.ok(!panelSinks.some((line) => /\+\s*e\.message\s*\+/.test(line)), 'error messages must be escaped before HTML insertion');
 console.log('Imported-text safety guard passed: no project/clip/track/device text interpolated into HTML and no ID-built inline handlers in ' + files.length + ' Studio files.');

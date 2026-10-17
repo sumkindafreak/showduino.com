@@ -160,7 +160,7 @@ window._scanWifi = async () => {
   try {
     const result = await window.api?.getStatus();
     if (el) el.innerHTML = result ? '<span style="color:#00ffcc;">Scan not supported via /status. Use Showduino AP to configure WiFi.</span>' : '<span style="color:#ff4444;">Device not reachable.</span>';
-  } catch (e) { if (el) el.innerHTML = '<span style="color:#ff4444;">Failed: ' + e.message + '</span>'; }
+  } catch (e) { if (el) el.innerHTML = '<span style="color:#ff4444;">Failed: ' + panelEsc(e.message) + '</span>'; }
 };
 window._connectWifi = async () => {
   const ssid = document.getElementById('wifi-ssid')?.value;
@@ -452,8 +452,18 @@ window._loadAudioLibrary = async () => {
         const name = typeof f === 'string' ? f : f.name;
         const row = document.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #222;';
-        row.innerHTML = '<span style="flex:1;color:#eee;">🎵 ' + name + '</span>'
-          + '<button class="btn-toolbar" style="font-size:11px;padding:2px 8px;" onclick="window.api?.playAudio(\\''+name+'\\')">▶</button>';
+        // W002: SD card file names come from the device; render them as text and
+        // bind the play button without building inline JavaScript from them.
+        const label = document.createElement('span');
+        label.style.cssText = 'flex:1;color:#eee;';
+        label.textContent = '🎵 ' + String(name);
+        const play = document.createElement('button');
+        play.className = 'btn-toolbar';
+        play.style.cssText = 'font-size:11px;padding:2px 8px;';
+        play.type = 'button';
+        play.textContent = '▶';
+        play.addEventListener('click', () => window.api?.playAudio(String(name)));
+        row.append(label, play);
         list.appendChild(row);
       });
     }
@@ -469,7 +479,7 @@ window._loadAudioLibrary = async () => {
         sel.appendChild(opt);
       });
     });
-  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">Failed to load: ' + e.message + '</span>'; }
+  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">Failed to load: ' + panelEsc(e.message) + '</span>'; }
 };
 
 window._uploadAudio = () => {
@@ -531,7 +541,7 @@ window._refreshDevices = async () => {
       });
     }
   } catch(e) {
-    if (list) list.innerHTML = '<div style="color:#ff4444;font-size:12px;text-align:center;padding:20px;">Discovery failed: ' + e.message + '</div>';
+    if (list) list.innerHTML = '<div style="color:#ff4444;font-size:12px;text-align:center;padding:20px;">Discovery failed: ' + panelEsc(e.message) + '</div>';
   }
 };
 window._refreshDevices();

@@ -1,6 +1,19 @@
 // TimelineEditor — Full DAW-style timeline for Showduino Studio
 // Renders into any element with class "timeline-editor"
 
+// W002: every value from a project file is untrusted (imported .shdo, community
+// templates, older local saves). Escape it before it is placed in HTML.
+function tlColor(value, fallback) {
+  const text = String(value || '');
+  return /^#[0-9a-f]{3,8}$/i.test(text) ? text : (fallback || '#00aaff');
+}
+
+function tlEsc(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+}
+
 class TimelineEditor {
   constructor(api, state, log) {
     this._api      = api;
@@ -341,7 +354,7 @@ class TimelineEditor {
     const nameRow = document.createElement('div');
     nameRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
     const colorDot = document.createElement('div');
-    colorDot.style.cssText = `width:10px;height:10px;border-radius:50%;background:${track.color};flex-shrink:0;`;
+    colorDot.style.cssText = `width:10px;height:10px;border-radius:50%;background:${tlColor(track.color)};flex-shrink:0;`;
     const nameEl = document.createElement('span');
     nameEl.textContent = track.name;
     nameEl.style.cssText = 'font-size:11px;color:#eee;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;cursor:pointer;';
@@ -431,7 +444,7 @@ class TimelineEditor {
       left:${left}px;
       width:${width}px;
       height:${this._trackHeight - 16}px;
-      background:${clip.color || track.color || '#00aaff'};
+      background:${tlColor(clip.color, tlColor(track.color))};
       border:1px solid rgba(255,255,255,0.3);
       border-radius:4px;
       box-sizing:border-box;
@@ -631,34 +644,46 @@ class TimelineEditor {
       <h3 style="margin:0 0 8px;color:#00ffcc;font-size:14px;">Inspector</h3>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Label</label>
-        <input id="insp-label" type="text" value="${clip.label || ''}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
+        <input id="insp-label" type="text" value="${tlEsc(clip.label || '')}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
       </div>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Start (ms)</label>
-        <input id="insp-start" type="number" value="${Math.round(clip.startMs)}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
+        <input id="insp-start" type="number" value="${tlEsc(Math.round(clip.startMs))}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
       </div>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Duration (ms)</label>
-        <input id="insp-duration" type="number" value="${Math.round(clip.durationMs)}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
+        <input id="insp-duration" type="number" value="${tlEsc(Math.round(clip.durationMs))}" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:4px;box-sizing:border-box;border-radius:3px;font-size:12px;"/>
       </div>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Color</label>
-        <input id="insp-color" type="color" value="${clip.color || '#00aaff'}" style="width:100%;height:30px;background:#111;border:1px solid #555;cursor:pointer;"/>
+        <input id="insp-color" type="color" value="${tlEsc(clip.color || '#00aaff')}" style="width:100%;height:30px;background:#111;border:1px solid #555;cursor:pointer;"/>
       </div>
       <div class="inspector-field" style="margin-bottom:8px;">
         <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Track</label>
-        <span style="font-size:12px;color:#ccc;">${track ? track.name : 'Unknown'} (${clip.type})</span>
+        <span style="font-size:12px;color:#ccc;">${tlEsc(track ? track.name : 'Unknown')} (${tlEsc(clip.type)})</span>
       </div>
       <hr style="border-color:#444;margin:8px 0;"/>
       <div id="insp-params">${this._buildParamsHTML(clip)}</div>
       <div style="display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;">
-        <button onclick="window.timelineEditor._duplicateClip('${clipId}')" class="btn-secondary" style="font-size:11px;padding:4px 8px;">⊕ Duplicate</button>
-        <button onclick="window.timelineEditor._deleteClip('${clipId}')" class="btn-secondary" style="font-size:11px;padding:4px 8px;color:#ff4444;">✕ Delete</button>
-        ${clip.type === 'audio' ? `<button onclick="window.audioBrowser && window.audioBrowser.open()" class="btn-secondary" style="font-size:11px;padding:4px 8px;">🎵 Browse</button>` : ''}
-        ${clip.type === 'dmx'   ? `<button onclick="window.dmxEditor && window.dmxEditor.open('${clipId}')" class="btn-secondary" style="font-size:11px;padding:4px 8px;">🎛 DMX</button>` : ''}
-        ${clip.type === 'pixel' || clip.type === 'lighting' ? `<button onclick="window.ledStudio && window.ledStudio.open('${clipId}')" class="btn-secondary" style="font-size:11px;padding:4px 8px;">💡 LED</button>` : ''}
+        <button type="button" data-insp-action="duplicate" class="btn-secondary" style="font-size:11px;padding:4px 8px;">⊕ Duplicate</button>
+        <button type="button" data-insp-action="delete" class="btn-secondary" style="font-size:11px;padding:4px 8px;color:#ff4444;">✕ Delete</button>
+        ${clip.type === 'audio' ? `<button type="button" data-insp-action="audio" class="btn-secondary" style="font-size:11px;padding:4px 8px;">🎵 Browse</button>` : ''}
+        ${clip.type === 'dmx'   ? `<button type="button" data-insp-action="dmx" class="btn-secondary" style="font-size:11px;padding:4px 8px;">🎛 DMX</button>` : ''}
+        ${clip.type === 'pixel' || clip.type === 'lighting' ? `<button type="button" data-insp-action="led" class="btn-secondary" style="font-size:11px;padding:4px 8px;">💡 LED</button>` : ''}
       </div>
     `;
+
+    // W002: actions are bound here, never via inline handlers built from clip IDs.
+    const actions = {
+      duplicate: () => this._duplicateClip(clipId),
+      delete: () => this._deleteClip(clipId),
+      audio: () => window.audioBrowser && window.audioBrowser.open(),
+      dmx: () => window.dmxEditor && window.dmxEditor.open(clipId),
+      led: () => window.ledStudio && window.ledStudio.open(clipId)
+    };
+    this._inspectorPanel.querySelectorAll('[data-insp-action]').forEach((button) => {
+      button.addEventListener('click', () => actions[button.dataset.inspAction]?.());
+    });
 
     // Wire up inputs
     const bind = (id, prop, parser) => {
@@ -690,11 +715,11 @@ class TimelineEditor {
         html += `
           <div style="margin-bottom:6px;">
             <label style="font-size:11px;color:#888;display:block;">File</label>
-            <input id="param-file" type="text" value="${p.file || ''}" placeholder="audio file" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;box-sizing:border-box;font-size:11px;border-radius:3px;"/>
+            <input id="param-file" type="text" value="${tlEsc(p.file || '')}" placeholder="audio file" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;box-sizing:border-box;font-size:11px;border-radius:3px;"/>
           </div>
           <div style="margin-bottom:6px;">
             <label style="font-size:11px;color:#888;display:block;">Volume (%)</label>
-            <input id="param-volume" type="range" min="0" max="100" value="${p.volume !== undefined ? p.volume : 100}" style="width:100%;"/>
+            <input id="param-volume" type="range" min="0" max="100" value="${tlEsc(p.volume !== undefined ? p.volume : 100)}" style="width:100%;"/>
           </div>
           <label style="font-size:11px;color:#888;"><input id="param-loop" type="checkbox" ${p.loop ? 'checked' : ''}/> Loop</label>`;
         break;
@@ -713,16 +738,16 @@ class TimelineEditor {
       case 'pixel':
         html += `
           <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Color</label>
-          <input id="param-rgb-color" type="color" value="${this._rgbToHex(p.r||255,p.g||255,p.b||255)}" style="width:100%;height:28px;background:#111;border:1px solid #555;cursor:pointer;margin-bottom:6px;"/>
+          <input id="param-rgb-color" type="color" value="${tlEsc(this._rgbToHex(p.r||255,p.g||255,p.b||255))}" style="width:100%;height:28px;background:#111;border:1px solid #555;cursor:pointer;margin-bottom:6px;"/>
           <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Brightness</label>
-          <input id="param-brightness" type="range" min="0" max="255" value="${p.brightness !== undefined ? p.brightness : 255}" style="width:100%;margin-bottom:6px;"/>
+          <input id="param-brightness" type="range" min="0" max="255" value="${tlEsc(p.brightness !== undefined ? p.brightness : 255)}" style="width:100%;margin-bottom:6px;"/>
           <label style="font-size:11px;color:#888;display:block;margin-bottom:2px;">Effect</label>
           <select id="param-effect" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:3px;font-size:11px;border-radius:3px;">
-            ${['solid','fade','pulse','flash','rainbow','chase'].map(e => `<option ${p.effect===e?'selected':''}>${e}</option>`).join('')}
+            ${['solid','fade','pulse','flash','rainbow','chase'].map(e => `<option ${p.effect===e?'selected':''}>${tlEsc(e)}</option>`).join('')}
           </select>`;
         break;
       default:
-        html += `<pre style="font-size:10px;color:#666;overflow:auto;max-height:100px;">${JSON.stringify(p, null, 2)}</pre>`;
+        html += `<pre style="font-size:10px;color:#666;overflow:auto;max-height:100px;">${tlEsc(JSON.stringify(p, null, 2))}</pre>`;
     }
     return html;
   }
@@ -1234,7 +1259,7 @@ class TimelineEditor {
       const clip = this._clips().find(c => c.id === id);
       if (clip) {
         const active = ph >= clip.startMs && ph <= clip.startMs + clip.durationMs;
-        el.style.boxShadow = active ? `0 0 6px ${clip.color || '#fff'}` : (id === this._selectedClipId ? '0 0 8px rgba(255,255,255,0.5)' : '');
+        el.style.boxShadow = active ? `0 0 6px ${tlColor(clip.color, '#fff')}` : (id === this._selectedClipId ? '0 0 8px rgba(255,255,255,0.5)' : '');
       }
     });
   }
@@ -1462,7 +1487,14 @@ class TimelineEditor {
         row.style.cssText = 'display:flex;align-items:center;gap:8px;background:#333;padding:8px;border-radius:4px;';
         const info = document.createElement('div');
         info.style.flex = '1';
-        info.innerHTML = `<div style="font-size:13px;color:#eee;">${p.project.name}</div><div style="font-size:10px;color:#666;">${new Date(p.project.updatedAt).toLocaleString()}</div>`;
+        // W002: project names are untrusted text.
+        const nameEl = document.createElement('div');
+        nameEl.style.cssText = 'font-size:13px;color:#eee;';
+        nameEl.textContent = String(p.project.name || 'Untitled Show');
+        const dateEl = document.createElement('div');
+        dateEl.style.cssText = 'font-size:10px;color:#666;';
+        dateEl.textContent = new Date(p.project.updatedAt).toLocaleString();
+        info.append(nameEl, dateEl);
         const openBtn = document.createElement('button');
         openBtn.textContent = 'Open';
         openBtn.className = 'btn-primary';

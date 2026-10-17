@@ -37,6 +37,30 @@
     if (!legacy) throw new Error('This file is not a Showduino production (.shdo). Nothing was changed.');
   }
 
+  // W002: identifiers end up in CSS selectors, data attributes and element IDs.
+  // Studio generates UUIDs and node IDs such as LED-01 or p4-local; anything with
+  // quotes, spaces or markup is refused so an ID can never break out of an attribute.
+  const SAFE_ID = /^[A-Za-z0-9_.:-]{1,128}$/;
+  function assertSafeIdentifiers(value, key, depth) {
+    if (depth > 64) throw new Error('This file is nested too deeply to be a Showduino production.');
+    if (Array.isArray(value)) {
+      const idList = /Ids$/.test(key || '');
+      value.forEach((item) => {
+        if (idList && typeof item === 'string' && !SAFE_ID.test(item)) throw new Error('This file contains an unsafe identifier. Nothing was changed.');
+        assertSafeIdentifiers(item, idList ? '' : key, depth + 1);
+      });
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    Object.keys(value).forEach((k) => {
+      const v = value[k];
+      if ((k === 'id' || /Id$/.test(k)) && typeof v === 'string' && v !== '' && !SAFE_ID.test(v)) {
+        throw new Error('This file contains an unsafe identifier. Nothing was changed.');
+      }
+      assertSafeIdentifiers(v, k, depth + 1);
+    });
+  }
+
   function validatePackage(project) {
     if (!project || typeof project !== 'object') throw new Error('This is not a valid Showduino project file.');
 
@@ -311,6 +335,7 @@
           const state = getState();
           const parsed = JSON.parse(String(reader.result));
           assertImportableShape(parsed);
+          assertSafeIdentifiers(parsed, '', 0);
           validatePackage(parsed);
           const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
           state.project = normaliseProject(imported);

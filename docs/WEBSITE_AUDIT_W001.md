@@ -90,7 +90,7 @@ What the audit could not do, and why:
 * Five redirect stubs.
 * More than 20 stale branches and 10 open draft PRs.
 
-**Writelite:** no references anywhere in the repository.
+**Design-inspiration brand:** no references anywhere in the repository; the `tools/check-website.mjs` brand guard passes.
 
 **Repository versus live:**
 * The home page and Studio fetched live match `main`.

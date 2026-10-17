@@ -41,7 +41,7 @@ Date: 2026-10-17. Repository `sumkindafreak/showduino.com`. Baseline `d7b3b93`
 | A4 | No uncaught JavaScript errors on current pages | 0 page errors on the 23 current pages. The legacy forum fails with `firebase is not defined` because the CDN is blocked in the sandbox | PASS (BR) |
 | A5 | Advertised features exist | Lamp authoring missing; triggers not deployable | FAIL W-016 |
 | A6 | Obsolete or duplicate code identified | Firebase/Stripe/PayPal, legacy forum, duplicate images, stubs | PASS (CI); cleanup open W-023 |
-| A7 | No Writelite references | `grep -ri writelite` → none | PASS (CI) |
+| A7 | No references to the design-inspiration product | Case-insensitive search of the whole repository → none; `tools/check-website.mjs` brand guard passes | PASS (CI, AUTO) |
 
 ## B. Security (Phase 2)
 

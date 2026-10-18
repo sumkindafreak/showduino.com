@@ -7,7 +7,7 @@ on:
   pull_request:
     paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
   push:
-    branches: [main, 'w002/**']
+    branches: [main, 'w002/**', 'w004/**']
     paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
 
 permissions:

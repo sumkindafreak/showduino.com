@@ -410,10 +410,12 @@
         payload.document.devices?.some(d => d?.binding?.nodeId)) {
       throw new Error('The production must be sanitised as a community template before sharing.');
     }
-    const profile = await getProfile();
-    const authorLabel = String(profile?.display_name || 'HauntSync creator').slice(0,60);
+    // W004: shared shows carry a public, accountable identity. The author name is set by the
+    // database from the published creator profile; the browser never supplies it.
+    const publication = await getOwnCreatorPublication();
+    if (!publication) throw new Error('Publish your creator profile (HauntSync → Profile) before sharing a show.');
     const {data,error} = await getClient().from('shared_shows').insert({
-      author_id:user.id, author_label:authorLabel, title, summary, category, license, document:payload.document
+      author_id:user.id, title, summary, category, license, document:payload.document
     }).select('id').single();
     if (error) throw error;
     return data;

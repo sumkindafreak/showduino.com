@@ -19,6 +19,8 @@
   const REPORT_REASONS = ['spam', 'harassment', 'hateful', 'sexual', 'violence', 'dangerous', 'impersonation', 'copyright', 'unsafe_show', 'other'];
   const IMAGE_BUCKET = 'community-images';
   const IMAGE_MAX_BYTES = 3 * 1024 * 1024;
+  // Read-only (STABLE) database functions are called with GET so browsing never sends a write.
+  const READ = Object.freeze({ get: true });
 
   const sb = () => window.ShowduinoSupabase;
   const db = () => sb().client();
@@ -53,13 +55,13 @@
 
   let founderPromise = null;
   function founderId() {
-    if (!founderPromise) founderPromise = db().rpc('community_founder_id').then(check).catch(() => null);
+    if (!founderPromise) founderPromise = db().rpc('community_founder_id', {}, READ).then(check).catch(() => null);
     return founderPromise;
   }
 
   async function status() {
     if (!sb()?.enabled()) return { signed_in: false, role: 'visitor', unavailable: true };
-    return check(await db().rpc('my_community_status'));
+    return check(await db().rpc('my_community_status', {}, READ));
   }
 
   async function currentUserId() {
@@ -76,7 +78,7 @@
 
   async function creatorStats(creatorId) {
     if (!isUuid(creatorId)) return null;
-    return check(await db().rpc('creator_public_stats', { p_creator: creatorId }));
+    return check(await db().rpc('creator_public_stats', { p_creator: creatorId }, READ));
   }
 
   /* ── categories ───────────────────────────────────────────────────────── */
@@ -284,8 +286,8 @@
   /* ── owner administration (the database refuses every call from anyone else) ── */
 
   const admin = Object.freeze({
-    stats: async () => check(await db().rpc('admin_stats')),
-    members: async (search, offset) => check(await db().rpc('admin_list_members', { p_search: searchTerm(search), p_limit: 50, p_offset: Number(offset) || 0 })) || [],
+    stats: async () => check(await db().rpc('admin_stats', {}, READ)),
+    members: async (search, offset) => check(await db().rpc('admin_list_members', { p_search: searchTerm(search), p_limit: 50, p_offset: Number(offset) || 0 }, READ)) || [],
     setMemberStatus: async (userId, statusValue, reason) => check(await db().rpc('admin_set_member_status', { p_user_id: userId, p_status: statusValue, p_reason: String(reason || '').slice(0, 500) })),
     moderate: async (targetType, targetId, action, reason) => check(await db().rpc('admin_moderate', { p_target_type: targetType, p_target_id: targetId, p_action: action, p_reason: String(reason || '').slice(0, 500) })),
     resolveReport: async (reportId, resolution, note) => check(await db().rpc('admin_resolve_report', { p_report_id: reportId, p_resolution: resolution, p_note: String(note || '').slice(0, 1000) })),

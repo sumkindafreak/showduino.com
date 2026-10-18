@@ -1,0 +1,18 @@
+# Cloudflare Pages response headers (W002).
+#
+# Content-Security-Policy (enforced) holds only directives that cannot break any
+# current feature. Content-Security-Policy-Report-Only is the target policy; browsers
+# log each violation to the console without blocking anything. When the console is
+# clean on every page, move it into the enforced header. Studio still uses inline
+# event handlers, so script-src 'self' without 'unsafe-inline' will report there.
+# Inline <script> hashes are checked by: node tools/csp-inline-hashes.mjs --check
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com 'sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw=' 'sha256-eIo8k7AGOcVwaQtwXTyHBbpDEoQSuXnoI28C6JMiFmE=' 'sha256-/pjO0lZAdju7EtpnPJSRfg697m3uoN0tXd45gkKEBWM=' 'sha256-/MilyytOjDl3jis0+uYBJQJjIPg+4lwW5bv5de0ilyw=' 'sha256-wyxGcEZM8JTKPbYogqPsKug5bh4MPEh+Z8M5TZYL2V4=' 'sha256-hms/CDBqE3t7wimC9JlxeckVrJlJVLHcKcbfWS6341k='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https://fczxcvlyydcqdhjkejmd.supabase.co wss://fczxcvlyydcqdhjkejmd.supabase.co http://192.168.4.1 http://showduino.local; worker-src 'self' blob:; frame-src 'none'; form-action 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+

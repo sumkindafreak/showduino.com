@@ -77,6 +77,8 @@ const gateway = http.createServer(async (req, res) => {
 
 const siteCode = ['js/cloud/supabase-service.js', 'js/cloud/hauntsync-community.js'].map((f) => [f, fs.readFileSync(f, 'utf8')]);
 
+// Values created inside a vm context belong to another realm, so compare them by content
+// (length, JSON), never with deepStrictEqual.
 // One isolated browser-like context per person, each with its own client and session.
 async function person(sub) {
   const store = new Map();
@@ -180,10 +182,10 @@ const pass = (msg) => { results.push(msg); console.log('PASS  ' + msg); };
   await alice.follow(U.bob);
   const bobPost = await bob.createPost({ title: 'Audio Node wiring', content: 'Photos soon', category: 'audio' });
   const feed = await alice.listPosts({ following: true });
-  assert.deepStrictEqual(feed.map((p) => p.id), [bobPost]);
+  assert.strictEqual(JSON.stringify(feed.map((p) => p.id)), JSON.stringify([bobPost]));
   assert.ok(await alice.isFollowing(U.bob));
   await alice.unfollow(U.bob);
-  assert.deepStrictEqual(await alice.listPosts({ following: true }), []);
+  assert.strictEqual((await alice.listPosts({ following: true })).length, 0);
   await rejects(alice.follow(U.alice), /cannot follow/, 'self follow');
   pass('following feed shows only followed creators; unfollow; no self-follow');
 
@@ -194,8 +196,8 @@ const pass = (msg) => { results.push(msg); console.log('PASS  ' + msg); };
     ['moderate', () => mallory.admin.moderate('post', postId, 'hide', 'x')],
     ['category', () => mallory.admin.saveCategory({ slug: 'mallory', name: 'M' })]
   ]) await rejects(call(), /Only the Showduino owner/, 'Mallory ' + label);
-  assert.deepStrictEqual(await mallory.admin.log(), [], 'Mallory reads an empty moderation log');
-  assert.deepStrictEqual(await mallory.admin.reports(), [], 'Mallory reads no reports');
+  assert.strictEqual((await mallory.admin.log()).length, 0, 'Mallory reads an empty moderation log');
+  assert.strictEqual((await mallory.admin.reports()).length, 0, 'Mallory reads no reports');
   pass('Mallory: every owner function refused by the database; log and reports empty for her');
 
   // Reports

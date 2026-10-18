@@ -541,3 +541,34 @@ button, input, textarea, select { font: inherit; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .js .reveal { opacity: 1; transform: none; }
 }
+
+/* Mobile menu button (js/site-nav.js, adapted from old PR #12). Applies only when
+   the script has run; without JavaScript the scrollable row above remains. */
+.site-nav-toggle { display: none; }
+@media (max-width: 760px) {
+  .has-site-nav-toggle .site-header { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .has-site-nav-toggle .site-nav-toggle {
+    display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; padding: .5rem .85rem;
+    border: 1px solid var(--site-border, rgba(116,255,66,.35)); border-radius: 10px; background: transparent;
+    color: inherit; font: inherit; font-weight: 700; letter-spacing: .04em; cursor: pointer;
+  }
+  .has-site-nav-toggle .site-nav-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  .site-nav-toggle-bars, .site-nav-toggle-bars::before, .site-nav-toggle-bars::after {
+    display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px; position: relative; transition: transform .2s ease, opacity .2s ease;
+  }
+  .site-nav-toggle-bars::before, .site-nav-toggle-bars::after { content: ""; position: absolute; left: 0; }
+  .site-nav-toggle-bars::before { top: -6px; }
+  .site-nav-toggle-bars::after { top: 6px; }
+  .site-nav-open .site-nav-toggle-bars { background: transparent; }
+  .site-nav-open .site-nav-toggle-bars::before { transform: translateY(6px) rotate(45deg); }
+  .site-nav-open .site-nav-toggle-bars::after { transform: translateY(-6px) rotate(-45deg); }
+  .has-site-nav-toggle .site-nav { display: none; }
+  .has-site-nav-toggle .site-header.site-nav-open .site-nav {
+    display: flex; flex-direction: column; align-items: stretch; flex-wrap: nowrap; overflow: visible;
+    width: 100%; flex-basis: 100%; gap: .25rem; padding: .5rem 0 .25rem;
+  }
+  .has-site-nav-toggle .site-header.site-nav-open .site-nav a { display: flex; align-items: center; min-height: 44px; white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-nav-toggle-bars, .site-nav-toggle-bars::before, .site-nav-toggle-bars::after { transition: none; }
+}

@@ -225,9 +225,26 @@
         <div class="v4-grid three">
           <article class="v4-card"><span class="v4-eyebrow">01 / SAVE</span><h3>Freeze the project snapshot</h3><p>Save the current <code>.shdo</code> data locally before transfer. Cloud backup is optional and never part of live runtime.</p></article>
           <article class="v4-card"><span class="v4-eyebrow">02 / CHECK</span><h3>Validate routing + assets</h3><p>Make sure node IDs, audio references, pixel segments and output safety settings are complete.</p></article>
-          <article class="v4-card"><span class="v4-eyebrow">03 / INSTALL</span><h3>Install on the P4</h3><p>When a compatible local Show Engine import API is available, Studio can send directly. Until then Studio exports the same <code>.shdo</code> snapshot.</p></article>
+          <article class="v4-card"><span class="v4-eyebrow">03 / INSTALL</span><h3>Persist to P4 SD</h3><p>Open your Communications S3 local console on your home network, choose your exported SHDO under Productions, then confirm Persist to SD. The P4 validates and stores it without auto-starting.</p></article>
         </div>
-        <div class="v4-rule warning" style="margin-top:.8rem;"><strong>Current implementation reality:</strong> direct browser-to-P4 install is capability-gated. If the local import API is not available, Studio safely falls back to exporting the production file rather than pretending deployment succeeded.</div>
+        <div class="v4-rule warning" style="margin-top:.8rem;"><strong>Secure local handoff:</strong> the public HTTPS website cannot directly POST to the S3's HTTP LAN address. Export the canonical SHDO file and open the S3-hosted console for an operator-confirmed P4 upload. A saved address is not a live connection.</div>
+        <section class="v4-card studio-lan-card" aria-label="Home network connection">
+          <span class="v4-eyebrow">YOUR LOCAL SHOWDUINO</span>
+          <h3>Home network → Communications S3 → P4</h3>
+          <p>Enter the <strong>Communications S3 LAN IP</strong> from your router or S3 diagnostics. Registering hardware in HauntSync is for inventory; it does not establish a live link.</p>
+          <label for="studio-lan-address">Communications S3 LAN IP or .local name</label>
+          <div class="lan-address-row">
+            <input id="studio-lan-address" class="form-control" inputmode="url" autocomplete="off" placeholder="192.168.1.50 or showduino.local">
+            <button class="v4-btn" type="button" data-lan-action="save">Save address</button>
+            <button class="v4-btn" type="button" data-lan-action="open">Open Local Console</button>
+          </div>
+          <p id="studio-lan-status" class="lan-status" role="status" aria-live="polite">A saved IP does not verify that the S3 or P4 is online. Use the same home LAN.</p>
+          <div class="v4-button-row">
+            <button class="v4-btn primary" type="button" data-lan-action="export-open">Download .shdo + Open Local Console</button>
+            <button class="v4-btn" type="button" onclick="ShowduinoProjects.exportCurrentProject()">Download .shdo only</button>
+          </div>
+          <p class="lan-help">In the S3 console: <strong>Productions → Persist SHDO v2 → Choose downloaded file → Persist to SD.</strong> Wait for the P4 confirmation; loading the production and starting it are separate actions. <a href="hauntsync.html#devices">Manage hardware inventory</a>.</p>
+        </section>
         <div class="v4-grid two" style="margin-top:.8rem;">
           <article class="v4-card"><h3>Production package</h3><div id="v4-deploy-summary" class="project-check-list"></div><div class="v4-button-row"><button class="v4-btn primary" onclick="ShowduinoStudioV4.prepareDeploy()">Prepare / Send Show</button><button class="v4-btn" onclick="ShowduinoProjects.exportCurrentProject()">Export .shdo</button></div></article>
           <article class="v4-card"><h3>Live path</h3><div class="node-target-list"><div class="node-target"><code>DIRECTOR</code><span>ESP-NOW operator requests</span><strong>→</strong></div><div class="node-target"><code>S3 COMMS</code><span>ESP-NOW ↔ UART transport</span><strong>→</strong></div><div class="node-target"><code>P4</code><span>Runtime + safety + timeline</span><strong>→</strong></div><div class="node-target"><code>NODES</code><span>Relay · MOSFET · Pixel · Audio</span><strong>✓</strong></div></div></article>
@@ -592,6 +609,7 @@
     if (root.querySelector?.('#v4-node-targets') || root.id === 'v4-node-targets') window.setTimeout(refreshNodeMap, 0);
     if (root.querySelector?.('#v4-project-checks') || root.id === 'v4-project-checks') window.setTimeout(refreshDiagnostics, 0);
     if (root.querySelector?.('#v4-deploy-summary') || root.id === 'v4-deploy-summary') window.setTimeout(refreshDeploySummary, 0);
+    if (root.querySelector?.('#studio-lan-address')) window.setTimeout(() => window.ShowduinoLanConnection?.syncFields?.(), 0);
     window.setTimeout(refreshProjectStats, 0);
     animatePanel(root);
   }

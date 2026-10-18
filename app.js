@@ -537,6 +537,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function initAudioManager() {
+      const root = document.getElementById('studio-sounds-root');
+      if (root && window.ShowduinoSounds) {
+          window.ShowduinoSounds.render(root);
+          return;
+      }
       // Load audio files
       loadAudioFiles();
   }

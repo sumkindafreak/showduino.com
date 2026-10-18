@@ -1,3 +1,4 @@
+-- SUPERSEDED (W004): folded into supabase/migrations/20261018100000_w004_roles_and_community.sql.
 -- PROPOSED, NOT APPLIED. W002 database hardening for issues W-010, W-012, W-013, W-026.
 -- Apply only with owner approval, after a backup, on a Supabase branch first, then
 -- production. Rollback: supabase/proposed/20261017090100_w002_hardening.rollback.sql

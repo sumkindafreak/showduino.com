@@ -375,7 +375,7 @@
   }
 
   // Community shows are intentionally PUBLIC copies; never link them to private cloud projects.
-  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at';
+  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at,is_featured';
 
   async function listSharedShows(category) {
     const allowed = new Set(['ambience','lighting','pixels','interactive','props','other']);
@@ -410,10 +410,12 @@
         payload.document.devices?.some(d => d?.binding?.nodeId)) {
       throw new Error('The production must be sanitised as a community template before sharing.');
     }
-    const profile = await getProfile();
-    const authorLabel = String(profile?.display_name || 'HauntSync creator').slice(0,60);
+    // W004: shared shows carry a public, accountable identity. The author name is set by the
+    // database from the published creator profile; the browser never supplies it.
+    const publication = await getOwnCreatorPublication();
+    if (!publication) throw new Error('Publish your creator profile (HauntSync → Profile) before sharing a show.');
     const {data,error} = await getClient().from('shared_shows').insert({
-      author_id:user.id, author_label:authorLabel, title, summary, category, license, document:payload.document
+      author_id:user.id, title, summary, category, license, document:payload.document
     }).select('id').single();
     if (error) throw error;
     return data;
@@ -431,6 +433,8 @@
   }
 
   window.ShowduinoSupabase = Object.freeze({
+    // W004: the community module (js/cloud/hauntsync-community.js) builds on the same client.
+    client: getClient,
     enabled, register, resendConfirmation, signIn, signInWithGoogle, requestPasswordReset, updatePassword, signOut,
     onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
     getOwnCreatorPublication, publishCreatorProfile, unpublishCreatorProfile,

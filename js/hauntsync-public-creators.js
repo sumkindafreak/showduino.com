@@ -30,6 +30,7 @@
     } else { el.append(txt('span',initials)); }
     return el;
   }
+  let founder = null;
   function creatorUrl(username) {
     return 'creator.html?u=' + encodeURIComponent(username);
   }
@@ -39,7 +40,9 @@
     const info = txt('div','');
     const link = txt('a',creator.display_name || 'HauntSync creator','hs-creator-name');
     link.href = creatorUrl(creator.username);
-    info.append(link,txt('p','@'+creator.username,'hs-handle'),txt('p',creator.creator_focus || 'Creative projects','hs-focus-text'));
+    info.append(link);
+    if (founder && creator.creator_id === founder && window.HauntSyncUI) info.append(window.HauntSyncUI.founderBadge());
+    info.append(txt('p','@'+creator.username,'hs-handle'),txt('p',creator.creator_focus || 'Creative projects','hs-focus-text'));
     row.append(avatar(creator),info);
     article.append(row,txt('p',creator.bio || 'Discover this creator’s projects and public work.','hs-profile-about'));
     const open = txt('a','View creator','btn secondary');
@@ -79,7 +82,10 @@
     if (!creator) {status('That creator profile is not publicly available.',true);return;}
     const head=byId('hs-public-creator-head'), actions=byId('hs-public-creator-actions');
     const info=txt('div','');
-    info.append(txt('h2',creator.display_name),txt('p','@'+creator.username,'hs-handle'),txt('p',creator.creator_focus||'Creative technology','hs-focus-text'));
+    const nameRow=txt('div','','hs-byline');
+    nameRow.append(txt('h2',creator.display_name));
+    if (founder && creator.creator_id === founder && window.HauntSyncUI) nameRow.append(window.HauntSyncUI.founderBadge());
+    info.append(nameRow,txt('p','@'+creator.username,'hs-handle'),txt('p',creator.creator_focus||'Creative technology','hs-focus-text'));
     head.replaceChildren(avatar(creator),info);
     byId('hs-public-creator-bio').textContent=creator.bio||'This creator has not added a bio yet.';
     actions.replaceChildren();
@@ -90,6 +96,7 @@
       actions.append(link);
     }
     byId('hs-public-creator-detail').hidden=false;
+    await communityExtras(creator, info);
     const shows=await window.ShowduinoSupabase.listPublicCreatorShows(creator.creator_id);
     const area=byId('hs-public-creator-shows'), list=byId('hs-public-creator-shows-list');
     list.replaceChildren();
@@ -106,11 +113,65 @@
     status('Viewing public creator @'+creator.username+'.');
     document.title=creator.display_name+' | HauntSync Creator';
   }
+  // W004: founder badge, public stats, follow, report and recent posts (needs js/cloud/hauntsync-community.js).
+  async function communityExtras(creator, info) {
+    const C = window.HauntSyncCommunity, UI = window.HauntSyncUI;
+    if (!C || !UI) return;
+    try {
+      const stats = await C.creatorStats(creator.creator_id);
+      if (stats) {
+        const row = txt('p','','hs-creator-stats');
+        const stat = (n, label) => { const s = txt('span',''); s.append(txt('strong',String(n ?? 0)), document.createTextNode(' ' + label)); return s; };
+        row.append(stat(stats.followers,'followers'), stat(stats.following,'following'), stat(stats.posts,'posts'), stat(stats.shows,'shared shows'));
+        if (stats.joined) row.append(txt('span','Member since ' + new Date(stats.joined + 'T00:00:00Z').toLocaleDateString(undefined,{month:'long',year:'numeric'})));
+        info.append(row);
+      }
+      const me = await C.status();
+      const user = me.signed_in ? await window.ShowduinoSupabase.getCurrentUser() : null;
+      const actions = byId('hs-public-creator-actions');
+      if (user && user.id !== creator.creator_id) {
+        let following = await C.isFollowing(creator.creator_id);
+        const btn = txt('button', following ? 'Following ✓' : 'Follow', 'btn');
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', String(following));
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          try {
+            if (following) await C.unfollow(creator.creator_id); else await C.follow(creator.creator_id);
+            following = !following;
+            btn.textContent = following ? 'Following ✓' : 'Follow';
+            btn.setAttribute('aria-pressed', String(following));
+          } catch (err) { status(err.message, true); }
+          btn.disabled = false;
+        });
+        actions.append(btn, UI.reportButton('creator', creator.creator_id, 'Report profile'));
+      } else if (!user) {
+        const a = txt('a','Sign in to follow','btn secondary'); a.href = 'account.html'; actions.append(a);
+      }
+      const posts = await C.listPosts({ authorId: creator.creator_id, limit: 5 });
+      if (posts.length) {
+        const section = byId('hs-public-creator-posts');
+        const list = byId('hs-public-creator-posts-list');
+        posts.forEach((p) => {
+          const item = txt('article','','card hs-public-creator-card');
+          const a = txt('a', p.title); a.href = 'feed.html?post=' + encodeURIComponent(p.id);
+          const h = txt('h3',''); h.append(a);
+          item.append(h, txt('p', String(p.content).slice(0, 200) + (p.content.length > 200 ? '…' : ''), 'hs-profile-about'));
+          list.append(item);
+        });
+        if (section) section.hidden = false;
+      }
+    } catch (_) { /* the profile itself is already shown */ }
+  }
+
   async function init() {
     if (!window.ShowduinoSupabase?.enabled()) {
       status('Community profiles are not configured at the moment.',true);return;
     }
-    try {if(byId('hs-creators-list'))await directory();else await detail();}
+    try {
+      if (window.HauntSyncCommunity) founder = await window.HauntSyncCommunity.founderId();
+      if(byId('hs-creators-list'))await directory();else await detail();
+    }
     catch(err){status('Could not load public creators: '+(err?.message||'service unavailable'),true);}
   }
   document.addEventListener('DOMContentLoaded',init);

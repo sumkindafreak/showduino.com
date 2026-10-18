@@ -4,7 +4,8 @@
 <title>Creators | HauntSync</title><link rel="stylesheet" href="css/site-pages.css">
 <link rel="stylesheet" href="css/showduino-stage-theme.css">
 <link rel="stylesheet" href="css/hauntsync-profiles.css">
-<link rel="stylesheet" href="css/hauntsync-creators.css">  <script src="js/site-nav.js" defer></script>
+<link rel="stylesheet" href="css/hauntsync-creators.css">
+<link rel="stylesheet" href="css/hauntsync-community.css">  <script src="js/site-nav.js" defer></script>
 </head><body>
 <header class="site-header"><a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
 <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a><a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a><a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a></nav></header>
@@ -12,11 +13,16 @@
 <div><span class="eyebrow">HAUNTSYNC CREATOR</span><h1>Creator <span class="accent">showcase.</span></h1>
 <p>Public creator profiles and shared show templates, published voluntarily by their authors.</p>
 <div class="button-row"><a href="creators.html" class="btn secondary">All creators</a><a href="community.html" class="btn secondary">Show library</a></div></div></section>
+<div id="hs-subnav"></div>
 <p id="hs-creators-status" class="hs-inline-status" role="status" aria-live="polite">Loading public creator profile…</p>
 <section id="hs-public-creator-detail" class="card hs-public-profile" hidden>
 <div id="hs-public-creator-head" class="hs-creator-person"></div>
 <p id="hs-public-creator-bio" class="hs-profile-about"></p>
 <div class="button-row" id="hs-public-creator-actions"></div>
+</section>
+<section class="section" id="hs-public-creator-posts" hidden>
+<div class="section-heading"><span class="eyebrow">COMMUNITY</span><h2>Recent posts</h2></div>
+<div class="hs-creator-cards" id="hs-public-creator-posts-list"></div>
 </section>
 <section class="section" id="hs-public-creator-shows" hidden>
 <div class="section-heading"><span class="eyebrow">PUBLISHED WORK</span><h2>Shared show templates</h2>
@@ -26,4 +32,6 @@
 <script src="config/runtime-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js" integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous"></script>
 <script src="js/cloud/supabase-service.js"></script>
+<script src="js/cloud/hauntsync-community.js"></script>
+<script src="js/hauntsync-ui.js"></script>
 <script src="js/hauntsync-public-creators.js"></script></body></html>

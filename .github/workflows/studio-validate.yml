@@ -52,6 +52,10 @@ jobs:
           node --check js/api.js
           node --check js/studio-sounds.js
           node --check js/studio-audio-check.js
+          node --check js/cloud/hauntsync-community.js
+          node --check js/hauntsync-ui.js
+          node --check js/hauntsync-feed.js
+          node --check js/hauntsync-admin.js
           node --check js/timeline-touch.js
           node --check js/timeline-undo.js
           node --check js/showduino-pixel-authoring.js

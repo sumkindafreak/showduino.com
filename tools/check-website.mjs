@@ -8,7 +8,8 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pages = ['index.html','system.html','studio.html','hauntsync.html','community.html','profile.html','creators.html','creator.html','welcome.html','account.html',
-  'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html'];
+  'tools.html','aboutme.html','docs.html','support.html','privacy.html','terms.html',
+  'feed.html','admin.html','guidelines.html'];
 const content = (p) => readFileSync(path.join(root, p), 'utf8');
 const localAsset = (url) => {
   if (/^(https?:)?\/\//i.test(url) || url.startsWith('#') || url.startsWith('data:')) return null;

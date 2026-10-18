@@ -357,7 +357,7 @@
 
     if (draft.type === 'audio') {
       return `<section class="sm-form-section"><h3>Sound</h3>
-        <div class="sm-field"><label>AUDIO FILE</label><input class="sm-input" id="sm-audio-file" placeholder="audio/scream.wav" value="${esc(p.file || '')}"></div>
+        <div class="sm-field"><label>AUDIO FILE</label><input class="sm-input" id="sm-audio-file" placeholder="scream.wav" spellcheck="false" autocomplete="off" value="${esc(p.file || '')}"><p class="audio-file-status" id="sm-audio-file-status" role="status" aria-live="polite"></p></div>
         <div class="sm-field"><label>VOLUME · <span id="sm-audio-volume-value">${clamp(p.volume,0,100,100)}</span>%</label><input class="sm-input" id="sm-audio-volume" type="range" min="0" max="100" value="${clamp(p.volume,0,100,100)}"></div>
         <label class="sm-checkline"><input id="sm-audio-loop" type="checkbox" ${p.loop ? 'checked' : ''}> Loop until stopped</label>
       </section>`;

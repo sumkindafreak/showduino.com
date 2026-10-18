@@ -5,7 +5,11 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 global.window = global;
-global.document = { createElement() { return {}; } };
+global.document = { createElement() { return {}; }, addEventListener() {}, getElementById() { return null; }, body: null };
+global.localStorage = { getItem() { return null; }, setItem() {}, removeItem() {} };
+global.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init && init.detail; } };
+global.dispatchEvent = () => true;
+vm.runInThisContext(fs.readFileSync('js/studio-audio-check.js', 'utf8'), { filename: 'js/studio-audio-check.js' });
 vm.runInThisContext(fs.readFileSync('js/studio-sounds.js', 'utf8'), { filename: 'js/studio-sounds.js' });
 const S = window.ShowduinoSounds;
 
@@ -41,12 +45,13 @@ assert.ok(!S.audioNodeCompatibility(S.parseWavHeader(new ArrayBuffer(4)), 'x.wav
 const info = S.parseWavHeader(wav());
 assert.strictEqual(Math.round(info.dataBytes / (info.rate * info.channels * info.bits / 8) * 1000), 1000);
 
-// Cue names: must fit AUDIO:NODE:PLAY:<file> in 63 characters, no separators.
+// Cue names (W004): the Audio Node firmware rule (js/studio-audio-check.js) plus the
+// AUDIO:NODE:PLAY:<file> 63-character timeline command limit.
 assert.strictEqual(S.MAX_CUE_NAME, 63 - 'AUDIO:NODE:PLAY:'.length);
 assert.ok(S.cueNameCheck('monster_roar.wav').ok);
 assert.ok(S.cueNameCheck('effects/roar.wav').ok, 'sub-folder names allowed');
-assert.ok(S.cueNameCheck('x'.repeat(S.MAX_CUE_NAME)).ok);
-assert.ok(!S.cueNameCheck('x'.repeat(S.MAX_CUE_NAME + 1)).ok, 'too long');
-for (const bad of ['a:b.wav', '../secret.wav', 'a\nEMERGENCY:CLEAR', 'dir\\a.wav', '']) assert.ok(!S.cueNameCheck(bad).ok, `refused: ${JSON.stringify(bad)}`);
+assert.ok(S.cueNameCheck('x'.repeat(S.MAX_CUE_NAME - 4) + '.wav').ok, 'longest name that fits the timeline command');
+assert.ok(!S.cueNameCheck('x'.repeat(S.MAX_CUE_NAME - 3) + '.wav').ok, 'too long for the timeline command');
+for (const bad of ['a:b.wav', '../secret.wav', 'a\nEMERGENCY:CLEAR', 'dir\\a.wav', '', 'My Scream.wav', 'roar.mp3']) assert.ok(!S.cueNameCheck(bad).ok, `refused: ${JSON.stringify(bad)}`);
 
 console.log('Sounds: WAV rule matches the Audio Node firmware (12 accepted, 7 refused), cue-name limits enforced.');

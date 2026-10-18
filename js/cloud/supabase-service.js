@@ -433,6 +433,8 @@
   }
 
   window.ShowduinoSupabase = Object.freeze({
+    // W004: the community module (js/cloud/hauntsync-community.js) builds on the same client.
+    client: getClient,
     enabled, register, resendConfirmation, signIn, signInWithGoogle, requestPasswordReset, updatePassword, signOut,
     onAuthChanged, getCurrentUser, getProfile, getCreatorProfile, saveCreatorProfile, uploadCreatorAvatar, removeCreatorAvatar, saveProject, listProjects, loadProject, deleteProject,
     getOwnCreatorPublication, publishCreatorProfile, unpublishCreatorProfile,

@@ -5,10 +5,10 @@ name: Database RLS tests
 # rollback. Never connects to Supabase.
 on:
   pull_request:
-    paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
+    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/cloud/**', '.github/workflows/database-rls-tests.yml']
   push:
     branches: [main, 'w002/**', 'w004/**']
-    paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
+    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/cloud/**', '.github/workflows/database-rls-tests.yml']
 
 permissions:
   contents: read
@@ -34,3 +34,44 @@ jobs:
       - uses: actions/checkout@v4
       - name: Owner-isolation tests (baseline, proposed hardening, rollback)
         run: tools/db-test-local.sh
+
+  community-api:
+    # W004: the site's own community modules + the real supabase-js client against real
+    # PostgREST over a throw-away PostgreSQL with the W004 migration. Never touches Supabase.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      POSTGREST_SHA256: 9f71269e61ac3a940281e93ff415760f5957e430e475ba4c3889f3ede7d5527c
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install PostgREST 12.2.3 (checksum pinned)
+        run: |
+          curl -sSL -o postgrest.tar.xz https://github.com/PostgREST/postgrest/releases/download/v12.2.3/postgrest-v12.2.3-linux-static-x64.tar.xz
+          echo "$POSTGREST_SHA256  postgrest.tar.xz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/bin" && tar -xJf postgrest.tar.xz -C "$RUNNER_TEMP/bin"
+          "$RUNNER_TEMP/bin/postgrest" --version
+      - name: Install the pinned Supabase client
+        run: npm install --no-save --no-audit --no-fund @supabase/supabase-js@2.111.0
+      - name: Start the isolated API
+        run: |
+          POSTGREST_BIN="$RUNNER_TEMP/bin/postgrest" TMPDIR="$RUNNER_TEMP" tools/community-api-env.sh start | tee -a "$GITHUB_ENV"
+      - name: End-to-end community data tests
+        run: node tests/api/community-api.test.cjs
+      - name: PostgREST log (on failure)
+        if: failure()
+        run: cat "$RUNNER_TEMP/showduino-postgrest.log" || true

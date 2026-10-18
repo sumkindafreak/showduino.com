@@ -67,6 +67,9 @@ async function mockSupabase(context, mode, log, sharedShow) {
     await page.fill('#login-email', USER.email); await page.fill('#login-password', 'correct horse battery staple');
     await page.click('#login-form button[type=submit]');
     await page.waitForSelector('#account-panel:not([hidden])', { timeout: 10000 });
+    // The page shows the panel first and fills the name and email after the profile
+    // request returns, so wait for the text rather than reading it immediately.
+    await page.waitForFunction(() => /w002-test@example\.test/.test(document.getElementById('account-email')?.textContent || ''), null, { timeout: 10000 });
     assert.match(await page.textContent('#account-email'), /w002-test@example\.test/);
     const stored = await page.evaluate(() => Object.keys(localStorage).filter((k) => /^sb-.*-auth-token$/.test(k)).length);
     assert.strictEqual(stored, 1, 'session stored after sign-in');
@@ -151,4 +154,9 @@ async function mockSupabase(context, mode, log, sharedShow) {
   await browser.close(); server.close();
   console.log(results.join('\n'));
   console.log(`PASS: ${results.length} mocked HauntSync workflow checks.`);
-})().catch((e) => { console.error('FAIL', e.message); server.close(); process.exit(1); });
+})().catch((e) => {
+  console.error('FAIL', e.message);
+  // Surface the reason as a check annotation: job logs are not always reachable.
+  if (process.env.GITHUB_ACTIONS) console.log(`::error title=HauntSync mocked workflows::${String(e.message).replace(/\r?\n/g, ' ').slice(0, 900)}`);
+  server.close(); process.exit(1);
+});

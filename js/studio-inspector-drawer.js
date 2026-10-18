@@ -9,8 +9,12 @@
 
   const originalShowInspector = TimelineEditor.prototype._showInspector;
   const TAP_MOVE_THRESHOLD_PX = 10;
-  const DESKTOP_QUERY = '(min-width: 761px)';
+  // Column layout only where the timeline keeps enough width beside it. Between 761 and
+  // 1199 px (tablets, small laptop windows) the Inspector slides in over the timeline
+  // instead of permanently taking 320 px from it.
+  const DESKTOP_QUERY = '(min-width: 1200px)';
   let pointerGesture = null;
+  let returnFocus = null;
 
   function isDesktop() {
     return Boolean(window.matchMedia?.(DESKTOP_QUERY)?.matches);
@@ -25,7 +29,12 @@
   }
 
   function closeInspector() {
+    const wasOpen = document.body.classList.contains('studio-inspector-open');
     document.body.classList.remove('studio-inspector-open');
+    if (wasOpen && returnFocus && document.contains(returnFocus)) {
+      try { returnFocus.focus({ preventScroll: true }); } catch (_) {}
+    }
+    returnFocus = null;
   }
 
   function addDrawerBar(panel) {
@@ -90,7 +99,12 @@
     const editor = window.timelineEditor;
     const targetClipId = clipId || (editor && editor._selectedClipId);
     if (!renderInspector(editor, targetClipId)) return false;
-    if (!isDesktop()) document.body.classList.add('studio-inspector-open');
+    if (!isDesktop()) {
+      if (!document.body.classList.contains('studio-inspector-open')) {
+        returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      }
+      document.body.classList.add('studio-inspector-open');
+    }
     return true;
   }
 
@@ -103,8 +117,9 @@
     if (document.body.classList.contains('studio-mobile-advanced')) return true;
     const coarse = window.matchMedia?.('(pointer: coarse)')?.matches;
     const noHover = window.matchMedia?.('(hover: none)')?.matches;
-    const narrow = window.matchMedia?.('(max-width: 760px)')?.matches;
-    return Boolean(coarse || noHover || narrow);
+    // Below the column breakpoint the Inspector is hidden until a cue is opened, so a
+    // tap or click on a cue must open it whatever the pointer type.
+    return Boolean(coarse || noHover || !isDesktop());
   }
 
   document.addEventListener('pointerdown', (event) => {
@@ -146,6 +161,25 @@
     event.preventDefault();
     openInspector(clip.dataset.clipId);
   });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !document.body.classList.contains('studio-inspector-open')) return;
+    if (isDesktop()) return;
+    closeInspector();
+  });
+
+  // Growing the window into the column layout must not leave a stale "open" state behind.
+  const desktopMedia = window.matchMedia?.(DESKTOP_QUERY);
+  const onLayoutChange = () => {
+    if (isDesktop()) {
+      document.body.classList.remove('studio-inspector-open');
+      window.timelineEditor?._inspectorPanel?.querySelector('.studio-inspector-drawer-bar')?.remove();
+    } else if (window.timelineEditor?._inspectorPanel && document.body.classList.contains('studio-inspector-open')) {
+      addDrawerBar(window.timelineEditor._inspectorPanel);
+    }
+  };
+  if (desktopMedia?.addEventListener) desktopMedia.addEventListener('change', onLayoutChange);
+  else if (desktopMedia?.addListener) desktopMedia.addListener(onLayoutChange);
 
   window.ShowduinoInspectorDrawer = Object.freeze({
     open: openInspector,

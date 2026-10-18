@@ -50,6 +50,7 @@ jobs:
           node --check js/studio-ollie-ux.js
           node --check js/studio-testing-hardening.js
           node --check js/api.js
+          node --check js/studio-sounds.js
           node --check js/showduino-pixel-authoring.js
           node --check js/showduino-mosfet-authoring.js
           node --check app.js
@@ -85,6 +86,9 @@ jobs:
         run: |
           node tests/studio-audio-node-pixels.test.cjs
           node tests/studio-estop-node-pixels.test.cjs
+
+      - name: Sounds panel WAV rule matches the Audio Node firmware
+        run: node tests/studio-sounds.test.cjs
 
       - name: Check deploy pre-flight matches the firmware upload policy (W001)
         run: node tests/studio-firmware-upload-policy.test.cjs

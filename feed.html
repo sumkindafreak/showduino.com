@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The HauntSync community: build logs, questions and showcases from Showduino creators, haunt designers and makers.">
+<title>Community | HauntSync</title>
+<link rel="canonical" href="https://show-duino.com/feed">
+<link rel="stylesheet" href="css/site-pages.css">
+<link rel="stylesheet" href="css/showduino-stage-theme.css">
+<link rel="stylesheet" href="css/hauntsync-profiles.css">
+<link rel="stylesheet" href="css/hauntsync-creators.css">
+<link rel="stylesheet" href="css/hauntsync-community.css">
+<script src="js/site-nav.js" defer></script>
+</head><body>
+<header class="site-header"><a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
+<nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a><a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a><a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a></nav></header>
+<main class="site-main wide hs-community">
+  <section class="page-heading hs-brand-heading"><img src="media/hauntsync-official-logo.webp" class="hs-identity-logo" width="135" height="135" alt="HauntSync logo">
+    <div><span class="eyebrow">HAUNTSYNC COMMUNITY</span><h1>Build logs, questions <span class="accent">and scares.</span></h1>
+    <p>Share what you are building with Showduino, ask for help and see what other creators are making. Please read the <a href="guidelines.html">community guidelines</a>.</p></div>
+  </section>
+  <div id="hs-subnav"></div>
+
+  <section id="hs-feed-view">
+    <div class="hs-feed-toolbar card">
+      <div class="hs-tabs" role="tablist" aria-label="Which posts">
+        <button type="button" role="tab" class="hs-tab" data-tab="latest" aria-selected="true">Latest</button>
+        <button type="button" role="tab" class="hs-tab" data-tab="following" aria-selected="false">Following</button>
+        <button type="button" role="tab" class="hs-tab" data-tab="featured" aria-selected="false">Featured</button>
+      </div>
+      <div class="hs-filters">
+        <label class="hs-field-label">Category <select id="hs-filter-category" class="form-control"><option value="">All categories</option></select></label>
+        <label class="hs-field-label">Type <select id="hs-filter-kind" class="form-control"><option value="">All types</option></select></label>
+        <label class="hs-field-label hs-search-field">Search <input id="hs-filter-search" class="form-control" type="search" maxlength="60" placeholder="Fog, pixels, Audio Node…"></label>
+      </div>
+    </div>
+
+    <section id="hs-composer-area" class="card hs-composer-area" aria-labelledby="hs-composer-heading">
+      <h2 id="hs-composer-heading">Start a post</h2>
+      <p id="hs-composer-gate" class="muted">Checking your account…</p>
+      <button type="button" class="btn" id="hs-composer-open" aria-expanded="false" aria-controls="hs-composer" hidden>Write a post</button>
+      <form id="hs-composer" class="hs-composer" hidden novalidate>
+        <label class="hs-field-label">Title <input id="hs-post-title" class="form-control" maxlength="120" required></label>
+        <div class="hs-composer-row">
+          <label class="hs-field-label">Category <select id="hs-post-category" class="form-control" required></select></label>
+          <label class="hs-field-label">Type <select id="hs-post-kind" class="form-control"></select></label>
+        </div>
+        <label class="hs-field-label">Post <textarea id="hs-post-content" class="form-control" rows="6" maxlength="5000" required></textarea></label>
+        <p class="hs-field-hint"><span id="hs-post-count">0</span> / 5000 characters. Plain text; links are not clickable.</p>
+        <label class="hs-field-label">Image (optional, JPEG, PNG or WebP, up to 3 MB) <input id="hs-post-image" class="form-control" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <div id="hs-post-image-preview" class="hs-image-preview" hidden></div>
+        <p id="hs-composer-status" class="hs-inline-status" role="status" aria-live="polite"></p>
+        <div class="button-row"><button type="submit" class="btn" id="hs-post-submit">Publish post</button></div>
+      </form>
+    </section>
+
+    <p id="hs-feed-status" class="hs-inline-status" role="status" aria-live="polite">Loading posts…</p>
+    <div id="hs-feed-list" class="hs-feed-list"></div>
+    <div class="button-row"><button type="button" class="btn secondary" id="hs-feed-more" hidden>Load older posts</button></div>
+  </section>
+
+  <section id="hs-post-view" hidden>
+    <p><a href="feed.html" class="hs-back">← Back to the community</a></p>
+    <article id="hs-post-detail" class="card hs-post hs-post-detail"></article>
+    <section class="card hs-comments" aria-labelledby="hs-comments-heading">
+      <h2 id="hs-comments-heading">Comments</h2>
+      <div id="hs-comment-list" class="hs-comment-list"></div>
+      <form id="hs-comment-form" class="hs-comment-form" hidden>
+        <label class="hs-field-label">Add a comment <textarea id="hs-comment-text" class="form-control" rows="3" maxlength="2500" required></textarea></label>
+        <p id="hs-comment-status" class="hs-inline-status" role="status" aria-live="polite"></p>
+        <div class="button-row"><button type="submit" class="btn">Comment</button></div>
+      </form>
+      <p id="hs-comment-gate" class="muted"></p>
+    </section>
+  </section>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="guidelines.html">Community guidelines</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a></p></footer>
+<script src="config/runtime-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js" integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous"></script>
+<script src="js/cloud/supabase-service.js"></script>
+<script src="js/cloud/hauntsync-community.js"></script>
+<script src="js/hauntsync-ui.js"></script>
+<script src="js/hauntsync-feed.js"></script>
+</body></html>

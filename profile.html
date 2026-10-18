@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
   <link rel="stylesheet" href="css/hauntsync-profiles.css">
+<link rel="stylesheet" href="css/hauntsync-community.css">
   <script>document.documentElement.classList.add('js');</script>
   <script src="js/site-nav.js" defer></script>
 </head>
@@ -34,6 +35,7 @@
       <p>Create your HauntSync identity for immersive attractions, practical effects, show control and creative technology. Your profile stays private until you choose to publish a public creator page.</p>
       </div>
     </section>
+<div id="hs-subnav"></div>
     <section id="hs-profile-signed-out" class="card hs-profile-section" aria-label="Sign in required">
       <span class="badge">SHOWDUINO ID</span>
       <h2>Sign in to build your profile</h2>
@@ -109,6 +111,7 @@
       <span class="eyebrow">COMMUNITY VISIBILITY</span>
       <h2 id="hs-publication-heading">Your page. Your choice.</h2>
       <p class="muted">Your saved profile is private by default. When you publish, your display name, username, bio, specialism, website and profile photo become public. Your email, private projects and hardware never appear on your creator page. Updates to private fields will only appear publicly when you publish again.</p>
+      <p class="muted">A published profile is also what lets you post, comment and share shows in the <a href="feed.html">community</a>. Unpublishing hides your profile, posts, comments and shared shows from everyone else; nothing is deleted, and publishing again brings them back.</p>
       <p id="hs-profile-public-state" class="hs-inline-status" role="status" aria-live="polite">Not published.</p>
       <div class="button-row">
         <button id="hs-profile-publish" type="button" class="btn">Publish my creator page</button>
@@ -127,6 +130,8 @@
   <script src="config/runtime-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js" integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous"></script>
   <script src="js/cloud/supabase-service.js"></script>
+<script src="js/cloud/hauntsync-community.js"></script>
+<script src="js/hauntsync-ui.js"></script>
   <script src="js/hauntsync-profile.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js" integrity="sha384-InMmvD3VoYcY7hGjSC80aLb2bNNE4CzpX+Eq6FVDlmB0IKgDvmfPw4UY8L/M++iG" crossorigin="anonymous"></script>
   <script src="js/site-motion.js"></script>

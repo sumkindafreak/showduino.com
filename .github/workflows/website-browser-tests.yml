@@ -50,6 +50,8 @@ jobs:
         run: node tests/browser/studio-sounds.cjs
       - name: Audio cues - local vs confirmed on the Audio Node, firmware name rule, export, deploy (W004)
         run: node tests/browser/studio-audio-confirmation.cjs
+      - name: HauntSync community pages - roles, XSS, posting, reports, owner dashboard, phone (W004)
+        run: node tests/browser/hauntsync-community-ui.cjs
       - name: Timeline touch gestures on a tablet - select, drag, trim, pinch zoom; mouse unchanged
         run: node tests/browser/studio-timeline-touch.cjs
       - name: Tablet Inspector slides in over the timeline; desktop column unchanged

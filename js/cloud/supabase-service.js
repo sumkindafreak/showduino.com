@@ -375,7 +375,7 @@
   }
 
   // Community shows are intentionally PUBLIC copies; never link them to private cloud projects.
-  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at';
+  const PUBLIC_SHARE_FIELDS = 'id,title,summary,category,license,author_label,author_id,created_at,is_featured';
 
   async function listSharedShows(category) {
     const allowed = new Set(['ambience','lighting','pixels','interactive','props','other']);

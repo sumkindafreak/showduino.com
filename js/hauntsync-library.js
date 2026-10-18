@@ -34,6 +34,7 @@
     card.append(txt('h3',heading), txt('p',message));
     els.list.append(card);
   }
+  let founderId = null, signedIn = false;
   function showSummary(templates) {
     els.list.replaceChildren();
     if (!templates.length) return placeholder(
@@ -41,6 +42,7 @@
     for (const item of templates) {
       const card = txt('article', '', 'hs-shared-card');
       card.append(txt('span', optionLabel(item.category), 'eyebrow'));
+      if (item.is_featured) card.append(txt('span', 'Featured', 'hs-tag hs-tag-featured'));
       card.append(txt('h3', item.title));
       card.append(txt('p', item.summary || 'No description yet.', 'hs-blurb'));
       const meta = txt('p','','hs-meta');
@@ -51,12 +53,15 @@
         author.href = 'creator.html?u=' + encodeURIComponent(publicCreator.username);
         meta.append(author);
       } else meta.append(document.createTextNode(item.author_label || 'HauntSync creator'));
+      if (founderId && item.author_id === founderId && window.HauntSyncUI) { meta.append(document.createTextNode(' ')); meta.append(window.HauntSyncUI.founderBadge()); }
       meta.append(document.createTextNode(' · '+shortDate(item.created_at)+' · '+(item.license === 'cc0-1.0' ? 'CC0' : 'CC BY 4.0')));
       card.append(meta);
       const btn = txt('button', 'Preview & download', 'btn secondary');
       btn.type = 'button';
       btn.addEventListener('click', ()=>openShow(item.id));
-      card.append(btn); els.list.append(card);
+      card.append(btn);
+      if (signedIn && window.HauntSyncUI) card.append(window.HauntSyncUI.reportButton('shared_show', item.id));
+      els.list.append(card);
     }
   }
   async function refresh() {
@@ -69,6 +74,10 @@
         window.ShowduinoSupabase.listPublicCreators().catch(()=>[])
       ]);
       publicCreatorsById = new Map(creators.map(item=>[item.creator_id,item]));
+      if (window.HauntSyncCommunity) {
+        founderId = await window.HauntSyncCommunity.founderId();
+        signedIn = Boolean((await window.HauntSyncCommunity.status().catch(()=>({}))).signed_in);
+      }
       if (seq !== loading) return;
       showSummary(rows);
       status(rows.length ? rows.length+' shared show(s) ready to explore.' :

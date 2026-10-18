@@ -5,10 +5,10 @@ name: Database RLS tests
 # rollback. Never connects to Supabase.
 on:
   pull_request:
-    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/cloud/**', '.github/workflows/database-rls-tests.yml']
+    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/**', '*.html', 'css/hauntsync-*.css', '.github/workflows/database-rls-tests.yml']
   push:
     branches: [main, 'w002/**', 'w004/**']
-    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/cloud/**', '.github/workflows/database-rls-tests.yml']
+    paths: ['supabase/**', 'tools/db-test-local.sh', 'tools/community-api-env.sh', 'tests/api/**', 'js/**', '*.html', 'css/hauntsync-*.css', '.github/workflows/database-rls-tests.yml']
 
 permissions:
   contents: read
@@ -65,13 +65,17 @@ jobs:
           echo "$POSTGREST_SHA256  postgrest.tar.xz" | sha256sum -c -
           mkdir -p "$RUNNER_TEMP/bin" && tar -xJf postgrest.tar.xz -C "$RUNNER_TEMP/bin"
           "$RUNNER_TEMP/bin/postgrest" --version
-      - name: Install the pinned Supabase client
-        run: npm install --no-save --no-audit --no-fund @supabase/supabase-js@2.111.0
+      - name: Install the pinned Supabase client and Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund @supabase/supabase-js@2.111.0 playwright@1.48.2
+          npx playwright install --with-deps chromium
       - name: Start the isolated API
         run: |
           POSTGREST_BIN="$RUNNER_TEMP/bin/postgrest" TMPDIR="$RUNNER_TEMP" tools/community-api-env.sh start | tee -a "$GITHUB_ENV"
       - name: End-to-end community data tests
         run: node tests/api/community-api.test.cjs
+      - name: Full-stack browser test (real pages, real supabase-js, real PostgREST)
+        run: node tests/api/community-fullstack.cjs
       - name: PostgREST log (on failure)
         if: failure()
         run: cat "$RUNNER_TEMP/showduino-postgrest.log" || true

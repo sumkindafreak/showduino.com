@@ -470,12 +470,14 @@ class TimelineEditor {
 
     // Left resize handle
     const leftHandle = document.createElement('div');
+    leftHandle.className = 'tl-clip-handle tl-clip-handle-left';
     leftHandle.style.cssText = 'position:absolute;left:0;top:0;width:6px;height:100%;cursor:w-resize;background:rgba(255,255,255,0.2);z-index:11;';
     leftHandle.addEventListener('mousedown', e => { e.stopPropagation(); this._startResize(e, clip.id, 'left'); });
     el.appendChild(leftHandle);
 
     // Right resize handle
     const rightHandle = document.createElement('div');
+    rightHandle.className = 'tl-clip-handle tl-clip-handle-right';
     rightHandle.style.cssText = 'position:absolute;right:0;top:0;width:6px;height:100%;cursor:e-resize;background:rgba(255,255,255,0.2);z-index:11;';
     rightHandle.addEventListener('mousedown', e => { e.stopPropagation(); this._startResize(e, clip.id, 'right'); });
     el.appendChild(rightHandle);

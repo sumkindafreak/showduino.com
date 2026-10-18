@@ -836,3 +836,10 @@ body.studio-build-show .timeline-editor {
   .sounds-actions { width: 100%; }
   .sounds-actions button { flex: 1 1 auto; min-height: 44px; }
 }
+
+/* Timeline touch gestures (js/timeline-touch.js). The browser keeps panning the
+   timeline; pinch is handled by Studio so it zooms the timeline, not the page. */
+@media (pointer: coarse) {
+  .timeline-editor .tl-canvas-scroll { touch-action: pan-x pan-y; }
+}
+html.tl-touch-dragging, html.tl-touch-dragging body { overscroll-behavior: none; user-select: none; -webkit-user-select: none; }

@@ -143,6 +143,8 @@ const box = (page, id) => page.evaluate((cid) => {
   console.log('PASS  clip on a locked track does not move');
 
   // 8. Pinch out zooms the timeline (not the page) around the fingers.
+  // Close the tablet Inspector first: a finger that lands on the panel is not a timeline pinch.
+  await page.evaluate(() => window.ShowduinoInspectorDrawer?.close()); await wait(300);
   st = await state(page);
   const area = await page.evaluate(() => { const r = window.timelineEditor._canvasScroll.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + Math.min(r.height - 10, 40) }; });
   const vvBefore = await page.evaluate(() => window.visualViewport?.scale || 1);

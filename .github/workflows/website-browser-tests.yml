@@ -50,5 +50,7 @@ jobs:
         run: node tests/browser/studio-sounds.cjs
       - name: Timeline touch gestures on a tablet - select, drag, trim, pinch zoom; mouse unchanged
         run: node tests/browser/studio-timeline-touch.cjs
+      - name: Tablet Inspector slides in over the timeline; desktop column unchanged
+        run: node tests/browser/studio-tablet-inspector.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs

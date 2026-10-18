@@ -52,6 +52,7 @@ jobs:
           node --check js/api.js
           node --check js/studio-sounds.js
           node --check js/timeline-touch.js
+          node --check js/timeline-undo.js
           node --check js/showduino-pixel-authoring.js
           node --check js/showduino-mosfet-authoring.js
           node --check app.js

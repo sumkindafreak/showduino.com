@@ -142,6 +142,23 @@ const box = (page, id) => page.evaluate((cid) => {
   await page.evaluate(() => { const ed = window.timelineEditor; ed._getClipTrack(ed._selectedClipId).locked = false; });
   console.log('PASS  clip on a locked track does not move');
 
+  // 7b. Snapping applies to touch drags, and Undo / Redo revert and reapply the drag.
+  await page.evaluate(() => { const ed = window.timelineEditor; ed._snapEnabled = true; ed._snapMs = 1000; ed._canvasScroll.scrollLeft = 0; });
+  await wait(150);
+  b = await box(page, s0.id);
+  st = await state(page);
+  await touchDrag(cdp, line({ x: b.cx, y: b.cy }, { x: b.cx + 1300 * st.px, y: b.cy }));
+  after = await state(page);
+  assert.strictEqual(after.startMs % 1000, 0, `snapped to the 1 s grid (${after.startMs})`);
+  assert.notStrictEqual(after.startMs, st.startMs, 'snapped drag moved the clip');
+  const undone = await page.evaluate(() => { window.timelineEditor._undo(); return window.timelineEditor._clips().find((c) => c.label === 'Touch me').startMs; });
+  assert.strictEqual(undone, st.startMs, `Undo reverts the touch drag (${after.startMs} → ${undone})`);
+  const redone = await page.evaluate(() => { window.timelineEditor._redo(); return window.timelineEditor._clips().find((c) => c.label === 'Touch me').startMs; });
+  assert.strictEqual(redone, after.startMs, 'Redo reapplies it');
+  await page.evaluate(() => { const ed = window.timelineEditor; ed._snapEnabled = false; ed._selectClip(ed._clips().find((c) => c.label === 'Touch me').id); });
+  await wait(150);
+  console.log(`PASS  snapping applies to touch drags (${st.startMs} → ${after.startMs} ms); Undo reverts it, Redo reapplies it`);
+
   // 8. Pinch out zooms the timeline (not the page) around the fingers.
   // Close the tablet Inspector first: a finger that lands on the panel is not a timeline pinch.
   await page.evaluate(() => window.ShowduinoInspectorDrawer?.close()); await wait(300);
@@ -206,6 +223,17 @@ const box = (page, id) => page.evaluate((cid) => {
   const m1 = await state(dp);
   assert.ok(Math.abs(m1.startMs - (m0.startMs + 1500)) < 120, `mouse drag unchanged (${m0.startMs} → ${m1.startMs})`);
   console.log(`PASS  desktop mouse drag unchanged: ${m0.startMs} → ${m1.startMs} ms`);
+  await dp.keyboard.press('Control+z'); await wait(150);
+  const m2 = await state(dp);
+  assert.strictEqual(m2.startMs, m0.startMs, `Ctrl+Z reverts a mouse drag (${m1.startMs} → ${m2.startMs})`);
+  const tb = await box(dp, m0.id);
+  await dp.mouse.move(tb.right - 3, tb.cy); await dp.mouse.down();
+  await dp.mouse.move(tb.right - 3 + 1000 * m0.px, tb.cy, { steps: 8 }); await dp.mouse.up(); await wait(150);
+  const m3 = await state(dp);
+  assert.ok(m3.durationMs > m0.durationMs + 500, 'mouse trim lengthened the clip');
+  await dp.keyboard.press('Control+z'); await wait(150);
+  assert.strictEqual((await state(dp)).durationMs, m0.durationMs, 'Ctrl+Z reverts a mouse trim');
+  console.log(`PASS  desktop Ctrl+Z reverts a drag and a trim (was a no-op before W004)`);
   await desk.close();
 
   assert.deepStrictEqual(errors, [], 'no page errors: ' + errors.join(' | '));

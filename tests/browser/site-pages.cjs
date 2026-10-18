@@ -37,6 +37,11 @@ const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'));
   }
   await browser.close(); server.close();
   console.log(`${pages.length} pages × 2 widths; CDN ${cdnReachable ? 'reachable: SRI and library loading checked' : 'unreachable: SRI not checked (offline)'}`);
-  if (problems.length) { console.error('FAIL\n' + problems.join('\n')); process.exit(1); }
+  if (problems.length) {
+    console.error('FAIL\n' + problems.join('\n'));
+    // Job logs are not always reachable; put the reasons on the check run as annotations.
+    if (process.env.GITHUB_ACTIONS) problems.slice(0, 10).forEach((p) => console.log(`::error title=site-pages::${p.replace(/\r?\n/g, ' ').slice(0, 900)}`));
+    process.exit(1);
+  }
   console.log('PASS: all pages load without script errors' + (cdnReachable ? ' and all pinned third-party scripts pass SRI.' : '.'));
 })().catch((e) => { console.error(e); server.close(); process.exit(1); });

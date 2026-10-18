@@ -151,4 +151,9 @@ async function mockSupabase(context, mode, log, sharedShow) {
   await browser.close(); server.close();
   console.log(results.join('\n'));
   console.log(`PASS: ${results.length} mocked HauntSync workflow checks.`);
-})().catch((e) => { console.error('FAIL', e.message); server.close(); process.exit(1); });
+})().catch((e) => {
+  console.error('FAIL', e.message);
+  // Surface the reason as a check annotation: job logs are not always reachable.
+  if (process.env.GITHUB_ACTIONS) console.log(`::error title=HauntSync mocked workflows::${String(e.message).replace(/\r?\n/g, ' ').slice(0, 900)}`);
+  server.close(); process.exit(1);
+});

@@ -44,5 +44,7 @@ jobs:
         run: node tests/browser/hauntsync-creator-publishing.cjs
       - name: Device-supplied audio file names and errors render as text (W002)
         run: node tests/browser/studio-device-filenames.cjs
+      - name: Sounds panel - import, badges, persistence, use in cue, remove, phone
+        run: node tests/browser/studio-sounds.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs

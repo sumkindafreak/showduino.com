@@ -1,5 +1,5 @@
-/* W002 browser test: audio file names reported by a Showduino device (SD card
- * listing) and device error messages are shown as text, never run as script.
+/* Browser test: audio file names reported by a Showduino device (SD card listing,
+ * Sounds panel) and device error messages are shown as text, never run as script.
  * The device API is stubbed in the page; no network or hardware is used. */
 const http = require('http'); const fs = require('fs'); const path = require('path');
 const { chromium } = require('playwright');
@@ -18,31 +18,26 @@ const P = '"><img src=x onerror="window.__xss=(window.__xss||0)+1">\')+alert(1)+
   page.on('dialog', (d) => { page.__dialogs = (page.__dialogs || 0) + 1; d.dismiss(); });
   await page.goto(`http://127.0.0.1:${server.address().port}/studio.html`, { waitUntil: 'load' });
   await page.waitForFunction(() => window.ShowduinoProjects, null, { timeout: 15000 });
-  // The legacy audio library is dormant in this build: its loader lives in an
-  // inline <script> inside the panel template, which innerHTML never runs. Run
-  // that template's own script so the path is exercised exactly as written.
-  const activated = await page.evaluate(() => {
-    const pm = window.panelManager || (window.PanelManager && new window.PanelManager());
-    if (!pm?.audioManager) return 'panel manager not exposed';
-    const holder = document.createElement('div');
-    holder.innerHTML = pm.audioManager();
-    document.body.append(holder);
-    holder.querySelectorAll('script').forEach((s) => { try { (0, eval)(s.textContent); } catch (_) {} });
-    return typeof window._loadAudioLibrary === 'function' ? 'ok' : 'loader not defined';
-  });
-  if (activated !== 'ok') { console.error('FAIL: could not activate the legacy audio library: ' + activated); process.exit(1); }
+  // Device file names are listed by the Sounds panel (js/studio-sounds.js) when Studio
+  // runs from the local Showduino network (this test server is a local origin).
+  await page.evaluate(() => document.querySelector('[data-panel="audio-manager"]')?.click());
+  await page.waitForSelector('#studio-sounds-root .sounds-section:nth-of-type(2) button', { timeout: 10000 });
   const result = await page.evaluate(async (payload) => {
     let played = null;
-    const host = document.getElementById('audio-library-list') || Object.assign(document.body.appendChild(document.createElement('div')), { id: 'audio-library-list' });
     window.api = window.api || {};
     window.api.listAudioFiles = async () => ({ files: ['scream' + payload + '.wav', { name: 'roar' + payload + '.wav' }] });
     window.api.playAudio = (n) => { played = n; };
-    await window._loadAudioLibrary();
-    const text = host.textContent;
-    host.querySelector('button')?.click();
+    const section = document.querySelector('#studio-sounds-root .sounds-section:nth-of-type(2)');
+    const listButton = [...section.querySelectorAll('button')].find((b) => /List Audio Node files/.test(b.textContent));
+    listButton.click();
+    await new Promise((r) => setTimeout(r, 300));
+    const text = section.querySelector('.sounds-list').textContent;
+    const rows = section.querySelectorAll('.sounds-row').length;
+    [...section.querySelectorAll('.sounds-row button')].find((b) => /Play on Showduino/.test(b.textContent))?.click();
     window.api.listAudioFiles = async () => { throw new Error('device said ' + payload); };
-    await window._loadAudioLibrary();
-    return { rows: host.children.length, nameShownAsText: text.includes('<img src=x'), played, errorText: host.textContent };
+    listButton.click();
+    await new Promise((r) => setTimeout(r, 300));
+    return { rows, nameShownAsText: text.includes('<img src=x'), played, errorText: section.querySelector('.sounds-status').textContent };
   }, P);
   await page.waitForTimeout(300);
   const executed = await page.evaluate(() => window.__xss || 0);

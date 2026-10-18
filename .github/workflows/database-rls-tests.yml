@@ -1,0 +1,36 @@
+name: Database RLS tests
+
+# W002: applies the reconstructed live schema to a throw-away PostgreSQL 16 service
+# container and runs the owner-isolation tests, the proposed hardening and its
+# rollback. Never connects to Supabase.
+on:
+  pull_request:
+    paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
+  push:
+    branches: [main, 'w002/**']
+    paths: ['supabase/**', 'tools/db-test-local.sh', '.github/workflows/database-rls-tests.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Owner-isolation tests (baseline, proposed hardening, rollback)
+        run: tools/db-test-local.sh

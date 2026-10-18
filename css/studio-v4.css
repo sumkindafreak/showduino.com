@@ -843,3 +843,17 @@ body.studio-build-show .timeline-editor {
   .timeline-editor .tl-canvas-scroll { touch-action: pan-x pan-y; }
 }
 html.tl-touch-dragging, html.tl-touch-dragging body { overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+
+/* W004: audio cue confirmation chips (js/studio-audio-check.js) */
+.sounds-chip { display: inline-block; margin-right: .35rem; font-size: .72rem; padding: .1rem .45rem; border-radius: 999px; border: 1px solid currentColor; }
+.sounds-chip-on-node { color: var(--studio-v4-accent, #00ffc8); }
+.sounds-chip-local-only, .sounds-chip-unconfirmed { color: var(--studio-v4-orange, #ffad5c); }
+.sounds-chip-invalid { color: #ff6b6b; }
+.sounds-cue-row[data-state="invalid"] { border-left: 3px solid #ff6b6b; }
+.sounds-cue-row[data-state="local-only"], .sounds-cue-row[data-state="unconfirmed"] { border-left: 3px solid var(--studio-v4-orange, #ffad5c); }
+.sounds-cue-row[data-state="on-node"] { border-left: 3px solid var(--studio-v4-accent, #00ffc8); }
+.audio-file-status { margin: .35rem 0 0; font-size: .78rem; line-height: 1.4; }
+.audio-file-status[data-state="on-node"] { color: var(--studio-v4-accent, #00ffc8); }
+.audio-file-status[data-state="local-only"], .audio-file-status[data-state="unconfirmed"] { color: var(--studio-v4-orange, #ffad5c); }
+.audio-file-status[data-state="invalid"] { color: #ff6b6b; }
+.sounds-cue-row[data-state="on-node"] .sounds-reason { color: var(--studio-v4-muted, #9fb3bc); }

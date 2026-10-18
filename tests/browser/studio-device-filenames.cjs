@@ -21,13 +21,13 @@ const P = '"><img src=x onerror="window.__xss=(window.__xss||0)+1">\')+alert(1)+
   // Device file names are listed by the Sounds panel (js/studio-sounds.js) when Studio
   // runs from the local Showduino network (this test server is a local origin).
   await page.evaluate(() => document.querySelector('[data-panel="audio-manager"]')?.click());
-  await page.waitForSelector('#studio-sounds-root .sounds-section:nth-of-type(2) button', { timeout: 10000 });
+  await page.waitForSelector('#studio-sounds-root .sounds-device button', { timeout: 10000 });
   const result = await page.evaluate(async (payload) => {
     let played = null;
     window.api = window.api || {};
     window.api.listAudioFiles = async () => ({ files: ['scream' + payload + '.wav', { name: 'roar' + payload + '.wav' }] });
     window.api.playAudio = (n) => { played = n; };
-    const section = document.querySelector('#studio-sounds-root .sounds-section:nth-of-type(2)');
+    const section = document.querySelector('#studio-sounds-root .sounds-device');
     const listButton = [...section.querySelectorAll('button')].find((b) => /List Audio Node files/.test(b.textContent));
     listButton.click();
     await new Promise((r) => setTimeout(r, 300));

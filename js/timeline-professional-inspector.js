@@ -158,7 +158,8 @@
 
     if (clip.type === 'audio') {
       return `<section class="inspector-section"><h4>Audio</h4>
-        ${field('audio-file', 'Audio file', p.file || '', 'text', 'placeholder="audio/scene.mp3"')}
+        ${field('audio-file', 'Audio file (on the Audio Node SD card)', p.file || '', 'text', 'placeholder="scream.wav" spellcheck="false" autocomplete="off"')}
+        <p class="inspector-note audio-file-status" id="audio-file-status" role="status" aria-live="polite"></p>
         ${rangeField('audio-volume', 'Volume', p.volume ?? 100, 0, 100)}
         <div class="inspector-grid">${field('audio-fade-in', 'Fade in (ms)', p.fadeIn || 0, 'number', 'min="0" step="50"')}${field('audio-fade-out', 'Fade out (ms)', p.fadeOut || 0, 'number', 'min="0" step="50"')}</div>
         <div class="inspector-grid">${rangeField('audio-pan', 'Pan', p.pan ?? 0, -100, 100)}${field('audio-rate', 'Playback rate', p.rate ?? 1, 'number', 'min="0.25" max="4" step="0.05"')}</div>
@@ -244,7 +245,19 @@
     }, 'input');
 
     if (clip.type === 'audio') {
-      bindText('audio-file', 'file'); bindRange('audio-volume', 'volume', 0, 100, 100); bindNumber('audio-fade-in', 'fadeIn', 0, 600000, 0); bindNumber('audio-fade-out', 'fadeOut', 0, 600000, 0); bindRange('audio-pan', 'pan', -100, 100, 0); bindNumber('audio-rate', 'rate', 0.25, 4, 1); bindCheck('audio-loop', 'loop');
+      bindText('audio-file', 'file');
+      // W004: show whether the Audio Node will accept this name and whether it was seen on the card.
+      const showAudioStatus = () => {
+        const out = document.getElementById('audio-file-status');
+        const check = window.ShowduinoAudioCheck;
+        if (!out || !check) return;
+        const input = document.getElementById('audio-file');
+        const st = check.status(input ? input.value : (p.file || ''));
+        out.dataset.state = st.state;
+        out.textContent = `${st.label}: ${st.text}` + ((st.rule?.warnings || []).length ? ' ' + st.rule.warnings.join(' ') : '');
+      };
+      showAudioStatus();
+      document.getElementById('audio-file')?.addEventListener('input', showAudioStatus); bindRange('audio-volume', 'volume', 0, 100, 100); bindNumber('audio-fade-in', 'fadeIn', 0, 600000, 0); bindNumber('audio-fade-out', 'fadeOut', 0, 600000, 0); bindRange('audio-pan', 'pan', -100, 100, 0); bindNumber('audio-rate', 'rate', 0.25, 4, 1); bindCheck('audio-loop', 'loop');
     }
     if (clip.type === 'relay') {
       bindText('relay-output', 'out'); bindText('relay-mode', 'mode'); bindNumber('relay-pulse', 'pulseMs', 0, 600000, 0); bindCheck('relay-state', 'state'); bindCheck('relay-safe-off', 'safeOff');

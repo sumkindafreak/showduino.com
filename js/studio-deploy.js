@@ -146,7 +146,7 @@
     });
   }
 
-  function compileAudio(clip, action, device, commands, errors) {
+  function compileAudio(clip, action, device, commands, errors, warnings) {
     if (device?.binding?.route !== 'audio-node') {
       errors.push(`${clip.name}: target is not bound to the Specialist Audio Node.`);
       return;
@@ -159,6 +159,20 @@
     if (file.includes('..')) {
       errors.push(`${clip.name}: audio path may not contain '..'.`);
       return;
+    }
+    // W004: the Audio Node firmware refuses names outside its path rules, so a show that
+    // uploads such a cue would run silently. Refuse it here instead.
+    const audioCheck = window.ShowduinoAudioCheck;
+    if (audioCheck) {
+      const rule = audioCheck.fileRule(file);
+      if (!rule.ok) {
+        errors.push(`${clip.name}: ${rule.reason}`);
+        return;
+      }
+      if (Array.isArray(warnings)) {
+        const st = audioCheck.status(file);
+        if (st.state !== 'on-node') warnings.push(`${clip.name}: ${file} is not confirmed on the Audio Node SD card. ${st.text}`);
+      }
     }
 
     const start = clip.startMs;
@@ -258,7 +272,7 @@
 
       if (type === 'audio') {
         if (!device) errors.push(`${clip.name}: no logical Audio Node target.`);
-        else compileAudio(clip, action, device, commands, errors);
+        else compileAudio(clip, action, device, commands, errors, warnings);
       } else if (type === 'pixel') {
         if (!device) errors.push(`${clip.name}: no logical pixel target.`);
         else {
@@ -359,12 +373,20 @@
     const shdo = window.ShowduinoPackage?.toShdo ? window.ShowduinoPackage.toShdo(project) : null;
     if (!shdo) throw new Error('Canonical SHDO v2 serializer is not available.');
 
+    // W004: say which audio cues are not confirmed on the Audio Node SD card. Studio never copies
+    // sounds to the Showduino, so this is the user's reminder to put the files on the card.
+    const audioReport = window.ShowduinoAudioCheck?.cueReport?.(project) || [];
+    audioReport.filter((r) => r.status.state !== 'on-node').forEach((r) => {
+      notify(`Audio cue "${r.label}" (${r.file || 'no file'}): ${r.status.label}. ${r.status.text}`, 'WARN');
+    });
+
     if (!browserAllowsDirectLocalSend()) {
       return exportForShowEngine('Public HTTPS Studio prepared the canonical .shdo file. Connect to the isolated Showduino local Studio to deploy directly.');
     }
 
     const plan = compileShdoForStage(shdo);
     if (!plan.ok) throw new Error(plan.errors.join('\n'));
+    plan.warnings.filter((w) => !/not confirmed on the Audio Node SD card/.test(w)).forEach((w) => notify(w, 'WARN'));
     const policyErrors = uploadPolicyErrors(plan);
     if (policyErrors.length) throw new Error(policyErrors.join('\n'));
 

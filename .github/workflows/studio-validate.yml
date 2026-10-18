@@ -51,6 +51,7 @@ jobs:
           node --check js/studio-testing-hardening.js
           node --check js/api.js
           node --check js/studio-sounds.js
+          node --check js/studio-audio-check.js
           node --check js/timeline-touch.js
           node --check js/timeline-undo.js
           node --check js/showduino-pixel-authoring.js
@@ -91,6 +92,8 @@ jobs:
 
       - name: Sounds panel WAV rule matches the Audio Node firmware
         run: node tests/studio-sounds.test.cjs
+      - name: Audio file names match the compiled Audio Node firmware rule (W004)
+        run: node tests/studio-audio-check.test.cjs
 
       - name: Check deploy pre-flight matches the firmware upload policy (W001)
         run: node tests/studio-firmware-upload-policy.test.cjs

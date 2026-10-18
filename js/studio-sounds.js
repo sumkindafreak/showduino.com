@@ -73,7 +73,15 @@
   }
 
   // Whether a file name can be used as a timeline cue. Returns { ok, reason }.
+  // W004: the same rule the Audio Node firmware applies (js/studio-audio-check.js), so a name
+  // Studio accepts is a name the node will play. The fallback keeps the older checks if that
+  // module is missing.
   function cueNameCheck(name) {
+    const rule = window.ShowduinoAudioCheck?.fileRule;
+    if (rule) {
+      const result = rule(name);
+      return { ok: result.ok, reason: result.reason, warnings: result.warnings || [] };
+    }
     const text = String(name || '');
     if (!text) return { ok: false, reason: 'No file name.' };
     if (text.length > MAX_CUE_NAME) return { ok: false, reason: `Name is longer than ${MAX_CUE_NAME} characters. Rename the file.` };
@@ -249,7 +257,11 @@
     if (!check.ok) return check.reason;
     window.timelineEditor.setSelectedClipFile(name);
     log(`Audio cue "${clip.label || clip.name || 'audio'}" now plays ${name}`, 'INFO');
-    return `“${clip.label || clip.name || 'Audio cue'}” now plays ${name}. Copy the same file to the Audio Node SD card (/showduino/audio/).`;
+    renderCueChecks();
+    const st = window.ShowduinoAudioCheck?.status?.(name);
+    const cue = `“${clip.label || clip.name || 'Audio cue'}” now plays ${name}.`;
+    if (st?.state === 'on-node') return `${cue} ${st.text}`;
+    return `${cue} Not confirmed on the Audio Node yet: copy the same file to /showduino/audio/${window.ShowduinoAudioCheck?.relativeName?.(name) || name} on its SD card.`;
   }
 
   function renderLocal(section, status) {
@@ -268,6 +280,15 @@
       badge.title = item.compat?.reason || '';
       info.append(badge);
       if (!item.compat?.ok && item.compat?.reason) info.append(el('span', 'sounds-reason', item.compat.reason));
+      const rowName = cueNameCheck(item.name);
+      if (!rowName.ok) info.append(el('span', 'sounds-reason', rowName.reason));
+      else (rowName.warnings || []).forEach((w) => info.append(el('span', 'sounds-reason', w)));
+      const rowState = window.ShowduinoAudioCheck?.status?.(item.name);
+      if (rowState && rowState.state !== 'invalid') {
+        const chip = el('span', 'sounds-chip sounds-chip-' + rowState.state, rowState.state === 'on-node' ? 'On Audio Node ✓' : 'Not on Audio Node yet');
+        chip.title = rowState.text;
+        info.append(chip);
+      }
       const actions = el('div', 'sounds-actions');
       const playing = library.playingId === item.id;
       actions.append(button(playing ? '⏹ Stop' : '▶ Preview', 'btn-toolbar', () => (playing ? library.stop() : library.preview(item.id)), playing ? 'Stop preview' : 'Preview in this browser'));
@@ -324,14 +345,15 @@
     const bar = el('div', 'sounds-toolbar');
     bar.append(input, label, drop);
     section.append(bar, status, el('div', 'sounds-list'));
-    library.onChange(() => renderLocal(section, status));
-    library.init().then(() => renderLocal(section, status));
+    localRerender = () => renderLocal(section, status);
+    library.onChange(() => { renderLocal(section, status); renderCueChecks(); });
+    library.init().then(() => { renderLocal(section, status); renderCueChecks(); });
     renderLocal(section, status);
     return section;
   }
 
   function deviceSection() {
-    const section = el('section', 'control-section sounds-section');
+    const section = el('section', 'control-section sounds-section sounds-device');
     section.append(el('h3', null, 'Sounds on your Showduino'));
     const status = el('p', 'sounds-status');
     status.setAttribute('role', 'status');
@@ -350,9 +372,15 @@
       list.replaceChildren();
       try {
         const result = await window.api?.listAudioFiles?.();
-        const files = (result?.files || []).map((f) => (typeof f === 'string' ? f : f?.name)).filter(Boolean);
-        if (!files.length) { status.textContent = 'No WAV files reported by the Audio Node.'; return; }
-        status.textContent = `${files.length} file${files.length === 1 ? '' : 's'} on the Audio Node.`;
+        if (!result || !Array.isArray(result.files)) throw new Error('the reply did not contain a file list');
+        const files = result.files.map((f) => (typeof f === 'string' ? f : f?.name)).filter(Boolean);
+        window.ShowduinoAudioCheck?.recordDeviceListing?.(files, 'Showduino');
+        renderLocalAgain();
+        renderCueChecks();
+        if (!files.length) { status.textContent = 'The Audio Node reported no WAV files.'; return; }
+        const cap = window.ShowduinoAudioCheck?.INVENTORY_MAX || 48;
+        status.textContent = `${files.length} file${files.length === 1 ? '' : 's'} on the Audio Node.` +
+          (files.length >= cap ? ` The Audio Node lists at most ${cap} files, so some may be missing from this list.` : '');
         files.forEach((name) => {
           const row = el('div', 'sounds-row');
           const info = el('div', 'sounds-info');
@@ -366,7 +394,10 @@
           list.append(row);
         });
       } catch (error) {
-        status.textContent = 'Could not reach the Audio Node: ' + String(error?.message || error);
+        const message = String(error?.message || error);
+        status.textContent = /\b404\b/.test(message)
+          ? 'This Showduino firmware does not give Studio an audio file list yet, so Studio cannot confirm what is on the SD card. Check the card directly (files go in /showduino/audio/).'
+          : 'Could not reach the Audio Node: ' + message + '. Nothing on the SD card has been confirmed.';
       }
     });
     const stop = button('⏹ Stop', 'btn-secondary', () => window.api?.stopAudio?.(), 'Stop Audio Node playback');
@@ -376,9 +407,76 @@
     return section;
   }
 
+  let cueSectionEl = null;
+  let localRerender = null;
+
+  function renderLocalAgain() { if (localRerender) localRerender(); }
+
+  function renderCueChecks() {
+    const section = cueSectionEl;
+    const check = window.ShowduinoAudioCheck;
+    if (!section || !check) return;
+    const list = section.querySelector('.sounds-list');
+    const summary = section.querySelector('.sounds-status');
+    // window.state is Studio's shared state (js/studio-projects.js); the timeline editor may not
+    // exist yet if the Sounds panel is opened first.
+    const project = window.state?.project || window.timelineEditor?._project?.() || null;
+    const report = check.cueReport(project);
+    list.replaceChildren();
+    if (!report.length) {
+      summary.textContent = 'This show has no audio cues.';
+      return;
+    }
+    const counts = report.reduce((acc, r) => { acc[r.status.state] = (acc[r.status.state] || 0) + 1; return acc; }, {});
+    const parts = [];
+    if (counts['on-node']) parts.push(`${counts['on-node']} on the Audio Node`);
+    if (counts['local-only']) parts.push(`${counts['local-only']} only on this computer`);
+    if (counts.unconfirmed) parts.push(`${counts.unconfirmed} not confirmed`);
+    if (counts.invalid) parts.push(`${counts.invalid} will not play`);
+    const listing = check.readListing();
+    summary.textContent = `${report.length} audio cue${report.length === 1 ? '' : 's'}: ${parts.join(', ')}.` +
+      (listing ? '' : ' Studio has not read the Audio Node file list in this browser, so no file is confirmed on the SD card.');
+    report.forEach((r) => {
+      const row = el('div', 'sounds-row sounds-cue-row');
+      row.dataset.state = r.status.state;
+      const info = el('div', 'sounds-info');
+      info.append(el('strong', 'sounds-name', r.label));
+      info.append(el('span', 'sounds-meta', r.file || '(no file)'));
+      const chip = el('span', 'sounds-chip sounds-chip-' + r.status.state, r.status.label);
+      info.append(chip);
+      info.append(el('span', 'sounds-reason', r.status.text));
+      (r.status.rule?.warnings || []).forEach((w) => info.append(el('span', 'sounds-reason', w)));
+      row.append(info);
+      list.append(row);
+    });
+  }
+
+  function cueSection() {
+    const section = el('section', 'control-section sounds-section sounds-cue-check');
+    section.append(el('h3', null, 'Audio cues in this show'));
+    section.append(el('p', 'sounds-help', 'A file counts as on the Audio Node only when the Audio Node itself listed it. Importing a sound here never copies it to the Showduino.'));
+    const status = el('p', 'sounds-status');
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    const bar = el('div', 'sounds-toolbar');
+    bar.append(button('Check again', 'btn-secondary', renderCueChecks, 'Re-check every audio cue'));
+    const forget = button('Forget Audio Node list', 'btn-secondary', () => { window.ShowduinoAudioCheck?.clearDeviceListing?.(); renderCueChecks(); renderLocalAgain(); }, 'Treat every file as unconfirmed until the Audio Node is listed again');
+    bar.append(forget);
+    section.append(bar, status, el('div', 'sounds-list'));
+    cueSectionEl = section;
+    renderCueChecks();
+    return section;
+  }
+
+  ['showduino:project-restored', 'showduino:project-saved', 'showduino:audio-listing', 'showduino:studio-cue-added'].forEach((name) => {
+    if (typeof window.addEventListener !== 'function') return;
+    window.addEventListener(name, () => { if (cueSectionEl && document.contains(cueSectionEl)) renderCueChecks(); });
+  });
+
   function render(container) {
     if (!container) return;
-    container.replaceChildren(localSection(), deviceSection());
+    const local = localSection();
+    container.replaceChildren(local, cueSection(), deviceSection());
   }
 
   window.ShowduinoSounds = Object.freeze({
@@ -387,6 +485,7 @@
     parseWavHeader,
     audioNodeCompatibility,
     cueNameCheck,
+    renderCueChecks,
     MAX_CUE_NAME
   });
 })();

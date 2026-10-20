@@ -572,3 +572,21 @@ button, input, textarea, select { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .site-nav-toggle-bars, .site-nav-toggle-bars::before, .site-nav-toggle-bars::after { transition: none; }
 }
+
+/* Account controls remain visible even while the mobile navigation is closed. */
+.site-account-actions { display:flex;align-items:center;gap:.5rem;flex-wrap:wrap; }
+.site-account-actions a,.site-account-actions button {
+  color:var(--site-text);background:var(--site-panel);border:1px solid var(--site-border-bright);
+  border-radius:8px;padding:.5rem .65rem;text-decoration:none;font-size:.85rem;white-space:nowrap;cursor:pointer;
+}
+.site-account-actions button[hidden] { display:none; }
+.site-account-actions button:disabled { opacity:.65;cursor:wait; }
+.site-account-actions a:focus-visible,.site-account-actions button:focus-visible { outline:2px solid var(--site-accent);outline-offset:2px; }
+.site-account-message:not(:empty) { color:var(--site-warning);font-size:.8rem;max-width:220px; }
+@media(max-width:760px) {
+  .has-site-nav-toggle .site-account-actions { order:1;margin-left:auto; }
+  .has-site-nav-toggle .site-nav-toggle { order:2; }
+  .has-site-nav-toggle .site-nav { order:3; }
+  .site-account-actions a,.site-account-actions button { min-height:44px;display:inline-flex;align-items:center; }
+  .has-site-nav-toggle .site-header { gap:.5rem; }
+}

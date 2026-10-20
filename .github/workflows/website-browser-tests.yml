@@ -44,6 +44,8 @@ jobs:
         run: node tests/browser/hauntsync-creator-publishing.cjs
       - name: Device-supplied audio file names and errors render as text (W002)
         run: node tests/browser/studio-device-filenames.cjs
+      - name: Website account logout on desktop and phone
+        run: node tests/browser/site-account.cjs
       - name: Mobile menu button on every public page
         run: node tests/browser/site-mobile-menu.cjs
       - name: Sounds panel - import, badges, persistence, use in cue, remove, phone

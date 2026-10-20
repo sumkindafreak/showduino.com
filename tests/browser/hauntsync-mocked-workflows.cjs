@@ -74,6 +74,10 @@ async function mockSupabase(context, mode, log, sharedShow) {
     const stored = await page.evaluate(() => Object.keys(localStorage).filter((k) => /^sb-.*-auth-token$/.test(k)).length);
     assert.strictEqual(stored, 1, 'session stored after sign-in');
     pass('sign in shows the signed-in panel and stores one session');
+    // Returning signed-in sessions exercise INITIAL_SESSION, not only fresh login.
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForFunction(() => /w002-test@example\.test/.test(document.getElementById('account-email')?.textContent || ''), null, { timeout: 10000 });
+    pass('restored signed-in session can load its profile before logout');
     await page.click('#sign-out-button');
     await page.waitForFunction(() => document.getElementById('account-panel').hidden === true, null, { timeout: 10000 });
     const after = await page.evaluate(() => Object.keys(localStorage).filter((k) => /^sb-.*-auth-token$/.test(k)).length);

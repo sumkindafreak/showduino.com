@@ -124,7 +124,23 @@
     try { await window.ShowduinoSupabase.updatePassword(password); recoveryMode=false; elements.recoveryForm.reset(); history.replaceState(null,'','account.html'); const user=await window.ShowduinoSupabase.getCurrentUser(); if(user) await showSignedIn(user); else { showSignedOut(); setStatus('Password updated. Sign in with your new password.','success'); } }
     catch(error){ setStatus(friendlyAuthMessage(error,'Your password could not be updated.'),'error'); }
   }
-  async function handleSignOut(){ try{ await window.ShowduinoSupabase.signOut(); setStatus('You have signed out.'); await renderProjects(null); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign out failed.'),'error'); } }
+  async function handleSignOut() {
+    if (elements.signOutButton.disabled) return;
+    elements.signOutButton.disabled = true;
+    elements.signOutButton.textContent = 'Signing out…';
+    setStatus('Signing out…');
+    try {
+      await window.ShowduinoSupabase.signOut();
+      showSignedOut();
+      setStatus('You have signed out.');
+      await renderProjects(null);
+    } catch (error) {
+      setStatus(friendlyAuthMessage(error, 'Sign out failed. Please try again.'), 'error');
+    } finally {
+      elements.signOutButton.disabled = false;
+      elements.signOutButton.textContent = 'Sign out';
+    }
+  }
 
   function initialise() {
     ['status','authForms','accountPanel','recoveryPanel','loginForm','registerForm','recoveryForm','loginEmail','loginPassword','registerName','registerEmail','registerPassword','recoveryPassword','recoveryPasswordConfirm','accountName','accountEmail','projectList','signOutButton','forgotPasswordButton','resendConfirmationButton'].forEach(()=>{});

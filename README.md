@@ -19,7 +19,7 @@ Showduino now uses four fixed hardware roles:
    - A running show must not depend on the Director, browser, Wi-Fi or internet.
 
 4. **Specialist ESP32 Nodes**
-   - Relay, MOSFET, pixel and audio roles.
+   - Audio, S3 Lamp, Pixel and Emergency roles; MOSFET software awaits physical pin/load acceptance. Relay is legacy.
    - Perform commanded work and report results/faults.
 
 The earlier SUE / IAN / C3 bridge architecture is superseded. The onboard P4 C6 remains reserved/unused in the current design.
@@ -61,3 +61,7 @@ Emergency behaviour is an override, not a show effect. The Show Engine owns emer
 ---
 
 © 2026 Showduino
+
+## Operating documentation
+
+The canonical [manual set](https://github.com/sumkindafreak/new_showduino/tree/main/docs/manual) lives with the firmware. Start with the Quick Start, then the User Manual, Director Guide and Pre-Opening Checklist. The [website deployment contract](docs/STUDIO_CREATOR_DEPLOYMENT.md) covers export, local-console persistence, separate load/start, hardware indicators and membership. The root `Showduino_Manual.docx` is a legacy snapshot, not the current operating manual.

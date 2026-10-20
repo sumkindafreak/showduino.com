@@ -13,9 +13,19 @@ class PanelManager {
     this._log   = log || console.log;
   }
 
+  membership() {
+    return `<section class="control-section" id="studio-membership" aria-label="HauntSync membership">
+      <h3>HauntSync membership</h3>
+      <p><strong>Available now: free Showduino ID and community.</strong> HauntSync is a developing creative community and workspace for makers and attraction designers.</p>
+      <p><strong>Planned, optional memberships: Starter / Pro / Studio.</strong> Features, prices and launch dates are not published. Paid memberships are not available to activate; billing and payments are not enabled.</p>
+      <p>Hardware-owner entitlements are separate from optional membership. Owning or registering hardware here does not activate a paid plan or verify an entitlement. Details will be confirmed before launch.</p>
+      <p>Your existing Studio tools remain available. <a href="hauntsync.html">Explore HauntSync</a> · <a href="account.html">Showduino ID / account</a> · <a href="support.html">Ask about hardware entitlements</a></p>
+    </section>`;
+  }
+
   /* ── Introduction ─────────────────────────────────────────────── */
   introduction() {
-    const tier = this._state.user?.subscription || 'free';
+    const tier = 'Free Showduino ID / community';
     const tierBadge = { free: '#888', pro: '#00aaff', enterprise: '#ffcc00' }[tier] || '#888';
     return `
 <div class="panel-introduction" style="max-width:800px;margin:0 auto;">
@@ -23,7 +33,7 @@ class PanelManager {
     <img src="showduino._logo.png" alt="Showduino" style="max-width:160px;margin-bottom:1rem;"/>
     <h1 style="color:var(--accent-color);margin:0 0 0.5rem;">Showduino Studio</h1>
     <p style="color:#888;font-size:14px;margin:0 0 1rem;">Professional Show Control Software</p>
-    <span style="background:${tierBadge};color:#000;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:bold;text-transform:uppercase;">${tier} Tier</span>
+    <span style="background:${tierBadge};color:#000;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:bold;text-transform:uppercase;">${tier}</span>
   </div>
 
   <div class="control-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:2rem;">
@@ -79,7 +89,7 @@ class PanelManager {
   </div>
 
   <div style="text-align:center;margin-top:2rem;padding-top:1rem;border-top:1px solid #333;font-size:11px;color:#555;">
-    Showduino Studio v1.0 · &copy; ${new Date().getFullYear()} Showduino · <a href="https://showduino.com" target="_blank" style="color:#555;">showduino.com</a>
+    Showduino Studio v1.0 · &copy; ${new Date().getFullYear()} Showduino · <a href="https://show-duino.com" target="_blank" style="color:#555;">show-duino.com</a>
   </div>
 </div>`;
   }
@@ -486,7 +496,7 @@ window._refreshDevices();
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <tr style="border-bottom:1px solid #333;">
         <td style="padding:6px 10px;color:#888;">User Tier</td>
-        <td style="padding:6px 10px;color:#eee;text-transform:uppercase;font-weight:bold;">${this._state.user?.subscription || 'free'}</td>
+        <td style="padding:6px 10px;color:#eee;text-transform:uppercase;font-weight:bold;">Free Showduino ID / community</td>
       </tr>
       <tr style="border-bottom:1px solid #333;">
         <td style="padding:6px 10px;color:#888;">Connection Mode</td>
@@ -550,37 +560,10 @@ window._refreshDevices();
     </div>
   </div>
 
-  <!-- Subscription -->
-  <div class="control-section">
-    <h3>⭐ Subscription</h3>
-    <div style="font-size:13px;color:#ccc;margin-bottom:8px;">Current tier: <strong style="color:#00ffcc;text-transform:uppercase;" id="hs-tier-display">${this._state.user?.subscription || 'free'}</strong></div>
-    <div class="control-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;">
-      ${[
-        { id:'free',       label:'Free',       price:'$0/mo',  desc:'Timeline editor & local save'},
-        { id:'pro',        label:'Pro',         price:'$9/mo',  desc:'Device control & cloud sync'},
-        { id:'enterprise', label:'Enterprise', price:'$29/mo', desc:'Multi-device & priority support'},
-      ].map(t => `
-      <div id="hs-tier-${t.id}" style="background:#222;border:2px solid ${this._state.user?.subscription===t.id?'var(--accent-color)':'#333'};border-radius:6px;padding:10px;cursor:pointer;" onclick="window._setTier('${t.id}')">
-        <div style="font-weight:bold;color:#eee;font-size:13px;">${t.label}</div>
-        <div style="color:var(--accent-color);font-size:14px;margin:4px 0;">${t.price}</div>
-        <div style="color:#666;font-size:11px;">${t.desc}</div>
-      </div>`).join('')}
-    </div>
-    <p style="font-size:11px;color:#555;margin-top:8px;">⚠ Tier selection here is for demo purposes only.</p>
-  </div>
+  ${this.membership()}
 </div>
 
 <script>
-window._setTier = (tier) => {
-  localStorage.setItem('hauntsync_subscription', tier);
-  const disp = document.getElementById('hs-tier-display');
-  if (disp) disp.textContent = tier;
-  ['free','pro','enterprise'].forEach(t => {
-    const el = document.getElementById('hs-tier-'+t);
-    if (el) el.style.borderColor = t === tier ? 'var(--accent-color)' : '#333';
-  });
-};
-
 window._loadCloudProjects = async () => {
   const list = document.getElementById('cloud-projects-list');
   if (list) list.textContent = 'Loading…';
@@ -721,11 +704,12 @@ else updateAuth(null);
 
   <div class="control-section">
     <h3>ℹ About</h3>
+    ${this.membership()}
     <div style="font-size:13px;color:#888;line-height:1.8;">
       <div>Showduino Studio v1.0</div>
-      <div>Build: ${new Date().toISOString().split('T')[0]}</div>
-      <div>Tier: <strong style="color:#00ffcc;text-transform:uppercase;">${sub}</strong></div>
-      <div style="margin-top:8px;"><a href="https://showduino.com" target="_blank" style="color:#00ffcc;">showduino.com</a></div>
+
+      <div>Membership: <strong>Free Showduino ID / community</strong></div>
+      <div style="margin-top:8px;"><a href="https://show-duino.com" target="_blank" style="color:#00ffcc;">show-duino.com</a></div>
     </div>
   </div>
 </div>
@@ -803,11 +787,11 @@ window._clearAllData = () => {
     <h3>📚 Documentation</h3>
     <div style="display:flex;flex-direction:column;gap:8px;">
       ${[
-        ['Getting Started',   'Learn the basics of Showduino Studio',   'https://showduino.com/docs/start'],
-        ['Timeline Editor',   'Full guide to the DAW timeline',          'https://showduino.com/docs/timeline'],
-        ['Device Setup',      'Connecting and configuring your Showduino','https://showduino.com/docs/device'],
-        ['HauntSync Cloud',   'Cloud sync and project management',       'https://showduino.com/docs/cloud'],
-        ['API Reference',     'HTTP API endpoint reference',             'https://showduino.com/docs/api'],
+        ['Getting Started',   'Learn the basics of Showduino Studio',   'https://show-duino.com/docs/start'],
+        ['Timeline Editor',   'Full guide to the DAW timeline',          'https://show-duino.com/docs/timeline'],
+        ['Device Setup',      'Connecting and configuring your Showduino','https://show-duino.com/docs/device'],
+        ['HauntSync Cloud',   'Cloud sync and project management',       'https://show-duino.com/docs/cloud'],
+        ['API Reference',     'HTTP API endpoint reference',             'https://show-duino.com/docs/api'],
       ].map(([title, desc, url]) => `
       <a href="${url}" target="_blank" style="background:#222;border:1px solid #333;border-radius:5px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;text-decoration:none;">
         <div>
@@ -870,7 +854,7 @@ window._clearAllData = () => {
   <div class="control-section">
     <h3>💬 Support</h3>
     <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
-      <a href="https://showduino.com/forum" target="_blank" style="color:#00ffcc;">💬 Community Forum</a>
+      <a href="https://show-duino.com/forum" target="_blank" style="color:#00ffcc;">💬 Community Forum</a>
       <a href="mailto:support@showduino.com" style="color:#00ffcc;">📧 support@showduino.com</a>
       <a href="https://github.com/showduino" target="_blank" style="color:#00ffcc;">🐙 GitHub</a>
     </div>

@@ -27,6 +27,7 @@ jobs:
       - name: Check asset paths, Studio navigation and JavaScript syntax
         run: |
           node tools/check-website.mjs
+          node tests/studio-hardware-status.test.cjs
           node tests/hauntsync-onboarding.test.cjs
           node tests/hauntsync-google-auth.test.cjs
           node tests/site-security-config.test.cjs

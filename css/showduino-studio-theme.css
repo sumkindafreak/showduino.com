@@ -114,3 +114,9 @@ body.studio-v4{
     width:100%;flex:0 0 auto
   }
 }
+
+/* Role/mode labels are not hardware connection lights. */
+.studio-v4 .runtime-authority-chip,
+.studio-v4 .studio-state-banner { color:#a6adb5;border-color:#49525c;background:#11171c; }
+.studio-v4 .runtime-authority-chip::before,
+.studio-v4 .studio-state-banner::before { background:#78818b;box-shadow:none; }

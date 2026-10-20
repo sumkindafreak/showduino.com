@@ -63,6 +63,7 @@ async function mockSupabase(context, mode, log, sharedShow) {
     await mockSupabase(context, 'ok', writes);
     const page = await context.newPage(); page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(base + 'account.html', { waitUntil: 'load' });
+    assert.strictEqual(await page.locator('#account-panel').isVisible(), false, 'signed-out account card must be visually hidden');
     await page.waitForFunction(() => window.ShowduinoSupabase?.enabled?.(), null, { timeout: 15000 });
     await page.fill('#login-email', USER.email); await page.fill('#login-password', 'correct horse battery staple');
     await page.click('#login-form button[type=submit]');
@@ -71,6 +72,9 @@ async function mockSupabase(context, mode, log, sharedShow) {
     // request returns, so wait for the text rather than reading it immediately.
     await page.waitForFunction(() => /w002-test@example\.test/.test(document.getElementById('account-email')?.textContent || ''), null, { timeout: 10000 });
     assert.match(await page.textContent('#account-email'), /w002-test@example\.test/);
+    assert.strictEqual(await page.locator('#auth-forms').isVisible(), false, 'signed-in login forms must be visually hidden');
+    assert.strictEqual(await page.locator('#google-auth-panel').isVisible(), false, 'signed-in Google form must be visually hidden');
+    assert.strictEqual(await page.locator('#account-panel').isVisible(), true, 'verified signed-in card is visible');
     const stored = await page.evaluate(() => Object.keys(localStorage).filter((k) => /^sb-.*-auth-token$/.test(k)).length);
     assert.strictEqual(stored, 1, 'session stored after sign-in');
     pass('sign in shows the signed-in panel and stores one session');
@@ -82,6 +86,8 @@ async function mockSupabase(context, mode, log, sharedShow) {
     await page.waitForFunction(() => document.getElementById('account-panel').hidden === true, null, { timeout: 10000 });
     const after = await page.evaluate(() => Object.keys(localStorage).filter((k) => /^sb-.*-auth-token$/.test(k)).length);
     assert.strictEqual(after, 0, 'session removed after sign-out');
+    assert.strictEqual(await page.locator('#account-panel').isVisible(), false, 'logout hides signed-in card visually');
+    assert.strictEqual(await page.locator('#auth-forms').isVisible(), true, 'logout reveals sign-in forms visually');
     assert.ok(writes.some((w) => w.startsWith('POST /auth/v1/logout')), 'logout endpoint called');
     assert.ok(!writes.some((w) => w.startsWith('POST /auth/v1/logout') && /scope=local/.test(w)), 'sign-out is not local-only');
     pass('sign out calls logout (global scope), removes the stored session and shows the signed-out view');

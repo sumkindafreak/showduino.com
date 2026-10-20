@@ -116,9 +116,20 @@
       return () => {};
     }
     const c = getClient();
-    c.auth.getSession().then(({ data }) => callback(data.session?.user || null, 'INITIAL_SESSION'));
-    const { data } = c.auth.onAuthStateChange((event, session) => callback(session?.user || null, event));
-    return () => data.subscription.unsubscribe();
+    let active = true;
+    // Supabase holds its auth lock while notifying listeners. UI listeners may
+    // read profiles/projects (and therefore auth again), so run them on a later
+    // task and never return their promise to the SDK's locked callback.
+    // The SDK supplies INITIAL_SESSION; a second getSession() can deliver stale
+    // signed-in state after a newer SIGNED_OUT event.
+    const { data } = c.auth.onAuthStateChange((event, session) => {
+      setTimeout(() => {
+        if (!active) return;
+        Promise.resolve().then(() => callback(session?.user || null, event))
+          .catch(error => console.error('[Showduino auth] Account view update failed', error));
+      }, 0);
+    });
+    return () => { active = false; data.subscription.unsubscribe(); };
   }
 
   async function getCurrentUser() {

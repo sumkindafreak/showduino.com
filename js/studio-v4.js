@@ -138,6 +138,7 @@
     const name = project?.project?.name || 'Untitled Show';
     return `
       <div class="v4-panel v4-dashboard">
+        <p class="v4-meta studio-contributor-credit">Shaped with Oli</p>
         <div class="v4-panel-head">
           <div><span class="v4-eyebrow">SHOWDUINO STUDIO</span><h1>${esc(name)}</h1><p>Author the production here. Preview it here. Save and deploy it from here. The browser never becomes the live show engine.</p></div>
           <div class="v4-button-row"><button class="v4-btn primary" type="button" onclick="ShowduinoStudioV4.openPanel('timeline-editor')">Open Timeline</button><button class="v4-btn" type="button" onclick="ShowduinoStudioV4.openPanel('playback')">Pixel FX Lab</button></div>

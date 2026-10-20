@@ -4,6 +4,8 @@
 
 Studio is **not** part of the live runtime path. A running show must not depend on the browser, Studio, Wi-Fi, the Director or the public Internet.
 
+Reviewed 20 October 2026 against firmware `f4c9aeaabdcf939417f9891fb01d98e1e5d8aec2` and website `41d3c753491a60212b855019712d342e1eed030c`.
+
 ## Current system roles
 
 The production architecture is:
@@ -15,7 +17,7 @@ Responsibilities are deliberately separated:
 - **Director** — operator requests and state display.
 - **S3 Communications Controller** — message transport only; ESP-NOW <-> UART bridge.
 - **ESP32-P4 Show Engine** — authoritative runtime, state, safety, timeline, cue dispatch and local project/assets.
-- **Specialist Nodes** — relay, MOSFET, pixel and audio work commanded by the P4, with completion/state reporting as the target behaviour.
+- **Specialist Nodes** — Audio, S3 Lamp, Pixel, Emergency and software-implemented MOSFET roles with separate physical acceptance. Relay is legacy; editable cue types do not establish a supported installed device.
 
 ## Studio authoring scope
 
@@ -53,18 +55,22 @@ Studio migrates older compatible projects into the v2 data model before writing 
 
 ## Deployment behaviour
 
-Direct installation is **capability-gated**.
+## Website Studio → installed production
 
-Studio may probe a local Showduino system only when the browser permits private-network access. A local device must explicitly identify itself as a P4/Show Engine role and advertise a production-import capability before Studio will POST a project to `/api/production/import`.
+1. Open [Website Studio](https://show-duino.com/studio.html). Create a show, use **Create my first show** if helpful, then build and preview a simple Pixel or Audio cue. Save locally and export a `.shdo` backup. Browser preview does not operate the hardware.
+2. In **Deploy**, save the **Communications S3** LAN address (not the P4 address). Use the same local network. A saved IP, a creator/cloud label or a lit screen does not verify the P4 or any Node.
+3. On the public HTTPS website, **Prepare for P4** prepares a file. Use **Open Local Console** for the S3-hosted interface. Browser private-network/mixed-content restrictions may prevent website verification even when the local console works.
+4. In that console, open **Productions → Persist SHDO v2 to P4 SD**, choose the exported file and select **Persist to SD**. Wait for the P4 result. Persistence compiles only supported cues; a rejected file is not installed. Copying an editable SHDO onto SD is not this deployment process.
+5. Persisting does **not** load or start the production. Select the intended production and **Load**, verify P4-confirmed loaded state, then use the Director **LIVE → START** when the test area is ready.
+6. Confirm actual Node outputs, stop behaviour and Emergency/recovery on isolated test loads. Save the firmware identifiers and physical test results before guest operation.
 
-If any of the following is true, Studio exports the exact same `.shdo` project instead of claiming installation succeeded:
+Public Studio, the embedded `/studio/` snapshot and the S3 system console can be different builds. The local console's **Persist to SD** workflow writes SD; `/api/studio-timeline` is a separate temporary RAM commissioning path and does not persist a production.
 
-- the HTTPS browser blocks direct local HTTP/private-network access;
-- no local Showduino answers the probe;
-- a Showduino answers but does not advertise production import;
-- the current P4 Web/API layer has not yet implemented that capability.
+### Accounts, membership and indicators
 
-This fallback is intentional. The creator can keep working before the final P4 import API exists, and Studio never fakes a successful deployment.
+A free Showduino ID provides community/account access; optional Starter, Pro and Studio memberships are proposed, with no published feature/price promise or payment activation. Hardware-owner entitlements are separate and require confirmed terms; registering a browser inventory entry does not activate access or prove a device is connected. Existing Studio authoring tools remain available without paid membership.
+
+Website hardware status starts **HARDWARE NOT VERIFIED**. **S3 CONNECTED** requires a ready Showduino capability response at the configured/local address; it establishes S3 reachability only. **P4 · NOT VERIFIED** does not establish runtime health. Check authoritative P4 and required Node states in the Director/local console. **LOCAL** describes saving, and **CREATOR · TESTING** describes browser mode.
 
 ## Authoring validation
 

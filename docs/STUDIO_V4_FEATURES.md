@@ -1,6 +1,6 @@
 # Showduino Studio v4 — current feature map
 
-This document is the concise feature inventory for the current Studio creator.
+Reviewed 20 October 2026. This is an authoring inventory, not a list of physically accepted runtime outputs. Relay is legacy; MOSFET software exists but pin/load acceptance remains open. Full SHDO editability does not imply persistent runtime support. See [deployment and membership](STUDIO_CREATOR_DEPLOYMENT.md).
 
 ## Main workspaces
 
@@ -9,7 +9,7 @@ This document is the concise feature inventory for the current Studio creator.
 - **Pixel FX Lab** — reusable segmented pixel effects and emergency-rule visualisation.
 - **Audio** — project/show audio asset management.
 - **Projects** — local `.shdo` projects and optional cloud sync.
-- **Deploy** — readiness summary and capability-gated P4 installation/export.
+- **Deploy** — readiness summary and SHDO export and operator-confirmed local-console SD persistence; separate load/start.
 - **Nodes** — authored logical device-ID map and current hardware-role reference.
 - **Diagnostics** — project authoring validation before deployment.
 - **Settings / Help** — Studio configuration and current-system guidance.

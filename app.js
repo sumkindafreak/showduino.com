@@ -832,6 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Update connection status
   async function updateConnectionStatus() {
+      if (window.ShowduinoHardwareStatus) return window.ShowduinoHardwareStatus.refresh();
       // Use connection detector if available
       if (window.connectionDetector) {
           await window.connectionDetector.detectMode();

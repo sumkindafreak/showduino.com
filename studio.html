@@ -80,9 +80,9 @@
         </div>
 
         <div class="studio-status-quiet" aria-label="Studio status">
-          <div class="connection-status offline" role="status">CREATOR MODE</div>
+          <div class="connection-status offline" role="status">HARDWARE NOT VERIFIED</div>
           <span class="studio-state-banner" title="Studio is a production creator and browser preview, not the live Show Engine">CREATOR · TESTING</span>
-          <span class="runtime-authority-chip" title="P4 RUNTIME AUTHORITY. Studio authors production data. The ESP32-P4 owns live runtime. Emergency behaviour is not authored here.">P4</span>
+          <span class="runtime-authority-chip" title="P4 RUNTIME AUTHORITY. Studio authors production data. The ESP32-P4 owns live runtime. Emergency behaviour is not authored here.">P4 · NOT VERIFIED</span>
           <span id="studio-save-state" class="studio-save-state">LOCAL</span>
           <span class="system-info"><span class="clock">--:--:--</span></span>
         </div>
@@ -173,6 +173,7 @@
   <script src="js/current-system-ui.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js" integrity="sha384-InMmvD3VoYcY7hGjSC80aLb2bNNE4CzpX+Eq6FVDlmB0IKgDvmfPw4UY8L/M++iG" crossorigin="anonymous"></script>
+  <script src="js/studio-hardware-status.js"></script>
   <script src="js/studio-v4.js"></script>
   <script src="js/studio-ollie-ux.js"></script>
   <script src="js/studio-testing-hardening.js"></script>
@@ -184,29 +185,6 @@
         await window.connectionDetector.detectMode();
         window.connectionDetector.startMonitoring();
       } catch (_) {}
-
-      const status = document.querySelector('.connection-status');
-      const refreshCloudStatus = async () => {
-        if (!status) return;
-        const user = await window.ShowduinoSupabase?.getCurrentUser?.();
-        if (window.connectionDetector?.isAPMode?.()) {
-          status.className = 'connection-status ap';
-          status.textContent = 'LOCAL SHOWDUINO FOUND';
-        } else if (user) {
-          status.className = 'connection-status lan';
-          status.textContent = 'CREATOR + CLOUD';
-        } else if (navigator.onLine) {
-          status.className = 'connection-status lan';
-          status.textContent = 'CREATOR ONLINE';
-        } else {
-          status.className = 'connection-status offline';
-          status.textContent = 'CREATOR OFFLINE';
-        }
-      };
-
-      refreshCloudStatus();
-      window.addEventListener('showduino:auth-changed', refreshCloudStatus);
-      window.setInterval(refreshCloudStatus, 5000);
 
       const saveButton = document.getElementById('studio-save-button');
       const previewButton = document.getElementById('studio-preview-button');

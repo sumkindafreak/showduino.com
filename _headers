@@ -4,7 +4,7 @@
 # current feature. Content-Security-Policy-Report-Only is the target policy; browsers
 # log each violation to the console without blocking anything. When the console is
 # clean on every page, move it into the enforced header. Studio still uses inline
-# event handlers, so script-src 'self' without 'unsafe-inline' will report there.
+# event handlers, so script-src 'self' 'sha256-1/qvoPIGJFTFtIQTHGNpcRH6gNrP2dz+4iBzV5SxvTs=' without 'unsafe-inline' will report there.
 # Inline <script> hashes are checked by: node tools/csp-inline-hashes.mjs --check
 /*
   Strict-Transport-Security: max-age=31536000

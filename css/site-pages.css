@@ -590,3 +590,6 @@ button, input, textarea, select { font: inherit; }
   .site-account-actions a,.site-account-actions button { min-height:44px;display:inline-flex;align-items:center; }
   .has-site-nav-toggle .site-header { gap:.5rem; }
 }
+
+/* Honour application visibility even when a panel also has a grid/flex layout. */
+[hidden] { display: none !important; }

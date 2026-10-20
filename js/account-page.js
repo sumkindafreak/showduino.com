@@ -7,6 +7,7 @@
   const confirmationReturn = params.get('confirmed') === '1';
   const welcomesHauntSync = params.get('next') === 'welcome' || confirmationReturn;
   let recoveryMode = false;
+  let accountRevision = 0;
 
   function byId(id) { return document.getElementById(id); }
   function setStatus(message, type) { elements.status.textContent = message; elements.status.className = `status-banner${type ? ` ${type}` : ''}`; }
@@ -20,10 +21,11 @@
   function escapeHtml(value) { return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
   function localProjects() { try { const stored = JSON.parse(localStorage.getItem('showduino_local_projects') || '[]'); return Array.isArray(stored) ? stored : []; } catch (_) { return []; } }
 
-  async function renderProjects(user) {
+  async function renderProjects(user, revision = accountRevision) {
     elements.projectList.innerHTML = '';
     let cloud = [];
-    if (user) { try { cloud = await window.ShowduinoSupabase.listProjects(); } catch (error) { setStatus(`Signed in, but cloud projects could not be loaded: ${error.message}`, 'error'); } }
+    if (user) { try { cloud = await window.ShowduinoSupabase.listProjects(); } catch (error) { if (revision === accountRevision) setStatus(`Signed in, but cloud projects could not be loaded: ${error.message}`, 'error'); } }
+    if (revision !== accountRevision) return;
     const cloudIds = new Set(cloud.map((project) => project.id));
     const local = localProjects().filter((project) => !cloudIds.has(project.id));
     if (!cloud.length && !local.length) { elements.projectList.innerHTML = '<p class="muted">No shows yet. Open Studio and create your first Showduino production.</p>'; return; }
@@ -37,12 +39,13 @@
   }
 
   function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.googlePanel.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
-  async function showSignedIn(user) {
+  async function showSignedIn(user, revision = accountRevision) {
     if (recoveryMode) return; elements.authForms.hidden=true; elements.googlePanel.hidden=true; elements.accountPanel.hidden=false; elements.recoveryPanel.hidden=true;
     elements.hauntsyncNext.hidden = !welcomesHauntSync;
     let displayName=user.user_metadata?.display_name || 'Showduino Creator'; try { const profile=await window.ShowduinoSupabase.getProfile(); if(profile?.display_name) displayName=profile.display_name; } catch (_) {}
+    if (revision !== accountRevision || recoveryMode) return;
     elements.accountName.textContent=displayName; elements.accountEmail.textContent=user.email || '';
-    setStatus(confirmationReturn ? 'Email confirmed — welcome to Showduino. Your Showduino ID is ready.' : 'Signed in. Your cloud shows are ready.','success'); await renderProjects(user);
+    setStatus(confirmationReturn ? 'Email confirmed — welcome to Showduino. Your Showduino ID is ready.' : 'Signed in. Your cloud shows are ready.','success'); await renderProjects(user, revision);
   }
   function showRecoveryMode() { recoveryMode=true; elements.authForms.hidden=true; elements.accountPanel.hidden=true; elements.googlePanel.hidden=true; elements.recoveryPanel.hidden=false; elements.hauntsyncNext.hidden=true; setStatus('Password reset link accepted. Choose a new password below.','success'); }
 
@@ -131,6 +134,7 @@
     setStatus('Signing out…');
     try {
       await window.ShowduinoSupabase.signOut();
+      accountRevision += 1;
       showSignedOut();
       setStatus('You have signed out.');
       await renderProjects(null);
@@ -151,9 +155,10 @@
     void checkGoogleProvider();
     setStatus(confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…');
     window.ShowduinoSupabase.onAuthChanged(async(user,event)=>{
+      const revision = ++accountRevision;
       if(event==='PASSWORD_RECOVERY'){ showRecoveryMode(); return; }
       if(recoveryMode) return;
-      if(user){ sessionStorage.removeItem('showduino_pending_confirmation_email'); await showSignedIn(user); }
+      if(user){ sessionStorage.removeItem('showduino_pending_confirmation_email'); await showSignedIn(user, revision); }
       else { showSignedOut(); setStatus(confirmationReturn ? 'Email confirmed. Sign in to finish opening your Showduino ID.' : 'Sign in or create a free Showduino account.', confirmationReturn ? 'success' : undefined); await renderProjects(null); }
     });
   }

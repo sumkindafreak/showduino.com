@@ -14,6 +14,6 @@ const [account,button,message]=header.children[0].children;
  changed({id:'test-user'});assert.equal(button.hidden,false);assert.equal(account.textContent,'Account');
  fail=true;await button.listeners.click();assert.equal(calls,1);assert.equal(button.disabled,false);assert.equal(button.hidden,false);assert.match(message.textContent,/Could not log out/);assert.equal(redirects.length,0);
  fail=false;await button.listeners.click();assert.equal(calls,2);assert.equal(button.hidden,true);assert.deepEqual(redirects,['account.html']);
- for(const page of fs.readdirSync('.').filter(x=>x.endsWith('.html'))){const html=fs.readFileSync(page,'utf8');if(!html.includes('js/site-nav.js'))continue;assert.ok(html.includes('js/site-account.js'),page);assert.ok(html.includes('js/cloud/supabase-service.js'),page);}
+ for(const page of fs.readdirSync('.').filter(x=>x.endsWith('.html'))){const html=fs.readFileSync(page,'utf8');if(!html.includes('js/site-nav.js'))continue;assert.ok(html.includes('js/site-account.js'),page);assert.ok(html.includes('js/cloud/supabase-service.js'),page);assert.equal((html.match(/src="js\/cloud\/supabase-service\.js"/g)||[]).length,1,page+': one auth service');if(page!=='account.html')assert.equal(html.includes('js/account-page.js'),false,page+': no account form controller');}
  console.log('Site account controls: signed-out, signed-in, failed logout/retry, successful logout and shared-page coverage passed.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

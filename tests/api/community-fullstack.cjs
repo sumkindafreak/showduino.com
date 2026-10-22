@@ -106,6 +106,8 @@ async function signedIn(browser, sub) {
   await page.click('[data-section="content"]');
   await page.waitForSelector('#hs-content-list .hs-admin-item', { timeout: 15000 });
   await page.click(`#hs-content-list .hs-admin-item:has(a[href*="${postId}"]) .btn:text-is("Hide")`);
+  await page.fill('#hs-reason-text', 'Spam');
+  await page.click('#hs-reason-form button[type="submit"]');
   await page.waitForFunction((id) => true, postId);
   await new Promise((r) => setTimeout(r, 1500));
   assert.strictEqual(sql(`select status from public.community_posts where id = '${postId}'`), 'hidden', 'post hidden in the database');

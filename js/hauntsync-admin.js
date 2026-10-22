@@ -9,6 +9,17 @@
   const byId = (id) => document.getElementById(id);
   const el = (...a) => UI().el(...a);
   const loaded = new Set();
+  let currentSection = 'overview';
+  let memberOffset = 0;
+  let memberRequest = 0;
+
+  // Search only the loaded records; user supplied text never becomes HTML.
+  function filterRows(containerId, query) {
+    const container = byId(containerId);
+    const rows = container.matches('table') ? container.querySelectorAll('tbody tr') : container.children;
+    const needle = query.trim().toLocaleLowerCase();
+    Array.from(rows).forEach(row => { row.hidden = !row.textContent.toLocaleLowerCase().includes(needle); });
+  }
 
   function status(message, kind) {
     const node = byId('hs-admin-status');
@@ -49,6 +60,7 @@
       tile.append(el('strong', null, String(value ?? 0)), el('span', null, label));
       grid.append(tile);
     });
+    byId('hs-review-priority').textContent = s.open_reports ? `${s.open_reports} open reports need review.` : 'No open reports. Review recent posts and shared shows to maintain community standards.';
     byId('hs-open-count').textContent = s.open_reports ? String(s.open_reports) : '';
   }
 
@@ -164,7 +176,12 @@
   /* members */
   async function members() {
     const body = byId('hs-member-table').querySelector('tbody');
-    const rows = await C().admin.members(byId('hs-member-search').value);
+    const request = ++memberRequest;
+    const rows = await C().admin.members(byId('hs-member-search').value, memberOffset);
+    if (request !== memberRequest) return;
+    byId('hs-members-prev').disabled = memberOffset === 0;
+    byId('hs-members-next').disabled = rows.length < 50;
+    byId('hs-members-page').textContent = `Page ${memberOffset / 50 + 1} · ${rows.length} members`;
     body.replaceChildren();
     rows.forEach((m) => {
       const tr = el('tr');
@@ -248,7 +265,7 @@
     body.replaceChildren();
     rows.forEach((l) => {
       const tr = el('tr');
-      tr.append(el('td', null, when(l.created_at)), el('td', null, l.action.replace(/_/g, ' ')), el('td', null, `${l.target_type} ${String(l.target_id).slice(0, 8)}…`), el('td', null, l.reason || ''));
+      tr.append(el('td', null, when(l.created_at)), el('td', null, l.action.replace(/_/g, ' ')), el('td', null, `${l.target_type} ${l.target_id || ''}`), el('td', null, l.reason || ''));
       body.append(tr);
     });
   }
@@ -257,11 +274,21 @@
 
   async function refresh(name) {
     status('');
-    try { await sections[name](); loaded.add(name); if (name !== 'overview') overview().catch(() => {}); }
+    try {
+      await sections[name](); loaded.add(name);
+      const searches = { content: ['hs-content-list', 'hs-content-search'], shows: ['hs-show-list', 'hs-show-search'], log: ['hs-log-table', 'hs-log-search'] };
+      if (searches[name]) filterRows(searches[name][0], byId(searches[name][1]).value);
+      if (currentSection === name) byId('hs-last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      if (name !== 'overview') overview().catch(() => {});
+    }
     catch (error) { status(error.message, 'error'); }
   }
 
   function show(name) {
+    if (!sections[name]) return;
+    currentSection = name;
+    byId('hs-section-title').textContent = document.querySelector(`[data-section="${name}"]`).textContent.trim();
+    byId('hs-last-updated').textContent = loaded.has(name) ? 'Showing previously loaded data. Refresh for latest activity.' : 'Loading…';
     document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== name; });
     document.querySelectorAll('[data-section]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.section === name)));
     if (!loaded.has(name)) refresh(name);
@@ -282,8 +309,18 @@
     document.querySelectorAll('[data-section]').forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.section)));
     byId('hs-report-filter').addEventListener('change', () => refresh('reports'));
     byId('hs-content-filter').addEventListener('change', () => refresh('content'));
+    byId('hs-admin-refresh').addEventListener('click', async () => {
+      const b = byId('hs-admin-refresh'); b.disabled = true;
+      try { await refresh(currentSection); } finally { b.disabled = false; }
+    });
+    document.querySelectorAll('[data-open-section]').forEach(b => b.addEventListener('click', () => show(b.dataset.openSection)));
+    [['hs-content-search', 'hs-content-list'], ['hs-show-search', 'hs-show-list'], ['hs-log-search', 'hs-log-table']].forEach(([input, list]) => {
+      byId(input).addEventListener('input', () => filterRows(list, byId(input).value));
+    });
+    byId('hs-members-prev').addEventListener('click', () => { memberOffset = Math.max(0, memberOffset - 50); refresh('members'); });
+    byId('hs-members-next').addEventListener('click', () => { memberOffset += 50; refresh('members'); });
     let t = null;
-    byId('hs-member-search').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => refresh('members'), 300); });
+    byId('hs-member-search').addEventListener('input', () => { memberOffset = 0; memberRequest++; clearTimeout(t); t = setTimeout(() => refresh('members'), 300); });
     bindCategoryForm();
     show('overview');
   }

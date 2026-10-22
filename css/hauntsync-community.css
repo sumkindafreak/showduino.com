@@ -109,3 +109,10 @@ a.hs-author-link:hover { text-decoration: underline; }
   .hs-subnav .hs-subnav-admin { margin-left: 0; }
   .hs-owner-actions { border-left: 0; padding-left: 0; }
 }
+
+/* Administration controls stay usable on phones and long audit identifiers wrap. */
+.hs-admin-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.hs-admin-toolbar h2 { margin: 0; }
+.hs-admin-toolbar p { margin: .4rem 0; }
+.hs-admin [hidden] { display: none !important; }
+.hs-admin .hs-table td { overflow-wrap: anywhere; max-width: 28rem; }

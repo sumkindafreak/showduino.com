@@ -5,7 +5,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync('js/account-page.js', 'utf8');
 
-async function openAccount(search, hash) {
+async function openAccount(search, hash, registerError) {
   const nodes = new Map();
   const node = (id) => {
     if (!nodes.has(id)) {
@@ -30,8 +30,11 @@ async function openAccount(search, hash) {
       ShowduinoSupabase: {
         enabled: () => true,
         onAuthChanged(callback) { void callback(null, 'INITIAL_SESSION'); return () => {}; },
-        requestPasswordReset: async () => ({})
-      }
+        requestPasswordReset: async () => ({}),
+        register: async () => { if (scope.__registerError) throw new Error(scope.__registerError); return { user: { id: 'x' }, session: null }; },
+        resendConfirmation: async () => ({})
+      },
+      history: { replaceState(state, title, url) { scope.__replaced = url; } }
     },
     document: {
       getElementById: node,
@@ -44,10 +47,12 @@ async function openAccount(search, hash) {
     URLSearchParams,
     console
   };
+  scope.__registerError = registerError || '';
   vm.runInNewContext(source, scope, { filename: 'js/account-page.js' });
   assert.equal(typeof initialise, 'function');
   initialise();
   await Promise.resolve();
+  node.scope = scope;
   return node;
 }
 
@@ -61,6 +66,22 @@ async function openAccount(search, hash) {
   const expired = await openAccount('', '#error=access_denied&error_code=otp_expired');
   assert.match(expired('account-status').textContent, /expired or was already used/i);
   assert.match(expired('account-status').className, /error/);
+  assert.equal(expired.scope.__replaced, 'account.html', 'error removed from the address bar');
+
+  // Registration and resend never reveal whether an address already has an account.
+  for (const registerError of ['', 'User already registered']) {
+    const reg = await openAccount('', '', registerError);
+    reg('register-email').value = 'someone@example.test';
+    reg('register-password').value = 'a-long-test-passphrase';
+    reg('register-name').value = 'Tester';
+    await reg('register-form').listeners.submit({ preventDefault() {} });
+    assert.match(reg('account-status').textContent, /If you already have one/i, `neutral sign-up copy (${registerError || 'new address'})`);
+    assert.doesNotMatch(reg('account-status').textContent, /already registered/i);
+  }
+  const resend = await openAccount('', '');
+  resend('register-email').value = 'someone@example.test';
+  await resend('resend-confirmation-button').listeners.click();
+  assert.match(resend('account-status').textContent, /If that address has an unconfirmed Showduino ID/i);
 
   const rejected = await openAccount('?error=access_denied&error_code=access_denied&error_description=%3Cscript%3E', '');
   assert.match(rejected('account-status').textContent, /could not be used/i);

@@ -14,15 +14,23 @@
     linkErrorCode === 'otp_expired'
       ? 'This Showduino confirmation or password reset link has expired or was already used. Request a fresh link and try again.'
       : 'That Showduino sign-in or recovery link could not be used. Please request a new email link.';
+  // Remove the error from the address bar once read, so a refresh or a shared link
+  // does not keep showing it (and nothing from the URL is ever rendered).
+  if (linkHasError) {
+    try { window.history?.replaceState?.(null, '', confirmationReturn ? 'account.html?confirmed=1' : 'account.html'); } catch (_) {}
+  }
   const welcomesHauntSync = params.get('next') === 'welcome' || confirmationReturn;
   let recoveryMode = false;
   let accountRevision = 0;
 
   function byId(id) { return document.getElementById(id); }
   function setStatus(message, type) { elements.status.textContent = message; elements.status.className = `status-banner${type ? ` ${type}` : ''}`; }
+  const NEUTRAL_SIGNUP = 'Check your inbox to finish creating your Showduino ID. If you already have one, sign in or use “Forgot password?”. The email can take a few minutes; check spam too.';
   function friendlyAuthMessage(error, fallback) {
     const message = String(error?.message || fallback || 'Something went wrong.');
     if (/invalid login credentials/i.test(message)) return 'That email address and password did not match. If you just signed up, make sure the confirmation email has been opened first.';
+    // Never confirm or deny that an address already has an account (W5-02).
+    if (/already (been )?registered|already exists|user_already_exists|email_exists/i.test(message)) return NEUTRAL_SIGNUP;
     if (/email not confirmed/i.test(message)) return 'Your Showduino ID is waiting for email confirmation. Open the confirmation email, or use “Resend confirmation”.';
     if (/expired|invalid.*link|token/i.test(message)) return 'That confirmation link has expired or has already been used. Enter your email and choose “Resend confirmation”.';
     return message;
@@ -114,14 +122,14 @@
       const email=elements.registerEmail.value.trim();
       const data=await window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim());
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';
-      setStatus(data.session ? 'Account created and signed in.' : 'Showduino ID created. Check your email and tap “Confirm Email Address”. You will return here automatically.','success');
+      setStatus(data.session ? 'Account created and signed in.' : NEUTRAL_SIGNUP,'success');
     } catch(error){ setStatus(friendlyAuthMessage(error,'Account creation failed.'),'error'); }
   }
   async function handleResendConfirmation() {
     const email=elements.registerEmail.value.trim() || elements.loginEmail.value.trim() || sessionStorage.getItem('showduino_pending_confirmation_email') || '';
     if(!email){ setStatus('Enter the email address you used to create your Showduino ID, then tap “Resend confirmation”.','error'); return; }
     setStatus('Sending a fresh Showduino confirmation email…');
-    try { await window.ShowduinoSupabase.resendConfirmation(email); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus('Fresh confirmation email sent. Open it and tap “Confirm Email Address”.','success'); }
+    try { await window.ShowduinoSupabase.resendConfirmation(email); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus('If that address has an unconfirmed Showduino ID, a fresh confirmation email is on its way. Check your inbox and spam folder.','success'); }
     catch(error){ setStatus(friendlyAuthMessage(error,'The confirmation email could not be resent.'),'error'); }
   }
   async function handleForgotPassword() {

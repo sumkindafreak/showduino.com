@@ -62,3 +62,16 @@ jobs:
         run: node tests/browser/studio-tablet-inspector.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs
+      - name: Check out the P4 firmware SHDO compiler (new_showduino)
+        uses: actions/checkout@v4
+        with:
+          repository: sumkindafreak/new_showduino
+          # Head of new_showduino PR #35 (action.value parser fix + genuine Studio export tests).
+          # Move to a main commit once #35 is merged.
+          ref: 4a15557acb69d18acb020e3d313dd44473fa4f04
+          path: firmware-src
+          sparse-checkout: protocol
+      - name: Build the firmware SHDO compiler for the host
+        run: g++ -std=c++17 -I firmware-src/protocol tools/shdo-contract/shdo_check.cpp -o "$RUNNER_TEMP/shdo_check"
+      - name: Studio P4 limits, compact export and firmware contract (W005)
+        run: SHDO_CHECK_BIN="$RUNNER_TEMP/shdo_check" node tests/browser/studio-p4-limits.cjs

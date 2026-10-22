@@ -516,6 +516,23 @@
     const legacy = clips.filter((clip) => LEGACY_TYPES.has(clip.type));
     checks.push({ level: legacy.length ? 'warn' : 'ok', title: 'Legacy clip types', detail: legacy.length ? `${legacy.length} old DMX / lighting / prop cue${legacy.length === 1 ? '' : 's'} are preserved for compatibility but are outside the current system scope.` : 'No out-of-scope legacy clip types are present.', code: `${legacy.length} LEGACY` });
 
+    // W5-09: what the P4 Show Engine's compiler will refuse (size, pixel slots, field lengths).
+    try {
+      const shdo = window.ShowduinoPackage?.toShdo?.(project);
+      const limits = shdo && window.ShowduinoP4Limits?.check?.(shdo);
+      if (limits) {
+        const kb = (limits.stats.bytes / 1024).toFixed(1);
+        checks.push({
+          level: limits.errors.length ? 'error' : limits.warnings.length ? 'warn' : 'ok',
+          title: 'P4 production limits',
+          detail: limits.errors[0] || limits.warnings[0] || `${kb} KB of ${limits.stats.maxBytes / 1024} KB; pixel cues per device and names fit the P4.`,
+          code: limits.errors.length ? `${limits.errors.length} ERR` : `${kb} KB`
+        });
+      }
+    } catch (error) {
+      checks.push({ level: 'warn', title: 'P4 production limits', detail: `Could not check: ${error.message}`, code: 'REVIEW' });
+    }
+
     const duplicateTrackNames = tracks.map((track) => track.name).filter((name, index, all) => all.indexOf(name) !== index);
     checks.push({ level: duplicateTrackNames.length ? 'warn' : 'ok', title: 'Track naming', detail: duplicateTrackNames.length ? 'Some tracks share the same name. Unique names make routing and commissioning easier.' : 'Track names are unambiguous.', code: duplicateTrackNames.length ? 'REVIEW' : 'OK' });
 

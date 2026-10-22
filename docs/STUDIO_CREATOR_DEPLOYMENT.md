@@ -82,5 +82,6 @@ Before deployment Studio can check the production for issues such as:
 - relay or MOSFET cues that do not request safe-OFF stop behaviour;
 - imported legacy/out-of-scope clip types;
 - ambiguous track names.
+- **P4 production limits (W005)**: the file must be 48 KB or smaller, use at most 16 pixel cues per pixel device and 32 devices, and keep names within the P4's buffers (show and cue names 63 bytes, cue labels 79, node IDs 15). The P4 rejects files outside these limits when you **Persist to SD**. Studio exports compact JSON and flags any breach in **Project check**; an over-limit file still exports as a backup.
 
 These are project checks only. P4/node commissioning and live hardware diagnostics remain separate from browser authoring validation.

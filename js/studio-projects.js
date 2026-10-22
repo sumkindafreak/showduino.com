@@ -311,7 +311,9 @@
       if (!validation.valid) throw new Error(validation.errors[0] || 'SHDO validation failed.');
     }
 
-    const blob = new Blob([JSON.stringify(shdoDocument, null, 2)], { type: 'application/vnd.showduino.production+json' });
+    // W5-09: compact JSON keeps files well inside the P4's 48 KB deploy limit (same content).
+    const limits = window.ShowduinoP4Limits?.check?.(shdoDocument);
+    const blob = new Blob([JSON.stringify(shdoDocument)], { type: 'application/vnd.showduino.production+json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -321,6 +323,11 @@
     anchor.remove();
     URL.revokeObjectURL(url);
     notify(`Exported canonical SHDO v2 production: ${project.project.name}`, 'INFO');
+    if (limits && !limits.ok) {
+      notify(`Saved as a backup, but the P4 will refuse this production: ${limits.errors[0]}${limits.errors.length > 1 ? ` (+${limits.errors.length - 1} more; see Project checks)` : ''}`, 'WARN');
+    } else if (limits?.warnings?.length) {
+      notify(limits.warnings[0], 'WARN');
+    }
     return shdoDocument;
   }
 

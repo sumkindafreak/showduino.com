@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       refreshLogBadge();
   }
+  // W005: Studio modules (projects, deploy, sounds, preview) report through window.studioLog,
+  // which was never defined, so their warnings only reached the browser console.
+  window.studioLog = (message, level) => log(String(message), level || 'INFO');
 
   function refreshLogBadge() {
       const badge = document.getElementById('studio-log-counts');

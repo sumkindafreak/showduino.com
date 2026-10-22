@@ -40,3 +40,25 @@ echo "== after W004 rollback"; run supabase/tests/rls_owner_isolation.sql
 run "$W004" > /dev/null
 echo "== W004 re-applied after rollback"; run supabase/tests/w004_roles_community.sql | grep -E '^(FAIL|==)' || true
 run supabase/tests/w004_roles_community.sql > /dev/null
+
+# W005: community protection (look-alike names, account limits, moderation evidence,
+# smaller public surface), its rollback to the exact W004 catalogue, and a re-apply.
+W005=supabase/migrations/20261023090000_w005_community_protection.sql
+W005_ROLLBACK=supabase/rollback/20261023090000_w005_community_protection.rollback.sql
+run supabase/tests/catalogue_snapshot.sql > "$tmp/w004.txt"
+run "$W005" > /dev/null
+echo "== W005 community protection"; run supabase/tests/w005_community_protection.sql | grep -E '^(FAIL|==)|FAIL' || true
+run supabase/tests/w005_community_protection.sql > /dev/null
+echo "== W004 checks still hold with W005 applied"; run supabase/tests/w004_roles_community.sql | grep -E '^(FAIL|==)|FAIL' || true
+run supabase/tests/w004_roles_community.sql > /dev/null
+echo "== W002 owner isolation with W005 applied"; run supabase/tests/rls_owner_isolation.sql -v phase=hardened | tail -1
+run "$W005_ROLLBACK" > /dev/null
+run supabase/tests/catalogue_snapshot.sql > "$tmp/w005-rolled-back.txt"
+if ! diff -u <(grep -v moderation_log "$tmp/w004.txt") <(grep -v moderation_log "$tmp/w005-rolled-back.txt"); then
+  echo "FAIL: W005 rollback did not restore the W004 catalogue" >&2
+  exit 1
+fi
+echo "== W005 rollback restores the W004 catalogue exactly"
+run "$W005" > /dev/null
+run supabase/tests/w005_community_protection.sql > /dev/null
+echo "== W005 re-applied after rollback: tests pass"

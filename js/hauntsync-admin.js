@@ -128,7 +128,7 @@
       if (t && r.target_type !== 'creator') {
         if (t.status === 'visible') {
           actions.append(button('Hide', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'hide', why); await C().admin.resolveReport(r.id, 'actioned', 'Hidden: ' + why); refresh('reports'); }, 'danger'));
-          actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'remove', why); await C().admin.resolveReport(r.id, 'actioned', 'Removed: ' + why); refresh('reports'); }, 'danger'));
+          actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'remove', why); if (r.target_type === 'post' && t.image_path) await C().admin.removeImage(t.image_path, 'Removed with the post: ' + why); await C().admin.resolveReport(r.id, 'actioned', 'Removed: ' + why); refresh('reports'); }, 'danger'));
         } else {
           actions.append(button('Restore content', async () => { await C().admin.moderate(r.target_type, t.id, 'restore', 'Restored from report review'); refresh('reports'); }));
         }
@@ -163,12 +163,12 @@
       const actions = el('div', 'button-row');
       if (p.status === 'visible') {
         actions.append(button('Hide', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'hide', why); refresh('content'); }, 'danger'));
-        actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'remove', why); refresh('content'); }, 'danger'));
+        actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'remove', why); if (p.image_path) await C().admin.removeImage(p.image_path, 'Removed with the post: ' + why); refresh('content'); }, 'danger'));
         actions.append(button(p.is_featured ? 'Unfeature' : 'Feature', async () => { await C().admin.moderate('post', p.id, p.is_featured ? 'unfeature' : 'feature', ''); refresh('content'); }));
       } else {
         actions.append(button('Restore', async () => { await C().admin.moderate('post', p.id, 'restore', ''); refresh('content'); }));
       }
-      if (p.image_path) actions.append(button('Delete image file', async () => { if (!confirm('Delete the image file from storage? The post stays.')) return; await C().admin.removeImage(p.image_path); status('Image file deleted.', 'success'); }, 'danger'));
+      if (p.image_path) actions.append(button('Delete image file', async () => { const why = await askReason('Reason for deleting the image file (the post stays; this is logged):'); if (why === null) return; await C().admin.removeImage(p.image_path, why); status('Image file deleted and logged.', 'success'); }, 'danger'));
       card.append(actions);
       list.append(card);
     });
@@ -239,8 +239,8 @@
         act.append(button('Clear photo', async () => {
           const why = await askReason('Reason for removing the profile photo:');
           if (why === null) return;
-          await C().admin.clearAvatar(m.user_id, why);
-          status('Profile photo cleared.', 'success');
+          const files = await C().admin.clearAvatar(m.user_id, why);
+          status(`Profile photo cleared; ${files || 0} stored file(s) deleted and logged.`, 'success');
         }));
       }
       tr.append(who, el('td', null, m.joined || ''), st, el('td', null, `${m.posts} posts · ${m.comments} comments · ${m.shows} shows · ${m.open_reports} open reports`), act);

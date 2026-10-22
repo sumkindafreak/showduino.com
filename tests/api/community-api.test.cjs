@@ -39,6 +39,8 @@ const ANON_KEY = jwt({ role: 'anon' });
 // Gateway: /rest/v1 -> PostgREST, plus minimal Auth /user and Storage stand-ins.
 const uploads = [];
 const removed = [];
+const avatarFiles = [];
+const removedAvatars = [];
 const gateway = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://gateway');
   const chunks = [];
@@ -56,6 +58,15 @@ const gateway = http.createServer(async (req, res) => {
     const path = decodeURIComponent(url.pathname.slice('/storage/v1/object/community-images/'.length));
     uploads.push({ path, sub: claims.sub, bytes: body.length });
     return json(200, { Key: 'community-images/' + path, Id: crypto.randomUUID() });
+  }
+  // W005: avatar folder listing and deletion used by the owner's "Clear photo".
+  if (url.pathname === '/storage/v1/object/list/hauntsync-avatars' && req.method === 'POST') {
+    const prefix = String(JSON.parse(body.toString() || '{}').prefix || '').replace(/\/$/, '');
+    return json(200, avatarFiles.filter((f) => f.startsWith(prefix + '/')).map((f) => ({ name: f.slice(prefix.length + 1), id: crypto.randomUUID() })));
+  }
+  if (url.pathname === '/storage/v1/object/hauntsync-avatars' && req.method === 'DELETE') {
+    removedAvatars.push(...(JSON.parse(body.toString() || '{}').prefixes || []));
+    return json(200, []);
   }
   if (url.pathname === '/storage/v1/object/community-images' && req.method === 'DELETE') {
     removed.push(...(JSON.parse(body.toString() || '{}').prefixes || []));
@@ -227,12 +238,20 @@ const pass = (msg) => { results.push(msg); console.log('PASS  ' + msg); };
   await owner.admin.setMemberStatus(U.mallory, 'suspended', 'Spam');
   assert.strictEqual((await visitor.creatorsById([U.mallory])).size, 0, 'suspended creator hidden');
   await rejects(mallory.createPost({ title: 't', content: 'c', category: 'effects' }), /cannot do that|Restricted and suspended/, 'suspended post');
-  await owner.admin.removeImage(uploads[0].path);
+  await owner.admin.removeImage(uploads[0].path, 'Spam image');
   assert.deepStrictEqual(removed, [uploads[0].path]);
+  // W005: Clear photo deletes the stored files and both steps are logged.
+  avatarFiles.push(`${U.alice}/avatar-${crypto.randomUUID()}.png`);
+  assert.strictEqual(await owner.admin.clearAvatar(U.alice, 'Inappropriate photo'), 1, 'one stored avatar removed');
+  assert.deepStrictEqual(removedAvatars, [avatarFiles[0]]);
+  await rejects(mallory.admin.removeImage(uploads[0].path, 'x'), /owner|permission|denied|cannot/i, 'members cannot remove or log files');
   const log = await owner.admin.log();
+  assert.ok(log.some((l) => l.action === 'file_removed' && l.target_id === 'community-images/' + uploads[0].path && l.reason === 'Spam image'), 'image deletion logged');
+  assert.ok(log.some((l) => l.action === 'file_removed' && l.target_id === 'hauntsync-avatars/' + avatarFiles[0]), 'avatar file deletion logged');
+  assert.ok(log.some((l) => l.action === 'avatar_cleared'), 'avatar clear logged');
   assert.ok(['hide', 'report_actioned', 'feature', 'member_suspended'].every((a) => log.some((l) => l.action === a && l.actor_id === OWNER)), 'actions logged with the owner as actor');
   assert.ok((await owner.creatorStats(OWNER)).founder === true && (await owner.creatorStats(U.alice)).founder === false);
-  pass('owner: stats, report queue with targets, hide, resolve, feature, member list (one owner), cannot suspend self, suspend Mallory, remove image, audit log, founder badge data');
+  pass('owner: stats, report queue with targets, hide, resolve, feature, member list (one owner), cannot suspend self, suspend Mallory, remove image (logged), clear avatar files (logged), audit log, founder badge data');
 
   console.log(`PASS: ${results.length} end-to-end community checks against real PostgREST + PostgreSQL.`);
   gateway.close();

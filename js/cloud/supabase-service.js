@@ -231,7 +231,13 @@
       upsert: false,
       contentType: file.type
     });
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      // W005: storage refuses uploads past the account limit or while suspended.
+      if (/row-level security|violates/i.test(String(uploadError.message || ''))) {
+        throw new Error('That photo was not accepted. Accounts keep up to 5 stored photos (10 uploads a day), and suspended accounts cannot upload.');
+      }
+      throw uploadError;
+    }
     try {
       const url = store.getPublicUrl(path).data.publicUrl;
       const { data, error } = await getClient().from('profiles').update({

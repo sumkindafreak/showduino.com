@@ -20,7 +20,8 @@
 
   function createProjectId() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    return '00000000-0000-4000-8000-000000000000';
+    // A local-only fallback still needs a fresh ID per imported copy.
+    return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
   }
 
   const IMPORT_MAX_BYTES = 5 * 1048576;
@@ -338,9 +339,21 @@
           assertSafeIdentifiers(parsed, '', 0);
           validatePackage(parsed);
           const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
-          state.project = normaliseProject(imported);
+          const copy = normaliseProject(imported);
+          // Import means "make a new editable copy". Preserving the source ID
+          // would silently overwrite local saves and potentially cloud shows
+          // with the same ID when saveCurrentProject() persists the import.
+          const existingIds = new Set(readProjectIndex().map((item) => String(item.id)));
+          let newId;
+          do {
+            newId = createProjectId();
+          } while (newId === copy.project.id || existingIds.has(newId) ||
+                   localStorage.getItem(`${PROJECT_DATA_PREFIX}${newId}`));
+          copy.project.id = newId;
+          copy.project.createdAt = new Date().toISOString();
+          state.project = copy;
           await saveCurrentProject();
-          notify(`Imported Showduino production: ${state.project.project.name}`, 'INFO');
+          notify(`Imported a new copy: ${state.project.project.name} (original project kept)`, 'INFO');
           resolve(state.project);
         } catch (error) {
           reject(new Error(`Project import failed: ${error.message}`));

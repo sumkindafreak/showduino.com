@@ -593,3 +593,7 @@ button, input, textarea, select { font: inherit; }
 
 /* Honour application visibility even when a panel also has a grid/flex layout. */
 [hidden] { display: none !important; }
+
+/* W005: bot-protection widget on the account forms (shown only when a Turnstile site key is set). */
+.auth-captcha { grid-column: 1 / -1; min-height: 70px; display: flex; justify-content: center; align-items: center; }
+.auth-captcha[hidden] { display: none; }

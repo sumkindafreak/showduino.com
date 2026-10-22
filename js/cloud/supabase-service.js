@@ -49,31 +49,35 @@
     return data;
   }
 
-  async function register(email, password, displayName) {
+  // captchaToken: Cloudflare Turnstile token when bot protection is on (js/site-captcha.js).
+  const withCaptcha = (options, captchaToken) => (captchaToken ? { ...options, captchaToken } : options);
+
+  async function register(email, password, displayName, captchaToken) {
     const { data, error } = await getClient().auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: CONFIRMATION_URL, data: { display_name: displayName } }
+      options: withCaptcha({ emailRedirectTo: CONFIRMATION_URL, data: { display_name: displayName } }, captchaToken)
     });
     if (error) throw error;
     if (data.user && data.session) await upsertProfile(data.user, displayName);
     return data;
   }
 
-  async function resendConfirmation(email) {
+  async function resendConfirmation(email, captchaToken) {
     const address = String(email || '').trim();
     if (!address) throw new Error('Enter the email address you used to sign up first.');
     const { data, error } = await getClient().auth.resend({
       type: 'signup',
       email: address,
-      options: { emailRedirectTo: CONFIRMATION_URL }
+      options: withCaptcha({ emailRedirectTo: CONFIRMATION_URL }, captchaToken)
     });
     if (error) throw error;
     return data;
   }
 
-  async function signIn(email, password) {
-    const { data, error } = await getClient().auth.signInWithPassword({ email, password });
+  async function signIn(email, password, captchaToken) {
+    const { data, error } = await getClient().auth.signInWithPassword(
+      captchaToken ? { email, password, options: { captchaToken } } : { email, password });
     if (error) throw error;
     if (data.user) await upsertProfile(data.user);
     return data;
@@ -93,8 +97,8 @@
     return data;
   }
 
-  async function requestPasswordReset(email) {
-    const { data, error } = await getClient().auth.resetPasswordForEmail(email, { redirectTo: ACCOUNT_URL });
+  async function requestPasswordReset(email, captchaToken) {
+    const { data, error } = await getClient().auth.resetPasswordForEmail(email, withCaptcha({ redirectTo: ACCOUNT_URL }, captchaToken));
     if (error) throw error;
     return data;
   }

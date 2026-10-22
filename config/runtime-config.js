@@ -5,6 +5,8 @@ window.SHOWDUINO_CONFIG = Object.freeze({
   features: {
     supabase: true,
     authentication: true,
+    // W5-05: keep false until Google is enabled in Supabase and a real login has been tested.
+    googleSignIn: false,
     cloudSync: true,
     firebase: false,
     stripe: false,
@@ -21,6 +23,12 @@ window.SHOWDUINO_CONFIG = Object.freeze({
     storageBucket: '',
     messagingSenderId: '',
     appId: ''
+  },
+  // W5-08: Cloudflare Turnstile SITE key (public). Empty = off. Set this and deploy
+  // BEFORE turning CAPTCHA on in Supabase Auth, or sign-in will fail.
+  captcha: {
+    provider: 'turnstile',
+    siteKey: ''
   },
   stripe: {
     publishableKey: '',

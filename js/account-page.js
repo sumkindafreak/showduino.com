@@ -55,7 +55,10 @@
     local.forEach((project) => { const item=document.createElement('article'); item.className='project-item'; item.innerHTML=`<div><strong>${escapeHtml(project.name || 'Untitled Show')}</strong><div class="muted">Updated ${escapeHtml(project.updatedAt || 'on this device')}</div></div><span class="badge">THIS DEVICE</span>`; elements.projectList.appendChild(item); });
   }
 
-  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.googlePanel.hidden=false; elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
+  // Google sign-in stays hidden until the founder has enabled the provider in Supabase
+  // and proved a real login (W5-05); then set features.googleSignIn = true.
+  function googleEnabled() { return window.SHOWDUINO_CONFIG?.features?.googleSignIn === true; }
+  function showSignedOut() { if (recoveryMode) return; elements.authForms.hidden=false; elements.googlePanel.hidden=!googleEnabled(); elements.accountPanel.hidden=true; elements.recoveryPanel.hidden=true; elements.hauntsyncNext.hidden=true; }
   async function showSignedIn(user, revision = accountRevision) {
     if (recoveryMode) return; elements.authForms.hidden=true; elements.googlePanel.hidden=true; elements.accountPanel.hidden=false; elements.recoveryPanel.hidden=true;
     elements.hauntsyncNext.hidden = !welcomesHauntSync;
@@ -114,13 +117,20 @@
     }
   }
 
-  async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
+  // Bot protection (W5-08): every email-sending or password request carries a single-use
+  // Turnstile token when SHOWDUINO_CONFIG.captcha.siteKey is set; the widget is reset after.
+  async function withCaptcha(run) {
+    const captcha = window.ShowduinoCaptcha;
+    try { return await run(captcha?.enabled?.() ? await captcha.token() : undefined); }
+    finally { captcha?.reset?.(); }
+  }
+  async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await withCaptcha((token) => window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value,token)); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
   async function handleRegister(event) {
     event.preventDefault(); setStatus('Creating your Showduino account…');
     try {
       if (elements.registerPassword.value.length < 12) throw Error('Choose a password with at least 12 characters.');
       const email=elements.registerEmail.value.trim();
-      const data=await window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim());
+      const data=await withCaptcha((token) => window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim(),token));
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';
       setStatus(data.session ? 'Account created and signed in.' : NEUTRAL_SIGNUP,'success');
     } catch(error){ setStatus(friendlyAuthMessage(error,'Account creation failed.'),'error'); }
@@ -129,12 +139,12 @@
     const email=elements.registerEmail.value.trim() || elements.loginEmail.value.trim() || sessionStorage.getItem('showduino_pending_confirmation_email') || '';
     if(!email){ setStatus('Enter the email address you used to create your Showduino ID, then tap “Resend confirmation”.','error'); return; }
     setStatus('Sending a fresh Showduino confirmation email…');
-    try { await window.ShowduinoSupabase.resendConfirmation(email); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus('If that address has an unconfirmed Showduino ID, a fresh confirmation email is on its way. Check your inbox and spam folder.','success'); }
+    try { await withCaptcha((token) => window.ShowduinoSupabase.resendConfirmation(email,token)); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus('If that address has an unconfirmed Showduino ID, a fresh confirmation email is on its way. Check your inbox and spam folder.','success'); }
     catch(error){ setStatus(friendlyAuthMessage(error,'The confirmation email could not be resent.'),'error'); }
   }
   async function handleForgotPassword() {
     const email=elements.loginEmail.value.trim(); if(!email){ setStatus('Enter your email address in the Sign in box first, then tap “Forgot password?”.','error'); elements.loginEmail.focus(); return; }
-    setStatus('Sending password reset email…'); try { await window.ShowduinoSupabase.requestPasswordReset(email); setStatus('If a Showduino account exists for that address, a reset link is on its way. Check your inbox and spam folder.','success'); } catch(error){ setStatus(friendlyAuthMessage(error,'Password reset email could not be sent.'),'error'); }
+    setStatus('Sending password reset email…'); try { await withCaptcha((token) => window.ShowduinoSupabase.requestPasswordReset(email,token)); setStatus('If a Showduino account exists for that address, a reset link is on its way. Check your inbox and spam folder.','success'); } catch(error){ setStatus(friendlyAuthMessage(error,'Password reset email could not be sent.'),'error'); }
   }
   async function handleRecoverySubmit(event) {
     event.preventDefault(); const password=elements.recoveryPassword.value; const confirm=elements.recoveryPasswordConfirm.value;
@@ -169,7 +179,9 @@
     const pendingEmail=sessionStorage.getItem('showduino_pending_confirmation_email'); if(pendingEmail){ elements.registerEmail.value=pendingEmail; elements.loginEmail.value=pendingEmail; }
     elements.googleButton.addEventListener('click',handleGoogleSignIn); elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
     if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.googleButton.disabled=true; elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }
-    void checkGoogleProvider();
+    elements.googlePanel.hidden = true;
+    if (googleEnabled()) void checkGoogleProvider();
+    window.ShowduinoCaptcha?.prepare?.();
     setStatus(authLinkError || (confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…'), authLinkError ? 'error' : undefined);
     window.ShowduinoSupabase.onAuthChanged(async(user,event)=>{
       const revision = ++accountRevision;

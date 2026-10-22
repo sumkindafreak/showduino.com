@@ -13,12 +13,13 @@
 <header class="site-header"><a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
 <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="system.html">System</a><a href="studio.html">Studio</a><a href="hauntsync.html" aria-current="page">HauntSync</a><a href="tools.html">Hardware</a><a href="aboutme.html">About</a><a href="docs.html">Docs</a><a href="support.html">Support</a></nav></header>
 <main class="site-main wide hs-community hs-admin">
-  <section class="page-heading"><div><span class="eyebrow">HAUNTSYNC ADMINISTRATION</span><h1>Founder <span class="accent">dashboard.</span></h1>
+  <section class="page-heading"><div><span class="eyebrow">HAUNTSYNC ADMINISTRATION</span><h1>Website <span class="accent">administration.</span></h1>
   <p>Moderate the community, manage members and categories, and review the audit trail. Every action here is checked by the database and recorded.</p></div></section>
   <div id="hs-subnav"></div>
   <p id="hs-admin-gate" class="hs-inline-status" role="status" aria-live="polite">Checking your access…</p>
 
   <div id="hs-admin" hidden>
+    <div class="hs-admin-toolbar"><div><h2 id="hs-section-title">Overview</h2><p id="hs-last-updated" class="muted" role="status">Waiting for data.</p></div><button id="hs-admin-refresh" type="button" class="btn secondary">Refresh current section</button></div>
     <div class="hs-tabs hs-admin-tabs" role="tablist" aria-label="Admin sections">
       <button type="button" role="tab" class="hs-tab" data-section="overview" aria-selected="true">Overview</button>
       <button type="button" role="tab" class="hs-tab" data-section="reports" aria-selected="false">Reports <span id="hs-open-count" class="hs-count"></span></button>
@@ -30,7 +31,7 @@
     </div>
     <p id="hs-admin-status" class="hs-inline-status" role="status" aria-live="polite"></p>
 
-    <section data-panel="overview" class="hs-admin-panel"><div id="hs-stats" class="hs-stat-grid"></div>
+    <section data-panel="overview" class="hs-admin-panel"><div class="card"><h2>Review priorities</h2><p id="hs-review-priority" role="status">Loading community activity…</p><div class="button-row"><button type="button" class="btn" data-open-section="reports">Review reports</button><button type="button" class="btn secondary" data-open-section="members">Manage members</button><button type="button" class="btn secondary" data-open-section="log">Review audit trail</button></div></div><div id="hs-stats" class="hs-stat-grid"></div>
       <p class="muted">Your owner role is fixed to your account in the database. It cannot be given to anyone else from this website.</p></section>
 
     <section data-panel="reports" class="hs-admin-panel" hidden>
@@ -39,13 +40,13 @@
 
     <section data-panel="content" class="hs-admin-panel" hidden>
       <label class="hs-field-label">Show <select id="hs-content-filter" class="form-control"><option value="">All posts</option><option value="visible">Visible</option><option value="hidden">Hidden</option><option value="removed">Removed</option></select></label>
-      <div id="hs-content-list" class="hs-admin-list"></div></section>
+      <label class="hs-field-label">Search loaded posts <input id="hs-content-search" type="search" class="form-control" maxlength="100" placeholder="Title, author or text"></label><p class="muted">Latest 100 posts matching the selected status. Search applies to this loaded set.</p><div id="hs-content-list" class="hs-admin-list"></div></section>
 
-    <section data-panel="shows" class="hs-admin-panel" hidden><div id="hs-show-list" class="hs-admin-list"></div></section>
+    <section data-panel="shows" class="hs-admin-panel" hidden><label class="hs-field-label">Search loaded shows <input id="hs-show-search" type="search" class="form-control" maxlength="100" placeholder="Title, author or summary"></label><p class="muted">Latest 100 shared shows.</p><div id="hs-show-list" class="hs-admin-list"></div></section>
 
     <section data-panel="members" class="hs-admin-panel" hidden>
       <label class="hs-field-label hs-search-field">Search members <input id="hs-member-search" class="form-control" type="search" maxlength="60" placeholder="Name or username"></label>
-      <div class="hs-table-wrap"><table class="hs-table" id="hs-member-table"><caption class="sr-only">Members</caption>
+      <p class="muted">50 members per page. Restrictions affect community participation; suspension is not deletion of an account.</p><div class="button-row"><button id="hs-members-prev" type="button" class="btn secondary">Previous</button><span id="hs-members-page" role="status"></span><button id="hs-members-next" type="button" class="btn secondary">Next</button></div><div class="hs-table-wrap"><table class="hs-table" id="hs-member-table"><caption class="sr-only">Members</caption>
         <thead><tr><th scope="col">Member</th><th scope="col">Joined</th><th scope="col">Status</th><th scope="col">Activity</th><th scope="col">Actions</th></tr></thead><tbody></tbody></table></div></section>
 
     <section data-panel="categories" class="hs-admin-panel" hidden>
@@ -62,7 +63,7 @@
         <div class="button-row"><button class="btn" type="submit">Save category</button></div>
       </form></section>
 
-    <section data-panel="log" class="hs-admin-panel" hidden>
+    <section data-panel="log" class="hs-admin-panel" hidden><label class="hs-field-label">Search recent audit entries <input id="hs-log-search" type="search" class="form-control" maxlength="100" placeholder="Action, item ID or reason"></label><p class="muted">Latest 200 entries. Full item IDs are shown for traceability.</p>
       <div class="hs-table-wrap"><table class="hs-table" id="hs-log-table"><caption class="sr-only">Moderation audit log</caption>
         <thead><tr><th scope="col">When</th><th scope="col">Action</th><th scope="col">Item</th><th scope="col">Reason</th></tr></thead><tbody></tbody></table></div></section>
   </div>

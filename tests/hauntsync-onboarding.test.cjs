@@ -11,7 +11,8 @@ for (const [file, required] of [
   ['account.html',['id="register-form"','minlength="12"','id="hauntsync-account-next"']],
   ['profile.html',['id="hs-profile-publish"','id="hs-profile-unpublish"']],
   ['community.html',['id="hs-show-preview"']],
-  ['privacy.html',['separate public creator page','Account and data requests']]
+  // W005 rewrite: the creator page is a separate public copy; data requests are under Your rights.
+  ['privacy.html',['Publishing creates a public copy','id="rights"','id="deletion"']]
 ]) {
   const markup = html(file);
   for (const marker of required) assert.ok(markup.includes(marker), file+' missing '+marker);

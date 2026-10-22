@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Showduino privacy information.">
+  <meta name="description" content="How Showduino handles personal data for Showduino ID accounts, Studio cloud projects and the HauntSync community, and your rights under UK data protection law.">
   <title>Privacy | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
@@ -25,33 +25,94 @@
       <a href="support.html">Support</a>
       <a href="account.html">Account</a>
     </nav></header>
-  <main class="site-main">
-    <section class="page-heading"><span class="eyebrow">LEGAL</span><h1>Privacy <span class="accent">notice.</span></h1><p>How the Showduino website handles information while the platform remains under active development.</p></section>
-    <article class="card">
-      <h2>Local project data</h2>
-      <p class="muted">Showduino Studio and HauntSync can store projects, device inventories, autosaves and interface preferences in browser storage. Export important productions as `.shdo` backups before clearing browser site data.</p>
-      <h2>Account and cloud services</h2>
-      <p class="muted">Where account or cloud features are enabled, they are used to provide signed-in project access and related Showduino services. Cloud services are separate from the live P4 Show Engine runtime and are not required to keep a loaded show running.</p>
-      <h2>Sign in with Google</h2>
-      <p class="muted">If you choose Google sign-in, Google authenticates you and shares permitted identity details such as your email address and display name with Showduino through Supabase Auth. It is optional: email/password sign-in remains available. Showduino never receives your Google password, and this sign-in does not request access to Google Drive, contacts or other Google services.</p>
-      <h2>HauntSync creator profile photos</h2>
-      <p class="muted">If you choose to upload a profile photo, the image is stored in Showduino's Supabase media storage and linked to your Showduino account. The rest of your profile remains private unless you explicitly publish a separate public creator page. The photo itself is served through a public image URL and can be viewed by anyone who has that URL. Avoid uploading private or sensitive images. Only your signed-in account can add or delete its stored photos. Replacing or removing a photo updates your profile and attempts to remove the old stored image; previously cached copies or saved links may persist elsewhere.</p>
-      <h2>Public creator directory</h2>
-      <p class="muted">Your account and creator profile are private by default. If you press Publish on your profile page, HauntSync creates an intentionally public snapshot of your chosen username, display name, biography, creative focus, optional HTTPS website and optional avatar URL. It can be viewed by other visitors and linked from any publicly shared .shdo files. Your login email, private projects, saved hardware and password are not included. Updating your private profile does not automatically update this published copy; press Publish again to refresh it.</p>
-      <p class="muted">You can unpublish your creator page at any time from the profile editor. The public listing will be removed, but cached copies and previous downloads may remain. Unpublishing a profile does not automatically unshare any .shdo files that you separately chose to publish.</p>
-      <h2>Account and data requests</h2>
-      <p class="muted">To ask about accessing, correcting or deleting personal account data, contact <a href="mailto:showduino38@gmail.com">showduino38@gmail.com</a>. The website does not yet offer a complete self-service export or permanent account-deletion function. Clearing browser storage or signing out does not delete data stored in your cloud account.</p>
-      <h2>HauntSync community SHDO sharing</h2>
-      <p class="muted">If you choose to publish a Showduino production in the community show library, its title, summary, your creator display name, selected sharing licence and a sanitised copy of the production become publicly downloadable. Your private cloud projects and local saved shows are not published automatically. We remove known hardware identifiers, asset paths and other private fields from the community copy, but titles, cue labels and authored parameter values may still reveal details; review your file before publishing. You can unshare your post, but copies others downloaded may remain available to them. Community templates must be checked and adapted to the receiving installation before any show runs.</p>
-      <h2>Payments</h2>
-      <p class="muted">No current Showduino hardware purchase or paid subscription service is being offered through this development website unless a specific page clearly states otherwise.</p>
-      <h2>Support messages</h2>
-      <p class="muted">The support form prepares a message in your own email application. The website does not upload the message before you choose to send it.</p>
-      <h2>Third-party services</h2>
-      <p class="muted">Some website functions and links may use external providers such as source-code hosting, content delivery or account infrastructure. Their own privacy terms apply to data handled by those services.</p>
-      <h2>Contact</h2>
-      <p class="muted">Privacy questions can be sent to <a href="mailto:showduino38@gmail.com">showduino38@gmail.com</a>.</p>
-      <p class="muted">Last updated: 16 October 2026.</p>
+  <main class="site-main" id="main">
+    <section class="page-heading"><span class="eyebrow">LEGAL</span><h1>Privacy <span class="accent">notice.</span></h1><p>How Showduino handles personal data for Showduino ID accounts, Studio cloud projects and the HauntSync community, and the rights you have under UK data protection law.</p></section>
+    <article class="card legal">
+      <div class="legal-status" role="note"><strong>Draft for review.</strong> This notice describes how the website works today. Highlighted items still need confirming by the Showduino founder, and the notice has not yet been reviewed by a qualified lawyer.</div>
+
+      <h2 id="who">Who we are</h2>
+      <p>Showduino (show-duino.com) is responsible for the personal data described here and is the data controller under the UK GDPR and the Data Protection Act 2018. <span class="legal-todo" data-legal-todo>To confirm: the legal name of the person or company that runs Showduino, and whether it is a sole trader or a limited company (with company number)</span>. <span class="legal-todo" data-legal-todo>To confirm: a postal address for data protection correspondence</span>. <span class="legal-todo" data-legal-todo>To confirm: ICO data protection fee registration number, or confirmation that an exemption applies</span>.</p>
+      <p>Contact for anything in this notice: <a href="mailto:showduino38@gmail.com">showduino38@gmail.com</a>.</p>
+
+      <h2 id="scope">What this notice covers</h2>
+      <p>This notice covers the website, Showduino Studio in your browser, Showduino ID accounts and the HauntSync community. Showduino hardware (the P4 Show Engine, Communications S3, Director and nodes) runs your show on your own network and does not send show or personal data to Showduino.</p>
+
+      <h2 id="data">What we hold, why, and for how long</h2>
+      <p>The lawful bases below are our assessment and are part of the legal review still to be done.</p>
+      <div class="legal-table-wrap">
+        <table class="legal-table">
+          <thead><tr><th scope="col">Information</th><th scope="col">Why we use it</th><th scope="col">Lawful basis</th><th scope="col">How long</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Information"><strong>Account:</strong> email address, password (stored only as a secure hash by our authentication provider; we never see it), sign-up, confirmation and sign-in times</td><td data-label="Why">To create your Showduino ID, sign you in, send confirmation and password-reset emails</td><td data-label="Lawful basis">Contract</td><td data-label="How long">Until your account is deleted</td></tr>
+            <tr><td data-label="Information"><strong>Security records:</strong> IP address, browser details and sign-in events kept in authentication logs</td><td data-label="Why">To protect accounts, investigate abuse and keep the service working</td><td data-label="Lawful basis">Legitimate interests (security)</td><td data-label="How long"><span class="legal-todo" data-legal-todo>To confirm: log retention period for the Supabase plan in use</span></td></tr>
+            <tr><td data-label="Information"><strong>Private profile:</strong> username, display name, haunt name, biography, creative focus, website and profile photo, if you add them</td><td data-label="Why">To run your Showduino ID and prepare a creator page if you publish one</td><td data-label="Lawful basis">Contract</td><td data-label="How long">Until you change them or delete your account</td></tr>
+            <tr><td data-label="Information"><strong>Cloud projects and saved hardware:</strong> productions you save to your account, and device names, types, identifiers and notes you enter</td><td data-label="Why">To let you open your work on other devices</td><td data-label="Lawful basis">Contract</td><td data-label="How long">Until you delete them or your account</td></tr>
+            <tr><td data-label="Information"><strong>Community activity:</strong> your published creator page, posts, post images, comments, follows and shared show files</td><td data-label="Why">To run the HauntSync community</td><td data-label="Lawful basis">Contract</td><td data-label="How long">Until you remove them or delete your account; see <a href="#public">What is public</a></td></tr>
+            <tr><td data-label="Information"><strong>Reports:</strong> what you reported, the reason and any details you give</td><td data-label="Why">To review content against the <a href="guidelines.html">community guidelines</a></td><td data-label="Lawful basis">Legitimate interests (a safe community); legal obligation where content may be illegal</td><td data-label="How long"><span class="legal-todo" data-legal-todo>To confirm: how long reports are kept after they are resolved</span></td></tr>
+            <tr><td data-label="Information"><strong>Moderation records:</strong> member status (active, restricted or suspended), the reason given, and an audit log of each moderation decision</td><td data-label="Why">To enforce the guidelines consistently and review decisions if asked</td><td data-label="Lawful basis">Legitimate interests; legal obligation where content may be illegal</td><td data-label="How long"><span class="legal-todo" data-legal-todo>To confirm: how long the moderation log is kept</span></td></tr>
+            <tr><td data-label="Information"><strong>Usage counts:</strong> how many posts, comments, shares, reports, uploads and saved items an account has made recently</td><td data-label="Why">To apply spam and abuse limits</td><td data-label="Lawful basis">Legitimate interests (preventing abuse)</td><td data-label="How long">Worked out from the items themselves; nothing extra is stored</td></tr>
+            <tr><td data-label="Information"><strong>Bot protection:</strong> when it is switched on for sign-in, sign-up and password reset, Cloudflare Turnstile checks your browser and IP address</td><td data-label="Why">To stop automated sign-ups and password-reset abuse</td><td data-label="Lawful basis">Legitimate interests (security)</td><td data-label="How long">Handled by Cloudflare; Showduino receives only a pass or fail token</td></tr>
+            <tr><td data-label="Information"><strong>Support emails:</strong> your message and email address</td><td data-label="Why">To answer you</td><td data-label="Lawful basis">Legitimate interests; contract where it concerns your account</td><td data-label="How long"><span class="legal-todo" data-legal-todo>To confirm: how long support emails are kept</span></td></tr>
+            <tr><td data-label="Information"><strong>Website requests:</strong> IP address and request details handled by our hosting provider</td><td data-label="Why">To deliver and protect the website</td><td data-label="Lawful basis">Legitimate interests</td><td data-label="How long">Set by Cloudflare</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>We do not sell personal data, show advertising, or use analytics or tracking cookies. We do not make decisions about you based solely on automated processing that have legal or similarly significant effects. Automatic spam limits pause posting for a short time; restrictions and suspensions are decided by a person.</p>
+
+      <h2 id="public">What is public</h2>
+      <ul>
+        <li>Your account and profile are private until you press <strong>Publish</strong> on your profile page. Publishing creates a public copy of your username, display name, biography, creative focus, optional website and optional photo. Your email address, private projects, saved hardware and password are never published.</li>
+        <li>Posts, comments and shared show files are public and show your creator name and username. Who you follow is visible to others only while both your creator page and theirs are published.</li>
+        <li>Profile photos and post images are served from public image addresses. Anyone with an image's address can view it. Do not upload private or sensitive images.</li>
+        <li>When you share a show file, HauntSync publishes a copy with known hardware identifiers, asset paths and other private fields removed. Titles, cue labels and parameter values can still reveal details, so check the file first.</li>
+        <li>Removing or unpublishing content stops it being shown on HauntSync. Copies other people have already downloaded, saved or cached may remain.</li>
+        <li>Only you and the Showduino founder can see your own reports, member status and the reasons for any moderation decision about your content. The person you report is not told who reported them.</li>
+      </ul>
+
+      <h2 id="processors">Who handles data for us</h2>
+      <p>We use these providers to run the service. They act on our instructions under their data processing terms.</p>
+      <ul>
+        <li><strong>Supabase:</strong> database, accounts and image storage. Our database is hosted in London (AWS eu-west-2).</li>
+        <li><strong>Cloudflare:</strong> website hosting, content delivery, security and, when switched on, Turnstile bot protection.</li>
+        <li><strong>Email delivery:</strong> confirmation and password-reset emails are sent through <span class="legal-todo" data-legal-todo>To confirm: the email delivery provider used by Supabase Auth</span>.</li>
+        <li><strong>jsDelivr:</strong> delivers the open-source Supabase client library to your browser, so it receives your IP address and browser details.</li>
+        <li><strong>Google:</strong> Google sign-in is not currently offered. If it is added, this notice will be updated before it goes live.</li>
+      </ul>
+      <p>Some of these providers, or their support teams and sub-processors, may handle data outside the UK. <span class="legal-todo" data-legal-todo>To confirm: the transfer safeguard relied on for each provider, for example UK adequacy regulations or the UK International Data Transfer Addendum</span>.</p>
+      <p>Links to other sites, such as GitHub or hardware retailers, are covered by those sites' own privacy notices.</p>
+
+      <h2 id="device-storage">Storage on your device</h2>
+      <p>Studio and HauntSync keep some information in your browser so they work: your sign-in session, local projects and autosaves, the active project, registered devices, sounds you imported, Studio settings and the address of your Showduino controller. This is strictly necessary for features you use, so we do not ask for cookie consent. It stays on your device unless you save a project to your account. Clearing site data removes it; export important shows as <code>.shdo</code> backups first.</p>
+
+      <h2 id="rights">Your rights</h2>
+      <p>Under UK data protection law you can ask us to:</p>
+      <ul>
+        <li>give you a copy of your personal data (access);</li>
+        <li>correct data that is wrong or incomplete;</li>
+        <li>delete your data;</li>
+        <li>restrict how we use it, or object to uses based on legitimate interests;</li>
+        <li>give you data you provided in a reusable format (portability).</li>
+      </ul>
+      <p>You can already edit your profile, unpublish your creator page, remove your photo, delete your own posts and comments, unshare show files, and export projects as <code>.shdo</code> files. For anything else, email <a href="mailto:showduino38@gmail.com">showduino38@gmail.com</a> from the address on your account. We may ask you to confirm your identity. We reply within one month, or tell you within that month if a complex request needs up to two more.</p>
+
+      <h2 id="deletion">Deleting your account</h2>
+      <p>There is no self-service delete button yet. Email us from the address on your account and we will delete it. Deleting your account removes your profile, published creator page, cloud projects, saved hardware, posts, comments, follows and shared show files, and we remove your profile photo and post images from storage. Reports you made are kept without your identity. Moderation log entries about your account are kept for the period stated above. <span class="legal-todo" data-legal-todo>To confirm: target time to complete a deletion request, and how long deleted data remains in backups</span>.</p>
+
+      <h2 id="age">Age</h2>
+      <p><span class="legal-todo" data-legal-todo>To confirm: the minimum age for a Showduino ID (in the UK, 13 is the youngest age at which a child can consent to an online service without a parent)</span>. We do not knowingly create accounts for anyone below that age.</p>
+
+      <h2 id="security">Security</h2>
+      <p>Passwords are hashed by our authentication provider. Database rules limit each account to its own private data, and moderation tools are available only to the single Showduino founder account, identified by a fixed account ID rather than a name or email. No system is perfectly secure: use a unique password, and tell us at once if you think your account has been misused.</p>
+
+      <h2 id="complaints">Complaints</h2>
+      <p>If you are unhappy with how we handle your data, email <a href="mailto:showduino38@gmail.com">showduino38@gmail.com</a> with "Data protection complaint" in the subject. We will acknowledge it within 30 days and tell you the outcome without undue delay. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk/make-a-complaint/" rel="noopener">ico.org.uk/make-a-complaint</a> or on 0303 123 1113.</p>
+
+      <h2 id="payments">Payments</h2>
+      <p>Payments are switched off. The Showduino ID is free. Starter, Pro and Studio memberships are proposed but not on sale. If paid plans launch, this notice will be updated first.</p>
+
+      <h2 id="changes">Changes to this notice</h2>
+      <p>We will update this page when the service changes and give notice of significant changes on the website.</p>
+      <p>Last updated: 22 October 2026 (draft).</p>
     </article>
   </main>
   <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>

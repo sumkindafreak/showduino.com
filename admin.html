@@ -67,6 +67,17 @@
       <div class="hs-table-wrap"><table class="hs-table" id="hs-log-table"><caption class="sr-only">Moderation audit log</caption>
         <thead><tr><th scope="col">When</th><th scope="col">Action</th><th scope="col">Item</th><th scope="col">Reason</th></tr></thead><tbody></tbody></table></div></section>
   </div>
+  <dialog id="hs-reason-dialog" class="hs-reason-dialog" aria-labelledby="hs-reason-title">
+    <form id="hs-reason-form">
+      <h2 id="hs-reason-title">Reason for this moderation action</h2>
+      <label for="hs-reason-text">Reason or audit note</label>
+      <textarea id="hs-reason-text" class="form-control" rows="4" maxlength="500" autocomplete="off"></textarea>
+      <div class="button-row">
+        <button type="button" class="btn secondary" id="hs-reason-cancel">Cancel</button>
+        <button type="submit" class="btn">Confirm action</button>
+      </div>
+    </form>
+  </dialog>
 </main>
 <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="guidelines.html">Community guidelines</a> &middot; <a href="privacy.html">Privacy</a></p></footer>
 <script src="config/runtime-config.js"></script>

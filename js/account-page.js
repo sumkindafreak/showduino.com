@@ -5,6 +5,15 @@
   const elements = {};
   const params = new URLSearchParams(window.location.search);
   const confirmationReturn = params.get('confirmed') === '1';
+  // Supabase reports expired or invalid email links in the URL query or hash.
+  // Never print the raw description from the URL into the page.
+  const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+  const linkErrorCode = params.get('error_code') || hashParams.get('error_code') || '';
+  const linkHasError = Boolean(linkErrorCode || params.has('error') || hashParams.has('error'));
+  const authLinkError = !linkHasError ? '' :
+    linkErrorCode === 'otp_expired'
+      ? 'This Showduino confirmation or password reset link has expired or was already used. Request a fresh link and try again.'
+      : 'That Showduino sign-in or recovery link could not be used. Please request a new email link.';
   const welcomesHauntSync = params.get('next') === 'welcome' || confirmationReturn;
   let recoveryMode = false;
   let accountRevision = 0;
@@ -117,7 +126,7 @@
   }
   async function handleForgotPassword() {
     const email=elements.loginEmail.value.trim(); if(!email){ setStatus('Enter your email address in the Sign in box first, then tap “Forgot password?”.','error'); elements.loginEmail.focus(); return; }
-    setStatus('Sending password reset email…'); try { await window.ShowduinoSupabase.requestPasswordReset(email); setStatus('Password reset email sent. Open it and follow the link back to Showduino.','success'); } catch(error){ setStatus(friendlyAuthMessage(error,'Password reset email could not be sent.'),'error'); }
+    setStatus('Sending password reset email…'); try { await window.ShowduinoSupabase.requestPasswordReset(email); setStatus('If a Showduino account exists for that address, a reset link is on its way. Check your inbox and spam folder.','success'); } catch(error){ setStatus(friendlyAuthMessage(error,'Password reset email could not be sent.'),'error'); }
   }
   async function handleRecoverySubmit(event) {
     event.preventDefault(); const password=elements.recoveryPassword.value; const confirm=elements.recoveryPasswordConfirm.value;
@@ -153,13 +162,13 @@
     elements.googleButton.addEventListener('click',handleGoogleSignIn); elements.loginForm.addEventListener('submit',handleSignIn); elements.registerForm.addEventListener('submit',handleRegister); elements.recoveryForm.addEventListener('submit',handleRecoverySubmit); elements.signOutButton.addEventListener('click',handleSignOut); elements.forgotPasswordButton.addEventListener('click',handleForgotPassword); elements.resendConfirmationButton.addEventListener('click',handleResendConfirmation);
     if(!window.ShowduinoSupabase?.enabled()){ showSignedOut(); elements.googleButton.disabled=true; elements.authForms.querySelectorAll('input, button').forEach((element)=>{element.disabled=true;}); setStatus('Showduino account services could not start. Local Studio saving is still available.','error'); renderProjects(null); return; }
     void checkGoogleProvider();
-    setStatus(confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…');
+    setStatus(authLinkError || (confirmationReturn ? 'Finishing your Showduino email confirmation…' : 'Checking your Showduino account…'), authLinkError ? 'error' : undefined);
     window.ShowduinoSupabase.onAuthChanged(async(user,event)=>{
       const revision = ++accountRevision;
       if(event==='PASSWORD_RECOVERY'){ showRecoveryMode(); return; }
       if(recoveryMode) return;
       if(user){ sessionStorage.removeItem('showduino_pending_confirmation_email'); await showSignedIn(user, revision); }
-      else { showSignedOut(); setStatus(confirmationReturn ? 'Email confirmed. Sign in to finish opening your Showduino ID.' : 'Sign in or create a free Showduino account.', confirmationReturn ? 'success' : undefined); await renderProjects(null); }
+      else { showSignedOut(); setStatus(authLinkError || (confirmationReturn ? 'Email confirmed. Sign in to finish opening your Showduino ID.' : 'Sign in or create a free Showduino account.'), authLinkError ? 'error' : (confirmationReturn ? 'success' : undefined)); await renderProjects(null); }
     });
   }
   document.addEventListener('DOMContentLoaded',initialise);

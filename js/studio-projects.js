@@ -20,7 +20,15 @@
 
   function createProjectId() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    // A local-only fallback still needs a fresh ID per imported copy.
+    // randomUUID() needs a secure context (it is missing on plain-HTTP LAN consoles).
+    // getRandomValues() is available everywhere and gives a valid RFC 4122 v4 UUID,
+    // which the cloud projects table requires.
+    if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+      const b = window.crypto.getRandomValues(new Uint8Array(16));
+      b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+      const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+      return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+    }
     return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
   }
 

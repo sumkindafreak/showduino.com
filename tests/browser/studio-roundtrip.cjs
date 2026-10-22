@@ -44,6 +44,13 @@ const server = http.createServer((req, res) => {
   }), firstImportedId);
   assert.notStrictEqual(preserved.currentId, firstImportedId, 'each import gets a fresh project ID');
   assert.strictEqual(preserved.prior?.project?.name, 'W001 Round Trip', 'earlier saved import remains intact');
+  // Without crypto.randomUUID (plain-HTTP LAN console) an imported copy still gets a valid v4 UUID.
+  const fallbackId = await page.evaluate(async (text) => {
+    const original = crypto.randomUUID; crypto.randomUUID = undefined;
+    try { await ShowduinoProjects.importProject(new File([text], 'no-uuid.shdo')); return window.state.project.project.id; }
+    finally { crypto.randomUUID = original; }
+  }, exported);
+  assert.match(fallbackId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/, 'fallback import ID is a v4 UUID');
   assert.match(await imp('{not json', 'bad.shdo'), /import failed/i);
   assert.match(await imp(JSON.stringify({ schema: 'x', project: { name: 'evil' } }), 'x.shdo'), /not a Showduino production/);
   assert.match(await imp('x'.repeat(6 * 1048576), 'big.shdo'), /larger than 5 MB/);

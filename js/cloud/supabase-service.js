@@ -267,9 +267,17 @@
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
   }
 
+  // A fixed fallback ID would make every such project collide on the shared primary key.
+  function randomUuidV4() {
+    const b = window.crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+    const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
+
   function ensureProjectUuid(project) {
     project.project = project.project || {};
-    if (!isUuid(project.project.id)) project.project.id = window.crypto?.randomUUID?.() || '00000000-0000-4000-8000-000000000000';
+    if (!isUuid(project.project.id)) project.project.id = window.crypto?.randomUUID?.() || randomUuidV4();
     return project.project.id;
   }
 

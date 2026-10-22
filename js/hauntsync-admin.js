@@ -18,7 +18,7 @@
     const container = byId(containerId);
     const rows = container.matches('table') ? container.querySelectorAll('tbody tr') : container.children;
     const needle = query.trim().toLocaleLowerCase();
-    Array.from(rows).forEach(row => { row.hidden = !row.textContent.toLocaleLowerCase().includes(needle); });
+    Array.from(rows).forEach(row => { row.hidden = !(row.dataset.searchText || '').toLocaleLowerCase().includes(needle); });
   }
 
   function status(message, kind) {
@@ -126,6 +126,7 @@
     if (!posts.length) list.append(el('p', 'muted', 'No posts.'));
     posts.forEach((p) => {
       const card = el('article', 'card hs-admin-item');
+      card.dataset.searchText = [p.title, p.author_name, p.content].join(' ');
       const a = el('a', null, p.title); a.href = 'feed.html?post=' + encodeURIComponent(p.id);
       const h = el('h3'); h.append(a);
       const tags = el('div', 'hs-post-tags');
@@ -155,6 +156,7 @@
     if (!rows.length) list.append(el('p', 'muted', 'No shared shows yet.'));
     rows.forEach((s) => {
       const card = el('article', 'card hs-admin-item');
+      card.dataset.searchText = [s.title, s.author_label, s.summary].join(' ');
       const tags = el('div', 'hs-post-tags');
       tags.append(el('span', 'hs-tag', s.status), el('span', 'hs-tag', s.category), el('span', 'hs-tag', s.license));
       if (s.is_featured) tags.append(el('span', 'hs-tag hs-tag-featured', 'Featured'));
@@ -177,10 +179,11 @@
   async function members() {
     const body = byId('hs-member-table').querySelector('tbody');
     const request = ++memberRequest;
-    const rows = await C().admin.members(byId('hs-member-search').value, memberOffset);
+    const result = await C().admin.members(byId('hs-member-search').value, memberOffset, 51);
+    const rows = result.slice(0, 50);
     if (request !== memberRequest) return;
     byId('hs-members-prev').disabled = memberOffset === 0;
-    byId('hs-members-next').disabled = rows.length < 50;
+    byId('hs-members-next').disabled = result.length <= 50;
     byId('hs-members-page').textContent = `Page ${memberOffset / 50 + 1} · ${rows.length} members`;
     body.replaceChildren();
     rows.forEach((m) => {
@@ -265,6 +268,7 @@
     body.replaceChildren();
     rows.forEach((l) => {
       const tr = el('tr');
+      tr.dataset.searchText = [when(l.created_at), l.action.replace(/_/g, ' '), l.target_type, l.target_id, l.reason].join(' ');
       tr.append(el('td', null, when(l.created_at)), el('td', null, l.action.replace(/_/g, ' ')), el('td', null, `${l.target_type} ${l.target_id || ''}`), el('td', null, l.reason || ''));
       body.append(tr);
     });

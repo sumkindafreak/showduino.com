@@ -287,7 +287,7 @@
 
   const admin = Object.freeze({
     stats: async () => check(await db().rpc('admin_stats', {}, READ)),
-    members: async (search, offset) => check(await db().rpc('admin_list_members', { p_search: searchTerm(search), p_limit: 50, p_offset: Number(offset) || 0 }, READ)) || [],
+    members: async (search, offset, limit = 50) => check(await db().rpc('admin_list_members', { p_search: searchTerm(search), p_limit: Math.min(200, Math.max(1, Number(limit) || 50)), p_offset: Number(offset) || 0 }, READ)) || [],
     setMemberStatus: async (userId, statusValue, reason) => check(await db().rpc('admin_set_member_status', { p_user_id: userId, p_status: statusValue, p_reason: String(reason || '').slice(0, 500) })),
     moderate: async (targetType, targetId, action, reason) => check(await db().rpc('admin_moderate', { p_target_type: targetType, p_target_id: targetId, p_action: action, p_reason: String(reason || '').slice(0, 500) })),
     resolveReport: async (reportId, resolution, note) => check(await db().rpc('admin_resolve_report', { p_report_id: reportId, p_resolution: resolution, p_note: String(note || '').slice(0, 1000) })),

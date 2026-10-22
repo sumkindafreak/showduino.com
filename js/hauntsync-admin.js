@@ -37,9 +37,35 @@
     return b;
   }
 
+  // In-page, accessible reason dialog; it works on mobile and keeps the
+  // action buttons disabled until a reason is submitted or cancelled.
   function askReason(question) {
-    const value = prompt(question, '');
-    return value === null ? null : value.trim();
+    const dialog = byId('hs-reason-dialog');
+    const form = byId('hs-reason-form');
+    const field = byId('hs-reason-text');
+    const cancel = byId('hs-reason-cancel');
+    byId('hs-reason-title').textContent = question;
+    field.value = '';
+    return new Promise((resolve) => {
+      let settled = false;
+      function finish(value) {
+        if (settled) return;
+        settled = true;
+        form.removeEventListener('submit', submit);
+        cancel.removeEventListener('click', cancelClick);
+        dialog.removeEventListener('close', closed);
+        if (dialog.open) dialog.close();
+        resolve(value);
+      }
+      function submit(event) { event.preventDefault(); finish(field.value.trim()); }
+      function cancelClick() { finish(null); }
+      function closed() { finish(null); }
+      form.addEventListener('submit', submit);
+      cancel.addEventListener('click', cancelClick);
+      dialog.addEventListener('close', closed);
+      dialog.showModal();
+      field.focus();
+    });
   }
 
   const when = (v) => (v ? new Date(v).toLocaleString() : '');
@@ -101,15 +127,15 @@
       const t = r.target;
       if (t && r.target_type !== 'creator') {
         if (t.status === 'visible') {
-          actions.append(button('Hide', async () => { const why = askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'hide', why); await C().admin.resolveReport(r.id, 'actioned', 'Hidden: ' + why); refresh('reports'); }, 'danger'));
-          actions.append(button('Remove', async () => { const why = askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'remove', why); await C().admin.resolveReport(r.id, 'actioned', 'Removed: ' + why); refresh('reports'); }, 'danger'));
+          actions.append(button('Hide', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'hide', why); await C().admin.resolveReport(r.id, 'actioned', 'Hidden: ' + why); refresh('reports'); }, 'danger'));
+          actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate(r.target_type, t.id, 'remove', why); await C().admin.resolveReport(r.id, 'actioned', 'Removed: ' + why); refresh('reports'); }, 'danger'));
         } else {
           actions.append(button('Restore content', async () => { await C().admin.moderate(r.target_type, t.id, 'restore', 'Restored from report review'); refresh('reports'); }));
         }
       }
       if (r.status === 'open') {
-        actions.append(button('Dismiss', async () => { const note = askReason('Note for the audit log (optional):'); if (note === null) return; await C().admin.resolveReport(r.id, 'dismissed', note); refresh('reports'); }));
-        actions.append(button('Mark actioned', async () => { const note = askReason('What was done?'); if (note === null) return; await C().admin.resolveReport(r.id, 'actioned', note); refresh('reports'); }));
+        actions.append(button('Dismiss', async () => { const note = await askReason('Note for the audit log (optional):'); if (note === null) return; await C().admin.resolveReport(r.id, 'dismissed', note); refresh('reports'); }));
+        actions.append(button('Mark actioned', async () => { const note = await askReason('What was done?'); if (note === null) return; await C().admin.resolveReport(r.id, 'actioned', note); refresh('reports'); }));
       } else {
         actions.append(button('Reopen', async () => { await C().admin.resolveReport(r.id, 'open', 'Reopened'); refresh('reports'); }));
       }
@@ -136,8 +162,8 @@
       if (p.moderation_reason) card.append(el('p', 'muted', 'Moderation reason: ' + p.moderation_reason));
       const actions = el('div', 'button-row');
       if (p.status === 'visible') {
-        actions.append(button('Hide', async () => { const why = askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'hide', why); refresh('content'); }, 'danger'));
-        actions.append(button('Remove', async () => { const why = askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'remove', why); refresh('content'); }, 'danger'));
+        actions.append(button('Hide', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'hide', why); refresh('content'); }, 'danger'));
+        actions.append(button('Remove', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('post', p.id, 'remove', why); refresh('content'); }, 'danger'));
         actions.append(button(p.is_featured ? 'Unfeature' : 'Feature', async () => { await C().admin.moderate('post', p.id, p.is_featured ? 'unfeature' : 'feature', ''); refresh('content'); }));
       } else {
         actions.append(button('Restore', async () => { await C().admin.moderate('post', p.id, 'restore', ''); refresh('content'); }));
@@ -165,7 +191,7 @@
       const actions = el('div', 'button-row');
       actions.append(open);
       if (s.status === 'visible') {
-        actions.append(button('Hide', async () => { const why = askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('shared_show', s.id, 'hide', why); refresh('shows'); }, 'danger'));
+        actions.append(button('Hide', async () => { const why = await askReason('Reason (shown to the author):'); if (why === null) return; await C().admin.moderate('shared_show', s.id, 'hide', why); refresh('shows'); }, 'danger'));
         actions.append(button(s.is_featured ? 'Unfeature' : 'Feature', async () => { await C().admin.moderate('shared_show', s.id, s.is_featured ? 'unfeature' : 'feature', ''); refresh('shows'); }));
       } else {
         actions.append(button('Restore', async () => { await C().admin.moderate('shared_show', s.id, 'restore', ''); refresh('shows'); }));
@@ -201,7 +227,7 @@
         act.append(el('span', 'muted', 'Owner (protected)'));
       } else {
         const set = (value, label, cls) => act.append(button(label, async () => {
-          const why = askReason(`Reason for "${label}" (the member sees it):`);
+          const why = await askReason(`Reason for "${label}" (the member sees it):`);
           if (why === null) return;
           await C().admin.setMemberStatus(m.user_id, value, why);
           status(`${m.display_name}: ${value}.`, 'success');
@@ -211,13 +237,14 @@
         if (m.status !== 'restricted') set('restricted', 'Restrict');
         if (m.status !== 'suspended') set('suspended', 'Suspend', 'danger');
         act.append(button('Clear photo', async () => {
-          const why = askReason('Reason for removing the profile photo:');
+          const why = await askReason('Reason for removing the profile photo:');
           if (why === null) return;
           await C().admin.clearAvatar(m.user_id, why);
           status('Profile photo cleared.', 'success');
         }));
       }
       tr.append(who, el('td', null, m.joined || ''), st, el('td', null, `${m.posts} posts · ${m.comments} comments · ${m.shows} shows · ${m.open_reports} open reports`), act);
+      Array.from(tr.children).forEach((cell, i) => { cell.dataset.label = ['Member', 'Joined', 'Status', 'Activity', 'Actions'][i]; });
       body.append(tr);
     });
     if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', 'No members match.'); td.colSpan = 5; tr.append(td); body.append(tr); }
@@ -270,6 +297,7 @@
       const tr = el('tr');
       tr.dataset.searchText = [when(l.created_at), l.action.replace(/_/g, ' '), l.target_type, l.target_id, l.reason].join(' ');
       tr.append(el('td', null, when(l.created_at)), el('td', null, l.action.replace(/_/g, ' ')), el('td', null, `${l.target_type} ${l.target_id || ''}`), el('td', null, l.reason || ''));
+      Array.from(tr.children).forEach((cell, i) => { cell.dataset.label = ['When', 'Action', 'Item', 'Reason'][i]; });
       body.append(tr);
     });
   }

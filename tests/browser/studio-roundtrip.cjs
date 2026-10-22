@@ -35,6 +35,15 @@ const server = http.createServer((req, res) => {
   const restored = await page.evaluate(async () => (await ShowduinoProjects.restoreLastLocalProject())?.project?.name);
   assert.strictEqual(restored, 'W001 Round Trip', 'last local project restored after reload');
   assert.strictEqual(await imp(exported, 're.shdo'), 'ok', 're-import of exported file');
+  // W5-10: importing the same source twice must not overwrite an earlier save.
+  const firstImportedId = await page.evaluate(() => window.state.project.project.id);
+  assert.strictEqual(await imp(exported, 'same-id.shdo'), 'ok', 'same-ID import as copy');
+  const preserved = await page.evaluate((previousId) => ({
+    currentId: window.state.project.project.id,
+    prior: JSON.parse(localStorage.getItem('showduino_project_' + previousId) || 'null')
+  }), firstImportedId);
+  assert.notStrictEqual(preserved.currentId, firstImportedId, 'each import gets a fresh project ID');
+  assert.strictEqual(preserved.prior?.project?.name, 'W001 Round Trip', 'earlier saved import remains intact');
   assert.match(await imp('{not json', 'bad.shdo'), /import failed/i);
   assert.match(await imp(JSON.stringify({ schema: 'x', project: { name: 'evil' } }), 'x.shdo'), /not a Showduino production/);
   assert.match(await imp('x'.repeat(6 * 1048576), 'big.shdo'), /larger than 5 MB/);

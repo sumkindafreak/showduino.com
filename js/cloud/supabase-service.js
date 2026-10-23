@@ -10,9 +10,19 @@
     return window.SHOWDUINO_CONFIG || { features: {}, supabase: {} };
   }
 
+  // W5-24: only the public website and local test servers may talk to the production
+  // Supabase project. Cloudflare preview deployments (*.pages.dev) and any other copy of
+  // the site run local-only, so an old or unreviewed build can never act on real accounts.
+  const ACCOUNT_HOSTS = Object.freeze(['show-duino.com', 'www.show-duino.com', 'localhost', '127.0.0.1']);
+  function hostAllowed() {
+    const host = String(window.location?.hostname || '').toLowerCase();
+    return ACCOUNT_HOSTS.includes(host);
+  }
+
   function enabled() {
     const cfg = config();
     return Boolean(
+      hostAllowed() &&
       cfg.features?.supabase &&
       cfg.features?.authentication &&
       cfg.supabase?.url &&

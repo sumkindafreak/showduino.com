@@ -14,6 +14,7 @@ const auth = {
 const client = {auth};
 const context = {
   window:{
+    location:{ hostname:'show-duino.com' },
     SHOWDUINO_CONFIG:{
       features:{supabase:true,authentication:true},
       supabase:{url:'https://example.supabase.co',publishableKey:'test-publishable'}

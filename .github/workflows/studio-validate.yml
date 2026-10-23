@@ -105,6 +105,9 @@ jobs:
       - name: Guard imported .shdo text against HTML injection (W001)
         run: node tests/studio-imported-text-safety.test.cjs
 
+      - name: Production account services only on show-duino.com; previews local-only (W005)
+        run: node tests/w005-account-hosts.test.cjs
+
       - name: Guard the public Showduino domain
         run: |
           python3 - <<'PY'

@@ -85,7 +85,7 @@ async function person(sub) {
   const ctx = {
     console, URL, URLSearchParams, setTimeout, clearTimeout, Promise, TextEncoder, TextDecoder, Blob,
     crypto: crypto.webcrypto,
-    location: { origin: 'https://show-duino.com', href: 'https://show-duino.com/' },
+    location: { origin: 'https://show-duino.com', href: 'https://show-duino.com/', hostname: 'show-duino.com' },
     localStorage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) },
     supabase: supabaseJs,
     SHOWDUINO_CONFIG: { features: { supabase: true, authentication: true }, supabase: { url: GATEWAY, publishableKey: ANON_KEY } }

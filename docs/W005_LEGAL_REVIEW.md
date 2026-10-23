@@ -8,18 +8,23 @@ detail only the founder can supply is shown on the page as a highlighted **To co
 `LEGAL_FINAL=1 node tests/w005-legal-pages.test.cjs`, which fails while any item or the draft
 banner remains.
 
-## Founder confirmations (fill in on the pages)
+## Confirmed by Toby on 23 October 2026
+
+- Operator: Toby Brandon, personally operating an independent hobby project.
+- Contact: showduino38@gmail.com; domain forwarding is not yet configured.
+- Minimum signup age: 14+.
+- Self-service deletion: 30-day grace period, account fully usable, explicit cancellation only (implementation #88).
+- Postal address: leave unresolved for now; do not invent or publish one.
+
+## Remaining founder confirmations (fill in on the pages)
 
 | Item | Page |
 |---|---|
-| Legal name of the person or company running Showduino; sole trader or limited company (company number) | privacy `#who` |
 | Postal address for data protection correspondence | privacy `#who` |
 | ICO data protection fee registration, or the exemption relied on | privacy `#who` |
 | Email delivery provider used by Supabase Auth (custom SMTP) | privacy `#processors` |
 | Transfer safeguard for each provider (Supabase, Cloudflare, email provider, jsDelivr) | privacy `#processors` |
 | Retention: Supabase auth logs (plan), resolved reports, moderation log, support emails, backups | privacy `#data`, `#deletion` |
-| Target time for deletion requests | privacy `#deletion` |
-| Minimum age for a Showduino ID | privacy `#age`, terms `#account` |
 | Target response time for appeals and complaints | terms `#complaints` |
 | Any further limitation of liability | terms `#liability` |
 | Governing law and courts | terms `#law` |

@@ -105,6 +105,9 @@ jobs:
       - name: Guard imported .shdo text against HTML injection (W001)
         run: node tests/studio-imported-text-safety.test.cjs
 
+      - name: Privacy notice, terms and guidelines cover the UK launch; founder items listed (W005)
+        run: node tests/w005-legal-pages.test.cjs
+
       - name: Guard the public Showduino domain
         run: |
           python3 - <<'PY'

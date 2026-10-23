@@ -29,7 +29,7 @@ of every backup. Retention periods remain to be settled in legal draft #82.
 
 1. Run isolated SQL tests via `tools/db-test-local.sh`; worker and browser tests in CI.
 2. Apply `20261023121748_account_deletion.sql`.
-3. Deploy the three worker files with JWT verification off: the function authenticates its
+3. Deploy the two worker files with JWT verification off: the function authenticates its
    dedicated scheduler header itself. Missing or invalid credentials must return 403.
 4. Apply `20261023121757_account_deletion_scheduler.sql`; inspect the named Cron job.
 5. Publish the frontend only when both migrations and worker are active.

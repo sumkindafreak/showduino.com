@@ -19,6 +19,7 @@ export async function processDeletions(client, secret) {
           if (listed.data.some(f => !f.id || /\//.test(f.name))) throw Error('Unexpected storage folder');
           const removed = await store.remove(listed.data.map(f => `${userId}/${f.name}`));
           if (removed.error) throw removed.error;
+          if (!removed.data?.length) throw Error('Storage cleanup made no progress');
         }
       }
       // Hard-delete Auth only after Storage succeeded. FK cascades remove profile, projects,

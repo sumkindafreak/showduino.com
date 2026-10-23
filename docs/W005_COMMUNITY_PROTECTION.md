@@ -4,8 +4,17 @@ Migration `supabase/migrations/20261023090000_w005_community_protection.sql`, ro
 `supabase/rollback/20261023090000_w005_community_protection.rollback.sql`, tests
 `supabase/tests/w005_community_protection.sql`.
 
-**Status: written and tested on PostgreSQL 16. Not applied to production.** Apply only after
-review, using the steps below.
+**Status: applied to the production `showduino` project on 23 October 2026.**
+
+Post-apply checks confirmed all 14 public tables retain RLS, exactly one owner remains,
+the four quota configurations and both insert triggers exist, the storage policies use
+those limits, look-alike reserved names are refused, and anonymous callers cannot log
+moderation file removals. The internal usage-count function is not executable by members.
+The Security Advisor was rerun. Its existing auth OTP-expiry and leaked-password warnings
+remain, alongside advisories for deliberately callable privileged functions. Real Storage
+upload/removal and email-delivery tests remain outstanding.
+
+The procedure below is retained for a fresh environment.
 
 ## What it changes
 

@@ -2,6 +2,11 @@
 # Stops serving legacy applications, a production-connected preview, and files that
 # are not part of the website. Nothing is deleted: the files stay in the repository
 # and any Firebase or Supabase data is untouched. To restore a route, delete its line.
+# W005 (W5-19): unused files moved to archive/ and the orphan touchscreen prototype page.
+/archive                        /retired  302
+/archive/*                      /retired  302
+/touchscreen-ui                 /retired  302
+/touchscreen-ui.html            /retired  302
 /HauntSyncForum_Configured      /retired  302
 /HauntSyncForum_Configured/*    /retired  302
 /preview                        /retired  302

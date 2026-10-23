@@ -42,7 +42,8 @@ execFileSync(process.execPath, ['tools/csp-inline-hashes.mjs', '--check'], { std
 
 // 3. Legacy and non-site paths are not served.
 const redirects = fs.readFileSync('_redirects', 'utf8');
-for (const path of ['/HauntSyncForum_Configured/*', '/preview/*', '/supabase/*', '/functions/*', '/tests/*', '/docs/*', '/.github/*', '/firebase.json', '/firestore.rules']) {
+for (const path of ['/HauntSyncForum_Configured/*', '/preview/*', '/supabase/*', '/functions/*', '/tests/*', '/docs/*', '/.github/*', '/firebase.json', '/firestore.rules',
+  '/archive/*', '/touchscreen-ui', '/touchscreen-ui.html']) {
   assert.ok(new RegExp('^' + path.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&') + '\\s+/retired\\s+30[1278]\\s*$', 'm').test(redirects), `_redirects does not retire ${path}`);
 }
 assert.ok(fs.existsSync('retired.html'), 'retired.html exists');

@@ -156,6 +156,8 @@ a.hs-author-link:hover { text-decoration: underline; }
     overflow-wrap: anywhere;
   }
   .hs-admin .hs-table td:last-child { border-bottom: 0; }
+  /* Everything in a cell (name, @username, badge, each button) stays in the value column. */
+  .hs-admin .hs-table td > * { grid-column: 2; justify-self: start; }
   .hs-admin .hs-table td::before {
     content: attr(data-label);
     font-weight: 700;
@@ -164,4 +166,6 @@ a.hs-author-link:hover { text-decoration: underline; }
   .hs-admin .hs-table td[colspan] { display: block; }
   .hs-admin .hs-table td[colspan]::before { content: none; }
   .hs-admin .hs-table td .btn { min-height: 44px; margin: 0 .4rem .4rem 0; }
+  /* Report and post moderation buttons are touch targets too. */
+  .hs-admin .button-row .btn { min-height: 44px; }
 }

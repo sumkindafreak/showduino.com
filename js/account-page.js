@@ -19,13 +19,36 @@
   if (linkHasError) {
     try { window.history?.replaceState?.(null, '', confirmationReturn ? 'account.html?confirmed=1' : 'account.html'); } catch (_) {}
   }
+  // A recovery link carries type=recovery. If Supabase cannot turn it into a recovery
+  // session (malformed, tampered or already exchanged), say so instead of silently
+  // showing the sign-in form.
+  const recoveryLinkInUrl = !linkHasError && (hashParams.get('type') === 'recovery' || params.get('type') === 'recovery');
+  const RECOVERY_LINK_UNUSABLE = 'That password reset link could not be used. It may be incomplete, expired or already used. Request a fresh link with “Forgot password?”.';
   const welcomesHauntSync = params.get('next') === 'welcome' || confirmationReturn;
   let recoveryMode = false;
   let accountRevision = 0;
 
   function byId(id) { return document.getElementById(id); }
   function setStatus(message, type) { elements.status.textContent = message; elements.status.className = `status-banner${type ? ` ${type}` : ''}`; }
-  const NEUTRAL_SIGNUP = 'Check your inbox to finish creating your Showduino ID. If you already have one, sign in or use “Forgot password?”. The email can take a few minutes; check spam too.';
+  // Supabase only rate-limits, or fails to send, a recovery or confirmation email when
+  // the address really has an account, so ANY answer from the server must read the same
+  // as success; showing it would reveal which addresses are registered (W5-02).
+  // Only a request that never reached the server is reported as an error.
+  const UNREACHABLE = 'Showduino could not be reached. Check your connection and try again.';
+  // Answers that are the same for every address (a failed security check, a badly formed
+  // address) reveal nothing and must be shown, or people are told an email is coming when
+  // it is not.
+  function sameForEveryAddress(error) {
+    const text = `${error?.code || ''} ${error?.message || ''}`;
+    return /captcha/i.test(text) || /email_address_invalid|invalid format|unable to validate email/i.test(text);
+  }
+  function serverAnswered(error) { return Number(error?.status) >= 400 && !sameForEveryAddress(error); }
+  function emailRequestError(error) {
+    if (/captcha/i.test(`${error?.code || ''} ${error?.message || ''}`)) return 'The security check did not pass. Complete it again, then retry.';
+    if (sameForEveryAddress(error)) return 'Check the email address and try again.';
+    return UNREACHABLE;
+  }
+  const NEUTRAL_SIGNUP ='Check your inbox to finish creating your Showduino ID. If you already have one, sign in or use “Forgot password?”. The email can take a few minutes; check spam too.';
   function friendlyAuthMessage(error, fallback) {
     const message = String(error?.message || fallback || 'Something went wrong.');
     if (/invalid login credentials/i.test(message)) return 'That email address and password did not match. If you just signed up, make sure the confirmation email has been opened first.';
@@ -133,18 +156,29 @@
       const data=await withCaptcha((token) => window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim(),token));
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';
       setStatus(data.session ? 'Account created and signed in.' : NEUTRAL_SIGNUP,'success');
-    } catch(error){ setStatus(friendlyAuthMessage(error,'Account creation failed.'),'error'); }
+    } catch(error){
+      // A rate limit or a failed email on sign-up is per address, so it would reveal an
+      // existing account; password rules and disabled sign-up are not, and still show.
+      const status = Number(error?.status) || 0;
+      if ((status === 429 || status >= 500) && !sameForEveryAddress(error)) { setStatus(NEUTRAL_SIGNUP,'success'); return; }
+      if (sameForEveryAddress(error)) { setStatus(emailRequestError(error),'error'); return; }
+      setStatus(friendlyAuthMessage(error,'Account creation failed.'),'error');
+    }
   }
   async function handleResendConfirmation() {
     const email=elements.registerEmail.value.trim() || elements.loginEmail.value.trim() || sessionStorage.getItem('showduino_pending_confirmation_email') || '';
     if(!email){ setStatus('Enter the email address you used to create your Showduino ID, then tap “Resend confirmation”.','error'); return; }
     setStatus('Sending a fresh Showduino confirmation email…');
-    try { await withCaptcha((token) => window.ShowduinoSupabase.resendConfirmation(email,token)); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus('If that address has an unconfirmed Showduino ID, a fresh confirmation email is on its way. Check your inbox and spam folder.','success'); }
-    catch(error){ setStatus(friendlyAuthMessage(error,'The confirmation email could not be resent.'),'error'); }
+    const neutral = 'If that address has an unconfirmed Showduino ID, a fresh confirmation email is on its way. Check your inbox and spam folder. If you asked for one in the last minute, use that email.';
+    try { await withCaptcha((token) => window.ShowduinoSupabase.resendConfirmation(email,token)); sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus(neutral,'success'); }
+    catch(error){ if (serverAnswered(error)) { sessionStorage.setItem('showduino_pending_confirmation_email',email); setStatus(neutral,'success'); } else setStatus(emailRequestError(error),'error'); }
   }
   async function handleForgotPassword() {
     const email=elements.loginEmail.value.trim(); if(!email){ setStatus('Enter your email address in the Sign in box first, then tap “Forgot password?”.','error'); elements.loginEmail.focus(); return; }
-    setStatus('Sending password reset email…'); try { await withCaptcha((token) => window.ShowduinoSupabase.requestPasswordReset(email,token)); setStatus('If a Showduino account exists for that address, a reset link is on its way. Check your inbox and spam folder.','success'); } catch(error){ setStatus(friendlyAuthMessage(error,'Password reset email could not be sent.'),'error'); }
+    const neutral = 'If a Showduino account exists for that address, a reset link is on its way. Check your inbox and spam folder. If you asked for one in the last minute, use that email.';
+    setStatus('Sending password reset email…');
+    try { await withCaptcha((token) => window.ShowduinoSupabase.requestPasswordReset(email,token)); setStatus(neutral,'success'); }
+    catch(error){ if (serverAnswered(error)) setStatus(neutral,'success'); else setStatus(emailRequestError(error),'error'); }
   }
   async function handleRecoverySubmit(event) {
     event.preventDefault(); const password=elements.recoveryPassword.value; const confirm=elements.recoveryPasswordConfirm.value;
@@ -188,6 +222,7 @@
       if(event==='PASSWORD_RECOVERY'){ showRecoveryMode(); return; }
       if(recoveryMode) return;
       if(user){ sessionStorage.removeItem('showduino_pending_confirmation_email'); await showSignedIn(user, revision); }
+      else if (recoveryLinkInUrl) { showSignedOut(); setStatus(RECOVERY_LINK_UNUSABLE,'error'); try { window.history?.replaceState?.(null,'','account.html'); } catch (_) {} await renderProjects(null); }
       else { showSignedOut(); setStatus(authLinkError || (confirmationReturn ? 'Email confirmed. Sign in to finish opening your Showduino ID.' : 'Sign in or create a free Showduino account.'), authLinkError ? 'error' : (confirmationReturn ? 'success' : undefined)); await renderProjects(null); }
     });
   }

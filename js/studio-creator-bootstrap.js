@@ -203,8 +203,10 @@
       const clip = project()?.clips?.find((candidate) => String(candidate.id) === String(id));
       if (!clip || clip.type !== 'pixel') return;
 
-      const info = row.querySelector('.sm-cue-info span');
-      if (info && !info.dataset.pixelLayerSummary) {
+      // The detail line, never the first span (.sm-cue-top holds the time and name, and
+      // replacing its text ran them together as "00:00.000Flash 0").
+      const info = row.querySelector('.sm-cue-detail') || row.querySelector('.sm-cue-info span:not(.sm-cue-top)');
+      if (info && !info.dataset.pixelLayerSummary && !/\bPX\b/.test(info.textContent || '')) {
         const existing = String(info.textContent || '').trim();
         info.textContent = `${existing}${existing ? ' · ' : ''}${pixelSummary(clip)}`;
         info.dataset.pixelLayerSummary = '1';

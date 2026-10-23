@@ -39,6 +39,8 @@ jobs:
           node --check js/timeline-professional-inspector.js
           node --check js/studio-inspector-drawer.js
           node --check js/studio-package.js
+          node --check js/studio-firmware-limits.js
+          node --check js/connection_detector.js
           node --check js/studio-projects.js
           node --check js/studio-deploy.js
           node --check js/studio-creator-mode.js
@@ -104,6 +106,12 @@ jobs:
 
       - name: Guard imported .shdo text against HTML injection (W001)
         run: node tests/studio-imported-text-safety.test.cjs
+
+      - name: Studio refuses what the P4 firmware refuses (W005, verdicts from the firmware compiler)
+        run: node tests/studio-firmware-limits.test.cjs
+
+      - name: No plain-HTTP hardware probes from the HTTPS website (W005)
+        run: node tests/studio-https-no-lan-probe.test.cjs
 
       - name: Guard the public Showduino domain
         run: |

@@ -62,3 +62,5 @@ jobs:
         run: node tests/browser/studio-tablet-inspector.cjs
       - name: Studio import / export / reload / restore round trip
         run: node tests/browser/studio-roundtrip.cjs
+      - name: P4 limits in Diagnostics and Export; phone pixel rows (W005)
+        run: node tests/browser/studio-firmware-limits-ui.cjs

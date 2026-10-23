@@ -157,7 +157,7 @@
           <article class="v4-role"><small>01 / OPERATOR</small><h3>Director</h3><p>ESP32-S3 touchscreen requests actions and displays state. It does not keep a running show alive.</p></article>
           <article class="v4-role"><small>02 / TRANSPORT</small><h3>S3 Comms</h3><p>ESP-NOW ↔ UART bridge. Messages move through it; show decisions do not live there.</p></article>
           <article class="v4-role"><small>03 / AUTHORITY</small><h3>ESP32-P4</h3><p>Owns runtime state, safety, timeline execution, cue dispatch and emergency behaviour.</p></article>
-          <article class="v4-role"><small>04 / ACTION</small><h3>Specialist Nodes</h3><p>Relay, MOSFET, pixel and audio nodes perform commanded work and report results.</p></article>
+          <article class="v4-role"><small>04 / ACTION</small><h3>Specialist Nodes</h3><p>Lamp, MOSFET, pixel, audio and Emergency nodes perform commanded work and report results.</p></article>
         </div>
 
         <h2 class="visually-hidden">Studio tools</h2>

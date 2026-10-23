@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist relay, MOSFET, pixel and audio nodes.">
+  <meta name="description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist lamp, MOSFET, pixel and audio nodes.">
   <title>System Architecture | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
@@ -69,7 +69,7 @@
         <article class="architecture-node">
           <span class="role-number">04 / NODES</span>
           <h3>Specialist ESP32 Nodes</h3>
-          <p>Relay, MOSFET, pixel and audio devices execute commands and return useful state/results.</p>
+          <p>Lamp, MOSFET, pixel, audio and Emergency devices execute commands and return useful state/results.</p>
           <span class="transport">REPORT ←</span>
         </article>
       </div>
@@ -143,7 +143,7 @@
         <p>Nodes are not mini Show Engines. They receive a commanded state, perform the work that belongs to their hardware role and report useful results or faults.</p>
       </div>
       <div class="grid four">
-        <article class="card"><div class="card-icon">RLY</div><h3>Relay Node</h3><p class="muted">Discrete switched outputs for compatible effects and equipment.</p></article>
+        <article class="card"><div class="card-icon">LMP</div><h3>Lamp Node</h3><p class="muted">ESP32-S3 practical-lamp effects. It replaces the retired Relay Node role; the old relay firmware is kept for reference only.</p></article>
         <article class="card"><div class="card-icon">MOS</div><h3>MOSFET Node</h3><p class="muted">Solid-state low-voltage switching for suitable loads and effects.</p></article>
         <article class="card"><div class="card-icon">PIX</div><h3>Pixel Node</h3><p class="muted">Segment-aware NeoPixel effects with a system emergency override model.</p></article>
         <article class="card"><div class="card-icon">AUD</div><h3>Audio Node</h3><p class="muted">Dedicated show audio playback while the P4 retains separate local system audio.</p></article>
@@ -177,7 +177,7 @@
         <p>The current system is being completed around the non-DMX core: reliable show runtime, real node control, pixels, audio, storage, diagnostics and a useful authoring workflow.</p>
       </div>
       <div class="grid three">
-        <article class="card"><h3>In the current build</h3><p class="muted">Director, dedicated S3 Comms Controller, P4 Show Engine, relay node, MOSFET node, pixel work, audio node development and Studio/HauntSync tooling.</p></article>
+        <article class="card"><h3>In the current build</h3><p class="muted">Director, dedicated S3 Comms Controller, P4 Show Engine, S3 Lamp Node, MOSFET node, pixel work, audio node development and Studio/HauntSync tooling.</p></article>
         <article class="card"><h3>Being completed</h3><p class="muted">Persistent P4 project storage, first-class output engines, logical device addressing and completion/fault reporting throughout the node path.</p></article>
         <article class="card"><h3>Deliberately not current</h3><p class="muted">DMX is not part of the present implementation scope and is not being advertised as a current capability.</p></article>
       </div>

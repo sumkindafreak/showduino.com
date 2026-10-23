@@ -11,6 +11,10 @@ on:
       - '_redirects'
       - 'tests/site-security-config.test.cjs'
       - 'tests/studio-actions.test.cjs'
+      - 'tests/w005-site-polish.test.cjs'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - 'archive/**'
       - '.github/workflows/website-static-smoke.yml'
   workflow_dispatch:
 
@@ -35,3 +39,4 @@ jobs:
           node tests/hauntsync-google-auth.test.cjs
           node tests/site-security-config.test.cjs
           node tests/studio-actions.test.cjs
+          node tests/w005-site-polish.test.cjs

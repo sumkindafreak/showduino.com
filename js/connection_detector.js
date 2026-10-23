@@ -11,13 +11,18 @@ class ConnectionDetector {
 
   async detectMode() {
     const host = window.location.hostname;
+    // W005 (W5-15): a page served over HTTPS (the public website) cannot reach a
+    // Showduino over plain HTTP; browsers block it as mixed content or a private-network
+    // request. Probing there only adds console errors and delays Studio start-up, so on
+    // HTTPS only an operator-configured HTTPS target is tried.
+    const secure = window.location.protocol === 'https:';
 
     // Prefer an operator-configured Communications S3 target. This lets Studio
     // work on normal LANs where mDNS is unavailable or the S3 has a known IP.
     let configured = '';
     try { configured = window.localStorage?.getItem('showduino_target_url') || ''; } catch (_) {}
     configured = configured.replace(/\/$/, '');
-    if (configured && await this._probe(`${configured}/status`, 2000)) {
+    if (configured && (!secure || /^https:\/\//i.test(configured)) && await this._probe(`${configured}/status`, 2000)) {
       this.mode = configured.includes('192.168.4.') ? 'ap' : 'lan';
       this._probeURL = `${configured}/status`;
       this._notify();
@@ -30,6 +35,12 @@ class ConnectionDetector {
       this._probeURL = `http://${host}/status`;
       this._notify();
       return 'ap';
+    }
+
+    if (secure) {
+      this.mode = 'offline';
+      this._notify();
+      return 'offline';
     }
 
     // Try to reach the Showduino on its default AP address

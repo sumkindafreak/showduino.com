@@ -28,7 +28,7 @@
   const posts = [
     { id: '20000000-0000-4000-8000-0000000000f1', author_id: FOUNDER, author_name: 'Showduino Founder', title: 'Welcome to HauntSync', content: 'Say hello!', category: 'general', kind: 'discussion', image_path: null, status: 'visible', is_featured: true, moderation_reason: '', created_at: iso(300), edited_at: null },
     { id: '20000000-0000-4000-8000-0000000000e1', author_id: '00000000-0000-4000-8000-0000000000e1', author_name: 'Mallory', title: 'Free fog ' + HOSTILE, content: 'Line one\n' + HOSTILE + '\n<script>window.__xss=99</script>', category: 'effects', kind: 'showcase', image_path: null, status: 'visible', is_featured: false, moderation_reason: '', created_at: iso(60), edited_at: null },
-    { id: '20000000-0000-4000-8000-0000000000a1', author_id: '00000000-0000-4000-8000-0000000000a1', author_name: 'Alice', title: 'Fog chiller build', content: 'Day one of my fog chiller.', category: 'effects', kind: 'build_log', image_path: null, status: 'visible', is_featured: false, moderation_reason: '', created_at: iso(30), edited_at: null }
+    { id: '20000000-0000-4000-8000-0000000000a1', author_id: '00000000-0000-4000-8000-0000000000a1', author_name: 'Alice', title: 'Fog chiller build', content: 'Day one of my fog chiller.', category: 'effects', kind: 'build_log', image_path: '00000000-0000-4000-8000-0000000000a1/post-00000000-0000-4000-8000-0000000000aa.png', status: 'visible', is_featured: false, moderation_reason: '', created_at: iso(30), edited_at: null }
   ];
   const comments = [
     { id: '30000000-0000-4000-8000-0000000000b1', post_id: '20000000-0000-4000-8000-0000000000a1', author_id: '00000000-0000-4000-8000-0000000000b1', author_name: 'Bob', content: 'Nice ' + HOSTILE, parent_id: null, status: 'visible', moderation_reason: '', created_at: iso(20), edited_at: null }
@@ -127,8 +127,8 @@
       resolveReport: async (id, resolution) => { denyUnlessOwner('resolve:' + resolution); const r = reports.find((x) => x.id === id); if (r) r.status = resolution; save(); return null; },
       members: async () => { denyUnlessOwner('members'); return [...creators.values()].map((c) => ({ user_id: c.creator_id, display_name: c.display_name, username: c.username, published: true, joined: '2026-08-01', status: 'active', status_reason: '', is_owner: c.creator_id === FOUNDER, posts: 1, comments: 0, shows: 0, open_reports: 0 })); },
       setMemberStatus: async (id, st) => { denyUnlessOwner('setMemberStatus:' + st); if (id === FOUNDER) throw new Error('The Showduino owner account cannot be restricted or suspended.'); return null; },
-      clearAvatar: async () => { denyUnlessOwner('clearAvatar'); return null; },
-      removeImage: async () => { denyUnlessOwner('removeImage'); return true; },
+      clearAvatar: async (id, reason) => { denyUnlessOwner('clearAvatar:' + id + ':' + reason); return 1; },
+      removeImage: async (path, reason) => { denyUnlessOwner('removeImage:' + path + ':' + reason); return true; },
       saveCategory: async (c) => { denyUnlessOwner('saveCategory:' + c.slug); return null; },
       allCategories: async () => { denyUnlessOwner('allCategories'); return categories; },
       sharedShows: async () => { denyUnlessOwner('sharedShows'); return []; },

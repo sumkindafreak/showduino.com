@@ -7,7 +7,7 @@ const auth={
  async getUser(){assert.equal(locked,false,'profile reads must run outside the auth lock');return {data:{user:{id:'synthetic-showduino38'}}};},
  async signOut(){await emit('SIGNED_OUT',null);return {error:null};}
 };
-const client={auth};const ctx={console,setTimeout:fn=>{timers.push(fn);return timers.length;},window:{SHOWDUINO_CONFIG:{features:{supabase:true,authentication:true},supabase:{url:'https://example.supabase.co',publishableKey:'test'}},supabase:{createClient:()=>client}}};
+const client={auth};const ctx={console,setTimeout:fn=>{timers.push(fn);return timers.length;},window:{location:{hostname:'show-duino.com'},SHOWDUINO_CONFIG:{features:{supabase:true,authentication:true},supabase:{url:'https://example.supabase.co',publishableKey:'test'}},supabase:{createClient:()=>client}}};
 vm.runInNewContext(fs.readFileSync('js/cloud/supabase-service.js','utf8'),ctx);
 const api=ctx.window.ShowduinoSupabase;
 async function emit(event,user){locked=true;try{const result=listener(event,user?{user}:null);assert.equal(result,undefined,'auth callback must return immediately without the UI promise');}finally{locked=false;}}

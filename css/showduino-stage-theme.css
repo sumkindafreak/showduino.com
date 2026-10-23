@@ -29,7 +29,7 @@ body::before{z-index:0;opacity:.22;mask-image:linear-gradient(#000,transparent 9
 .site-brand::before{background:var(--site-accent);box-shadow:0 0 22px rgba(115,255,64,.8)}
 .site-nav a{font-weight:780;letter-spacing:.025em}
 .site-nav a:hover,.site-nav a[aria-current="page"]{border-color:rgba(115,255,64,.3);background:rgba(115,255,64,.09)}
-.hero{position:relative;isolation:isolate}
+.hero{position:relative;isolation:isolate;overflow-x:clip}
 .hero::before{
   content:"";position:absolute;z-index:-1;inset:0 -3vw 8%;pointer-events:none;
   background:

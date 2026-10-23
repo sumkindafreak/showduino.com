@@ -26,7 +26,7 @@ const PUBLIC = ['/', '/index.html', '/system.html', '/studio.html', '/hauntsync.
 const SHOULD_NOT_SERVE = ['/HauntSyncForum_Configured/forum.html', '/HauntSyncForum_Configured/index.html',
   '/HauntSyncForum_Configured/auth.js', '/preview/hauntsync.html', '/preview/hauntsync-preview.js',
   '/functions/index.js', '/supabase/hauntsync_shared_shows_v1.sql', '/tests/hauntsync-profile.test.cjs',
-  '/firebase.json', '/firestore.rules', '/DEPLOY.md', '/.github/workflows/studio-validate.yml', '/docs/LAUNCH_SETUP.md'];
+  '/firebase.json', '/firestore.rules', '/touchscreen-ui.html', '/archive/README.md', '/DEPLOY.md', '/.github/workflows/studio-validate.yml', '/docs/LAUNCH_SETUP.md'];
 const HEADERS = ['content-security-policy', 'content-security-policy-report-only', 'strict-transport-security',
   'x-content-type-options', 'x-frame-options', 'referrer-policy', 'permissions-policy', 'cross-origin-opener-policy', 'server'];
 const FIXES = [
@@ -34,7 +34,8 @@ const FIXES = [
   ['W-002 firmware upload pre-flight', '/js/studio-deploy.js', 'function uploadPolicyErrors(plan)'],
   ['W-005 import shape and size', '/js/studio-projects.js', 'function assertImportableShape(parsed)'],
   ['W002 unsafe identifiers refused', '/js/studio-projects.js', 'function assertSafeIdentifiers('],
-  ['W002 project browser as text', '/js/timeline.js', "nameEl.textContent = String(p.project.name || 'Untitled Show')"]
+  ['W002 project browser as text', '/js/timeline.js', "nameEl.textContent = String(p.project.name || 'Untitled Show')"],
+  ['W005 Studio controls without inline handlers', '/js/studio-actions.js', 'window.ShowduinoActions = Object.freeze(']
 ];
 
 // Cloudflare Pages answers /page.html with 308 -> /page, so follow redirects and

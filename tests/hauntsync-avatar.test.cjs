@@ -51,6 +51,7 @@ function makeFixture() {
     }
   };
   const win={
+    location:{ hostname:'show-duino.com' },
     SHOWDUINO_CONFIG:{
       features:{supabase:true,authentication:true},
       supabase:{url:'https://storage.example',publishableKey:'sb_publishable_test'}

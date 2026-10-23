@@ -20,7 +20,49 @@
 
   function createProjectId() {
     if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    return '00000000-0000-4000-8000-000000000000';
+    // randomUUID() needs a secure context (it is missing on plain-HTTP LAN consoles).
+    // getRandomValues() is available everywhere and gives a valid RFC 4122 v4 UUID,
+    // which the cloud projects table requires.
+    if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+      const b = window.crypto.getRandomValues(new Uint8Array(16));
+      b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+      const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+      return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+    }
+    return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  }
+
+  // True when a saved show on this device, or in the signed-in account's cloud
+  // library, already uses this project ID. If the cloud list cannot be read, the
+  // answer is "in use", so an import never risks overwriting a cloud show.
+  function localProjectIdInUse(id) {
+    const value = String(id || '');
+    if (!value) return true;
+    if (readProjectIndex().some((item) => String(item.id) === value)) return true;
+    try { if (localStorage.getItem(`${PROJECT_DATA_PREFIX}${value}`)) return true; } catch (_) {}
+    return false;
+  }
+
+  async function projectIdInUse(id) {
+    const value = String(id || '');
+    if (localProjectIdInUse(value)) return true;
+    if (cloudEnabled() && currentUser && typeof window.ShowduinoSupabase.listProjects === 'function') {
+      try {
+        const cloud = await window.ShowduinoSupabase.listProjects();
+        if ((cloud || []).some((item) => String(item.id) === value)) return true;
+      } catch (_) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function copyName(name) {
+    const base = String(name || 'Untitled Show').replace(/\s+\(copy(?: \d+)?\)$/i, '').trim() || 'Untitled Show';
+    const used = new Set(readProjectIndex().map((item) => String(item.name || '')));
+    let candidate = `${base} (copy)`;
+    for (let n = 2; used.has(candidate) && n < 100; n += 1) candidate = `${base} (copy ${n})`;
+    return candidate.slice(0, 100);
   }
 
   const IMPORT_MAX_BYTES = 5 * 1048576;
@@ -311,7 +353,19 @@
       if (!validation.valid) throw new Error(validation.errors[0] || 'SHDO validation failed.');
     }
 
-    const blob = new Blob([JSON.stringify(shdoDocument, null, 2)], { type: 'application/vnd.showduino.production+json' });
+    // W005: spaced and readable when it fits the P4's 48 KB Persist to SD limit, compact
+    // when that is what makes it fit; anything the P4 would refuse is said here.
+    const limits = window.ShowduinoFirmwareLimits;
+    const output = limits ? limits.serialise(shdoDocument) : { text: JSON.stringify(shdoDocument, null, 2), compact: false };
+    if (limits && shdoDocument.schema === window.ShowduinoPackage?.SCHEMA_NAME) {
+      const report = limits.inspect(shdoDocument);
+      if (output.compact && !report.problems.some((p) => p.field === 'fileBytes')) {
+        notify(`Exported without spacing so the file (${(report.fileBytes / 1024).toFixed(1)} KB) fits the P4's ${limits.LIMITS.fileBytes / 1024} KB limit.`, 'INFO');
+      }
+      report.problems.slice(0, 3).forEach((p) => notify(`The P4 will refuse this file: ${p.item}: ${p.detail}`, 'WARN'));
+      if (report.problems.length > 3) notify(`…and ${report.problems.length - 3} more P4 compatibility problems. See Diagnostics.`, 'WARN');
+    }
+    const blob = new Blob([output.text], { type: 'application/vnd.showduino.production+json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -338,9 +392,31 @@
           assertSafeIdentifiers(parsed, '', 0);
           validatePackage(parsed);
           const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
-          state.project = normaliseProject(imported);
+          const copy = normaliseProject(imported);
+          // The project ID is also the P4 production ID: the Show Engine stores each
+          // production in a folder named after it, so a re-imported show must keep its
+          // ID or every round trip would add a duplicate production to the SD card.
+          // Only when that ID is already used by a saved show here (or in this
+          // account's cloud library) is the import made a renamed copy with a new ID,
+          // so nothing saved is ever overwritten (W5-10).
+          const sourceId = String(copy.project.id || '');
+          const taken = await projectIdInUse(sourceId);
+          if (taken) {
+            // A fresh random UUID cannot match a cloud show, so only local saves
+            // are checked here (an unreadable cloud list must not loop forever).
+            let newId;
+            do {
+              newId = createProjectId();
+            } while (newId === sourceId || localProjectIdInUse(newId));
+            copy.project.id = newId;
+            copy.project.createdAt = new Date().toISOString();
+            copy.project.name = copyName(copy.project.name);
+          }
+          state.project = copy;
           await saveCurrentProject();
-          notify(`Imported Showduino production: ${state.project.project.name}`, 'INFO');
+          notify(taken
+            ? `Imported as a new copy: ${state.project.project.name}. A saved show already uses this file's ID, so it was kept unchanged.`
+            : `Imported Showduino production: ${state.project.project.name}`, 'INFO');
           resolve(state.project);
         } catch (error) {
           reject(new Error(`Project import failed: ${error.message}`));

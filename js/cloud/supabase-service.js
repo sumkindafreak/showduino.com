@@ -10,9 +10,19 @@
     return window.SHOWDUINO_CONFIG || { features: {}, supabase: {} };
   }
 
+  // W5-24: only the public website and local test servers may talk to the production
+  // Supabase project. Cloudflare preview deployments (*.pages.dev) and any other copy of
+  // the site run local-only, so an old or unreviewed build can never act on real accounts.
+  const ACCOUNT_HOSTS = Object.freeze(['show-duino.com', 'www.show-duino.com', 'localhost', '127.0.0.1']);
+  function hostAllowed() {
+    const host = String(window.location?.hostname || '').toLowerCase();
+    return ACCOUNT_HOSTS.includes(host);
+  }
+
   function enabled() {
     const cfg = config();
     return Boolean(
+      hostAllowed() &&
       cfg.features?.supabase &&
       cfg.features?.authentication &&
       cfg.supabase?.url &&
@@ -49,31 +59,35 @@
     return data;
   }
 
-  async function register(email, password, displayName) {
+  // captchaToken: Cloudflare Turnstile token when bot protection is on (js/site-captcha.js).
+  const withCaptcha = (options, captchaToken) => (captchaToken ? { ...options, captchaToken } : options);
+
+  async function register(email, password, displayName, captchaToken) {
     const { data, error } = await getClient().auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: CONFIRMATION_URL, data: { display_name: displayName } }
+      options: withCaptcha({ emailRedirectTo: CONFIRMATION_URL, data: { display_name: displayName } }, captchaToken)
     });
     if (error) throw error;
     if (data.user && data.session) await upsertProfile(data.user, displayName);
     return data;
   }
 
-  async function resendConfirmation(email) {
+  async function resendConfirmation(email, captchaToken) {
     const address = String(email || '').trim();
     if (!address) throw new Error('Enter the email address you used to sign up first.');
     const { data, error } = await getClient().auth.resend({
       type: 'signup',
       email: address,
-      options: { emailRedirectTo: CONFIRMATION_URL }
+      options: withCaptcha({ emailRedirectTo: CONFIRMATION_URL }, captchaToken)
     });
     if (error) throw error;
     return data;
   }
 
-  async function signIn(email, password) {
-    const { data, error } = await getClient().auth.signInWithPassword({ email, password });
+  async function signIn(email, password, captchaToken) {
+    const { data, error } = await getClient().auth.signInWithPassword(
+      captchaToken ? { email, password, options: { captchaToken } } : { email, password });
     if (error) throw error;
     if (data.user) await upsertProfile(data.user);
     return data;
@@ -93,8 +107,8 @@
     return data;
   }
 
-  async function requestPasswordReset(email) {
-    const { data, error } = await getClient().auth.resetPasswordForEmail(email, { redirectTo: ACCOUNT_URL });
+  async function requestPasswordReset(email, captchaToken) {
+    const { data, error } = await getClient().auth.resetPasswordForEmail(email, withCaptcha({ redirectTo: ACCOUNT_URL }, captchaToken));
     if (error) throw error;
     return data;
   }
@@ -231,7 +245,13 @@
       upsert: false,
       contentType: file.type
     });
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      // W005: storage refuses uploads past the account limit or while suspended.
+      if (/row-level security|violates/i.test(String(uploadError.message || ''))) {
+        throw new Error('That photo was not accepted. Accounts keep up to 5 stored photos (10 uploads a day), and suspended accounts cannot upload.');
+      }
+      throw uploadError;
+    }
     try {
       const url = store.getPublicUrl(path).data.publicUrl;
       const { data, error } = await getClient().from('profiles').update({
@@ -267,9 +287,17 @@
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
   }
 
+  // A fixed fallback ID would make every such project collide on the shared primary key.
+  function randomUuidV4() {
+    const b = window.crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+    const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
+
   function ensureProjectUuid(project) {
     project.project = project.project || {};
-    if (!isUuid(project.project.id)) project.project.id = window.crypto?.randomUUID?.() || '00000000-0000-4000-8000-000000000000';
+    if (!isUuid(project.project.id)) project.project.id = window.crypto?.randomUUID?.() || randomUuidV4();
     return project.project.id;
   }
 

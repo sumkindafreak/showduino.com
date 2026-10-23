@@ -366,9 +366,9 @@ class TimelineEditor {
 
     const btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:2px;';
-    btnRow.appendChild(this._trackBtn('M', track.muted ? '#ff8800' : '#555', () => this._toggleMute(track.id), 'Mute'));
-    btnRow.appendChild(this._trackBtn('👁', track.visible ? '#00ffcc' : '#555', () => this._toggleVisible(track.id), 'Visible'));
-    btnRow.appendChild(this._trackBtn('🔒', track.locked ? '#ffff00' : '#555', () => this._toggleLock(track.id), 'Lock'));
+    btnRow.appendChild(this._trackBtn('M', track.muted ? '#ff8800' : '#555', () => this._toggleMute(track.id), 'Mute', !!track.muted));
+    btnRow.appendChild(this._trackBtn('👁', track.visible ? '#00ffcc' : '#555', () => this._toggleVisible(track.id), 'Visible', track.visible !== false));
+    btnRow.appendChild(this._trackBtn('🔒', track.locked ? '#ffff00' : '#555', () => this._toggleLock(track.id), 'Lock', !!track.locked));
     btnRow.appendChild(this._trackBtn('⊕', '#555', () => this._duplicateTrack(track.id), 'Duplicate'));
     btnRow.appendChild(this._trackBtn('✕', '#555', () => this._deleteTrack(track.id), 'Delete'));
     hdr.appendChild(btnRow);
@@ -376,11 +376,16 @@ class TimelineEditor {
     return hdr;
   }
 
-  _trackBtn(text, color, onClick, title = '') {
+  _trackBtn(text, color, onClick, title = '', pressed) {
     const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tl-track-btn';
     btn.textContent = text;
     btn.title = title;
-    btn.style.cssText = `padding:1px 4px;font-size:10px;background:${color};border:1px solid #555;color:#fff;cursor:pointer;border-radius:2px;`;
+    if (title) btn.setAttribute('aria-label', title);
+    if (typeof pressed === 'boolean') btn.setAttribute('aria-pressed', String(pressed));
+    // W005 (W5-17): at least 24 x 24 px so the controls are usable by touch.
+    btn.style.cssText = `min-width:24px;min-height:24px;padding:1px 4px;font-size:10px;background:${color};border:1px solid #555;color:#fff;cursor:pointer;border-radius:2px;`;
     btn.addEventListener('click', onClick);
     return btn;
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build an ISOLATED local API that behaves like the Supabase REST layer for the community tests:
-# a throw-away PostgreSQL database with the Showduino schema (baseline + W004) and a PostgREST
+# a throw-away PostgreSQL database with the Showduino schema (baseline + W004 + W005) and a PostgREST
 # server in front of it. Never point this at Supabase.
 #
 #   PGHOST=... PGPORT=... PGUSER=postgres POSTGREST_BIN=/path/to/postgrest \
@@ -26,6 +26,7 @@ run supabase/tests/local-supabase-stub.sql
 run supabase/migrations/20261017090000_w002_baseline_live_schema.sql
 run supabase/tests/w004_owner_fixture.sql
 run supabase/migrations/20261018100000_w004_roles_and_community.sql
+run supabase/migrations/20261023090000_w005_community_protection.sql
 psql -X -v ON_ERROR_STOP=1 -q -d "$DB" -v pw="$AUTH_PW" > /dev/null <<'SQL'
 select format('create role authenticator login noinherit password %L', :'pw')
  where not exists (select 1 from pg_roles where rolname = 'authenticator') \gexec

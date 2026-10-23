@@ -61,3 +61,5 @@
 .hs-file-input::file-selector-button { border:1px solid var(--site-border); border-radius:7px; padding:.45rem; background:#152119; color:var(--site-text); }
 .hs-photo-controls button:disabled,.hs-photo-upload-label:has(+ input:disabled) { opacity:.55; cursor:default; }
 @media(max-width:620px) { .hs-photo-controls { align-items:stretch; flex-direction:column; } .hs-photo-controls>* { max-width:100%; width:100%; } .hs-file-input { font-size:.9rem; } }
+/* W005: on 320 px phones the logo beside the title left too little room and the page scrolled sideways. */
+@media(max-width:380px) { .hs-brand-heading { flex-direction:column; } .hs-brand-heading > * { min-width:0; } }

@@ -807,7 +807,14 @@
     catch (error) { window.alert(error?.message || 'Could not save this production.'); }
   }
 
+  // W005 (W5-17): "Skip to main content" goes to whichever Studio is on screen.
+  function pointSkipLink(id) {
+    const link = document.querySelector('.skip-link');
+    if (link) link.setAttribute('href', `#${id}`);
+  }
+
   function openAdvancedTimeline() {
+    pointSkipLink('main');
     document.body.classList.remove('studio-mobile-native');
     document.body.classList.add('studio-mobile-advanced');
     window.ShowduinoStudioV4?.openPanel?.('timeline-editor');
@@ -893,11 +900,13 @@
     if (!root) {
       root = document.createElement('div');
       root.id = 'studio-mobile-app';
+      root.setAttribute('tabindex', '-1');
       document.body.appendChild(root);
       root.addEventListener('click',handleClick);
       root.addEventListener('input',handleInput);
     }
     root.style.display = '';
+    pointSkipLink('studio-mobile-app');
     render();
   }
 
@@ -909,6 +918,7 @@
     } else {
       document.body.classList.remove('studio-mobile-native','studio-mobile-advanced');
       if (root) root.style.display = 'none';
+      pointSkipLink('main');
     }
   }
 

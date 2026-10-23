@@ -32,6 +32,39 @@
     return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
   }
 
+  // True when a saved show on this device, or in the signed-in account's cloud
+  // library, already uses this project ID. If the cloud list cannot be read, the
+  // answer is "in use", so an import never risks overwriting a cloud show.
+  function localProjectIdInUse(id) {
+    const value = String(id || '');
+    if (!value) return true;
+    if (readProjectIndex().some((item) => String(item.id) === value)) return true;
+    try { if (localStorage.getItem(`${PROJECT_DATA_PREFIX}${value}`)) return true; } catch (_) {}
+    return false;
+  }
+
+  async function projectIdInUse(id) {
+    const value = String(id || '');
+    if (localProjectIdInUse(value)) return true;
+    if (cloudEnabled() && currentUser && typeof window.ShowduinoSupabase.listProjects === 'function') {
+      try {
+        const cloud = await window.ShowduinoSupabase.listProjects();
+        if ((cloud || []).some((item) => String(item.id) === value)) return true;
+      } catch (_) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function copyName(name) {
+    const base = String(name || 'Untitled Show').replace(/\s+\(copy(?: \d+)?\)$/i, '').trim() || 'Untitled Show';
+    const used = new Set(readProjectIndex().map((item) => String(item.name || '')));
+    let candidate = `${base} (copy)`;
+    for (let n = 2; used.has(candidate) && n < 100; n += 1) candidate = `${base} (copy ${n})`;
+    return candidate.slice(0, 100);
+  }
+
   const IMPORT_MAX_BYTES = 5 * 1048576;
 
   // W001: an imported file must look like a Showduino production before it may
@@ -348,20 +381,30 @@
           validatePackage(parsed);
           const imported = window.ShowduinoPackage?.fromShdo ? window.ShowduinoPackage.fromShdo(parsed) : parsed;
           const copy = normaliseProject(imported);
-          // Import means "make a new editable copy". Preserving the source ID
-          // would silently overwrite local saves and potentially cloud shows
-          // with the same ID when saveCurrentProject() persists the import.
-          const existingIds = new Set(readProjectIndex().map((item) => String(item.id)));
-          let newId;
-          do {
-            newId = createProjectId();
-          } while (newId === copy.project.id || existingIds.has(newId) ||
-                   localStorage.getItem(`${PROJECT_DATA_PREFIX}${newId}`));
-          copy.project.id = newId;
-          copy.project.createdAt = new Date().toISOString();
+          // The project ID is also the P4 production ID: the Show Engine stores each
+          // production in a folder named after it, so a re-imported show must keep its
+          // ID or every round trip would add a duplicate production to the SD card.
+          // Only when that ID is already used by a saved show here (or in this
+          // account's cloud library) is the import made a renamed copy with a new ID,
+          // so nothing saved is ever overwritten (W5-10).
+          const sourceId = String(copy.project.id || '');
+          const taken = await projectIdInUse(sourceId);
+          if (taken) {
+            // A fresh random UUID cannot match a cloud show, so only local saves
+            // are checked here (an unreadable cloud list must not loop forever).
+            let newId;
+            do {
+              newId = createProjectId();
+            } while (newId === sourceId || localProjectIdInUse(newId));
+            copy.project.id = newId;
+            copy.project.createdAt = new Date().toISOString();
+            copy.project.name = copyName(copy.project.name);
+          }
           state.project = copy;
           await saveCurrentProject();
-          notify(`Imported a new copy: ${state.project.project.name} (original project kept)`, 'INFO');
+          notify(taken
+            ? `Imported as a new copy: ${state.project.project.name}. A saved show already uses this file's ID, so it was kept unchanged.`
+            : `Imported Showduino production: ${state.project.project.name}`, 'INFO');
           resolve(state.project);
         } catch (error) {
           reject(new Error(`Project import failed: ${error.message}`));

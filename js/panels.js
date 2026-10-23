@@ -37,19 +37,19 @@ class PanelManager {
   </div>
 
   <div class="control-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:2rem;">
-    <div class="control-section" style="cursor:pointer;" onclick="document.querySelector('[data-panel=\"timeline-editor\"]').click()">
+    <div class="control-section" style="cursor:pointer;" data-sd-click="open-panel" data-sd-arg="timeline-editor">
       <h3>🎬 Timeline Editor</h3>
       <p style="font-size:12px;color:#888;">Full DAW-style show sequencer with clips, tracks, and effects.</p>
     </div>
-    <div class="control-section" style="cursor:pointer;" onclick="document.querySelector('[data-panel=\"live-control\"]')?.click()">
+    <div class="control-section" style="cursor:pointer;" data-sd-click="open-panel" data-sd-arg="live-control">
       <h3>🎛 Live Control</h3>
       <p style="font-size:12px;color:#888;">Control LEDs, relays, and audio in real-time.</p>
     </div>
-    <div class="control-section" style="cursor:pointer;" onclick="document.querySelector('[data-panel=\"connect\"]')?.click()">
+    <div class="control-section" style="cursor:pointer;" data-sd-click="open-panel" data-sd-arg="connect">
       <h3>📡 Connect</h3>
       <p style="font-size:12px;color:#888;">Connect to your Showduino device via AP or LAN.</p>
     </div>
-    <div class="control-section" style="cursor:pointer;" onclick="document.querySelector('[data-panel=\"hauntsync\"]')?.click()">
+    <div class="control-section" style="cursor:pointer;" data-sd-click="open-panel" data-sd-arg="hauntsync">
       <h3>☁ HauntSync</h3>
       <p style="font-size:12px;color:#888;">Cloud sync, backup, and multi-device show management.</p>
     </div>
@@ -83,7 +83,7 @@ class PanelManager {
   </div>
 
   <div style="text-align:center;margin-top:1.5rem;">
-    <button class="btn-primary" onclick="document.querySelector('[data-panel=\\'timeline-editor\\']').click()" style="font-size:14px;padding:10px 24px;">
+    <button class="btn-primary" data-sd-click="open-panel" data-sd-arg="timeline-editor" style="font-size:14px;padding:10px 24px;">
       Open Timeline Editor →
     </button>
   </div>
@@ -134,8 +134,8 @@ class PanelManager {
       </div>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px;">
-      <button class="btn-primary" onclick="window.connectionDetector?.detectMode().then(m=>alert('Mode: '+m))">🔍 Detect Mode</button>
-      <button class="btn-secondary" onclick="location.reload()">🔄 Refresh</button>
+      <button class="btn-primary" data-sd-click="detect-mode">🔍 Detect Mode</button>
+      <button class="btn-secondary" data-sd-click="reload">🔄 Refresh</button>
     </div>
   </div>
 
@@ -144,7 +144,7 @@ class PanelManager {
     <div id="wifi-list" style="min-height:60px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;margin-bottom:8px;font-size:12px;color:#666;">
       Press "Scan" to discover networks…
     </div>
-    <button class="btn-toolbar" onclick="window._scanWifi()">📡 Scan Networks</button>
+    <button class="btn-toolbar" data-sd-click="scan-wifi">📡 Scan Networks</button>
   </div>
 
   <div class="control-section">
@@ -158,7 +158,7 @@ class PanelManager {
         <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">Password</label>
         <input id="wifi-password" type="password" placeholder="Password" style="width:100%;background:#111;border:1px solid #555;color:#eee;padding:8px;box-sizing:border-box;border-radius:4px;font-size:13px;"/>
       </div>
-      <button class="btn-primary" onclick="window._connectWifi()" style="align-self:flex-start;">Connect</button>
+      <button class="btn-primary" data-sd-click="connect-wifi" style="align-self:flex-start;">Connect</button>
     </div>
   </div>
 </div>
@@ -204,8 +204,8 @@ window._connectWifi = async () => {
           <span id="led${line}-bright-val" style="font-size:11px;color:#888;min-width:28px;">255</span>
         </div>
         <div style="display:flex;gap:6px;">
-          <button class="btn-primary" style="flex:1;font-size:12px;" onclick="window._setLEDLine(${line})">Set</button>
-          <button class="btn-secondary" style="flex:1;font-size:12px;" onclick="window._clearLEDLine(${line})">Clear</button>
+          <button class="btn-primary" style="flex:1;font-size:12px;" data-sd-click="set-led-line" data-sd-arg="${line}">Set</button>
+          <button class="btn-secondary" style="flex:1;font-size:12px;" data-sd-click="clear-led-line" data-sd-arg="${line}">Clear</button>
         </div>
       </div>`).join('')}
     </div>
@@ -218,8 +218,8 @@ window._connectWifi = async () => {
       <div style="background:#222;border:1px solid #333;border-radius:6px;padding:12px;text-align:center;">
         <h4 style="margin:0 0 8px;font-size:13px;color:#ff8800;">OUT${i + 1}</h4>
         <div style="display:flex;gap:8px;justify-content:center;">
-          <button class="btn-primary" style="flex:1;font-size:13px;" onclick="window._setRelay('${out}', true)">ON</button>
-          <button class="btn-secondary" style="flex:1;font-size:13px;" onclick="window._setRelay('${out}', false)">OFF</button>
+          <button class="btn-primary" style="flex:1;font-size:13px;" data-sd-click="set-relay" data-sd-arg="${panelEsc(out)}" data-sd-arg2="true">ON</button>
+          <button class="btn-secondary" style="flex:1;font-size:13px;" data-sd-click="set-relay" data-sd-arg="${panelEsc(out)}" data-sd-arg2="false">OFF</button>
         </div>
       </div>`).join('')}
     </div>
@@ -233,9 +233,9 @@ window._connectWifi = async () => {
         <input type="color" id="status-led-color" value="#00ffcc" style="width:60px;height:36px;background:#111;border:1px solid #555;cursor:pointer;border-radius:3px;"/>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;">
-        <button class="btn-primary" style="font-size:12px;" onclick="window.setStatusLED()">Set</button>
-        <button class="btn-toolbar" style="font-size:12px;" onclick="window.blinkStatusLED()">Blink</button>
-        <button class="btn-secondary" style="font-size:12px;" onclick="window.statusLEDOff()">Off</button>
+        <button class="btn-primary" style="font-size:12px;" data-sd-click="set-status-led">Set</button>
+        <button class="btn-toolbar" style="font-size:12px;" data-sd-click="blink-status-led">Blink</button>
+        <button class="btn-secondary" style="font-size:12px;" data-sd-click="status-led-off">Off</button>
       </div>
     </div>
   </div>
@@ -250,13 +250,13 @@ window._connectWifi = async () => {
         </select>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn-primary" style="font-size:12px;" onclick="window.playAudio()">▶ Play</button>
-        <button class="btn-toolbar" style="font-size:12px;" onclick="window.pauseAudio()">⏸ Pause</button>
-        <button class="btn-toolbar" style="font-size:12px;" onclick="window.stopAudio()">⏹ Stop</button>
+        <button class="btn-primary" style="font-size:12px;" data-sd-click="play-audio">▶ Play</button>
+        <button class="btn-toolbar" style="font-size:12px;" data-sd-click="pause-audio">⏸ Pause</button>
+        <button class="btn-toolbar" style="font-size:12px;" data-sd-click="stop-audio">⏹ Stop</button>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
         <label style="font-size:12px;color:#888;white-space:nowrap;">Volume</label>
-        <input type="range" id="audio-volume" min="0" max="100" value="80" style="flex:1;" oninput="window.api?.setAudioVolume(parseInt(this.value))"/>
+        <input type="range" id="audio-volume" min="0" max="100" value="80" style="flex:1;" data-sd-input="audio-volume"/>
         <span id="audio-vol-val" style="font-size:11px;color:#888;min-width:30px;">80%</span>
       </div>
     </div>
@@ -328,13 +328,13 @@ window._setRelay = async (out, state) => {
       Show: <strong style="color:#eee;">${name}</strong>
     </div>
     <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-      <button class="btn-primary" style="font-size:20px;width:56px;height:56px;border-radius:50%;" onclick="window.timelineEditor?.play()||window.appPlay?.()" title="Play">▶</button>
-      <button class="btn-toolbar" style="font-size:20px;width:56px;height:56px;border-radius:50%;" onclick="window.timelineEditor?.pause()||window.appPause?.()" title="Pause">⏸</button>
-      <button class="btn-toolbar" style="font-size:20px;width:56px;height:56px;border-radius:50%;" onclick="window.timelineEditor?.stop()||window.appStop?.()" title="Stop">⏹</button>
-      <button class="btn-secondary" style="font-size:20px;width:56px;height:56px;border-radius:50%;" onclick="window.timelineEditor?.rewind()" title="Rewind">⏮</button>
+      <button class="btn-primary" style="font-size:20px;width:56px;height:56px;border-radius:50%;" data-sd-click="preview-play" title="Play">▶</button>
+      <button class="btn-toolbar" style="font-size:20px;width:56px;height:56px;border-radius:50%;" data-sd-click="preview-pause" title="Pause">⏸</button>
+      <button class="btn-toolbar" style="font-size:20px;width:56px;height:56px;border-radius:50%;" data-sd-click="preview-stop" title="Stop">⏹</button>
+      <button class="btn-secondary" style="font-size:20px;width:56px;height:56px;border-radius:50%;" data-sd-click="preview-rewind" title="Rewind">⏮</button>
     </div>
     <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
-      <button id="pb-loop-btn" class="btn-toolbar" style="font-size:13px;" onclick="window.timelineEditor?._toggleLoop()">🔁 Loop: OFF</button>
+      <button id="pb-loop-btn" class="btn-toolbar" style="font-size:13px;" data-sd-click="preview-loop">🔁 Loop: OFF</button>
     </div>
   </div>
 
@@ -345,7 +345,7 @@ window._setRelay = async (out, state) => {
         <label style="font-size:12px;color:#888;">BPM</label>
         <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
           <input type="number" id="pb-bpm" value="${bpm}" min="20" max="300" style="width:70px;background:#111;border:1px solid #555;color:#eee;padding:4px;font-size:14px;border-radius:3px;text-align:center;"/>
-          <button class="btn-toolbar" style="font-size:11px;" onclick="window._updateBPM()">Set</button>
+          <button class="btn-toolbar" style="font-size:11px;" data-sd-click="update-bpm">Set</button>
         </div>
       </div>
       <div>
@@ -363,12 +363,12 @@ window._setRelay = async (out, state) => {
       <input type="number" id="pb-seek-sec" min="0" max="59" value="0" placeholder="Sec" style="width:60px;background:#111;border:1px solid #555;color:#eee;padding:6px;border-radius:4px;font-size:13px;text-align:center;"/>
       <span style="color:#888;">.</span>
       <input type="number" id="pb-seek-ms" min="0" max="999" value="0" placeholder="Ms" style="width:65px;background:#111;border:1px solid #555;color:#eee;padding:6px;border-radius:4px;font-size:13px;text-align:center;"/>
-      <button class="btn-primary" style="font-size:12px;" onclick="window._seekTo()">Go</button>
+      <button class="btn-primary" style="font-size:12px;" data-sd-click="seek-to">Go</button>
     </div>
   </div>
 
   <div class="control-section btn-panic" style="border-color:#ff2244;background:rgba(255,34,68,0.1);">
-    <button class="btn-panic" style="width:100%;font-size:18px;padding:14px;" onclick="window.timelineEditor?.stop();window.appStop?.()">
+    <button class="btn-panic" style="width:100%;font-size:18px;padding:14px;" data-sd-click="preview-panic">
       🚨 PANIC STOP
     </button>
   </div>
@@ -417,7 +417,7 @@ window._seekTo = () => {
   <div class="control-section">
     <h3>🔍 Device Discovery</h3>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <button class="btn-primary" style="font-size:12px;" onclick="window._refreshDevices()">🔄 Refresh Devices</button>
+      <button class="btn-primary" style="font-size:12px;" data-sd-click="refresh-devices">🔄 Refresh Devices</button>
     </div>
     <div id="devices-list" style="display:flex;flex-direction:column;gap:8px;">
       <div style="color:#666;font-size:12px;text-align:center;padding:20px;">Scanning for devices…</div>
@@ -478,8 +478,8 @@ window._refreshDevices();
   <div class="control-section">
     <h3>🖥 System Status</h3>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-      <button class="btn-primary" style="font-size:12px;" onclick="location.reload()">🔄 Refresh</button>
-      <button class="btn-toolbar" style="font-size:12px;" onclick="window.exportDiagnostics()">⬇ Export Report</button>
+      <button class="btn-primary" style="font-size:12px;" data-sd-click="reload">🔄 Refresh</button>
+      <button class="btn-toolbar" style="font-size:12px;" data-sd-click="export-diagnostics">⬇ Export Report</button>
     </div>
     ${rows.length ? `
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -545,8 +545,8 @@ window._refreshDevices();
     <div class="control-section">
       <h3>☁ Cloud Projects</h3>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-        <button class="btn-primary" style="font-size:12px;" onclick="window._loadCloudProjects()">🔄 Refresh</button>
-        <button class="btn-toolbar" style="font-size:12px;" onclick="window.saveProject?.()">⬆ Sync Current</button>
+        <button class="btn-primary" style="font-size:12px;" data-sd-click="load-cloud-projects">🔄 Refresh</button>
+        <button class="btn-toolbar" style="font-size:12px;" data-sd-click="save-project">⬆ Sync Current</button>
       </div>
       <div id="cloud-projects-list" style="min-height:60px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
         Sign in to view cloud projects.
@@ -580,7 +580,7 @@ window._loadCloudProjects = async () => {
         row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #222;';
         row.innerHTML = '<div style="flex:1;"><div style="color:#eee;font-size:13px;">'+panelEsc(p.project.name)+'</div>'
           +'<div style="color:#555;font-size:10px;">'+new Date(p.project.updatedAt).toLocaleString()+'</div></div>'
-          +'<button class="btn-secondary" style="font-size:11px;padding:2px 8px;" onclick="window.loadProject(\\''+panelEsc(p.project.id)+'\\',\\'cloud\\')">Open</button>';
+          +'<button class="btn-secondary" style="font-size:11px;padding:2px 8px;" data-sd-click="load-project-cloud" data-sd-arg="'+panelEsc(p.project.id)+'">Open</button>';
         list.appendChild(row);
       });
     }
@@ -596,7 +596,7 @@ const updateAuth = (user) => {
   if (!authSection) return;
   if (user) {
     authSection.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:32px;height:32px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div><div><div style="color:#eee;font-size:13px;">'+panelEsc(user.displayName||user.email||'User')+'</div><div style="color:#666;font-size:11px;">'+panelEsc(user.email||'')+'</div></div></div>'
-      +'<button class="btn-secondary" style="font-size:12px;" onclick="window.firebaseAuth?.signOut()">Sign Out</button>';
+      +'<button class="btn-secondary" style="font-size:12px;" data-sd-click="firebase-sign-out">Sign Out</button>';
     if (navigator.onLine && onlineSection) onlineSection.style.display='block';
     if (offlineSection) offlineSection.style.display = navigator.onLine ? 'none' : 'block';
     window._loadCloudProjects();
@@ -605,9 +605,9 @@ const updateAuth = (user) => {
       +'<input id="hs-email" type="email" placeholder="Email" style="background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:13px;"/>'
       +'<input id="hs-pass" type="password" placeholder="Password" style="background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:13px;"/>'
       +'<div style="display:flex;gap:8px;">'
-      +'<button class="btn-primary" style="flex:1;font-size:12px;" onclick="window._hsSignIn()">Sign In</button>'
-      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" onclick="window._hsSignUp()">Sign Up</button>'
-      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" onclick="window.firebaseAuth?.signInWithGoogle()">Google</button>'
+      +'<button class="btn-primary" style="flex:1;font-size:12px;" data-sd-click="hs-sign-in">Sign In</button>'
+      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" data-sd-click="hs-sign-up">Sign Up</button>'
+      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" data-sd-click="firebase-google">Google</button>'
       +'</div>'
       +'<div id="hs-auth-err" style="font-size:11px;color:#ff4444;min-height:16px;"></div>'
       +'</div>';
@@ -675,7 +675,7 @@ else updateAuth(null);
         </select>
       </div>
     </div>
-    <button class="btn-primary" style="margin-top:12px;font-size:12px;" onclick="window._saveSettings()">Save Settings</button>
+    <button class="btn-primary" style="margin-top:12px;font-size:12px;" data-sd-click="save-settings">Save Settings</button>
   </div>
 
   <div class="control-section">
@@ -687,7 +687,7 @@ else updateAuth(null);
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input id="settings-showduino-target" type="text" inputmode="url" autocomplete="off" placeholder="Automatic discovery" style="flex:1;min-width:220px;background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:12px;">
-        <button class="btn-secondary" type="button" style="font-size:12px;" onclick="window._testShowduinoTarget()">Test</button>
+        <button class="btn-secondary" type="button" style="font-size:12px;" data-sd-click="test-target">Test</button>
       </div>
       <div id="settings-showduino-target-status" style="font-size:11px;color:#888;min-height:16px;">Automatic discovery is enabled.</div>
     </div>
@@ -696,9 +696,9 @@ else updateAuth(null);
   <div class="control-section">
     <h3>🗑 Clear Data</h3>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn-secondary" style="font-size:12px;text-align:left;" onclick="window._clearLogs()">🧹 Clear Logs</button>
-      <button class="btn-secondary" style="font-size:12px;text-align:left;" onclick="window._clearAutosave()">🗑 Clear Autosave</button>
-      <button class="btn-secondary" style="font-size:12px;color:#ff4444;text-align:left;" onclick="window._clearAllData()">⚠ Clear All Local Data</button>
+      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-logs">🧹 Clear Logs</button>
+      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-autosave">🗑 Clear Autosave</button>
+      <button class="btn-secondary" style="font-size:12px;color:#ff4444;text-align:left;" data-sd-click="clear-all-data">⚠ Clear All Local Data</button>
     </div>
   </div>
 

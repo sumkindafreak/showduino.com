@@ -10,6 +10,7 @@ on:
       - '_headers'
       - '_redirects'
       - 'tests/site-security-config.test.cjs'
+      - 'tests/studio-actions.test.cjs'
       - '.github/workflows/website-static-smoke.yml'
   workflow_dispatch:
 
@@ -33,3 +34,4 @@ jobs:
           node tests/hauntsync-onboarding.test.cjs
           node tests/hauntsync-google-auth.test.cjs
           node tests/site-security-config.test.cjs
+          node tests/studio-actions.test.cjs

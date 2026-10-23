@@ -264,15 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="inspector-field">
               <label>Label:</label>
-              <input type="text" value="${appEsc(clipData.label || '')}" onchange="window.updateClipLabel('${appEsc(clipData.id)}', this.value)">
+              <input type="text" value="${appEsc(clipData.label || '')}" data-sd-change="clip-label" data-sd-arg="${appEsc(clipData.id)}">
           </div>
           <div class="inspector-field">
               <label>Start (ms):</label>
-              <input type="number" value="${appEsc(clipData.startMs)}" onchange="window.updateClipStart('${appEsc(clipData.id)}', parseInt(this.value))">
+              <input type="number" value="${appEsc(clipData.startMs)}" data-sd-change="clip-start" data-sd-arg="${appEsc(clipData.id)}">
           </div>
           <div class="inspector-field">
               <label>Duration (ms):</label>
-              <input type="number" value="${appEsc(clipData.durationMs)}" onchange="window.updateClipDuration('${appEsc(clipData.id)}', parseInt(this.value))">
+              <input type="number" value="${appEsc(clipData.durationMs)}" data-sd-change="clip-duration" data-sd-arg="${appEsc(clipData.id)}">
           </div>
           <div class="inspector-field">
               <label>Type:</label>
@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
                               <strong>${autosave.projectName}</strong>
                               <span class="autosave-date">${autosave.date}</span>
                           </div>
-                          <button onclick="window.restoreAutosave('${autosave.key}')">Restore</button>
+                          <button data-sd-click="restore-autosave" data-sd-arg="${appEsc(autosave.key)}">Restore</button>
                       </div>
                   `).join('') : '<p>No autosave snapshots found.</p>'}
               </div>
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                           <div style="font-weight: bold; color: var(--accent-color);">${appEsc(user.email || user.displayName)}</div>
                           <div style="font-size: 0.8rem; color: #aaa;">Signed in to HauntSync</div>
                       </div>
-                      <button onclick="studioSignOut()" class="btn-secondary">Sign Out</button>
+                      <button data-sd-click="studio-sign-out" class="btn-secondary">Sign Out</button>
                   </div>
               </div>
           `;
@@ -694,10 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
                       <input type="email" id="studio-auth-email" placeholder="Email" style="padding: 0.75rem; background-color: #222; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px;">
                       <input type="password" id="studio-auth-password" placeholder="Password" style="padding: 0.75rem; background-color: #222; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 5px;">
                       <div style="display: flex; gap: 0.5rem;">
-                          <button onclick="studioSignIn()" class="btn-primary" style="flex: 1;">Sign In</button>
-                          <button onclick="studioSignUp()" class="btn-secondary" style="flex: 1;">Sign Up</button>
+                          <button data-sd-click="studio-sign-in" class="btn-primary" style="flex: 1;">Sign In</button>
+                          <button data-sd-click="studio-sign-up" class="btn-secondary" style="flex: 1;">Sign Up</button>
                       </div>
-                      <button onclick="studioSignInWithGoogle()" class="btn-secondary" style="width: 100%;">Sign in with Google</button>
+                      <button data-sd-click="studio-sign-in-google" class="btn-secondary" style="width: 100%;">Sign in with Google</button>
                   </div>
               </div>
           `;
@@ -753,6 +753,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
+  // W5-06: the legacy account panel's buttons run through js/studio-actions.js.
+  window.ShowduinoActions?.register({
+    'studio-sign-in': () => studioSignIn(),
+    'studio-sign-up': () => studioSignUp(),
+    'studio-sign-in-google': () => studioSignInWithGoogle(),
+    'studio-sign-out': () => studioSignOut()
+  });
+
   async function studioSignOut() {
       try {
           await window.firebaseAuth.signOut();
@@ -788,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                   <div style="font-weight: bold;">${appEsc(p.project.name)}</div>
                                   <div style="font-size: 0.8rem; color: #aaa;">Updated: ${new Date(p.project.updatedAt).toLocaleString()}</div>
                               </div>
-                              <button onclick="loadCloudProject('${appEsc(p.project.id)}')" class="btn-primary">Load</button>
+                              <button data-sd-click="load-cloud-project" data-sd-arg="${appEsc(p.project.id)}" class="btn-primary">Load</button>
                           </div>
                       `).join('')}
                   </div>

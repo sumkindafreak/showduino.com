@@ -57,44 +57,44 @@
     <section class="section reveal" id="modules">
       <div class="section-heading"><span class="eyebrow">REPAIRABLE BY DESIGN</span>
         <h2>What's inside Showduino?</h2>
-        <p>Ordinary, replaceable development boards rather than a sealed custom-PCB controller. Each module has a specific role, service documentation and firmware. These are reference/vendor photographs; a few are representative of the board family rather than a verified photo of the fitted revision.</p></div>
+        <p>Ordinary, replaceable development boards rather than a sealed custom-PCB controller. Each module has a specific role, service documentation and firmware. The pictures are Showduino illustrations of each board family, not photographs of the fitted revision; follow the reference links for the exact parts.</p></div>
       <div class="hs-hardware-grid">
-        <article class="card hs-module-card"><img loading="lazy" src="https://www.waveshare.com/img/devkit/ESP32-P4-Module-DEV-KIT/ESP32-P4-Module-DEV-KIT-1.jpg" alt="Waveshare ESP32-P4-Module-DEV-KIT black development board with Ethernet and USB ports">
+        <article class="card hs-module-card"><img loading="lazy" src="media/modules/p4-module-dev-kit.svg" width="480" height="300" alt="Illustration of an ESP32-P4 module development kit: black board with Ethernet, USB-C and microSD">
           <span class="hs-module-kind">CORE · EXACT MODEL</span><h3>Waveshare ESP32-P4-Module-DEV-KIT</h3>
           <p>P4 Show Engine, mounted in the main Showduino enclosure beneath the tilting touchscreen. Runs cues, storage, system audio, local lighting and the Emergency latch.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> same P4 board revision, reflash Show Engine, fit microSD/configuration, verify UART, safety and audio before use.</p>
           <div class="button-row"><a href="https://docs.waveshare.com/ESP32-P4-Module-DEV-KIT" target="_blank" rel="noopener noreferrer">Board reference</a><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/stage-engine-p4" target="_blank" rel="noopener noreferrer">Firmware</a></div>
-          <small>Manufacturer image: Waveshare</small></article>
+          <small>Showduino illustration. See the board reference for the exact Waveshare part.</small></article>
         <article class="card hs-module-card"><img loading="lazy" src="media/showduino-chosen-main-hero.webp" alt="Showduino main control enclosure with adjustable operator touchscreen">
           <span class="hs-module-kind">CORE · ACTUAL SHOWDUINO PRODUCT IMAGE</span><h3>ESP32-S3 Director touchscreen</h3>
           <p>The 800×480 operator touchscreen is mounted above the main enclosure. It sends requests; the P4 remains authoritative.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> match ST7262/GT911 panel, flash Director firmware, restore peer configuration and test touch calibration.</p>
           <div class="button-row"><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/director-esp32-8048s050" target="_blank" rel="noopener noreferrer">Director firmware</a></div>
           <small>Showduino project image, not an internal PCB identification photo</small></article>
-        <article class="card hs-module-card"><img loading="lazy" src="https://www.beststore.cl/img/p/details/8/5/Waveshare-ESP32-S3-microcontrolador-24-GHz-Wi-Fi-placa-de-desarrollo-ESP32-S3-WROOM-1-N8R8-modulo-estandar-Vercon-pinheader-TBD0426281902-details-2.jpg" alt="Representative ESP32-S3 N8R8 development board with pin headers">
+        <article class="card hs-module-card"><img loading="lazy" src="media/modules/esp32-s3-dev-board.svg" width="480" height="300" alt="Illustration of an ESP32-S3 development board with pin headers and two USB-C ports">
           <span class="hs-module-kind">CORE · REPRESENTATIVE BOARD FAMILY</span><h3>Dedicated ESP32-S3 Communications Controller</h3>
           <p>ESP-NOW and Wi-Fi bridge. Connects the Director and specialist nodes to the P4 over UART GPIO17/18 → P4 GPIO4/5.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> confirm memory variant and pin map, flash Comms, restore pairing/MAC and Wi-Fi settings, test the P4 link.</p>
           <div class="button-row"><a href="https://documentation.espressif.com/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/user_guide_v1.1.html" target="_blank" rel="noopener noreferrer">Board family reference</a><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/s3-comms-controller" target="_blank" rel="noopener noreferrer">Firmware</a></div>
-          <small>Vendor photo (Waveshare-family S3), board revision may differ from fitted unit</small></article>
-        <article class="card hs-module-card"><img loading="lazy" src="https://probots.co.in/pub/media/wysiwyg/ESP32-A1S_Audio_Development_Board_Kit_Ai-Thinker_Wifi_3_.jpg" alt="ESP32-A1S Audio Kit V2.2 board with audio jacks and microSD slot">
+          <small>Showduino illustration of the board family; the fitted board revision may differ.</small></article>
+        <article class="card hs-module-card"><img loading="lazy" src="media/modules/esp32-a1s-audio-kit.svg" width="480" height="300" alt="Illustration of an ESP32-A1S audio kit with two audio jacks, a microSD slot and six buttons">
           <span class="hs-module-kind">SPECIALIST · MODEL FAMILY</span><h3>Ai-Thinker ESP32-A1S Audio Kit V2.2</h3>
           <p>Separate programme-audio Node with ES8388 codec and local SD WAV playback. Not the P4 system or PCM ambient audio.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> check A161/ES8388 variant (not AC101), flash Audio Node, restore media and validate speaker/emergency WAV.</p>
           <div class="button-row"><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/audio-node-esp32-a1s" target="_blank" rel="noopener noreferrer">Audio firmware</a></div>
-          <small>Supplier image: Probots. Inspect board revision before ordering</small></article>
-        <article class="card hs-module-card"><img loading="lazy" src="https://a.allegroimg.com/original/11fb7a/1f14abde4b19b395ac1ce2b1bdc2/Plytka-prototypowa-ESP32-C3-Super-Mini-OLED-0-42" alt="Representative small ESP32-C3 board with integrated OLED display">
+          <small>Showduino illustration of the board family. Inspect the board revision before ordering.</small></article>
+        <article class="card hs-module-card"><img loading="lazy" src="media/modules/esp32-c3-supermini-oled.svg" width="480" height="300" alt="Illustration of a small ESP32-C3 board with a built-in OLED display">
           <span class="hs-module-kind">SPECIALIST · REPRESENTATIVE BOARD FAMILY</span><h3>ESP32-C3 Super Mini OLED</h3>
           <p>Used for separate Pixel and wireless Emergency Node roles. Pixel data is GPIO2; OLED SDA5/SCL6. Emergency GPIO4 requires physical confirmation.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> flash the <em>correct role</em> firmware, assign a unique ID, set pixel count and retest Emergency input where relevant.</p>
           <div class="button-row"><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/c3-pixel-node" target="_blank" rel="noopener noreferrer">Pixel firmware</a><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/c3-emergency-node" target="_blank" rel="noopener noreferrer">Emergency firmware</a></div>
-          <small>Vendor image: Allegro. Exact OLED PCB variant must be checked</small></article>
-        <article class="card hs-module-card"><img loading="lazy" src="https://img.sellercube.com/hwyimg/2bca41cc-bd78-42af-9b42-59422059f6e2.jpg" alt="Representative blue ESP32 four channel MOSFET switching board">
+          <small>Showduino illustration of the board family. The exact OLED PCB variant must be checked.</small></article>
+        <article class="card hs-module-card"><img loading="lazy" src="media/modules/mosfet-x4-node.svg" width="480" height="300" alt="Illustration of a four-channel ESP32 MOSFET output board with screw terminals">
           <span class="hs-module-kind">SPECIALIST · REPRESENTATIVE HARDWARE</span><h3>ESP32_MOS_X4 MOSFET Node</h3>
           <p>Four-channel low-voltage digital/PWM output module. The Showduino firmware is implemented; board mapping and physical outputs still need commissioning.</p>
           <p class="hs-module-service"><strong>Replacement:</strong> verify the exact 303E32NMOS4 board and terminals before wiring; load test DC outputs only. Never connect mains directly.</p>
           <div class="button-row"><a href="https://github.com/sumkindafreak/new_showduino/tree/main/firmware/mosfet-node-esp32" target="_blank" rel="noopener noreferrer">MOSFET firmware</a></div>
-          <small>Supplier image: HappyFish/marketplace; similar family, exact PCB not verified</small></article>
+          <small>Showduino illustration of the board family; the exact PCB is not yet verified.</small></article>
       </div>
       <p class="hs-hardware-footnote"><strong>Service note:</strong> replacing a board requires matching its voltage, memory, pinout and firmware; it is not necessarily plug-and-play. Disconnect power first, back up configuration and complete a fresh commissioning test. Showduino show-control Emergency logic is not a certified life-safety system.</p>
     </section>

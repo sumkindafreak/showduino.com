@@ -33,6 +33,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.48.2
           npx playwright install --with-deps chromium
+      - name: Explicit 30-day account deletion and cancellation on phone and desktop
+        run: node tests/browser/account-deletion.cjs
       - name: Hostile .shdo import executes no script (desktop and phone)
         run: node tests/browser/studio-import-injection.cjs
       - name: Every hostile string in an imported or stored project stays inert (all views, desktop and phone)

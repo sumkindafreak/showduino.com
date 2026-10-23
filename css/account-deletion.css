@@ -1,0 +1,7 @@
+.account-deletion { margin-top: 1rem; border-color: #86514b; }
+.account-deletion [hidden] { display: none !important; }
+.account-deletion .danger { background: #87362e; color: #fff; border: 1px solid #c9766d; }
+.account-deletion button, .deletion-dialog button { min-width: 44px; min-height: 44px; }
+.deletion-dialog { width: min(32rem, calc(100vw - 2rem)); padding: 1.4rem; border: 1px solid #c9766d; border-radius: 12px; background: #10191b; color: #edf4f4; }
+.deletion-dialog::backdrop { background: #000b; }
+.deletion-dialog input { box-sizing: border-box; width: 100%; margin: .6rem 0 1rem; }

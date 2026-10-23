@@ -19,6 +19,7 @@
   <meta property="og:url" content="https://show-duino.com/account">
   <meta property="og:image" content="https://show-duino.com/media/showduino-chosen-main-hero.webp">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/account-deletion.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -81,9 +82,28 @@
       <div class="button-row"><a class="btn" href="welcome.html">Continue to HauntSync</a><a class="btn secondary" href="profile.html">Set up creator profile</a></div>
     </section>
     <section class="card reveal" style="margin-top:1rem;"><div class="button-row" style="justify-content:space-between;"><div><h2 style="margin-bottom:.35rem;">Your projects</h2><p class="muted" style="margin:0;">Cloud shows appear when you are signed in. Shows saved only on this device are also listed.</p></div><a class="btn secondary" href="studio.html">Create a show</a></div><div id="project-list" class="project-list"></div></section>
+    <section id="account-deletion" class="card account-deletion" hidden aria-labelledby="deletion-heading">
+      <h2 id="deletion-heading">Delete your Showduino account</h2>
+      <p>Your account stays fully usable for 30 days after you request deletion. Signing in does not cancel it. To keep your account, press <strong>Cancel deletion</strong> before the deadline.</p>
+      <p>After the grace period, your sign-in, profile, cloud projects, hardware inventory and community content are permanently removed from the live service. Shows saved on your own devices are unaffected. Removal runs automatically, usually within five minutes of the deadline; service failures are retried. Some security records and backups may remain under the retention policy.</p>
+      <p id="deletion-status" role="status" aria-live="polite">Checking deletion status…</p>
+      <div class="button-row"><button id="deletion-request" type="button" class="btn danger" disabled>Request account deletion</button><button id="deletion-cancel" type="button" class="btn secondary" hidden>Cancel deletion</button></div>
+      <p><a href="mailto:showduino38@gmail.com">Contact support about your data</a></p>
+    </section>
+    <dialog id="deletion-dialog" class="deletion-dialog" aria-labelledby="deletion-dialog-title">
+      <form id="deletion-form">
+        <h2 id="deletion-dialog-title">Schedule permanent account deletion?</h2>
+        <p>This starts a 30-day grace period. Your account remains usable, but logging in will not cancel deletion. You must explicitly cancel before the deadline to keep it.</p>
+        <p>Export any cloud shows you want to keep before deletion.</p>
+        <label for="deletion-confirmation">Type DELETE to confirm</label>
+        <input id="deletion-confirmation" class="form-control" type="text" pattern="DELETE" autocomplete="off" required>
+        <div class="button-row"><button id="deletion-dialog-cancel" type="button" class="btn secondary">Keep my account</button><button id="deletion-submit" type="submit" class="btn">Schedule deletion in 30 days</button></div>
+      </form>
+    </dialog>
   </main>
   <footer class="site-footer"><p>&copy; 2026 Showduino &middot; <a href="docs.html">Documentation</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a></p></footer>
   <script src="config/runtime-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js" integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous"></script><script src="js/cloud/supabase-service.js"></script><script src="js/site-captcha.js"></script><script src="js/account-page.js"></script><script src="js/provider-redaction.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js" integrity="sha384-InMmvD3VoYcY7hGjSC80aLb2bNNE4CzpX+Eq6FVDlmB0IKgDvmfPw4UY8L/M++iG" crossorigin="anonymous"></script><script src="js/site-motion.js"></script>
+  <script src="js/account-deletion.js"></script>
 </body>
 </html>

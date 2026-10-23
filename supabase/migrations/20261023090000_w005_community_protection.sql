@@ -61,14 +61,15 @@ language sql stable security definer set search_path = '' as $$
   from (select coalesce((select m.status from public.member_status m where m.user_id = p_user), 'active') as status) s;
 $$;
 
--- A private profile name is shown only to its owner (and the site owner). Everyone else
--- sees the published creator name or the generic label.
+-- The public name is the published creator name, or the generic label. It never falls back
+-- to the private profile name: this function also writes the public author_name of posts,
+-- comments and shared shows, and when the owner moderated a post by a member who had since
+-- unpublished, the member's private profile name was stored in that public column.
+-- (The owner's member list reads private names directly, in admin_list_members.)
 create or replace function public.public_name(p_user uuid) returns text
 language sql stable security definer set search_path = '' as $$
   select coalesce(
     (select c.display_name from public.creator_publications c where c.creator_id = p_user),
-    (select p.display_name from public.profiles p
-      where p.id = p_user and (p_user = (select auth.uid()) or public.is_owner())),
     'Showduino Creator');
 $$;
 
@@ -134,6 +135,15 @@ create or replace function public.enforce_account_limit() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
   if (select auth.uid()) is null then return new; end if; -- migrations and service tasks
+  -- Supabase saves a cloud show with INSERT ... ON CONFLICT (id) DO UPDATE, and BEFORE
+  -- INSERT triggers fire before the conflict is found. Saving a show that already exists
+  -- adds nothing, so it must never be refused at the limit.
+  -- Separate IF blocks: a NEW field that the other table lacks must never be evaluated.
+  if tg_table_name = 'projects' then
+    if exists (select 1 from public.projects x where x.id = new.id) then return new; end if;
+  elsif tg_table_name = 'devices' then
+    if exists (select 1 from public.devices x where x.user_id = new.user_id and x.identifier = new.identifier) then return new; end if;
+  end if;
   if not public.within_limit(tg_argv[0]) then
     raise exception 'You have reached the limit for %. Delete some first, or contact Showduino support.',
       case tg_argv[0] when 'project' then 'cloud shows' when 'device' then 'registered devices' else tg_argv[0] end

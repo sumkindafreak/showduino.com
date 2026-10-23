@@ -13,9 +13,10 @@
     const submit = document.getElementById('deletion-submit');
     let revision = 0, signedIn = false, busy = false;
     const rpc = async (action, confirmation = '') => {
-      const {data, error} = await window.ShowduinoSupabase.client().rpc('manage_account_deletion', {
-        p_action: action, p_confirmation: confirmation
-      });
+      const client = window.ShowduinoSupabase.client();
+      const {data, error} = action === 'status'
+        ? await client.rpc('get_account_deletion_status', {}, {get: true})
+        : await client.rpc('manage_account_deletion', {p_action: action, p_confirmation: confirmation});
       if (error) throw error;
       return data;
     };

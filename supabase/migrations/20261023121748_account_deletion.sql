@@ -19,6 +19,17 @@ create function showduino_private.deletion_worker_authorized(p_secret text) retu
 language sql stable set search_path='' as $$ select false $$;
 revoke all on function showduino_private.deletion_worker_authorized(text) from public,anon,authenticated;
 
+-- Read-only status uses GET: signing in must never issue a deletion mutation.
+create function public.get_account_deletion_status() returns jsonb
+language sql stable security definer set search_path='' as $$
+ select jsonb_build_object('owner_protected',exists(select 1 from public.app_owner where user_id=auth.uid()),
+  'requested_at',r.requested_at,'delete_after',r.delete_after,'status',r.status)
+ from auth.users u left join public.account_deletion_requests r on r.user_id=u.id
+ where u.id=auth.uid()
+$$;
+revoke all on function public.get_account_deletion_status() from public,anon;
+grant execute on function public.get_account_deletion_status() to authenticated;
+
 create function public.manage_account_deletion(p_action text default 'status', p_confirmation text default '') returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare u uuid := auth.uid(); r public.account_deletion_requests; protected boolean;

@@ -62,3 +62,7 @@ echo "== W005 rollback restores the W004 catalogue exactly"
 run "$W005" > /dev/null
 run supabase/tests/w005_community_protection.sql > /dev/null
 echo "== W005 re-applied after rollback: tests pass"
+
+# Explicit 30-day deletion: isolated synthetic accounts only; all test changes roll back.
+run supabase/migrations/20261023121748_account_deletion.sql
+run supabase/tests/account_deletion.sql

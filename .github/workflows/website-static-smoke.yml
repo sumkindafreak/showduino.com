@@ -31,6 +31,7 @@ jobs:
           node-version: '22'
       - name: Check asset paths, Studio navigation and JavaScript syntax
         run: |
+          node tests/account-deletion-worker.test.cjs
           node tools/check-website.mjs
           node tests/site-account.test.cjs
           node tests/supabase-auth-events.test.cjs

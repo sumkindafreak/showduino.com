@@ -1,0 +1,54 @@
+-- Isolated test DB only. No real accounts are used.
+\set ON_ERROR_STOP on
+begin;
+create function pg_temp.check_true(ok boolean, name text) returns void language plpgsql as $$ begin if ok is distinct from true then raise exception 'FAIL: %',name; end if; raise notice 'PASS: %',name; end $$;
+create function pg_temp.denied(stmt text) returns void language plpgsql as $$ begin
+ begin execute stmt; exception when insufficient_privilege or invalid_parameter_value or object_not_in_prerequisite_state then return; end;
+ raise exception 'FAIL: unexpectedly allowed %',stmt;
+end $$;
+grant execute on function pg_temp.check_true(boolean,text),pg_temp.denied(text) to authenticated,anon;
+insert into auth.users(id,email) values('00000000-0000-4000-8000-00000000de11','deletion@example.test'),('00000000-0000-4000-8000-00000000de12','other@example.test');
+select pg_temp.check_true(not has_function_privilege('anon','public.manage_account_deletion(text,text)','EXECUTE'),'anonymous RPC denied');
+select pg_temp.check_true(not has_function_privilege('authenticated','public.claim_account_deletions(text)','EXECUTE'),'member cannot claim worker jobs');
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-00000000de11"}',true);
+select pg_temp.denied($s$select public.manage_account_deletion('request','wrong')$s$);
+select public.manage_account_deletion('request','DELETE');
+select pg_temp.check_true((select delete_after-requested_at>=interval '30 days' from public.account_deletion_requests),'full 30 days');
+select pg_temp.check_true(public.account_storage_active(),'storage remains active during grace period');
+create temp table first_deadline as select delete_after from public.account_deletion_requests;
+select public.manage_account_deletion('request','DELETE');
+select pg_temp.check_true((select delete_after=(select delete_after from first_deadline) from public.account_deletion_requests),'repeat request never extends deadline');
+select public.manage_account_deletion('status');
+select pg_temp.check_true((select count(*)=1 from public.account_deletion_requests),'status and login checks never cancel deletion');
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-00000000de12"}',true);
+select pg_temp.check_true((select count(*)=0 from public.account_deletion_requests),'other account cannot read request');
+select pg_temp.denied($s$update public.account_deletion_requests set delete_after=now()$s$);
+select public.manage_account_deletion('cancel','CANCEL');
+reset role;
+select pg_temp.check_true((select count(*)=1 from public.account_deletion_requests),'other account cannot cancel request');
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-00000000de11"}',true);
+select public.manage_account_deletion('cancel','CANCEL');
+select pg_temp.check_true((select count(*)=0 from public.account_deletion_requests),'explicit cancellation removes request');
+select set_config('request.jwt.claims','{"sub":"c6ebbc99-f01e-45ba-9bc3-e5e7e2f354ea"}',true);
+select pg_temp.denied($s$select public.manage_account_deletion('request','DELETE')$s$);
+reset role;
+-- Move a synthetic request into the past as DB owner; no client can do this.
+insert into public.account_deletion_requests(user_id,requested_at,delete_after) values('00000000-0000-4000-8000-00000000de11',now()-interval '31 days',now()-interval '1 day');
+create or replace function showduino_private.deletion_worker_authorized(p_secret text) returns boolean language sql as $$select p_secret='isolated-test'$$;
+select pg_temp.denied($s$select public.claim_account_deletions('wrong')$s$);
+select pg_temp.check_true((select count(*)=1 from public.claim_account_deletions('isolated-test')),'worker claims due request');
+select pg_temp.check_true((select count(*)=0 from public.claim_account_deletions('isolated-test')),'worker lease prevents duplicate claim');
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-00000000de11"}',true);
+select pg_temp.check_true(not public.account_storage_active(),'storage stops during processing');
+select pg_temp.denied($s$select public.manage_account_deletion('cancel','CANCEL')$s$);
+reset role;
+delete from auth.users where id='00000000-0000-4000-8000-00000000de11';
+set local role authenticated;
+select pg_temp.check_true(not public.account_storage_active(),'stale JWT cannot upload after deletion');
+select pg_temp.denied($s$select public.manage_account_deletion('request','DELETE')$s$);
+reset role;
+select pg_temp.check_true((select count(*)=0 from public.account_deletion_requests),'queue removed with account');
+rollback;

@@ -41,6 +41,8 @@ jobs:
         run: node tests/browser/site-pages.cjs
       - name: Enforced CSP - no violations on any page (desktop, tablet, phone); Studio controls work; injected inline script is blocked (W005)
         run: node tests/browser/csp-enforced.cjs
+      - name: Every page at 320-1440 px - no sideways scroll, one h1, skip link, 24 px targets, alt text (W005)
+        run: node tests/browser/site-responsive-a11y.cjs
       - name: HauntSync sign-in, sign-out, community download, cloud failure (mocked Supabase)
         run: node tests/browser/hauntsync-mocked-workflows.cjs
       - name: Creator publish / unpublish and hostile published values (mocked Supabase)

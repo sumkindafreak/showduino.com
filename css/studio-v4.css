@@ -292,6 +292,9 @@ body.studio-v4::before {
   display: none;
 }
 .studio-v4 .show-name {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
   max-width: 420px;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -15,6 +15,7 @@
   <script src="js/site-account.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <header class="site-header">
     <a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
     <nav class="site-nav" aria-label="Main navigation">
@@ -29,14 +30,15 @@
     </nav>
   </header>
 
-  <main class="site-main wide">
+  <main id="main" class="site-main wide" tabindex="-1">
     <section class="page-heading">
       <span class="eyebrow">SYSTEM GUIDE · CURRENT BASELINE</span>
       <h1>One show.<br><span class="accent">Four responsibilities.</span></h1>
       <p>Showduino is built as a distributed control system. Each device has a deliberately narrow job so the live show can remain deterministic, diagnosable and independent of the browser.</p>
     </section>
 
-    <section class="section compact reveal">
+    <section class="section compact reveal" aria-labelledby="system-roles">
+      <h2 id="system-roles" class="visually-hidden">The four roles</h2>
       <div class="architecture">
         <article class="architecture-node">
           <span class="role-number">01 / DIRECTOR</span>

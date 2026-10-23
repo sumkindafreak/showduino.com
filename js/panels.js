@@ -709,7 +709,7 @@ else updateAuth(null);
       <div>Showduino Studio v1.0</div>
 
       <div>Membership: <strong>Free Showduino ID / community</strong></div>
-      <div style="margin-top:8px;"><a href="https://show-duino.com" target="_blank" style="color:#00ffcc;">show-duino.com</a></div>
+      <div style="margin-top:8px;"><a href="https://show-duino.com" target="_blank" rel="noopener noreferrer" style="color:#00ffcc;display:inline-flex;align-items:center;min-height:24px;">show-duino.com</a></div>
     </div>
   </div>
 </div>

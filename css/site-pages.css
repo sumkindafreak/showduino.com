@@ -458,6 +458,22 @@ button, input, textarea, select { font: inherit; }
 
 .page-heading { max-width: 860px; margin-bottom: clamp(2rem, 5vw, 4rem); }
 .page-heading h1 { font-size: clamp(3rem, 8vw, 6rem); }
+/* W005 (W5-17): skip link, screen-reader-only text, focus target for <main>. */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 10000;
+  padding: .7rem 1rem; border-radius: 8px;
+  background: var(--site-accent); color: #031512; font-weight: 800; text-decoration: none;
+}
+.skip-link:focus, .skip-link:focus-visible { top: 1rem; outline: 3px solid #fff; outline-offset: 2px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+main[tabindex="-1"]:focus { outline: none; }
+/* W005 (W5-17): standalone links and small form controls meet the 24 px minimum target. */
+.card > a:not(.btn), .hs-module-card .button-row a { display: inline-flex; align-items: center; min-height: 32px; }
+.site-main input[type="checkbox"], .site-main input[type="radio"] { inline-size: 24px; block-size: 24px; flex: 0 0 auto; accent-color: var(--site-accent); }
+/* W005: on the narrowest phones (320 px) long page titles such as "responsibilities."
+ * were wider than the screen and the page scrolled sideways. */
+.page-heading h1 { overflow-wrap: break-word; }
+@media (max-width: 380px) { .page-heading h1 { font-size: 2.35rem; } }
 .page-heading p { margin: 0; max-width: 760px; color: var(--site-muted); font-size: 1.12rem; line-height: 1.8; }
 
 .spec-list { display: grid; gap: .55rem; margin: 1rem 0 0; padding: 0; list-style: none; }

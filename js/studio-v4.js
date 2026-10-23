@@ -152,6 +152,7 @@
           <article class="v4-card"><span class="v4-eyebrow">ROUTED</span><strong class="v4-stat" data-v4-stat="routed">${stats.routed}</strong><div class="v4-meta">DEVICE-ID TARGETS</div></article>
         </div>
 
+        <h2 class="visually-hidden">How Showduino runs a show</h2>
         <div class="v4-architecture">
           <article class="v4-role"><small>01 / OPERATOR</small><h3>Director</h3><p>ESP32-S3 touchscreen requests actions and displays state. It does not keep a running show alive.</p></article>
           <article class="v4-role"><small>02 / TRANSPORT</small><h3>S3 Comms</h3><p>ESP-NOW ↔ UART bridge. Messages move through it; show decisions do not live there.</p></article>
@@ -159,6 +160,7 @@
           <article class="v4-role"><small>04 / ACTION</small><h3>Specialist Nodes</h3><p>Relay, MOSFET, pixel and audio nodes perform commanded work and report results.</p></article>
         </div>
 
+        <h2 class="visually-hidden">Studio tools</h2>
         <div class="v4-grid three" style="margin-top:.8rem;">
           <article class="v4-card"><h3>Timeline</h3><p>DAW-style authoring with snapping, markers, drag/drop presets, clip inspection and project autosave.</p><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-open-panel" data-sd-arg="timeline-editor">Edit production</button></div></article>
           <article class="v4-card"><h3>Pixel FX Lab</h3><p>Preview a library of ${PIXEL_EFFECTS.length} effects, define arbitrary segments and create repeating 10-pixel exit-sign patterns.</p><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-open-panel" data-sd-arg="playback">Design pixel FX</button></div></article>

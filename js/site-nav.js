@@ -4,7 +4,23 @@
  * menu stays the existing scrollable row. No inline scripts or handlers. */
 (function () {
   'use strict';
+  // W005 (W5-17): every page has a "Skip to main content" link and a focusable <main>.
+  // Pages normally carry both in their HTML; this fills in any page that lacks them.
+  function skipLink() {
+    var main = document.querySelector('main');
+    if (!main) return;
+    var existing = document.querySelector('.skip-link');
+    if (!main.id) main.id = existing ? existing.getAttribute('href').slice(1) : 'main';
+    if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+    if (existing) return;
+    var link = document.createElement('a');
+    link.className = 'skip-link';
+    link.href = '#' + main.id;
+    link.textContent = 'Skip to main content';
+    document.body.insertBefore(link, document.body.firstChild);
+  }
   function init() {
+    skipLink();
     var header = document.querySelector('.site-header');
     var nav = header && header.querySelector('.site-nav');
     if (!nav || header.querySelector('.site-nav-toggle')) return;

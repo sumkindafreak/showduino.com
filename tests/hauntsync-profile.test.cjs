@@ -57,6 +57,7 @@ function fixture() {
   };
 
   const window = {
+    location:{ hostname:'show-duino.com' },
     SHOWDUINO_CONFIG:{
       features:{supabase:true,authentication:true},
       supabase:{url:'https://example.supabase.co',publishableKey:'sb_publishable_test'}

@@ -292,6 +292,10 @@ body.studio-v4::before {
   display: none;
 }
 .studio-v4 .show-name {
+  display: inline-block;
+  min-width: 24px;
+  min-height: 24px;
+  line-height: 24px;
   max-width: 420px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -699,6 +703,13 @@ body.studio-build-show .timeline-editor {
   .studio-v4 .system-info { display: none; }
   .v4-grid.four,
   .node-role-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+/* Keep project controls and status readable on narrow desktop/tablet layouts. */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .studio-v4 .top-bar { grid-template-columns: minmax(0,1fr) auto; }
+  .studio-status-quiet { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; }
+  .studio-v4 .show-name { max-width: 100%; }
 }
 
 @media (max-width: 900px) {

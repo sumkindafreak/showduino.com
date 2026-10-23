@@ -18,6 +18,8 @@
   const KINDS = ['discussion', 'build_log', 'showcase', 'question'];
   const REPORT_REASONS = ['spam', 'harassment', 'hateful', 'sexual', 'violence', 'dangerous', 'impersonation', 'copyright', 'unsafe_show', 'other'];
   const IMAGE_BUCKET = 'community-images';
+  const AVATAR_BUCKET = 'hauntsync-avatars';
+  const AVATAR_PATH = /^[0-9a-f-]{36}\/avatar-[0-9a-f-]+\.(jpg|png|webp)$/;
   const IMAGE_MAX_BYTES = 3 * 1024 * 1024;
   // Read-only (STABLE) database functions are called with GET so browsing never sends a write.
   const READ = Object.freeze({ get: true });
@@ -37,6 +39,10 @@
     const code = String(error?.code || '');
     if (code === '42501' && /row-level security/i.test(message)) {
       return new Error('You cannot do that. If you have not published your creator profile yet, publish it first. Restricted and suspended accounts cannot post.');
+    }
+    if (!code && /row-level security|violates/i.test(message)) {
+      // Storage refusals carry no SQL code: post-image limit (W005) or not allowed to post.
+      return new Error('That image was not accepted. You can upload up to 20 post images a day (200 kept), and only active members with a published creator profile can upload.');
     }
     if (code === '23505') return new Error('You have already done that.');
     if (/JWT|not authenticated|Auth session missing/i.test(message)) return new Error('Please sign in again.');
@@ -295,10 +301,24 @@
       p_slug: String(cat.slug || ''), p_name: String(cat.name || ''), p_description: String(cat.description || ''),
       p_sort_order: Number(cat.sort_order) || 100, p_is_active: cat.is_active !== false
     })),
-    clearAvatar: async (userId, reason) => check(await db().rpc('admin_clear_avatar', { p_user_id: userId, p_reason: String(reason || '').slice(0, 500) })),
-    removeImage: async (path) => {
+    // W5-11: stored files are deleted through the Storage API (Supabase refuses SQL deletes)
+    // and each deletion is then written to the audit log by a database function.
+    clearAvatar: async (userId, reason) => {
+      if (!UUID.test(String(userId || ''))) throw new Error('Unknown member.');
+      const note = String(reason || '').slice(0, 500);
+      const listed = check(await db().storage.from(AVATAR_BUCKET).list(userId, { limit: 100 })) || [];
+      const paths = listed.map((f) => `${userId}/${f.name}`).filter((p) => AVATAR_PATH.test(p));
+      if (paths.length) {
+        check(await db().storage.from(AVATAR_BUCKET).remove(paths));
+        for (const path of paths) check(await db().rpc('admin_record_file_removal', { p_bucket: AVATAR_BUCKET, p_path: path, p_reason: note }));
+      }
+      check(await db().rpc('admin_clear_avatar', { p_user_id: userId, p_reason: note }));
+      return paths.length;
+    },
+    removeImage: async (path, reason) => {
       if (!IMAGE_PATH.test(String(path || ''))) throw new Error('Not a community image.');
       check(await db().storage.from(IMAGE_BUCKET).remove([path]));
+      check(await db().rpc('admin_record_file_removal', { p_bucket: IMAGE_BUCKET, p_path: path, p_reason: String(reason || '').slice(0, 500) }));
       return true;
     },
     reports: async (statusFilter) => {

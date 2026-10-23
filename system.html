@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist relay, MOSFET, pixel and audio nodes.">
+  <meta name="description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist lamp, MOSFET, pixel and audio nodes.">
   <title>System Architecture | Showduino</title>
   <link rel="stylesheet" href="css/site-pages.css">
   <link rel="stylesheet" href="css/showduino-stage-theme.css">
@@ -13,8 +13,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.js" integrity="sha384-faMlYZUtkJj+Sh6Bmu/L0GzPcraRWN6CW+9RH3GUrK/Z0WS9tgaNNt0tHiLxsbdb" crossorigin="anonymous" defer></script>
   <script src="js/cloud/supabase-service.js" defer></script>
   <script src="js/site-account.js" defer></script>
+  <link rel="canonical" href="https://show-duino.com/system">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Showduino">
+  <meta property="og:title" content="System Architecture | Showduino">
+  <meta property="og:description" content="Showduino system architecture: ESP32-S3 Director, dedicated S3 Communications Controller, ESP32-P4 Show Engine and specialist lamp, MOSFET, pixel and audio nodes.">
+  <meta property="og:url" content="https://show-duino.com/system">
+  <meta property="og:image" content="https://show-duino.com/media/showduino-chosen-main-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <header class="site-header">
     <a class="site-brand" href="index.html" aria-label="Showduino home"><span class="brand-show">SHOW</span><span class="brand-duino">DUINO</span></a>
     <nav class="site-nav" aria-label="Main navigation">
@@ -29,14 +38,15 @@
     </nav>
   </header>
 
-  <main class="site-main wide">
+  <main id="main" class="site-main wide" tabindex="-1">
     <section class="page-heading">
       <span class="eyebrow">SYSTEM GUIDE · CURRENT BASELINE</span>
       <h1>One show.<br><span class="accent">Four responsibilities.</span></h1>
       <p>Showduino is built as a distributed control system. Each device has a deliberately narrow job so the live show can remain deterministic, diagnosable and independent of the browser.</p>
     </section>
 
-    <section class="section compact reveal">
+    <section class="section compact reveal" aria-labelledby="system-roles">
+      <h2 id="system-roles" class="visually-hidden">The four roles</h2>
       <div class="architecture">
         <article class="architecture-node">
           <span class="role-number">01 / DIRECTOR</span>
@@ -59,7 +69,7 @@
         <article class="architecture-node">
           <span class="role-number">04 / NODES</span>
           <h3>Specialist ESP32 Nodes</h3>
-          <p>Relay, MOSFET, pixel and audio devices execute commands and return useful state/results.</p>
+          <p>Lamp, MOSFET, pixel, audio and Emergency devices execute commands and return useful state/results.</p>
           <span class="transport">REPORT ←</span>
         </article>
       </div>
@@ -133,7 +143,7 @@
         <p>Nodes are not mini Show Engines. They receive a commanded state, perform the work that belongs to their hardware role and report useful results or faults.</p>
       </div>
       <div class="grid four">
-        <article class="card"><div class="card-icon">RLY</div><h3>Relay Node</h3><p class="muted">Discrete switched outputs for compatible effects and equipment.</p></article>
+        <article class="card"><div class="card-icon">LMP</div><h3>Lamp Node</h3><p class="muted">ESP32-S3 practical-lamp effects. It replaces the retired Relay Node role; the old relay firmware is kept for reference only.</p></article>
         <article class="card"><div class="card-icon">MOS</div><h3>MOSFET Node</h3><p class="muted">Solid-state low-voltage switching for suitable loads and effects.</p></article>
         <article class="card"><div class="card-icon">PIX</div><h3>Pixel Node</h3><p class="muted">Segment-aware NeoPixel effects with a system emergency override model.</p></article>
         <article class="card"><div class="card-icon">AUD</div><h3>Audio Node</h3><p class="muted">Dedicated show audio playback while the P4 retains separate local system audio.</p></article>
@@ -167,7 +177,7 @@
         <p>The current system is being completed around the non-DMX core: reliable show runtime, real node control, pixels, audio, storage, diagnostics and a useful authoring workflow.</p>
       </div>
       <div class="grid three">
-        <article class="card"><h3>In the current build</h3><p class="muted">Director, dedicated S3 Comms Controller, P4 Show Engine, relay node, MOSFET node, pixel work, audio node development and Studio/HauntSync tooling.</p></article>
+        <article class="card"><h3>In the current build</h3><p class="muted">Director, dedicated S3 Comms Controller, P4 Show Engine, S3 Lamp Node, MOSFET node, pixel work, audio node development and Studio/HauntSync tooling.</p></article>
         <article class="card"><h3>Being completed</h3><p class="muted">Persistent P4 project storage, first-class output engines, logical device addressing and completion/fault reporting throughout the node path.</p></article>
         <article class="card"><h3>Deliberately not current</h3><p class="muted">DMX is not part of the present implementation scope and is not being advertised as a current capability.</p></article>
       </div>

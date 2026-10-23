@@ -141,7 +141,7 @@
         <p class="v4-meta studio-contributor-credit">Shaped with Oli</p>
         <div class="v4-panel-head">
           <div><span class="v4-eyebrow">SHOWDUINO STUDIO</span><h1>${esc(name)}</h1><p>Author the production here. Preview it here. Save and deploy it from here. The browser never becomes the live show engine.</p></div>
-          <div class="v4-button-row"><button class="v4-btn primary" type="button" onclick="ShowduinoStudioV4.openPanel('timeline-editor')">Open Timeline</button><button class="v4-btn" type="button" onclick="ShowduinoStudioV4.openPanel('playback')">Pixel FX Lab</button></div>
+          <div class="v4-button-row"><button class="v4-btn primary" type="button" data-sd-click="v4-open-panel" data-sd-arg="timeline-editor">Open Timeline</button><button class="v4-btn" type="button" data-sd-click="v4-open-panel" data-sd-arg="playback">Pixel FX Lab</button></div>
         </div>
 
         <div class="fsw-launch"><button type="button" data-fsw="open">Create my first show →</button><span>Four guided steps · no JSON · your advanced tools stay available</span></div>
@@ -152,17 +152,19 @@
           <article class="v4-card"><span class="v4-eyebrow">ROUTED</span><strong class="v4-stat" data-v4-stat="routed">${stats.routed}</strong><div class="v4-meta">DEVICE-ID TARGETS</div></article>
         </div>
 
+        <h2 class="visually-hidden">How Showduino runs a show</h2>
         <div class="v4-architecture">
           <article class="v4-role"><small>01 / OPERATOR</small><h3>Director</h3><p>ESP32-S3 touchscreen requests actions and displays state. It does not keep a running show alive.</p></article>
           <article class="v4-role"><small>02 / TRANSPORT</small><h3>S3 Comms</h3><p>ESP-NOW ↔ UART bridge. Messages move through it; show decisions do not live there.</p></article>
           <article class="v4-role"><small>03 / AUTHORITY</small><h3>ESP32-P4</h3><p>Owns runtime state, safety, timeline execution, cue dispatch and emergency behaviour.</p></article>
-          <article class="v4-role"><small>04 / ACTION</small><h3>Specialist Nodes</h3><p>Relay, MOSFET, pixel and audio nodes perform commanded work and report results.</p></article>
+          <article class="v4-role"><small>04 / ACTION</small><h3>Specialist Nodes</h3><p>Lamp, MOSFET, pixel, audio and Emergency nodes perform commanded work and report results.</p></article>
         </div>
 
+        <h2 class="visually-hidden">Studio tools</h2>
         <div class="v4-grid three" style="margin-top:.8rem;">
-          <article class="v4-card"><h3>Timeline</h3><p>DAW-style authoring with snapping, markers, drag/drop presets, clip inspection and project autosave.</p><div class="v4-button-row"><button class="v4-btn" onclick="ShowduinoStudioV4.openPanel('timeline-editor')">Edit production</button></div></article>
-          <article class="v4-card"><h3>Pixel FX Lab</h3><p>Preview a library of ${PIXEL_EFFECTS.length} effects, define arbitrary segments and create repeating 10-pixel exit-sign patterns.</p><div class="v4-button-row"><button class="v4-btn" onclick="ShowduinoStudioV4.openPanel('playback')">Design pixel FX</button></div></article>
-          <article class="v4-card"><h3>Project Check</h3><p>Find unrouted cues, missing audio files, invalid pixel segments and legacy clip types before deployment.</p><div class="v4-button-row"><button class="v4-btn" onclick="ShowduinoStudioV4.openPanel('diagnostics')">Check show</button></div></article>
+          <article class="v4-card"><h3>Timeline</h3><p>DAW-style authoring with snapping, markers, drag/drop presets, clip inspection and project autosave.</p><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-open-panel" data-sd-arg="timeline-editor">Edit production</button></div></article>
+          <article class="v4-card"><h3>Pixel FX Lab</h3><p>Preview a library of ${PIXEL_EFFECTS.length} effects, define arbitrary segments and create repeating 10-pixel exit-sign patterns.</p><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-open-panel" data-sd-arg="playback">Design pixel FX</button></div></article>
+          <article class="v4-card"><h3>Project Check</h3><p>Find unrouted cues, missing audio files, invalid pixel segments and legacy clip types before deployment.</p><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-open-panel" data-sd-arg="diagnostics">Check show</button></div></article>
         </div>
 
         <div class="v4-rule" style="margin-top:.8rem;"><strong>System rule:</strong> emergency is not a timeline effect. The P4 emergency state interrupts normal playback and commands all pixels bright white. Clearing the initiating condition does not auto-resume the show.</div>
@@ -170,10 +172,10 @@
   }
 
   function pixelLabHtml() {
-    const options = PIXEL_EFFECTS.map((effect) => `<button class="pixel-fx-option ${effect.id === 'lightning' ? 'active' : ''}" type="button" data-pixel-effect="${effect.id}" onclick="ShowduinoStudioV4.selectPixelEffect('${effect.id}')"><strong>${esc(effect.name)}</strong><span>${esc(effect.family)}</span></button>`).join('');
+    const options = PIXEL_EFFECTS.map((effect) => `<button class="pixel-fx-option ${effect.id === 'lightning' ? 'active' : ''}" type="button" data-pixel-effect="${effect.id}" data-sd-click="v4-select-pixel-effect" data-sd-arg="${esc(effect.id)}"><strong>${esc(effect.name)}</strong><span>${esc(effect.family)}</span></button>`).join('');
     return `
       <div class="v4-panel pixel-lab-panel">
-        <div class="v4-panel-head"><div><span class="v4-eyebrow">PIXEL FX LAB</span><h1>Design by segment.</h1><p>Build an effect for exactly the pixels you want, preview it in the browser, then drop the resulting clip onto the timeline.</p></div><div class="v4-button-row"><button class="v4-btn" onclick="ShowduinoStudioV4.applyExitSignTemplate()">10-pixel Exit Sign</button><button class="v4-btn primary" onclick="ShowduinoStudioV4.insertPixelLabClip()">Add to Timeline</button></div></div>
+        <div class="v4-panel-head"><div><span class="v4-eyebrow">PIXEL FX LAB</span><h1>Design by segment.</h1><p>Build an effect for exactly the pixels you want, preview it in the browser, then drop the resulting clip onto the timeline.</p></div><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-exit-sign-template">10-pixel Exit Sign</button><button class="v4-btn primary" data-sd-click="v4-insert-pixel-clip">Add to Timeline</button></div></div>
 
         <div class="pixel-lab-layout">
           <section class="v4-card pixel-lab-controls">
@@ -208,7 +210,7 @@
               <div class="pixel-preview-label"><span id="pixel-lab-preview-label">LINE 1 · SEGMENT A · LIGHTNING</span><span id="pixel-lab-preview-range">PX 0–9</span></div>
               <div id="pixel-lab-preview" class="v4-pixel-strip" aria-label="Pixel effect preview"></div>
             </div>
-            <div class="v4-card"><div class="v4-panel-head" style="margin:0 0 .6rem;align-items:center;"><div><span class="v4-eyebrow">FX LIBRARY</span><p>${PIXEL_EFFECTS.length} reusable pixel effects. The effect lives in the clip; routing decides which segment receives it.</p></div><input id="pixel-lab-search" type="search" placeholder="Search FX…" oninput="ShowduinoStudioV4.filterPixelEffects(this.value)" style="max-width:180px;padding:.48rem .55rem;border:1px solid #344752;border-radius:6px;background:#080d11;color:#e7eef1;"></div><div class="pixel-fx-library" id="pixel-fx-library">${options}</div></div>
+            <div class="v4-card"><div class="v4-panel-head" style="margin:0 0 .6rem;align-items:center;"><div><span class="v4-eyebrow">FX LIBRARY</span><p>${PIXEL_EFFECTS.length} reusable pixel effects. The effect lives in the clip; routing decides which segment receives it.</p></div><input id="pixel-lab-search" type="search" placeholder="Search FX…" data-sd-input="v4-filter-effects" style="max-width:180px;padding:.48rem .55rem;border:1px solid #344752;border-radius:6px;background:#080d11;color:#e7eef1;"></div><div class="pixel-fx-library" id="pixel-fx-library">${options}</div></div>
           </section>
         </div>
 
@@ -242,12 +244,12 @@
           <p id="studio-lan-status" class="lan-status" role="status" aria-live="polite">A saved IP does not verify that the S3 or P4 is online. Use the same home LAN.</p>
           <div class="v4-button-row">
             <button class="v4-btn primary" type="button" data-lan-action="export-open">Download .shdo + Open Local Console</button>
-            <button class="v4-btn" type="button" onclick="ShowduinoProjects.exportCurrentProject()">Download .shdo only</button>
+            <button class="v4-btn" type="button" data-sd-click="export-shdo">Download .shdo only</button>
           </div>
           <p class="lan-help">In the S3 console: <strong>Productions → Persist SHDO v2 → Choose downloaded file → Persist to SD.</strong> Wait for the P4 confirmation; loading the production and starting it are separate actions. <a href="hauntsync.html#devices">Manage hardware inventory</a>.</p>
         </section>
         <div class="v4-grid two" style="margin-top:.8rem;">
-          <article class="v4-card"><h3>Production package</h3><div id="v4-deploy-summary" class="project-check-list"></div><div class="v4-button-row"><button class="v4-btn primary" onclick="ShowduinoStudioV4.prepareDeploy()">Prepare / Send Show</button><button class="v4-btn" onclick="ShowduinoProjects.exportCurrentProject()">Export .shdo</button></div></article>
+          <article class="v4-card"><h3>Production package</h3><div id="v4-deploy-summary" class="project-check-list"></div><div class="v4-button-row"><button class="v4-btn primary" data-sd-click="v4-prepare-deploy">Prepare / Send Show</button><button class="v4-btn" data-sd-click="export-shdo">Export .shdo</button></div></article>
           <article class="v4-card"><h3>Live path</h3><div class="node-target-list"><div class="node-target"><code>DIRECTOR</code><span>ESP-NOW operator requests</span><strong>→</strong></div><div class="node-target"><code>S3 COMMS</code><span>ESP-NOW ↔ UART transport</span><strong>→</strong></div><div class="node-target"><code>P4</code><span>Runtime + safety + timeline</span><strong>→</strong></div><div class="node-target"><code>NODES</code><span>Relay · MOSFET · Pixel · Audio</span><strong>✓</strong></div></div></article>
         </div>
       </div>`;
@@ -256,7 +258,7 @@
   function nodesHtml() {
     return `
       <div class="v4-panel nodes-panel">
-        <div class="v4-panel-head"><div><span class="v4-eyebrow">NODE MAP</span><h1>Route by role and device ID.</h1><p>Studio stores logical targets in production data. Physical discovery and completion reporting can fill this view when a Showduino system is connected.</p></div><div class="v4-button-row"><button class="v4-btn" onclick="ShowduinoStudioV4.refreshNodeMap()">Refresh authored targets</button></div></div>
+        <div class="v4-panel-head"><div><span class="v4-eyebrow">NODE MAP</span><h1>Route by role and device ID.</h1><p>Studio stores logical targets in production data. Physical discovery and completion reporting can fill this view when a Showduino system is connected.</p></div><div class="v4-button-row"><button class="v4-btn" data-sd-click="v4-refresh-node-map">Refresh authored targets</button></div></div>
         <div class="node-role-grid">
           <article class="node-role-card core"><div class="node-status"><span>DIRECTOR</span><span>OPERATOR</span></div><h3>ESP32-S3 Director</h3><p>Requests commands and displays state. Not a timeline or safety authority.</p></article>
           <article class="node-role-card core"><div class="node-status"><span>COMMS</span><span>BRIDGE</span></div><h3>S3 Comms Controller</h3><p>Transports ESP-NOW traffic to/from the P4 over UART.</p></article>
@@ -271,7 +273,7 @@
   function diagnosticsHtml() {
     return `
       <div class="v4-panel diagnostics-panel">
-        <div class="v4-panel-head"><div><span class="v4-eyebrow">PROJECT CHECK</span><h1>Catch problems before the P4 sees them.</h1><p>This is an authoring validation pass. Hardware commissioning remains a separate P4/node diagnostic job.</p></div><div class="v4-button-row"><button class="v4-btn primary" onclick="ShowduinoStudioV4.refreshDiagnostics()">Run check</button></div></div>
+        <div class="v4-panel-head"><div><span class="v4-eyebrow">PROJECT CHECK</span><h1>Catch problems before the P4 sees them.</h1><p>This is an authoring validation pass. Hardware commissioning remains a separate P4/node diagnostic job.</p></div><div class="v4-button-row"><button class="v4-btn primary" data-sd-click="v4-refresh-diagnostics">Run check</button></div></div>
         <div class="v4-grid four" id="v4-diagnostic-stats"></div>
         <section class="v4-card" style="margin-top:.8rem;"><div id="v4-project-checks" class="project-check-list"></div></section>
       </div>`;
@@ -295,11 +297,11 @@
   }
 
   function fieldHtml(id, label, value, type, attrs) {
-    return `<div class="v4-field"><label for="${id}">${esc(label)}</label><input id="${id}" type="${type || 'text'}" value="${esc(value)}" ${attrs || ''} oninput="ShowduinoStudioV4.onPixelLabInput?.()"></div>`;
+    return `<div class="v4-field"><label for="${id}">${esc(label)}</label><input id="${id}" type="${type || 'text'}" value="${esc(value)}" ${attrs || ''} data-sd-input="v4-pixel-lab-input"></div>`;
   }
 
   function selectHtml(id, label, value, options) {
-    return `<div class="v4-field"><label for="${id}">${esc(label)}</label><select id="${id}" onchange="ShowduinoStudioV4.onPixelLabInput?.()">${options.map((option) => `<option value="${esc(option.value)}" ${String(option.value) === String(value) ? 'selected' : ''}>${esc(option.label)}</option>`).join('')}</select></div>`;
+    return `<div class="v4-field"><label for="${id}">${esc(label)}</label><select id="${id}" data-sd-change="v4-pixel-lab-input">${options.map((option) => `<option value="${esc(option.value)}" ${String(option.value) === String(value) ? 'selected' : ''}>${esc(option.label)}</option>`).join('')}</select></div>`;
   }
 
   function inspectorField(id, label, value, type, attrs) {
@@ -518,6 +520,15 @@
 
     const duplicateTrackNames = tracks.map((track) => track.name).filter((name, index, all) => all.indexOf(name) !== index);
     checks.push({ level: duplicateTrackNames.length ? 'warn' : 'ok', title: 'Track naming', detail: duplicateTrackNames.length ? 'Some tracks share the same name. Unique names make routing and commissioning easier.' : 'Track names are unambiguous.', code: duplicateTrackNames.length ? 'REVIEW' : 'OK' });
+
+    // W005: what the P4 Show Engine itself would refuse (file size, pixel segment slots,
+    // name and label lengths, numbers), checked on the exact document Export writes.
+    try {
+      const shdo = window.ShowduinoPackage?.toShdo?.(project);
+      if (shdo && window.ShowduinoFirmwareLimits) checks.push(...window.ShowduinoFirmwareLimits.checks(shdo));
+    } catch (error) {
+      checks.push({ level: 'warn', title: 'P4 compatibility', detail: `Studio could not check this show against the P4 limits: ${error.message}`, code: 'UNCHECKED' });
+    }
 
     return checks;
   }

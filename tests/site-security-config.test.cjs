@@ -20,17 +20,30 @@ assert.deepStrictEqual(unsafe, [], 'third-party scripts without SRI or a pinned 
 // 2. Security headers.
 const headers = fs.readFileSync('_headers', 'utf8');
 for (const h of ['Strict-Transport-Security', 'X-Content-Type-Options: nosniff', 'X-Frame-Options: DENY', 'Referrer-Policy',
-  'Permissions-Policy', "Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'none'", 'Content-Security-Policy-Report-Only:']) {
+  'Permissions-Policy', 'Content-Security-Policy:']) {
   assert.ok(headers.includes(h), `_headers missing ${h}`);
 }
-const reportOnly = /Content-Security-Policy-Report-Only: ([^\n]+)/.exec(headers)[1];
-assert.ok(!/script-src[^;]*'unsafe-inline'/.test(reportOnly), 'target CSP must not allow inline script');
-assert.ok(!/script-src[^;]*'unsafe-eval'/.test(reportOnly), 'target CSP must not allow eval');
+// W005 (W5-06): the full policy is ENFORCED, not report-only.
+assert.ok(!/Content-Security-Policy-Report-Only:/.test(headers), 'the CSP is enforced; a report-only copy would drift from it');
+const csp = /^\s+Content-Security-Policy: ([^\n]+)/m.exec(headers)[1];
+const directive = (name) => (csp.split(';').map((d) => d.trim()).find((d) => d === name || d.startsWith(name + ' ')) || '');
+const scriptSrc = directive('script-src');
+assert.ok(scriptSrc, 'enforced CSP has script-src');
+assert.ok(!/'unsafe-inline'|'unsafe-eval'|'unsafe-hashes'|'strict-dynamic'|\*|data:|blob:|http:/.test(scriptSrc), `script-src must not allow inline, eval, wildcards or plain-http/data/blob script: ${scriptSrc}`);
+for (const host of scriptSrc.split(/\s+/).slice(1).filter((s) => !s.startsWith("'"))) {
+  assert.ok(['https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://challenges.cloudflare.com'].includes(host), `unexpected script host ${host}`);
+}
+for (const [name, value] of [['default-src', "default-src 'self'"], ['object-src', "object-src 'none'"], ['base-uri', "base-uri 'self'"],
+  ['frame-ancestors', "frame-ancestors 'none'"], ['form-action', "form-action 'self'"], ['frame-src', 'frame-src https://challenges.cloudflare.com']]) {
+  assert.strictEqual(directive(name), value, `enforced CSP ${name}`);
+}
+assert.ok(/connect-src [^;]*https:\/\/fczxcvlyydcqdhjkejmd\.supabase\.co/.test(csp), 'connect-src allows the Showduino Supabase project');
 execFileSync(process.execPath, ['tools/csp-inline-hashes.mjs', '--check'], { stdio: 'inherit' });
 
 // 3. Legacy and non-site paths are not served.
 const redirects = fs.readFileSync('_redirects', 'utf8');
-for (const path of ['/HauntSyncForum_Configured/*', '/preview/*', '/supabase/*', '/functions/*', '/tests/*', '/docs/*', '/.github/*', '/firebase.json', '/firestore.rules']) {
+for (const path of ['/HauntSyncForum_Configured/*', '/preview/*', '/supabase/*', '/functions/*', '/tests/*', '/docs/*', '/.github/*', '/firebase.json', '/firestore.rules',
+  '/archive/*', '/touchscreen-ui', '/touchscreen-ui.html']) {
   assert.ok(new RegExp('^' + path.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&') + '\\s+/retired\\s+30[1278]\\s*$', 'm').test(redirects), `_redirects does not retire ${path}`);
 }
 assert.ok(fs.existsSync('retired.html'), 'retired.html exists');

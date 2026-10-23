@@ -1,7 +1,8 @@
-/* W002: open each public page of a DEPLOYED site in Chromium and record every
- * Content-Security-Policy-Report-Only violation the browser logs. On Studio it also
- * opens every panel and presses non-destructive buttons, because inline event
- * handlers are only checked when they run. Read-only: nothing is saved or sent.
+/* W002/W005: open each public page of a DEPLOYED site in Chromium and record every
+ * Content-Security-Policy violation the browser logs (enforced since W005, W5-06;
+ * report-only messages are counted too). On Studio it also opens every panel and
+ * presses non-destructive buttons, because handlers are only checked when they run.
+ * Read-only: nothing is saved or sent.
  *   node tools/csp-report-scan.cjs https://<preview>.pages.dev */
 const { chromium } = require('playwright');
 const base = (process.argv[2] || 'https://show-duino.com').replace(/\/$/, '');
@@ -15,7 +16,7 @@ const say = (l, m) => console.log(process.env.GITHUB_ACTIONS ? `::${l}::${m}` : 
     page.on('dialog', (d) => d.dismiss().catch(() => {}));
     page.on('console', (m) => {
       const t = m.text();
-      if (!/Report Only|report-only/i.test(t)) return;
+      if (!/Content Security Policy/i.test(t) || !/Refused to|violates/i.test(t)) return;
       n++;
       const what = (/Refused to (\w+(?: \w+)?) '?([^' ]*)/.exec(t) || []);
       const dir = (/directive: "([a-z-]+)/.exec(t) || [])[1] || 'unknown';
@@ -42,7 +43,7 @@ const say = (l, m) => console.log(process.env.GITHUB_ACTIONS ? `::${l}::${m}` : 
     await page.close();
   }
   await browser.close();
-  say('notice', `CSP report-only violations per page: ${perPage.join(' ')}`);
+  say('notice', `CSP violations per page: ${perPage.join(' ')}`);
   const list = [...kinds].sort((a, b) => b[1] - a[1]);
   for (let i = 0; i < list.length; i += 6) say('notice', `CSP violations ${i + 1}-${Math.min(i + 6, list.length)} of ${list.length}: ` + list.slice(i, i + 6).map(([k, v]) => `${k} x${v}`).join(' | '));
   if (!list.length) say('notice', 'CSP violations: none');

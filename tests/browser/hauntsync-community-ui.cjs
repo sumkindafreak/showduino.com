@@ -163,15 +163,33 @@ const text = (tab, sel) => tab.evaluate((s) => [...document.querySelectorAll(s)]
   await tab.click('[data-section="reports"]'); await wait(400);
   assert.ok((await tab.textContent('#hs-report-list')).includes('Advert <img'), 'report details as text');
   assert.strictEqual(await tab.locator('#hs-report-list img').count(), 0);
-  await tab.click('#hs-report-list .btn:text-is("Hide")'); await wait(400);
+  await tab.click('#hs-report-list .btn:text-is("Hide")');
+  await tab.fill('#hs-reason-text', 'Test reason');
+  await tab.click('#hs-reason-form button[type="submit"]'); await wait(400);
   const c = await calls(tab);
   assert.ok(c.includes('admin.moderate:post:hide') && c.includes('admin.resolve:actioned'), 'hide + resolve from the report');
   await tab.click('[data-section="members"]'); await wait(400);
   const ownerRow = await tab.evaluate(() => [...document.querySelectorAll('#hs-member-table tbody tr')].find((r) => r.textContent.includes('Owner (protected)'))?.textContent || '');
   assert.ok(ownerRow.includes('Showduino Founder'), 'owner row protected');
   assert.strictEqual(await tab.evaluate(() => [...document.querySelectorAll('#hs-member-table tbody tr')].find((r) => r.textContent.includes('Owner (protected)')).querySelectorAll('button').length), 0, 'no suspend buttons on the owner row');
-  await tab.click('#hs-member-table tbody tr:has-text("Alice") .btn:text-is("Restrict")'); await wait(300);
+  await tab.click('#hs-member-table tbody tr:has-text("Alice") .btn:text-is("Restrict")');
+  await tab.fill('#hs-reason-text', 'Member cool-off');
+  await tab.click('#hs-reason-form button[type="submit"]'); await wait(300);
   assert.ok((await calls(tab)).includes('admin.setMemberStatus:restricted'));
+  // W005 (W5-11): Clear photo deletes the stored files with a logged reason.
+  await tab.click('#hs-member-table tbody tr:has-text("Alice") .btn:text-is("Clear photo")');
+  await tab.fill('#hs-reason-text', 'Photo breaks the guidelines');
+  await tab.click('#hs-reason-form button[type="submit"]'); await wait(300);
+  assert.ok((await calls(tab)).includes('admin.clearAvatar:00000000-0000-4000-8000-0000000000a1:Photo breaks the guidelines'), 'clear photo with reason');
+  assert.match(await tab.textContent('#hs-admin-status'), /stored file\(s\) deleted and logged/);
+  // Removing a post also deletes its image file, with the reason in the audit log.
+  await tab.click('[data-section="content"]'); await wait(400);
+  await tab.click('#hs-content-list .hs-admin-item:has-text("Fog chiller build") .btn:text-is("Remove")');
+  await tab.fill('#hs-reason-text', 'Unsafe wiring');
+  await tab.click('#hs-reason-form button[type="submit"]'); await wait(400);
+  const removedCalls = await calls(tab);
+  assert.ok(removedCalls.includes('admin.moderate:post:remove'), 'post removed');
+  assert.ok(removedCalls.includes('admin.removeImage:00000000-0000-4000-8000-0000000000a1/post-00000000-0000-4000-8000-0000000000aa.png:Removed with the post: Unsafe wiring'), 'image file removed with the post, reason kept');
   await tab.click('[data-section="log"]'); await wait(300);
   assert.ok((await tab.textContent('#hs-log-table')).includes('owner assigned'));
   await tab.click('[data-section="categories"]'); await wait(300);

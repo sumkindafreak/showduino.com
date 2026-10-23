@@ -14,6 +14,7 @@ const auth = {
 const client = {auth};
 const context = {
   window:{
+    location:{ hostname:'show-duino.com' },
     SHOWDUINO_CONFIG:{
       features:{supabase:true,authentication:true},
       supabase:{url:'https://example.supabase.co',publishableKey:'test-publishable'}
@@ -29,7 +30,9 @@ assert.match(fs.readFileSync('account.html','utf8'),/id="google-signin-button"/)
 assert.match(fs.readFileSync('js/account-page.js','utf8'),/addEventListener\('click',handleGoogleSignIn\)/);
 assert.match(fs.readFileSync('account.html','utf8'),/id="google-signin-button"[^>]*disabled/);
 assert.match(fs.readFileSync('js/account-page.js','utf8'),/settings\?\.external\?\.google === true/);
-assert.match(fs.readFileSync('welcome.html','utf8'),/Continue with Google/);
+// W005: Google stays hidden until the founder enables and verifies it (features.googleSignIn).
+assert.doesNotMatch(fs.readFileSync('welcome.html','utf8'),/Continue with Google/);
+assert.match(fs.readFileSync('config/runtime-config.js','utf8'),/googleSignIn: false/);
 
 (async()=>{
   const data = await api.signInWithGoogle();

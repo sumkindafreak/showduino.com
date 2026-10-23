@@ -182,7 +182,7 @@
       if (info && !info.dataset.mobilePixelSummary) {
         const existing = String(info.textContent || '').trim();
         const summary = mobilePixelSummary(clip);
-        if (!existing.includes(summary)) info.textContent = existing ? `${existing} · ${summary}` : summary;
+        if (!existing.includes(summary) && !/\bPX\b/.test(existing)) info.textContent = existing ? `${existing} · ${summary}` : summary;
         info.dataset.mobilePixelSummary = '1';
       }
     });

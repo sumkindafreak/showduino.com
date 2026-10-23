@@ -120,3 +120,15 @@ body.studio-v4{
 .studio-v4 .studio-state-banner { color:#a6adb5;border-color:#49525c;background:#11171c; }
 .studio-v4 .runtime-authority-chip::before,
 .studio-v4 .studio-state-banner::before { background:#78818b;box-shadow:none; }
+
+/* W005 (W5-17): skip link and screen-reader-only headings. */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 10000;
+  padding: .7rem 1rem; border-radius: 8px;
+  background: #00ffc8; color: #031512; font-weight: 800; text-decoration: none;
+}
+.skip-link:focus, .skip-link:focus-visible { top: 1rem; outline: 3px solid #fff; outline-offset: 2px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+main[tabindex="-1"]:focus { outline: none; }
+/* W005 (W5-17): Studio check boxes meet the 24 px minimum target. */
+.studio-v4 .v4-check input[type="checkbox"] { inline-size: 24px; block-size: 24px; flex: 0 0 auto; }

@@ -39,6 +39,8 @@ jobs:
           node --check js/timeline-professional-inspector.js
           node --check js/studio-inspector-drawer.js
           node --check js/studio-package.js
+          node --check js/studio-firmware-limits.js
+          node --check js/connection_detector.js
           node --check js/studio-projects.js
           node --check js/studio-deploy.js
           node --check js/studio-creator-mode.js
@@ -60,6 +62,7 @@ jobs:
           node --check js/timeline-undo.js
           node --check js/showduino-pixel-authoring.js
           node --check js/showduino-mosfet-authoring.js
+          node --check js/site-captcha.js
           node --check app.js
 
       - name: Render every registered Studio panel
@@ -104,6 +107,19 @@ jobs:
 
       - name: Guard imported .shdo text against HTML injection (W001)
         run: node tests/studio-imported-text-safety.test.cjs
+
+      - name: Account recovery copy, expired links, no account enumeration, mobile admin (W005)
+        run: node tests/w005-recovery-mobile-admin.test.cjs
+
+      - name: Google sign-in flag and Turnstile token plumbing (W005)
+        run: node tests/w005-auth-captcha-google.test.cjs
+      - name: Studio refuses what the P4 firmware refuses (W005, verdicts from the firmware compiler)
+        run: node tests/studio-firmware-limits.test.cjs
+
+      - name: No plain-HTTP hardware probes from the HTTPS website (W005)
+        run: node tests/studio-https-no-lan-probe.test.cjs
+      - name: Production account services only on show-duino.com; previews local-only (W005)
+        run: node tests/w005-account-hosts.test.cjs
 
       - name: Guard the public Showduino domain
         run: |

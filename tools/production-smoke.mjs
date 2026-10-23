@@ -34,7 +34,8 @@ const FIXES = [
   ['W-002 firmware upload pre-flight', '/js/studio-deploy.js', 'function uploadPolicyErrors(plan)'],
   ['W-005 import shape and size', '/js/studio-projects.js', 'function assertImportableShape(parsed)'],
   ['W002 unsafe identifiers refused', '/js/studio-projects.js', 'function assertSafeIdentifiers('],
-  ['W002 project browser as text', '/js/timeline.js', "nameEl.textContent = String(p.project.name || 'Untitled Show')"]
+  ['W002 project browser as text', '/js/timeline.js', "nameEl.textContent = String(p.project.name || 'Untitled Show')"],
+  ['W005 Studio controls without inline handlers', '/js/studio-actions.js', 'window.ShowduinoActions = Object.freeze(']
 ];
 
 // Cloudflare Pages answers /page.html with 308 -> /page, so follow redirects and

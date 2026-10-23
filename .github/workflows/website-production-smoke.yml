@@ -39,12 +39,12 @@ jobs:
           echo "::notice::preview ${url} for ${GITHUB_SHA}"
           # Wait until Cloudflare has deployed this commit's Studio.
           for i in $(seq 1 40); do
-            if curl -fsSL "${url}/js/studio-projects.js" 2>/dev/null | grep -q 'assertSafeIdentifiers' && curl -fsSI "${url}/" | grep -qi 'content-security-policy-report-only'; then break; fi
+            if curl -fsSL "${url}/js/studio-actions.js" 2>/dev/null | grep -q 'ShowduinoActions' && curl -fsSI "${url}/" | grep -qi '^content-security-policy:.*script-src'; then break; fi
             sleep 15
           done
           echo "PREVIEW_URL=${url}" >> "$GITHUB_ENV"
           node tools/production-smoke.mjs "${url}" --strict
-      - name: CSP report-only violations on the preview (Chromium)
+      - name: CSP violations on the preview (Chromium, enforced policy)
         if: github.event_name == 'push'
         run: |
           npm install --no-save --no-package-lock playwright@1.48.2 >/dev/null

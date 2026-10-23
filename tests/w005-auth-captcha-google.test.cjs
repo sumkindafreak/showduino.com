@@ -15,6 +15,8 @@ function serviceWith(calls) {
     onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } })
   };
   const window = {
+    // Account services run only on the production host (PR #84 gates on hostname).
+    location: { hostname: 'show-duino.com' },
     SHOWDUINO_CONFIG: { features: { supabase: true, authentication: true }, supabase: { url: 'https://example.invalid', publishableKey: 'sb_publishable_test' } },
     supabase: { createClient: () => ({ auth, from: () => ({}) }) },
     crypto: require('node:crypto').webcrypto

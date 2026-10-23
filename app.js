@@ -59,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshLogBadge();
   }
 
+  // W005: project, deploy and P4-compatibility messages from the Studio modules
+  // (studio-projects.js, studio-deploy.js, studio-sounds.js) call window.studioLog.
+  // It was never defined, so those warnings only reached the browser console.
+  window.studioLog = log;
+
   function refreshLogBadge() {
       const badge = document.getElementById('studio-log-counts');
       if (!badge) return;

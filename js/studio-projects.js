@@ -311,7 +311,19 @@
       if (!validation.valid) throw new Error(validation.errors[0] || 'SHDO validation failed.');
     }
 
-    const blob = new Blob([JSON.stringify(shdoDocument, null, 2)], { type: 'application/vnd.showduino.production+json' });
+    // W005: spaced and readable when it fits the P4's 48 KB Persist to SD limit, compact
+    // when that is what makes it fit; anything the P4 would refuse is said here.
+    const limits = window.ShowduinoFirmwareLimits;
+    const output = limits ? limits.serialise(shdoDocument) : { text: JSON.stringify(shdoDocument, null, 2), compact: false };
+    if (limits && shdoDocument.schema === window.ShowduinoPackage?.SCHEMA_NAME) {
+      const report = limits.inspect(shdoDocument);
+      if (output.compact && !report.problems.some((p) => p.field === 'fileBytes')) {
+        notify(`Exported without spacing so the file (${(report.fileBytes / 1024).toFixed(1)} KB) fits the P4's ${limits.LIMITS.fileBytes / 1024} KB limit.`, 'INFO');
+      }
+      report.problems.slice(0, 3).forEach((p) => notify(`The P4 will refuse this file: ${p.item}: ${p.detail}`, 'WARN'));
+      if (report.problems.length > 3) notify(`…and ${report.problems.length - 3} more P4 compatibility problems. See Diagnostics.`, 'WARN');
+    }
+    const blob = new Blob([output.text], { type: 'application/vnd.showduino.production+json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;

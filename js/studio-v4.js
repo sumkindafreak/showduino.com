@@ -519,6 +519,15 @@
     const duplicateTrackNames = tracks.map((track) => track.name).filter((name, index, all) => all.indexOf(name) !== index);
     checks.push({ level: duplicateTrackNames.length ? 'warn' : 'ok', title: 'Track naming', detail: duplicateTrackNames.length ? 'Some tracks share the same name. Unique names make routing and commissioning easier.' : 'Track names are unambiguous.', code: duplicateTrackNames.length ? 'REVIEW' : 'OK' });
 
+    // W005: what the P4 Show Engine itself would refuse (file size, pixel segment slots,
+    // name and label lengths, numbers), checked on the exact document Export writes.
+    try {
+      const shdo = window.ShowduinoPackage?.toShdo?.(project);
+      if (shdo && window.ShowduinoFirmwareLimits) checks.push(...window.ShowduinoFirmwareLimits.checks(shdo));
+    } catch (error) {
+      checks.push({ level: 'warn', title: 'P4 compatibility', detail: `Studio could not check this show against the P4 limits: ${error.message}`, code: 'UNCHECKED' });
+    }
+
     return checks;
   }
 

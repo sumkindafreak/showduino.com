@@ -112,6 +112,19 @@ async function openAccount(search, hash, registerError, emailError, authEvents) 
     await again('resend-confirmation-button').listeners.click();
     assert.match(again('account-status').textContent, /If that address has an unconfirmed Showduino ID/i, `resend: "${error.message}" reads like success`);
   }
+  // A failed security check or a malformed address is the same for every address: shown.
+  for (const [error, pattern] of [[Object.assign(apiError(400, 'captcha protection: request disallowed (captcha-verification-failed)'), { code: 'captcha_failed' }), /security check did not pass/i],
+                                  [Object.assign(apiError(400, 'Unable to validate email address: invalid format'), { code: 'email_address_invalid' }), /Check the email address/i]]) {
+    const page = await openAccount('', '', '', error);
+    page('login-email').value = 'someone@example.test';
+    await page('forgot-password-button').listeners.click();
+    assert.match(page('account-status').textContent, pattern, `reset shows "${error.message}"`);
+    assert.match(page('account-status').className, /error/);
+    const reg = await openAccount('', '', error);
+    reg('register-email').value = 'someone@example.test'; reg('register-password').value = 'a-long-test-passphrase'; reg('register-name').value = 'Tester';
+    await reg('register-form').listeners.submit({ preventDefault() {} });
+    assert.match(reg('account-status').textContent, pattern, `sign-up shows "${error.message}"`);
+  }
   const offline = await openAccount('', '', '', new TypeError('Failed to fetch'));
   offline('login-email').value = 'someone@example.test';
   await offline('forgot-password-button').listeners.click();

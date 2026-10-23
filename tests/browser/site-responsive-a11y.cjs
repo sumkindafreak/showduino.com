@@ -43,6 +43,15 @@ function audit() {
     }
     out.small.push(`${el.tagName.toLowerCase()} "${(el.textContent || el.value || el.getAttribute('aria-label') || '').trim().slice(0, 24)}" ${Math.round(r.width)}×${Math.round(r.height)}`);
   }
+  // A sufficiently large title still fails as a touch target if project buttons cover it.
+  const title = document.querySelector('.show-name');
+  const actions = document.querySelector('.studio-project-actions');
+  if (title && actions && visible(title) && visible(actions)) {
+    const a = title.getBoundingClientRect(), b = actions.getBoundingClientRect();
+    if (Math.min(a.right, b.right) > Math.max(a.left, b.left) && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top)) {
+      out.small.push('show title is covered by project actions');
+    }
+  }
   for (const img of document.querySelectorAll('img')) if (!img.hasAttribute('alt')) out.noAlt.push(img.getAttribute('src'));
   return out;
 }

@@ -37,6 +37,7 @@
   const U32_MAX = 4294967295;
 
   const NODE_ID_MAX = 12;
+  const KEY_BYTES = 31; // ShdoJson key buffers are char[32]
   const AUDIO_FILE_MAX = 63 - 'AUDIO:NODE:PLAY:'.length; // 47
 
   // Upper bound of compiled cues per clip, from the shdoCompile* functions.
@@ -177,6 +178,17 @@
     });
     if (estimatedCues > LIMITS.cues) add('cues', 'show', `About ${estimatedCues} runtime cues; the P4 holds up to ${LIMITS.cues}.`);
     if (depth(doc, 0) > LIMITS.nesting + 1) add('nesting', 'show', `The file is nested more than ${LIMITS.nesting} levels deep.`);
+    // Keys of the objects the P4 reads field by field go into a 32-byte buffer
+    // (keys inside skipped values may be any length).
+    const parsedObjects = [doc, doc?.project, doc?.package, doc?.architecture, doc?.safety, doc?.safety?.emergency,
+      ...devices, ...devices.map((d) => d?.binding),
+      ...clips, ...clips.map((c) => c?.action), ...clips.map((c) => c?.params), ...clips.map((c) => c?.action?.params)];
+    const longKeys = new Set();
+    parsedObjects.forEach((object) => {
+      if (!object || typeof object !== 'object' || Array.isArray(object)) return;
+      Object.keys(object).forEach((key) => { if (utf8Bytes(key) > KEY_BYTES) longKeys.add(key); });
+    });
+    if (longKeys.size) add('keys', 'show', `Field names longer than ${KEY_BYTES} bytes: ${[...longKeys].slice(0, 3).join(', ')}.`);
 
     const prettyBytes = utf8Bytes(JSON.stringify(doc, null, 2));
     const compactBytes = utf8Bytes(JSON.stringify(doc));

@@ -74,6 +74,11 @@ for (const [key, [spec, firmware, fits]] of Object.entries(CASES)) {
   const checks = L.checks(doc);
   assert.strictEqual(checks.some((c) => c.level === 'error'), firmware !== 'OK' || !fits, `${key}: readiness errors match`);
 }
+// A 32-byte field name in a parsed object is refused; the same name in skipped metadata is not.
+const longKeyDoc = show({}); longKeyDoc.clips[0].params = { ...(longKeyDoc.clips[0].params || {}), ['k'.repeat(32)]: 1 };
+assert.ok(L.inspect(longKeyDoc).problems.some((p) => p.field === 'keys'), '32-byte key in clip params is refused');
+const metaKeyDoc = show({}); metaKeyDoc.metadata = { ['k'.repeat(40)]: 1 };
+assert.ok(!L.inspect(metaKeyDoc).problems.some((p) => p.field === 'keys'), 'long key in skipped metadata is accepted');
 // The pixel slot message names the device and the 16-slot limit.
 const slots = L.checks(show({ pixel: 17, audio: 0 })).find((c) => c.title === 'Pixel segment slots');
 assert.match(slots.detail, /17 pixel cues target ".+"; the P4 has 16 segment slots/);

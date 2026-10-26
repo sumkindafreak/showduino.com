@@ -1,0 +1,8 @@
+{
+  "appId": "com.showduino.studio",
+  "appName": "Showduino Studio",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -530,105 +530,23 @@ window._refreshDevices();
 
   /* ── HauntSync ────────────────────────────────────────────────── */
   hauntsync() {
+    // WEB-023: the original embedded scripts never ran after innerHTML insertion.
+    // Current project data is rendered by js/studio-panel-runtime.js.
     return `
-<div class="panel-hauntsync">
-  <!-- Auth Section -->
-  <div class="control-section" id="hauntsync-auth-section">
-    <h3>🔐 Account</h3>
-    <div id="hauntsync-auth-content">
-      <p style="font-size:13px;color:#888;">Loading…</p>
+<div class="panel-hauntsync v4-panel">
+  <div class="v4-panel-head"><div><span class="v4-eyebrow">SHOWDUINO PROJECTS</span>
+    <h1>Your saved shows.</h1><p>Shows on this device stay available offline. Cloud shows appear when you sign in to your Showduino ID.</p>
+  </div></div>
+  <section class="v4-card">
+    <div class="v4-button-row">
+      <button class="v4-btn" type="button" data-sd-click="studio-projects-refresh">Refresh projects</button>
+      <button class="v4-btn" type="button" data-sd-click="export-shdo">Export current .shdo</button>
+      <a class="v4-btn" href="account.html">Manage Showduino ID</a>
     </div>
-  </div>
-
-  <!-- Online/Offline Sections -->
-  <div class="hauntsync-online" style="display:none;">
-    <div class="control-section">
-      <h3>☁ Cloud Projects</h3>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-        <button class="btn-primary" style="font-size:12px;" data-sd-click="load-cloud-projects">🔄 Refresh</button>
-        <button class="btn-toolbar" style="font-size:12px;" data-sd-click="save-project">⬆ Sync Current</button>
-      </div>
-      <div id="cloud-projects-list" style="min-height:60px;background:#111;border:1px solid #333;border-radius:4px;padding:8px;font-size:12px;color:#666;">
-        Sign in to view cloud projects.
-      </div>
-    </div>
-  </div>
-  <div class="hauntsync-offline">
-    <div class="control-section" style="border-color:#555;">
-      <h3>📴 Offline Mode</h3>
-      <p style="font-size:13px;color:#888;">HauntSync cloud features require an internet connection. Your projects are saved locally.</p>
-    </div>
-  </div>
-
-  ${this.membership()}
-</div>
-
-<script>
-window._loadCloudProjects = async () => {
-  const list = document.getElementById('cloud-projects-list');
-  if (list) list.textContent = 'Loading…';
-  try {
-    const projects = await window.firebaseSync?.loadProjects() || [];
-    if (!projects.length) {
-      if (list) list.innerHTML = '<span style="color:#666;">No cloud projects found.</span>';
-      return;
-    }
-    if (list) {
-      list.innerHTML = '';
-      projects.forEach(p => {
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #222;';
-        row.innerHTML = '<div style="flex:1;"><div style="color:#eee;font-size:13px;">'+panelEsc(p.project.name)+'</div>'
-          +'<div style="color:#555;font-size:10px;">'+new Date(p.project.updatedAt).toLocaleString()+'</div></div>'
-          +'<button class="btn-secondary" style="font-size:11px;padding:2px 8px;" data-sd-click="load-project-cloud" data-sd-arg="'+panelEsc(p.project.id)+'">Open</button>';
-        list.appendChild(row);
-      });
-    }
-  } catch(e) { if (list) list.innerHTML = '<span style="color:#ff4444;">'+panelEsc(e.message)+'</span>'; }
-};
-
-// Auth state display
-const authSection = document.getElementById('hauntsync-auth-content');
-const onlineSection = document.querySelector('.hauntsync-online');
-const offlineSection = document.querySelector('.hauntsync-offline');
-
-const updateAuth = (user) => {
-  if (!authSection) return;
-  if (user) {
-    authSection.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:32px;height:32px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div><div><div style="color:#eee;font-size:13px;">'+panelEsc(user.displayName||user.email||'User')+'</div><div style="color:#666;font-size:11px;">'+panelEsc(user.email||'')+'</div></div></div>'
-      +'<button class="btn-secondary" style="font-size:12px;" data-sd-click="firebase-sign-out">Sign Out</button>';
-    if (navigator.onLine && onlineSection) onlineSection.style.display='block';
-    if (offlineSection) offlineSection.style.display = navigator.onLine ? 'none' : 'block';
-    window._loadCloudProjects();
-  } else {
-    authSection.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;">'
-      +'<input id="hs-email" type="email" placeholder="Email" style="background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:13px;"/>'
-      +'<input id="hs-pass" type="password" placeholder="Password" style="background:#111;border:1px solid #555;color:#eee;padding:7px;border-radius:4px;font-size:13px;"/>'
-      +'<div style="display:flex;gap:8px;">'
-      +'<button class="btn-primary" style="flex:1;font-size:12px;" data-sd-click="hs-sign-in">Sign In</button>'
-      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" data-sd-click="hs-sign-up">Sign Up</button>'
-      +'<button class="btn-toolbar" style="flex:1;font-size:12px;" data-sd-click="firebase-google">Google</button>'
-      +'</div>'
-      +'<div id="hs-auth-err" style="font-size:11px;color:#ff4444;min-height:16px;"></div>'
-      +'</div>';
-    if (onlineSection) onlineSection.style.display='none';
-  }
-};
-
-window._hsSignIn = async () => {
-  const e=document.getElementById('hs-email')?.value, p=document.getElementById('hs-pass')?.value;
-  const err = document.getElementById('hs-auth-err');
-  try { await window.firebaseAuth?.signIn(e,p); } catch(ex) { if(err) err.textContent=ex.message; }
-};
-window._hsSignUp = async () => {
-  const e=document.getElementById('hs-email')?.value, p=document.getElementById('hs-pass')?.value;
-  const err = document.getElementById('hs-auth-err');
-  try { await window.firebaseAuth?.signUp(e,p,''); } catch(ex) { if(err) err.textContent=ex.message; }
-};
-
-if (window.firebaseAuth) window.firebaseAuth.onAuthStateChanged(updateAuth);
-else updateAuth(null);
-<\/script>`;
+    <p id="studio-project-status" class="v4-help" role="status" aria-live="polite"></p>
+    <div id="studio-project-list" aria-live="polite">Loading projects…</div>
+  </section>
+</div>`;
   }
 
   /* ── Settings ─────────────────────────────────────────────────── */
@@ -647,7 +565,6 @@ else updateAuth(null);
         <select id="settings-theme" style="background:#111;border:1px solid #555;color:#eee;padding:5px;border-radius:4px;font-size:12px;">
           <option value="dark" selected>Dark (Default)</option>
           <option value="darker">Darker</option>
-          <option value="light" disabled>Light (Coming soon)</option>
         </select>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;padding-bottom:10px;">
@@ -656,8 +573,9 @@ else updateAuth(null);
           <div style="font-size:11px;color:#666;">How often to auto-save locally</div>
         </div>
         <select id="settings-autosave" style="background:#111;border:1px solid #555;color:#eee;padding:5px;border-radius:4px;font-size:12px;">
+          <option value="1500" selected>Continuous (1.5 seconds)</option>
           <option value="10000">10 seconds</option>
-          <option value="30000" selected>30 seconds</option>
+          <option value="30000">30 seconds</option>
           <option value="60000">1 minute</option>
           <option value="0">Disabled</option>
         </select>
@@ -675,7 +593,8 @@ else updateAuth(null);
         </select>
       </div>
     </div>
-    <button class="btn-primary" style="margin-top:12px;font-size:12px;" data-sd-click="save-settings">Save Settings</button>
+    <button class="btn-primary" type="button" style="margin-top:12px;font-size:12px;" data-sd-click="save-settings">Save Settings</button>
+    <p id="settings-save-status" role="status" aria-live="polite" style="font-size:12px;min-height:18px;"></p>
   </div>
 
   <div class="control-section">
@@ -697,7 +616,7 @@ else updateAuth(null);
     <h3>🗑 Clear Data</h3>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-logs">🧹 Clear Logs</button>
-      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-autosave">🗑 Clear Autosave</button>
+      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-autosave">🗑 Clear Legacy Autosave</button>
       <button class="btn-secondary" style="font-size:12px;color:#ff4444;text-align:left;" data-sd-click="clear-all-data">⚠ Clear All Local Data</button>
     </div>
   </div>
@@ -714,69 +633,7 @@ else updateAuth(null);
   </div>
 </div>
 
-<script>
-window._saveSettings = () => {
-  const snap = parseInt(document.getElementById('settings-snap')?.value) || 1000;
-  if (window.timelineEditor) { window.timelineEditor._snapMs = snap; }
-  if (window.state?.project?.config) window.state.project.config.snapMs = snap;
-  localStorage.setItem('showduino_settings', JSON.stringify({ snap }));
-  const targetInput = document.getElementById('settings-showduino-target');
-  if (targetInput && window.ShowduinoDeploy?.setConfiguredTarget) {
-    try {
-      const target = window.ShowduinoDeploy.setConfiguredTarget(targetInput.value);
-      if (window.api?.setBaseURL && target) window.api.setBaseURL(target);
-    } catch (error) {
-      alert(error.message);
-      return;
-    }
-  }
-  alert('Settings saved!');
-};
-
-window._testShowduinoTarget = async () => {
-  const input = document.getElementById('settings-showduino-target');
-  const status = document.getElementById('settings-showduino-target-status');
-  if (!input || !status || !window.ShowduinoDeploy) return;
-  try {
-    const target = window.ShowduinoDeploy.normaliseTarget(input.value);
-    if (input.value.trim() && !target) throw new Error('Enter a valid hostname or IP address.');
-    window.ShowduinoDeploy.setConfiguredTarget(input.value);
-    status.style.color = '#888';
-    status.textContent = 'Looking for Showduino…';
-    const found = await window.ShowduinoDeploy.findLocalShowduino();
-    if (!found) throw new Error('No Showduino answered at that address.');
-    if (window.api?.setBaseURL) window.api.setBaseURL(found.baseUrl);
-    status.style.color = '#00ffcc';
-    status.textContent = 'Connected: ' + found.baseUrl + (found.importCapable ? ' · P4 timeline ready' : ' · Showduino found');
-  } catch (error) {
-    status.style.color = '#ff6666';
-    status.textContent = error.message;
-  }
-};
-
-setTimeout(() => {
-  const input = document.getElementById('settings-showduino-target');
-  const status = document.getElementById('settings-showduino-target-status');
-  const target = window.ShowduinoDeploy?.getConfiguredTarget?.() || '';
-  if (input) input.value = target;
-  if (status && target) status.textContent = 'Saved target: ' + target;
-}, 0);
-window._clearLogs = () => {
-  if (window.state) window.state.logs = [];
-  document.querySelector('.terminal-output').innerHTML = '';
-  alert('Logs cleared.');
-};
-window._clearAutosave = () => {
-  localStorage.removeItem('showduino_current_project');
-  alert('Autosave cleared.');
-};
-window._clearAllData = () => {
-  if (!confirm('Clear ALL local data? This cannot be undone.')) return;
-  localStorage.clear();
-  alert('All local data cleared. Refreshing…');
-  setTimeout(() => location.reload(), 500);
-};
-<\/script>`;
+`;
   }
 
   /* ── Help ─────────────────────────────────────────────────────── */

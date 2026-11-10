@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
               html = panelManager.devices();
           } else if (panelName === 'hauntsync') {
               html = panelManager.hauntsync();
-              setTimeout(() => initHauntSyncPanel(), 100);
+              // The current Showduino ID / Supabase panel initialises after insertion.
           } else if (panelName === 'settings') {
               html = panelManager.settings();
           } else if (panelName === 'help') {
@@ -193,6 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
               throw new Error('This panel is unavailable in this Studio build.');
           }
           workspace.innerHTML = html;
+          if (panelName === 'settings') window.ShowduinoPanelRuntime?.initSettings?.();
+          if (panelName === 'hauntsync') window.ShowduinoPanelRuntime?.refreshProjects?.();
           log(`Loaded panel: ${panelName}`);
 
           // Initialize panel-specific functionality
@@ -363,12 +365,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Autosave system
   function startAutosave() {
       if (state.autosaveInterval) return;
-      
+      let delay = 20000;
+      try {
+          const settings = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
+          if ([0, 1500, 10000, 30000, 60000].includes(settings.autosave)) delay = settings.autosave;
+      } catch (_) {}
+      if (delay === 0) { log('Periodic legacy autosave disabled in Settings'); return; }
       state.autosaveInterval = setInterval(() => {
           if (state.project) {
               autosave();
           }
-      }, 20000); // Every 20 seconds
+      }, delay); // User-selected interval, or legacy 20-second fallback
       log('Autosave enabled');
   }
 
@@ -1324,6 +1331,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   setInterval(updateConnectionStatus, 5000);
   startAutosave();
+  window.addEventListener('showduino:settings-updated', () => { stopAutosave(); startAutosave(); });
   
   log('Showduino Studio initialized');
   log(`User tier set to: ${state.user.subscription.toUpperCase()}`);

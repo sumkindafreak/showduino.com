@@ -5,13 +5,13 @@ const assert = require('node:assert/strict');
 // Load the real base manager and v4 registrations in Studio script order.
 const context = vm.createContext({
   console,
-  document: { addEventListener() {}, querySelector() { return null; } },
+  document: { addEventListener() {}, querySelector() { return null; }, getElementById() { return null; } },
   localStorage: { getItem() { return null; } },
   setTimeout() {},
 });
 context.window = context;
 context.addEventListener = () => {};
-for (const path of ['js/panels.js', 'js/studio-v4.js']) {
+for (const path of ['js/panels.js', 'js/studio-v4.js', 'js/studio-panel-repairs.js']) {
   vm.runInContext(fs.readFileSync(path, 'utf8'), context, { filename: path });
 }
 const state = { user: { subscription: 'free' }, logs: [], devices: [] };

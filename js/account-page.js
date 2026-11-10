@@ -152,6 +152,7 @@
     event.preventDefault(); setStatus('Creating your Showduino account…');
     try {
       if (elements.registerPassword.value.length < 12) throw Error('Choose a password with at least 12 characters.');
+      if (!byId('register-age-confirmation')?.checked) throw Error('Please confirm you are at least 14 years old before creating an account.');
       const email=elements.registerEmail.value.trim();
       const data=await withCaptcha((token) => window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim(),token));
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';

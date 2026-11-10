@@ -157,29 +157,85 @@
     return { title, content, category, kind, shared_show_id: sharedShowId };
   }
 
+  // Always delete through the Storage API, not SQL. Storage RLS permits an
+  // authenticated member to remove only files in their own user-id folder.
+  async function removeOwnPostImage(path) {
+    if (!path) return;
+    const me = await currentUserId();
+    if (!me || !IMAGE_PATH.test(path) || !path.startsWith(me + '/')) {
+      throw new Error('The image could not be removed safely. Contact support.');
+    }
+    check(await db().storage.from(IMAGE_BUCKET).remove([path]));
+  }
+
+  async function discardUpload(path, originalError) {
+    if (!path) throw originalError;
+    try {
+      await removeOwnPostImage(path);
+    } catch (cleanupError) {
+      console.error('[HauntSync] Failed to clean up an unused post image', cleanupError);
+      throw new Error('Publishing failed and the uploaded image could not be cleaned up. Please contact support.');
+    }
+    throw originalError;
+  }
+
   async function createPost(input) {
     const me = await currentUserId();
     if (!me) throw new Error('Sign in to post.');
     const row = cleanPostInput(input);
-    if (input?.imageFile) row.image_path = await uploadPostImage(input.imageFile);
-    const data = check(await db().from('community_posts').insert({ author_id: me, ...row }).select('id').single());
-    return data.id;
+    let newImage = null;
+    if (input?.imageFile) {
+      newImage = await uploadPostImage(input.imageFile);
+      row.image_path = newImage;
+    }
+    try {
+      const data = check(await db().from('community_posts').insert({ author_id: me, ...row }).select('id').single());
+      return data.id;
+    } catch (error) {
+      return discardUpload(newImage, error);
+    }
   }
 
   async function updatePost(id, input) {
     if (!isUuid(id)) throw new Error('That post link is not valid.');
     const row = cleanPostInput(input);
+    const previous = check(await db().from('community_posts').select('image_path').eq('id', id).maybeSingle());
+    if (!previous) throw new Error('This post is not yours, or it was removed.');
+
     if (input?.removeImage) row.image_path = null;
-    if (input?.imageFile) row.image_path = await uploadPostImage(input.imageFile);
-    const data = check(await db().from('community_posts').update(row).eq('id', id).select('id'));
-    if (!data?.length) throw new Error('This post is not yours, or it was removed.');
+    let newImage = null;
+    if (input?.imageFile) {
+      newImage = await uploadPostImage(input.imageFile);
+      row.image_path = newImage;
+    }
+    try {
+      const data = check(await db().from('community_posts').update(row).eq('id', id).select('id'));
+      if (!data?.length) throw new Error('This post is not yours, or it was removed.');
+    } catch (error) {
+      return discardUpload(newImage, error);
+    }
+
+    if (previous.image_path && Object.hasOwn(row, 'image_path') && previous.image_path !== row.image_path) {
+      try { await removeOwnPostImage(previous.image_path); }
+      catch (error) {
+        console.error('[HauntSync] Previous post image could not be removed', error);
+        throw new Error('The post was updated, but its old image could not be removed. Please contact support.');
+      }
+    }
     return true;
   }
 
   async function deletePost(id) {
     if (!isUuid(id)) throw new Error('That post link is not valid.');
-    const data = check(await db().from('community_posts').delete().eq('id', id).select('id'));
+    const data = check(await db().from('community_posts').delete().eq('id', id).select('id,image_path'));
     if (!data?.length) throw new Error('This post is not yours, or it was already removed.');
+    if (data[0].image_path) {
+      try { await removeOwnPostImage(data[0].image_path); }
+      catch (error) {
+        console.error('[HauntSync] Deleted post image could not be removed', error);
+        throw new Error('The post was deleted, but its image could not be removed. Please contact support.');
+      }
+    }
     return true;
   }
 

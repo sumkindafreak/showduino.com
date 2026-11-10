@@ -5,7 +5,7 @@
   const PROJECT_INDEX_KEY = 'showduino_local_projects';
   const PROJECT_DATA_PREFIX = 'showduino_project_';
   const ACTIVE_PROJECT_KEY = 'showduino_active_project_id';
-  const AUTOSAVE_INTERVAL_MS = 1500;
+  const DEFAULT_AUTOSAVE_INTERVAL_MS = 1500;
 
   let currentUser = null;
   let pendingCloudOpenHandled = false;
@@ -442,9 +442,27 @@
     });
   }
 
-  function startAutosave() {
+  function configuredAutosaveMs() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
+      const ms = Number(saved.autosaveMs);
+      if ([0, 1500, 10000, 30000, 60000].includes(ms)) return ms;
+    } catch (_) {}
+    return DEFAULT_AUTOSAVE_INTERVAL_MS;
+  }
+
+  // Disabling timed saves does not disable the exit/background safety save.
+  function configureAutosave(intervalMs = configuredAutosaveMs()) {
     if (autosaveTimer) window.clearInterval(autosaveTimer);
-    autosaveTimer = window.setInterval(() => autosaveCurrentProject('timer'), AUTOSAVE_INTERVAL_MS);
+    autosaveTimer = 0;
+    const ms = Number(intervalMs);
+    if (ms > 0 && [1500, 10000, 30000, 60000].includes(ms)) {
+      autosaveTimer = window.setInterval(() => autosaveCurrentProject('timer'), ms);
+    }
+  }
+
+  function startAutosave() {
+    configureAutosave();
 
     window.addEventListener('pagehide', () => autosaveCurrentProject('pagehide'));
     window.addEventListener('beforeunload', () => autosaveCurrentProject('beforeunload'));
@@ -497,6 +515,7 @@
     exportCurrentProject,
     importProject,
     listLocalProjects,
+    configureAutosave,
     renameCurrentProject,
     normaliseProject,
     validatePackage,

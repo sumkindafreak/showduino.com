@@ -69,6 +69,9 @@ jobs:
       - name: Render every registered Studio panel
         run: node tests/studio-panels.test.cjs
 
+      - name: Test Settings controls and local/cloud Projects panel
+        run: node tests/studio-panel-repairs.test.cjs
+
       - name: Run SHDO v2 round-trip and P4 compiler test
         run: node tests/studio-shdo-v2.test.cjs
 

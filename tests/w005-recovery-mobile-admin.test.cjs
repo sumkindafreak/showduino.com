@@ -10,7 +10,7 @@ async function openAccount(search, hash, registerError, emailError, authEvents) 
   const node = (id) => {
     if (!nodes.has(id)) {
       nodes.set(id, {
-        textContent: '', className: '', hidden: false, disabled: false, value: '',
+        textContent: '', className: '', hidden: false, disabled: false, value: '', checked: id === 'register-age-confirmation',
         listeners: {}, innerHTML: '',
         addEventListener(name, callback) { this.listeners[name] = callback; },
         querySelectorAll() { return []; },
@@ -84,6 +84,16 @@ async function openAccount(search, hash, registerError, emailError, authEvents) 
     assert.match(reg('account-status').textContent, /If you already have one/i, `neutral sign-up copy (${registerError || 'new address'})`);
     assert.doesNotMatch(reg('account-status').textContent, /already registered/i);
   }
+  // New 14+ gate must block an unchecked registration before any Auth call.
+  const underAge = await openAccount('', '');
+  underAge('register-age-confirmation').checked = false;
+  underAge('register-email').value = 'someone@example.test';
+  underAge('register-password').value = 'a-long-test-passphrase';
+  underAge('register-name').value = 'Tester';
+  await underAge('register-form').listeners.submit({ preventDefault() {} });
+  assert.match(underAge('account-status').textContent, /at least 14 years old/i);
+  assert.match(underAge('account-status').className, /error/);
+
   const resend = await openAccount('', '');
   resend('register-email').value = 'someone@example.test';
   await resend('resend-confirmation-button').listeners.click();

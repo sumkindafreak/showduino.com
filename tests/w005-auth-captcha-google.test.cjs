@@ -28,7 +28,7 @@ function serviceWith(calls) {
 function accountPage(config, captcha) {
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', listeners: {},
+    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', checked: id === 'register-age-confirmation', listeners: {},
       addEventListener(n, cb) { this.listeners[n] = cb; }, querySelectorAll() { return []; }, replaceChildren() {}, focus() {}, reset() {}, appendChild() {} });
     return nodes.get(id);
   };

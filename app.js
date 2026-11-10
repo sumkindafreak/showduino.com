@@ -181,8 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (panelName === 'devices') {
               html = panelManager.devices();
           } else if (panelName === 'hauntsync') {
-              html = panelManager.hauntsync();
-              setTimeout(() => initHauntSyncPanel(), 100);
+              // Current projects panel uses the maintained local/cloud project manager.
+              html = window.ShowduinoStudioPanels.projectsMarkup();
           } else if (panelName === 'settings') {
               html = panelManager.settings();
           } else if (panelName === 'help') {
@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
               throw new Error('This panel is unavailable in this Studio build.');
           }
           workspace.innerHTML = html;
+          window.ShowduinoStudioPanels?.activate(panelName);
           log(`Loaded panel: ${panelName}`);
 
           // Initialize panel-specific functionality

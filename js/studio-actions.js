@@ -16,6 +16,14 @@
   'use strict';
 
   const call = (fn, ...args) => (typeof fn === 'function' ? fn(...args) : undefined);
+  // Essential controls must never silently do nothing when wiring is absent.
+  const required = (name, fn, ...args) => {
+    if (typeof fn !== 'function') {
+      console.error('[Studio actions] Missing handler for ' + name);
+      return;
+    }
+    return fn(...args);
+  };
   const editor = () => window.timelineEditor;
   const v4 = () => window.ShowduinoStudioV4 || {};
   const int = (value) => parseInt(value, 10);
@@ -56,17 +64,17 @@
     'audio-volume': (arg, arg2, el) => call(window.api?.setAudioVolume?.bind(window.api), int(el.value)),
     'refresh-devices': () => call(window._refreshDevices),
     'export-diagnostics': () => call(window.exportDiagnostics),
-    'test-target': () => call(window._testShowduinoTarget),
+    'test-target': () => required('test-target', window._testShowduinoTarget),
 
     // Projects, settings, legacy account panel
     'export-shdo': () => window.ShowduinoProjects?.exportCurrentProject(),
     'save-project': () => call(window.saveProject),
     'load-cloud-projects': () => call(window._loadCloudProjects),
     'load-project-cloud': (arg) => call(window.loadProject, arg, 'cloud'),
-    'save-settings': () => call(window._saveSettings),
-    'clear-logs': () => call(window._clearLogs),
-    'clear-autosave': () => call(window._clearAutosave),
-    'clear-all-data': () => call(window._clearAllData),
+    'save-settings': () => required('save-settings', window._saveSettings),
+    'clear-logs': () => required('clear-logs', window._clearLogs),
+    'clear-autosave': () => required('clear-autosave', window._clearAutosave),
+    'clear-all-data': () => required('clear-all-data', window._clearAllData),
     'hs-sign-in': () => call(window._hsSignIn),
     'hs-sign-up': () => call(window._hsSignUp),
     'firebase-sign-out': () => call(window.firebaseAuth?.signOut?.bind(window.firebaseAuth)),

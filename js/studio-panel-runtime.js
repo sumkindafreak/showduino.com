@@ -206,12 +206,8 @@
   window._clearAutosave = clearAutosave;
   window._clearAllData = clearAllData;
 
-  window.ShowduinoActions?.register({
-    'studio-projects-refresh': refreshProjects,
-    'studio-project-open-local': (id) => openProject(id, 'local'),
-    'studio-project-open-cloud': (id) => openProject(id, 'cloud')
-  });
-
-  window.ShowduinoPanelRuntime = Object.freeze({ initSettings, refreshProjects });
+  // Action IDs are registered centrally in studio-actions.js, so the audit
+  // can verify every control even before this module has initialised.
+  window.ShowduinoPanelRuntime = Object.freeze({ initSettings, refreshProjects, openProject });
   theme(storedSettings().theme);
 })();

@@ -21,7 +21,13 @@ class TimelineEditor {
     this._log      = log || console.log;
     this._el       = null;       // root .timeline-editor element
     this._pxPerMs  = 0.1;        // default zoom
-    this._snapMs   = 1000;
+    // Respect the real Settings panel across reloads; 1000 ms remains the fallback.
+    this._snapMs = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
+        return [250, 500, 1000, 2000].includes(saved.snap) ? saved.snap : 1000;
+      } catch (_) { return 1000; }
+    })();
     this._snapEnabled = true;
     this._gridEnabled = true;
     this._selectedClipId = null;

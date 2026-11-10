@@ -647,7 +647,6 @@ else updateAuth(null);
         <select id="settings-theme" style="background:#111;border:1px solid #555;color:#eee;padding:5px;border-radius:4px;font-size:12px;">
           <option value="dark" selected>Dark (Default)</option>
           <option value="darker">Darker</option>
-          <option value="light" disabled>Light (Coming soon)</option>
         </select>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;padding-bottom:10px;">
@@ -656,10 +655,11 @@ else updateAuth(null);
           <div style="font-size:11px;color:#666;">How often to auto-save locally</div>
         </div>
         <select id="settings-autosave" style="background:#111;border:1px solid #555;color:#eee;padding:5px;border-radius:4px;font-size:12px;">
+          <option value="1500" selected>Continuous (every 1.5 seconds)</option>
           <option value="10000">10 seconds</option>
-          <option value="30000" selected>30 seconds</option>
+          <option value="30000">30 seconds</option>
           <option value="60000">1 minute</option>
-          <option value="0">Disabled</option>
+          <option value="0">No timed saves (still saves when leaving)</option>
         </select>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;padding-bottom:10px;">
@@ -676,6 +676,7 @@ else updateAuth(null);
       </div>
     </div>
     <button class="btn-primary" style="margin-top:12px;font-size:12px;" data-sd-click="save-settings">Save Settings</button>
+    <p id="settings-save-status" role="status" aria-live="polite" style="min-height:18px;font-size:12px;"></p>
   </div>
 
   <div class="control-section">
@@ -697,7 +698,7 @@ else updateAuth(null);
     <h3>🗑 Clear Data</h3>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-logs">🧹 Clear Logs</button>
-      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-autosave">🗑 Clear Autosave</button>
+      <button class="btn-secondary" style="font-size:12px;text-align:left;" data-sd-click="clear-autosave">🗑 Clear Legacy Autosave</button>
       <button class="btn-secondary" style="font-size:12px;color:#ff4444;text-align:left;" data-sd-click="clear-all-data">⚠ Clear All Local Data</button>
     </div>
   </div>

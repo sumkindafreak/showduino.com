@@ -5,7 +5,13 @@
   const PROJECT_INDEX_KEY = 'showduino_local_projects';
   const PROJECT_DATA_PREFIX = 'showduino_project_';
   const ACTIVE_PROJECT_KEY = 'showduino_active_project_id';
-  const AUTOSAVE_INTERVAL_MS = 1500;
+  const AUTOSAVE_INTERVAL_MS = 1500; // Preserve the existing 1.5s default for saved shows.
+  const getAutosaveInterval = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
+      return [0, 1500, 10000, 30000, 60000].includes(saved.autosave) ? saved.autosave : AUTOSAVE_INTERVAL_MS;
+    } catch (_) { return AUTOSAVE_INTERVAL_MS; }
+  };
 
   let currentUser = null;
   let pendingCloudOpenHandled = false;
@@ -444,7 +450,8 @@
 
   function startAutosave() {
     if (autosaveTimer) window.clearInterval(autosaveTimer);
-    autosaveTimer = window.setInterval(() => autosaveCurrentProject('timer'), AUTOSAVE_INTERVAL_MS);
+    const delay = getAutosaveInterval();
+    autosaveTimer = delay > 0 ? window.setInterval(() => autosaveCurrentProject('timer'), delay) : 0;
 
     window.addEventListener('pagehide', () => autosaveCurrentProject('pagehide'));
     window.addEventListener('beforeunload', () => autosaveCurrentProject('beforeunload'));
@@ -486,6 +493,11 @@
 
     initialiseAuth();
     startAutosave();
+    window.addEventListener('showduino:settings-updated', () => {
+      if (autosaveTimer) window.clearInterval(autosaveTimer);
+      const delay = getAutosaveInterval();
+      autosaveTimer = delay > 0 ? window.setInterval(() => autosaveCurrentProject('timer'), delay) : 0;
+    });
   }
 
   window.ShowduinoProjects = Object.freeze({

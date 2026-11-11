@@ -58,3 +58,12 @@ Until one row is filled in, recovery is unproven.
 - Shows that only ever lived in a visitor's browser.
 - Accounts deleted on request must be deleted again after a restore from an older backup.
   Keep the list of completed deletions (`account_deletion_requests`) newer than your oldest backup.
+
+## Editing the same show in two places (Phase 3)
+
+| Situation | Protected? |
+|---|---|
+| Two tabs of the same browser on one device | **Yes.** The older tab does not save over the newer one; it is told, and Save offers keep-both, replace, or nothing. A show deleted in one tab is not saved back by another. |
+| The two saves landing in the same instant | Not guaranteed. The check and the write are separate steps. |
+| Two browsers or two devices saving the same cloud show | **No.** The last save to the cloud wins without a warning. Needs a server-side revision check. |
+| A private window, or site data cleared | No history is kept, so there is nothing to compare with. |

@@ -34,7 +34,10 @@ jobs:
       - name: Install Playwright Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.48.2
-          npx playwright install --with-deps chromium
+          # Hosted Ubuntu 24.04 already has Chromium runtime libraries. Avoid an
+          # apt install of extra fonts here: Ubuntu package mirrors were unreachable
+          # on two Phase 3 CI attempts before any browser test could start.
+          npx playwright install chromium
       - name: Explicit 30-day account deletion and cancellation on phone and desktop
         run: node tests/browser/account-deletion.cjs
       - name: Hostile .shdo import executes no script (desktop and phone)

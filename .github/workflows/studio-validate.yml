@@ -117,6 +117,9 @@ jobs:
       - name: Studio refuses what the P4 firmware refuses (W005, verdicts from the firmware compiler)
         run: node tests/studio-firmware-limits.test.cjs
 
+      - name: Autosave - one timer, no idle writes, cross-tab settings, full storage, recovery
+        run: node tests/studio-autosave.test.cjs
+
       - name: Studio cue compiler matches the P4 firmware compiler (host verdicts on file)
         run: node tests/studio-runtime-parity.test.cjs
 

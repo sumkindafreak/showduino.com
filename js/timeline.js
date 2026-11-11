@@ -1392,10 +1392,20 @@ class TimelineEditor {
 
   /* ── Save / Load ─────────────────────────────────────────────── */
 
+  /**
+   * Keep the editor's own backup copy of the open show. Never throws.
+   * @returns {void}
+   */
   _autosave() {
     if (!this._project()) return;
     this._project().project.updatedAt = new Date().toISOString();
-    localStorage.setItem('showduino_current_project', JSON.stringify(this._project()));
+    // A full or blocked browser store must not interrupt the edit that asked for the save;
+    // js/studio-projects.js saves the show and reports a failure to the user.
+    try {
+      localStorage.setItem('showduino_current_project', JSON.stringify(this._project()));
+    } catch (error) {
+      if (!this._autosaveWarned) { this._autosaveWarned = true; this._log(`Editor backup copy not written: ${error.message}`, 'WARN'); }
+    }
   }
 
   _startAutosave() {

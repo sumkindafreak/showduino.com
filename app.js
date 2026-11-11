@@ -371,7 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Autosave system
   /**
    * Start the legacy periodic autosave unless it is already running.
-   * Uses the interval saved in Settings (0 disables it); 20 seconds when none is saved.
+   * Follows the interval saved in Settings but never runs more often than every
+   * 20 seconds; 0 disables it.
    * @returns {void}
    */
   function startAutosave() {
@@ -379,14 +380,18 @@ document.addEventListener('DOMContentLoaded', () => {
       let delay = 20000;
       try {
           const settings = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
-          if ([0, 1500, 10000, 30000, 60000].includes(settings.autosave)) delay = settings.autosave;
+          // These are whole-show backup snapshots (20 are kept). The current show itself is
+          // saved by js/studio-projects.js at the chosen interval, so never snapshot more
+          // often than the original 20 seconds.
+          if (settings.autosave === 0) delay = 0;
+          else if ([1500, 10000, 30000, 60000].includes(settings.autosave)) delay = Math.max(20000, settings.autosave);
       } catch (_) {}
       if (delay === 0) { log('Periodic legacy autosave disabled in Settings'); return; }
       state.autosaveInterval = setInterval(() => {
           if (state.project) {
               autosave();
           }
-      }, delay); // User-selected interval, or legacy 20-second fallback
+      }, delay); // Never faster than the legacy 20-second snapshot
       log('Autosave enabled');
   }
 
@@ -397,10 +402,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
+  /**
+   * Write a backup snapshot of the open show (the newest 20 are kept).
+   * Nothing is written while the show is unchanged since the last snapshot.
+   * @returns {Promise<void>}
+   */
   async function autosave() {
       if (!state.project) return;
       
       try {
+          const unchanged = JSON.stringify(state.project);
+          if (unchanged === state.lastSnapshotPayload) return;
+          state.lastSnapshotPayload = unchanged;
           const snapshot = {
               ...state.project,
               project: {
@@ -1343,6 +1356,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateConnectionStatus, 5000);
   startAutosave();
   window.addEventListener('showduino:settings-updated', () => { stopAutosave(); startAutosave(); });
+  window.addEventListener('storage', (event) => {
+      if (event.key === 'showduino_settings' || event.key === null) { stopAutosave(); startAutosave(); }
+  });
   
   log('Showduino Studio initialized');
   log(`User tier set to: ${state.user.subscription.toUpperCase()}`);

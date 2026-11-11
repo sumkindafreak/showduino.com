@@ -22,6 +22,7 @@
   let pendingCloudOpenHandled = false;
   let lastAutosavePayload = '';
   let autosaveTimer = 0;
+  let autosaveFailureShown = false;
 
   function getState() { return window.state || null; }
 
@@ -232,6 +233,36 @@
     return project;
   }
 
+  /**
+   * Whether an error from localStorage means the browser's storage quota is used up.
+   * @param {*} error Value thrown by localStorage.setItem.
+   * @returns {boolean}
+   */
+  function isStorageFull(error) {
+    return error?.name === 'QuotaExceededError' || error?.name === 'NS_ERROR_DOM_QUOTA_REACHED' || error?.code === 22 || error?.code === 1014;
+  }
+
+  /**
+   * Delete the old-format 'autosave_*' backup snapshots written by the legacy timer.
+   * Saved shows ('showduino_project_*') are never touched.
+   * @returns {number} How many snapshots were removed.
+   */
+  function removeLegacySnapshots() {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('autosave_')) keys.push(key);
+    }
+    keys.forEach((key) => localStorage.removeItem(key));
+    return keys.length;
+  }
+
+  /**
+   * Save the open show on this device if it changed since the last save.
+   * A failure is reported once in the Studio Log and as 'showduino:project-autosave-failed'.
+   * @param {string} [reason='timer'] What asked for the save (timer, pagehide, hidden…).
+   * @returns {boolean} True when the show was written.
+   */
   function autosaveCurrentProject(reason = 'timer') {
     const state = getState();
     const project = state?.project;
@@ -240,7 +271,15 @@
     try {
       const currentPayload = JSON.stringify(project);
       if (currentPayload === lastAutosavePayload) return false;
-      persistLocal(project, true);
+      try {
+        persistLocal(project, true);
+      } catch (error) {
+        // Browser storage is full: the old-format backup snapshots are the least valuable
+        // thing in it, so drop them and try once more before giving up.
+        if (!isStorageFull(error) || !removeLegacySnapshots()) throw error;
+        persistLocal(project, true);
+      }
+      autosaveFailureShown = false;
       updateStudioTitle(project);
       window.dispatchEvent(new CustomEvent('showduino:project-autosaved', {
         detail: { project, reason }
@@ -248,6 +287,13 @@
       return true;
     } catch (error) {
       console.warn('[Studio Projects] Autosave failed', error);
+      if (!autosaveFailureShown) {
+        autosaveFailureShown = true;
+        notify(isStorageFull(error)
+          ? 'This show could NOT be saved on this device: browser storage is full. Export it as a .shdo file now, then delete shows you no longer need.'
+          : `This show could not be saved on this device (${error?.message || 'storage error'}). Export it as a .shdo file to keep your work.`, 'ERR');
+        window.dispatchEvent(new CustomEvent('showduino:project-autosave-failed', { detail: { reason, storageFull: isStorageFull(error) } }));
+      }
       return false;
     }
   }
@@ -517,6 +563,10 @@
     initialiseAuth();
     startAutosave();
     window.addEventListener('showduino:settings-updated', restartAutosaveTimer);
+    // Settings saved in another Studio tab apply here too.
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'showduino_settings' || event.key === null) restartAutosaveTimer();
+    });
   }
 
   window.ShowduinoProjects = Object.freeze({

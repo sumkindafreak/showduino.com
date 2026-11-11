@@ -120,8 +120,19 @@
     }
   }
 
+  /**
+   * Start Google sign-in. Google can create a new account, so the same 14+ and
+   * publication confirmation as email sign-up is required before leaving the page.
+   * @returns {Promise<void>}
+   */
   async function handleGoogleSignIn() {
     if (elements.googleButton.disabled) return;
+    const ageBox = byId('google-age-confirmation');
+    if (ageBox && !ageBox.checked) {
+      setStatus('Please confirm you are at least 14 years old before continuing with Google.','error');
+      ageBox.focus?.();
+      return;
+    }
     elements.googleButton.disabled = true;
     setStatus('Opening Google sign-in…');
     try {

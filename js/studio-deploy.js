@@ -250,12 +250,39 @@
     }
   }
 
+  /**
+   * Pick the pixel segment a cue runs on. A segment holds one effect at a time, so a
+   * cue that overlaps an earlier cue on the same output and segment would replace it.
+   * The P4 gives every persisted pixel cue its own segment (protocol/showduino_shdo.h);
+   * here the wanted segment is kept unless it is still busy, then the lowest free one
+   * is used. Cues that do not overlap are unchanged.
+   * @param {Object} busy Per-output list of {slot, endMs} already placed (updated).
+   * @param {string} key Output (logical device) the cue targets.
+   * @param {number} wanted Segment from the cue, or the next unused one.
+   * @param {Object} clip Cue with startMs and durationMs.
+   * @returns {number} Segment to use; PIXEL_SEGMENT_SLOTS when none is free.
+   */
+  function freePixelSlot(busy, key, wanted, clip) {
+    const start = Math.max(0, Math.round(Number(clip.startMs) || 0));
+    const end = start + Math.max(1, Math.round(Number(clip.durationMs) || 0));
+    const list = (busy[key] = (busy[key] || []).filter((item) => item.endMs > start));
+    const taken = new Set(list.map((item) => item.slot));
+    let slot = wanted;
+    if (taken.has(slot)) {
+      slot = 0;
+      while (taken.has(slot) && slot < PIXEL_SEGMENT_SLOTS) slot += 1;
+    }
+    list.push({ slot, endMs: end });
+    return slot;
+  }
+
   function compileShdoForStage(shdo) {
     const errors = [];
     const warnings = [];
     const commands = [];
     const devices = new Map((shdo?.devices || []).map((device) => [String(device.id), device]));
     const pixelSlots = Object.create(null);
+    const pixelBusy = Object.create(null);
 
     if (shdo?.schema !== window.ShowduinoPackage?.SCHEMA_NAME) {
       return { ok: false, errors: ['Deployment requires canonical SHDO v2.'], warnings, commands, uploadCommands: [] };
@@ -278,8 +305,12 @@
         else {
           const key = String(device.id || device.binding?.nodeId || 'pixel');
           const authored = window.ShowduinoPixelAuthoring?.authoredSegment?.(action.params || {}, null);
-          const slot = Number.isFinite(authored) && authored !== null ? authored : (pixelSlots[key] || 0);
-          if (!(Number.isFinite(authored) && authored !== null)) pixelSlots[key] = slot + 1;
+          const wanted = Number.isFinite(authored) && authored !== null ? authored : (pixelSlots[key] || 0);
+          if (!(Number.isFinite(authored) && authored !== null)) pixelSlots[key] = wanted + 1;
+          const slot = freePixelSlot(pixelBusy, key, wanted, clip);
+          if (slot !== wanted) {
+            warnings.push(`${clip.name}: overlaps another cue on the same pixel output, so it uses segment ${slot} instead of ${wanted} and both keep running.`);
+          }
           compilePixel(clip, action, device, slot, commands, errors, warnings);
         }
       } else if (type === 'mosfet') {

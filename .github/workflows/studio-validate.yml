@@ -43,6 +43,7 @@ jobs:
           node --check js/connection_detector.js
           node --check js/studio-projects.js
           node --check js/studio-deploy.js
+          node --check js/studio-panel-runtime.js
           node --check js/studio-creator-mode.js
           node --check js/studio-creator-bootstrap.js
           node --check js/studio-mobile.js
@@ -115,6 +116,9 @@ jobs:
         run: node tests/w005-auth-captcha-google.test.cjs
       - name: Studio refuses what the P4 firmware refuses (W005, verdicts from the firmware compiler)
         run: node tests/studio-firmware-limits.test.cjs
+
+      - name: Studio cue compiler matches the P4 firmware compiler (host verdicts on file)
+        run: node tests/studio-runtime-parity.test.cjs
 
       - name: No plain-HTTP hardware probes from the HTTPS website (W005)
         run: node tests/studio-https-no-lan-probe.test.cjs

@@ -287,6 +287,10 @@
     window.setTimeout(() => toast.remove(), 1800);
   };
 
+  // This handler owns Space, Delete and Ctrl+S. js/timeline.js checks this flag and
+  // leaves those keys alone, so one press no longer plays and pauses in the same instant.
+  TimelineEditor.prototype._dawOwnsTransportKeys = true;
+
   document.addEventListener('keydown', (event) => {
     const editor = window.timelineEditor;
     if (!editor || !editor._el || !document.body.contains(editor._el)) return;

@@ -120,6 +120,9 @@ jobs:
       - name: Autosave - one timer, no idle writes, cross-tab settings, full storage, recovery
         run: node tests/studio-autosave.test.cjs
 
+      - name: Two tabs - no silent overwrite, no resurrected shows, failed saves reported
+        run: node tests/studio-save-conflicts.test.cjs
+
       - name: Studio cue compiler matches the P4 firmware compiler (host verdicts on file)
         run: node tests/studio-runtime-parity.test.cjs
 

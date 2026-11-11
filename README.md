@@ -20,6 +20,7 @@ Showduino now uses four fixed hardware roles:
 
 4. **Specialist ESP32 Nodes**
    - Audio, S3 Lamp, Pixel and Emergency roles; MOSFET software awaits physical pin/load acceptance. Relay is legacy.
+   - Lamp Nodes come in two hardware generations: the original ESP32-S3 Lamp Node and a newer, simplified ESP32-C3 Lamp Node for independent lantern operation. The website describes both and does not state a release status for either.
    - Perform commanded work and report results/faults.
 
 The earlier SUE / IAN / C3 bridge architecture is superseded. The onboard P4 C6 remains reserved/unused in the current design.

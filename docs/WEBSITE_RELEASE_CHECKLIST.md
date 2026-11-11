@@ -16,6 +16,9 @@ Issue IDs refer to `docs/WEBSITE_ISSUE_REGISTER.md`.
 | ☐ | Add SRI to every CDN script (or self-host), then a CSP; test sign-in, Google, avatar and Studio with the CSP on | W-004 | Browser console has no CSP violations during the full HauntSync and Studio workflow |
 | ☐ | Enable leaked-password protection; set email OTP expiry ≤ 1 h | W-009 | Supabase security advisor shows no auth warnings |
 | ☐ | Check the Supabase Auth redirect allow-list, Google OAuth client and SMTP sender against `docs/HAUNTSYNC_SIGNUP_LAUNCH_CHECKLIST.md` | W-009 | Screenshots of each settings page |
+| ☐ | Custom SMTP sender configured; sign-up, resend and reset emails received by an address outside the Supabase organisation | W-009 | The table in `docs/EMAIL_DELIVERY_SETUP.md` filled in |
+| ☐ | Backups: paid plan with daily backups, or scheduled `tools/backup-dump.sh`; one restore drill recorded | Phase 2 | The table in `docs/BACKUP_AND_RECOVERY.md` has a dated row |
+| ☐ | Bench P4 firmware includes the SHDO parser fix (firmware PR #35); `main` at `c23a801` does not | Phase 2 | `docs/STUDIO_P4_PARITY.md`; W005 bench test rows pass |
 | ☐ | Commit the live database schema and policies as migrations; add an RLS check in CI | W-006 | `supabase db diff` empty; CI fails if a table loses RLS |
 | ☐ | Revoke unneeded table grants | W-012 | Grants query shows only the privileges each policy needs |
 | ☐ | Add reporting and hiding for public content; reserve usernames; write a moderation procedure | W-007 | Report → hidden → no longer listed, shown in a test |

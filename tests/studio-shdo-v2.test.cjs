@@ -112,3 +112,14 @@ tampered.safety.emergency.autoResume = true;
 assert.strictEqual(ShowduinoPackage.validateShdo(tampered).valid, false);
 
 console.log(`SHDO v2 round trip passed: ${shdo.devices.length} devices, ${shdo.clips.length} clips, ${plan.commands.length} P4 commands.`);
+
+// Phase 2: a Showduino target must be a real hostname or IP address. Browsers percent-encode
+// junk such as "not a host!!" into a "valid" URL, so the URL parser alone is not a check.
+for (const good of ['192.168.4.1', 'showduino.local', 'http://showduino.local:8080', 'comms-s3', 'https://10.0.0.7/status?x=1', '[fe80::1]']) {
+  assert.ok(ShowduinoDeploy.normaliseTarget(good), `${good} is accepted as a target`);
+}
+assert.strictEqual(ShowduinoDeploy.normaliseTarget('showduino.local/path?q=1#x'), 'http://showduino.local', 'only the origin is kept');
+for (const bad of ['not a host!!', 'bad_host', 'http://exa mple', '-leading.example', 'trailing-.example', 'a..b', 'host%20name', '<script>', 'javascript:alert(1)', '']) {
+  assert.strictEqual(ShowduinoDeploy.normaliseTarget(bad), '', `${JSON.stringify(bad)} is refused as a target`);
+}
+console.log('Showduino target addresses: hostnames and IP addresses accepted, junk refused.');

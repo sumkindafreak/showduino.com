@@ -62,6 +62,7 @@
     'studio-projects-refresh': () => call(window.ShowduinoPanelRuntime?.refreshProjects),
     'studio-project-open-local': (id) => call(window.ShowduinoPanelRuntime?.openProject, id, 'local'),
     'studio-project-open-cloud': (id) => call(window.ShowduinoPanelRuntime?.openProject, id, 'cloud'),
+    'studio-project-delete-local': (id) => call(window.ShowduinoPanelRuntime?.deleteProject, id),
     'export-shdo': () => window.ShowduinoProjects?.exportCurrentProject(),
     'save-project': () => call(window.saveProject),
     'load-cloud-projects': () => call(window._loadCloudProjects),

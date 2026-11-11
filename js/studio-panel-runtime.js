@@ -175,6 +175,17 @@
   }
 
   /**
+   * Format a stored timestamp for the Projects list.
+   * @param {string} value ISO timestamp from a saved show.
+   * @returns {string} "Last saved …" in the reader's locale, or '' when there is no valid date.
+   */
+  function readableDate(value) {
+    const when = new Date(value || '');
+    if (!value || Number.isNaN(when.getTime())) return '';
+    return 'Last saved ' + when.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  /**
    * Append a titled list of shows, each with an Open button, to the Projects panel.
    * Names and dates are written as text so stored values cannot inject markup.
    * @param {HTMLElement} root Container to append to.
@@ -204,7 +215,7 @@
       name.textContent = String(project.name || 'Untitled Show');
       const date = document.createElement('p');
       date.className = 'v4-help';
-      date.textContent = String(project.updated_at || project.updatedAt || '');
+      date.textContent = readableDate(project.updated_at || project.updatedAt);
       description.append(name, date);
       const open = document.createElement('button');
       open.type = 'button';
@@ -212,7 +223,21 @@
       open.textContent = 'Open';
       open.dataset.sdClick = source === 'cloud' ? 'studio-project-open-cloud' : 'studio-project-open-local';
       open.dataset.sdArg = String(project.id);
-      row.append(description, open);
+      const buttons = document.createElement('div');
+      buttons.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;';
+      buttons.appendChild(open);
+      // Only shows on this device that are not open can be deleted from here.
+      if (source === 'local' && String(project.id) !== String(window.state?.project?.project?.id || '')) {
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'v4-btn';
+        remove.textContent = 'Delete';
+        remove.setAttribute('aria-label', 'Delete ' + String(project.name || 'Untitled Show') + ' from this device');
+        remove.dataset.sdClick = 'studio-project-delete-local';
+        remove.dataset.sdArg = String(project.id);
+        buttons.appendChild(remove);
+      }
+      row.append(description, buttons);
       root.appendChild(row);
     });
   }
@@ -275,6 +300,30 @@
     }
   }
 
+  /**
+   * After confirmation, delete a show saved on this device and refresh the list.
+   * @param {string} id Local show id.
+   * @returns {Promise<void>}
+   */
+  async function deleteProject(id) {
+    const projects = window.ShowduinoProjects;
+    if (!projects?.deleteLocalProject) return;
+    const entry = projects.listLocalProjects().find((item) => String(item.id) === String(id));
+    const name = String(entry?.name || 'this show');
+    if (!window.confirm('Delete "' + name + '" from this device? This cannot be undone. Export it first if you may want it again. Cloud copies are not deleted.')) return;
+    try {
+      projects.deleteLocalProject(id);
+      info('Deleted "' + name + '" from this device.');
+      await refreshProjects();
+      const status = byId('studio-project-status');
+      if (status) status.textContent = 'Deleted "' + name + '" from this device.';
+    } catch (error) {
+      info('Could not delete show: ' + error.message, 'WARN');
+      const status = byId('studio-project-status');
+      if (status) status.textContent = error.message;
+    }
+  }
+
   window._saveSettings = saveSettings;
   window._testShowduinoTarget = testTarget;
   window._clearLogs = clearLogs;
@@ -283,6 +332,6 @@
 
   // Action IDs are registered centrally in studio-actions.js, so the audit
   // can verify every control even before this module has initialised.
-  window.ShowduinoPanelRuntime = Object.freeze({ initSettings, refreshProjects, openProject });
+  window.ShowduinoPanelRuntime = Object.freeze({ initSettings, refreshProjects, openProject, deleteProject });
   theme(storedSettings().theme);
 })();

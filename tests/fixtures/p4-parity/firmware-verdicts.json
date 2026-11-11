@@ -1,0 +1,286 @@
+{
+  "firmware": {
+    "repository": "sumkindafreak/new_showduino",
+    "ref": "integration/flashed-baseline-shdo-20261102",
+    "commit": "7e23730b6c251bfb850f4b1097f3d42be1487a09",
+    "source": "protocol/showduino_shdo.h shdoCompile(), compiled on a host computer"
+  },
+  "cases": {
+    "pixel-p4-local": {
+      "status": "OK",
+      "cues": [
+        "1000 PIXEL:SEGMENT:0:RANGE:0:30",
+        "1000 PIXEL:SEGMENT:0:FX:LIGHTNING",
+        "1000 PIXEL:SEGMENT:0:COLOR:255:255:255",
+        "1000 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "1000 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "1000 PIXEL:SEGMENT:0:SPEED:82",
+        "1000 PIXEL:SEGMENT:0:INTENSITY:80",
+        "1000 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "1000 PIXEL:SEGMENT:0:REVERSE:0",
+        "1000 PIXEL:SEGMENT:0:DURATION:2500",
+        "1000 PIXEL:SEGMENT:0:START"
+      ]
+    },
+    "pixel-p4-blackout-at-end": {
+      "status": "OK",
+      "cues": [
+        "0 PIXEL:SEGMENT:0:RANGE:5:10",
+        "0 PIXEL:SEGMENT:0:FX:FIRE",
+        "0 PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 PIXEL:SEGMENT:0:SPEED:50",
+        "0 PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 PIXEL:SEGMENT:0:REVERSE:0",
+        "0 PIXEL:SEGMENT:0:DURATION:1500",
+        "0 PIXEL:SEGMENT:0:START",
+        "1500 PIXEL:SEGMENT:0:STOP"
+      ]
+    },
+    "pixel-p4-secondary-reverse": {
+      "status": "OK",
+      "cues": [
+        "250 PIXEL:SEGMENT:0:RANGE:0:20",
+        "250 PIXEL:SEGMENT:0:FX:CHASE",
+        "250 PIXEL:SEGMENT:0:COLOR:10:20:30",
+        "250 PIXEL:SEGMENT:0:COLOR2:255:128:0",
+        "250 PIXEL:SEGMENT:0:BRIGHTNESS:128",
+        "250 PIXEL:SEGMENT:0:SPEED:50",
+        "250 PIXEL:SEGMENT:0:INTENSITY:60",
+        "250 PIXEL:SEGMENT:0:RANDOMNESS:25",
+        "250 PIXEL:SEGMENT:0:REVERSE:1",
+        "250 PIXEL:SEGMENT:0:DURATION:4000",
+        "250 PIXEL:SEGMENT:0:START"
+      ]
+    },
+    "pixel-node": {
+      "status": "OK",
+      "cues": [
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:RANGE:0:10",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:FX:FIRE",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:COLOR:0:255:200",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:COLOR2:16:24:32",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:BRIGHTNESS:255",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:SPEED:50",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:INTENSITY:80",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:RANDOMNESS:70",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:REVERSE:0",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:DURATION:2000",
+        "500 PIXEL:NODE:LED-01:SEGMENT:0:START"
+      ]
+    },
+    "pixel-audio-node": {
+      "status": "OK",
+      "cues": [
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:RANGE:0:8",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:FX:RAINBOW",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:SPEED:50",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:REVERSE:0",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:DURATION:2000",
+        "0 AUDIO:NODE:PIXEL:SEGMENT:0:START"
+      ]
+    },
+    "pixel-estop-node": {
+      "status": "OK",
+      "cues": [
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:RANGE:0:8",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:FX:WARNING",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:SPEED:50",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:REVERSE:0",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:DURATION:2000",
+        "0 ESTOP:NODE:PIXEL:SEGMENT:0:START"
+      ]
+    },
+    "pixel-sequential-same-output": {
+      "status": "OK",
+      "cues": [
+        "0 PIXEL:SEGMENT:0:RANGE:0:10",
+        "0 PIXEL:SEGMENT:0:FX:FIRE",
+        "0 PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 PIXEL:SEGMENT:0:SPEED:50",
+        "0 PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 PIXEL:SEGMENT:0:REVERSE:0",
+        "0 PIXEL:SEGMENT:0:DURATION:1000",
+        "0 PIXEL:SEGMENT:0:START",
+        "2000 PIXEL:SEGMENT:1:RANGE:10:10",
+        "2000 PIXEL:SEGMENT:1:FX:FLICKER",
+        "2000 PIXEL:SEGMENT:1:COLOR:0:255:200",
+        "2000 PIXEL:SEGMENT:1:COLOR2:16:24:32",
+        "2000 PIXEL:SEGMENT:1:BRIGHTNESS:255",
+        "2000 PIXEL:SEGMENT:1:SPEED:50",
+        "2000 PIXEL:SEGMENT:1:INTENSITY:80",
+        "2000 PIXEL:SEGMENT:1:RANDOMNESS:70",
+        "2000 PIXEL:SEGMENT:1:REVERSE:0",
+        "2000 PIXEL:SEGMENT:1:DURATION:1000",
+        "2000 PIXEL:SEGMENT:1:START"
+      ]
+    },
+    "pixel-overlapping-same-output": {
+      "status": "OK",
+      "cues": [
+        "0 PIXEL:SEGMENT:0:RANGE:0:4",
+        "0 PIXEL:SEGMENT:0:FX:SOLID",
+        "0 PIXEL:SEGMENT:0:COLOR:0:255:0",
+        "0 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 PIXEL:SEGMENT:0:SPEED:50",
+        "0 PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 PIXEL:SEGMENT:0:REVERSE:0",
+        "0 PIXEL:SEGMENT:0:DURATION:10000",
+        "0 PIXEL:SEGMENT:0:START",
+        "3000 PIXEL:SEGMENT:1:RANGE:4:3",
+        "3000 PIXEL:SEGMENT:1:FX:SOLID",
+        "3000 PIXEL:SEGMENT:1:COLOR:0:0:255",
+        "3000 PIXEL:SEGMENT:1:COLOR2:16:24:32",
+        "3000 PIXEL:SEGMENT:1:BRIGHTNESS:255",
+        "3000 PIXEL:SEGMENT:1:SPEED:50",
+        "3000 PIXEL:SEGMENT:1:INTENSITY:80",
+        "3000 PIXEL:SEGMENT:1:RANDOMNESS:70",
+        "3000 PIXEL:SEGMENT:1:REVERSE:0",
+        "3000 PIXEL:SEGMENT:1:DURATION:7000",
+        "3000 PIXEL:SEGMENT:1:START"
+      ]
+    },
+    "audio-play": {
+      "status": "OK",
+      "cues": [
+        "2000 AUDIO:NODE:VOLUME:90",
+        "2000 AUDIO:NODE:PLAY:monster_roar.wav",
+        "5000 AUDIO:NODE:STOP"
+      ]
+    },
+    "audio-loop": {
+      "status": "OK",
+      "cues": [
+        "0 AUDIO:NODE:VOLUME:40",
+        "0 AUDIO:NODE:LOOP:bed.wav",
+        "10000 AUDIO:NODE:STOP"
+      ]
+    },
+    "audio-one-shot": {
+      "status": "OK",
+      "cues": [
+        "100 AUDIO:NODE:VOLUME:100",
+        "100 AUDIO:NODE:PLAY:hit.wav"
+      ]
+    },
+    "mosfet-hold": {
+      "status": "OK",
+      "cues": [
+        "1000 MOSFET:NODE:MOSFET-01:OUT:1:LEVEL:100",
+        "3000 MOSFET:NODE:MOSFET-01:OUT:1:OFF"
+      ]
+    },
+    "mosfet-level-50": {
+      "status": "OK",
+      "cues": [
+        "0 MOSFET:NODE:MOSFET-01:OUT:2:LEVEL:50",
+        "1500 MOSFET:NODE:MOSFET-01:OUT:2:OFF"
+      ]
+    },
+    "mosfet-pulse": {
+      "status": "OK",
+      "cues": [
+        "0 MOSFET:NODE:MOSFET-01:OUT:3:PULSE:100:500",
+        "3000 MOSFET:NODE:MOSFET-01:OUT:3:OFF"
+      ]
+    },
+    "mosfet-fade": {
+      "status": "OK",
+      "cues": [
+        "0 MOSFET:NODE:MOSFET-01:OUT:4:FADE:80:1000",
+        "3000 MOSFET:NODE:MOSFET-01:OUT:4:FADE:0:1000"
+      ]
+    },
+    "ordering-same-time-and-unsorted": {
+      "status": "OK",
+      "cues": [
+        "0 PIXEL:SEGMENT:0:RANGE:0:10",
+        "0 PIXEL:SEGMENT:0:FX:FIRE",
+        "0 PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 PIXEL:SEGMENT:0:SPEED:50",
+        "0 PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 PIXEL:SEGMENT:0:REVERSE:0",
+        "0 PIXEL:SEGMENT:0:DURATION:1000",
+        "0 PIXEL:SEGMENT:0:START",
+        "0 AUDIO:NODE:VOLUME:80",
+        "0 AUDIO:NODE:PLAY:same.wav",
+        "1000 AUDIO:NODE:STOP",
+        "5000 AUDIO:NODE:VOLUME:80",
+        "5000 AUDIO:NODE:PLAY:late.wav",
+        "6000 AUDIO:NODE:STOP"
+      ]
+    },
+    "disabled-cue-skipped": {
+      "status": "OK",
+      "cues": [
+        "0 AUDIO:NODE:VOLUME:80",
+        "0 AUDIO:NODE:PLAY:on.wav",
+        "1000 AUDIO:NODE:STOP"
+      ]
+    },
+    "mixed-show": {
+      "status": "OK",
+      "cues": [
+        "0 PIXEL:SEGMENT:0:RANGE:0:30",
+        "0 PIXEL:SEGMENT:0:FX:LIGHTNING",
+        "0 PIXEL:SEGMENT:0:COLOR:0:255:200",
+        "0 PIXEL:SEGMENT:0:COLOR2:16:24:32",
+        "0 PIXEL:SEGMENT:0:BRIGHTNESS:255",
+        "0 PIXEL:SEGMENT:0:SPEED:50",
+        "0 PIXEL:SEGMENT:0:INTENSITY:80",
+        "0 PIXEL:SEGMENT:0:RANDOMNESS:70",
+        "0 PIXEL:SEGMENT:0:REVERSE:0",
+        "0 PIXEL:SEGMENT:0:DURATION:800",
+        "0 PIXEL:SEGMENT:0:START",
+        "1000 AUDIO:NODE:VOLUME:80",
+        "1000 AUDIO:NODE:PLAY:thunder.wav",
+        "1500 MOSFET:NODE:MOSFET-01:OUT:1:LEVEL:100",
+        "2000 MOSFET:NODE:MOSFET-01:OUT:1:OFF",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:RANGE:0:12",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:FX:FLICKER",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:COLOR:0:255:200",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:COLOR2:16:24:32",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:BRIGHTNESS:255",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:SPEED:50",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:INTENSITY:80",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:RANDOMNESS:70",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:REVERSE:0",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:DURATION:3000",
+        "2000 PIXEL:NODE:LED-01:SEGMENT:0:START",
+        "5000 AUDIO:NODE:STOP"
+      ]
+    },
+    "trigger-refused": {
+      "status": "UNSUPPORTED_ACTION",
+      "cues": []
+    },
+    "relay-refused": {
+      "status": "UNSUPPORTED_ACTION",
+      "cues": []
+    },
+    "dmx-refused": {
+      "status": "DMX_OUT_OF_SCOPE",
+      "cues": []
+    }
+  }
+}

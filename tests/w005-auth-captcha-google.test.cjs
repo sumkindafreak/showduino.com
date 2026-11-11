@@ -34,7 +34,7 @@ function serviceWith(calls) {
 function accountPage(config, captcha) {
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', checked: id === 'register-age-confirmation', listeners: {},
+    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', checked: /age-confirmation$/.test(id), listeners: {},
       addEventListener(n, cb) { this.listeners[n] = cb; }, querySelectorAll() { return []; }, replaceChildren() {}, focus() {}, reset() {}, appendChild() {} });
     return nodes.get(id);
   };
@@ -58,7 +58,7 @@ function accountPage(config, captcha) {
     URLSearchParams, URL, console, history: window.history, fetch: async (u) => { fetched.push(String(u)); return { ok: true, json: async () => ({ external: { google: true } }) }; } };
   vm.runInNewContext(fs.readFileSync('js/account-page.js', 'utf8'), scope);
   initialise();
-  return { node, calls, fetched };
+  return { node, calls, fetched, window };
 }
 
 (async () => {
@@ -101,6 +101,21 @@ function accountPage(config, captcha) {
   assert.deepEqual(page.calls.map((c) => [c[0], c[1].at(-1)]), [
     ['signIn', 'turnstile-1'], ['requestPasswordReset', 'turnstile-2'], ['register', 'turnstile-3'], ['resendConfirmation', 'turnstile-4']]);
   assert.equal(resets, 4, 'widget reset after every request');
+
+  // 3b. Google can create an account, so it needs the same 14+ confirmation as email sign-up.
+  const googleCalls = [];
+  const gated = accountPage({ features: { googleSignIn: true }, supabase: { url: 'https://example.invalid', publishableKey: 'k' } });
+  await new Promise((r) => setTimeout(r, 10));
+  gated.window.ShowduinoSupabase.signInWithGoogle = async () => { googleCalls.push('google'); };
+  gated.node('google-age-confirmation').checked = false;
+  await gated.node('google-signin-button').listeners.click();
+  assert.equal(googleCalls.length, 0, 'Google sign-in does not start without the 14+ confirmation');
+  assert.match(gated.node('account-status').textContent, /at least 14 years old/i);
+  assert.equal(gated.node('google-signin-button').disabled, false, 'the button stays usable after the reminder');
+  gated.node('google-age-confirmation').checked = true;
+  await gated.node('google-signin-button').listeners.click();
+  assert.equal(googleCalls.length, 1, 'Google sign-in starts once the box is ticked');
+  assert.match(fs.readFileSync('account.html', 'utf8'), /id="google-auth-panel"[\s\S]*id="google-age-confirmation"[\s\S]*id="google-signin-button"/, 'the confirmation sits in the Google panel before its button');
 
   // 4. Config ships with Google off and no site key; welcome copy no longer offers Google.
   const config = fs.readFileSync('config/runtime-config.js', 'utf8');

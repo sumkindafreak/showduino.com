@@ -580,14 +580,14 @@ window._refreshDevices();
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;padding-bottom:10px;">
         <div>
           <div style="font-size:13px;color:#eee;">Autosave Interval</div>
-          <div style="font-size:11px;color:#666;">How often to auto-save locally</div>
+          <div style="font-size:11px;color:#666;">How often to auto-save locally. Your show is also saved whenever you leave or hide this page.</div>
         </div>
         <select id="settings-autosave" style="background:#111;border:1px solid #555;color:#eee;padding:5px;border-radius:4px;font-size:12px;">
           <option value="1500" selected>Continuous (1.5 seconds)</option>
           <option value="10000">10 seconds</option>
           <option value="30000">30 seconds</option>
           <option value="60000">1 minute</option>
-          <option value="0">Disabled</option>
+          <option value="0">Timed saves off</option>
         </select>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333;padding-bottom:10px;">

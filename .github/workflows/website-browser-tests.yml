@@ -22,7 +22,9 @@ permissions:
 
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    # Pin to a Playwright-supported runner image. ubuntu-latest resolved to an
+    # incompatible/newer Ubuntu image during Phase 3 and apt dependency setup failed.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +34,10 @@ jobs:
       - name: Install Playwright Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.48.2
-          npx playwright install --with-deps chromium
+          # Hosted Ubuntu 24.04 already has Chromium runtime libraries. Avoid an
+          # apt install of extra fonts here: Ubuntu package mirrors were unreachable
+          # on two Phase 3 CI attempts before any browser test could start.
+          npx playwright install chromium
       - name: Explicit 30-day account deletion and cancellation on phone and desktop
         run: node tests/browser/account-deletion.cjs
       - name: Hostile .shdo import executes no script (desktop and phone)
@@ -73,3 +78,7 @@ jobs:
         run: node tests/browser/studio-roundtrip.cjs
       - name: P4 limits in Diagnostics and Export; phone pixel rows (W005)
         run: node tests/browser/studio-firmware-limits-ui.cjs
+      - name: Settings and Projects panels on tablet and desktop; phone Project tab; cross-tab autosave
+        run: node tests/browser/studio-settings-projects.cjs
+      - name: Two real tabs on one show; timeline start-up keeps the open show and binds shortcuts once
+        run: node tests/browser/studio-two-tabs.cjs

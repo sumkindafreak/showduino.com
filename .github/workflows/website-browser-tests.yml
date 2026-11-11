@@ -73,3 +73,5 @@ jobs:
         run: node tests/browser/studio-roundtrip.cjs
       - name: P4 limits in Diagnostics and Export; phone pixel rows (W005)
         run: node tests/browser/studio-firmware-limits-ui.cjs
+      - name: Settings and Projects panels on tablet and desktop; phone Project tab; cross-tab autosave
+        run: node tests/browser/studio-settings-projects.cjs

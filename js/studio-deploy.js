@@ -19,6 +19,11 @@
   const PIXEL_SEGMENT_SLOTS = 16;
   const TARGET_STORAGE_KEY = 'showduino_target_url';
 
+  /**
+   * Turn what the user typed into the origin of a Showduino controller.
+   * @param {string} value Hostname or IP address, with or without http(s):// and a port.
+   * @returns {string} Origin such as "http://192.168.4.1", or '' when it is not a valid host.
+   */
   function normaliseTarget(value) {
     const raw = String(value || '').trim();
     if (!raw) return '';
@@ -26,6 +31,12 @@
     try {
       const url = new URL(withScheme);
       if (!url.hostname) return '';
+      // Browsers accept and percent-encode almost anything as a host ("not a host!!").
+      // Only a plain hostname, an IPv4 address or a bracketed IPv6 address is a target.
+      const host = url.hostname;
+      const plainHost = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i.test(host);
+      const ipv6 = /^\[[0-9a-f:.]+\]$/i.test(host);
+      if (!plainHost && !ipv6) return '';
       url.pathname = '';
       url.search = '';
       url.hash = '';

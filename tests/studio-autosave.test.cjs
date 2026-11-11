@@ -156,6 +156,24 @@ const showKey = (project) => `showduino_project_${project.project.id}`;
   assert.strictEqual(full.data.get(showKey(project)), before, 'the last good saved copy is untouched');
 }
 
+// 7b. Deleting a saved show: never the open one; removes its data and index entry only.
+{
+  const b = browser(5_000_000);
+  b.fire('document', 'DOMContentLoaded');
+  const first = openShow(b, 'Keep me'); b.tick();
+  const second = openShow(b, 'Open show'); b.tick();
+  const api = b.window.ShowduinoProjects;
+  const listedBefore = api.listLocalProjects().map((p) => p.id);
+  assert.ok(listedBefore.includes(first.project.id) && listedBefore.includes(second.project.id), 'both shows are listed');
+  assert.throws(() => api.deleteLocalProject(second.project.id), /This show is open/, 'the open show cannot be deleted');
+  assert.ok(b.data.has(showKey(second)), 'and it is still saved');
+  assert.strictEqual(api.deleteLocalProject(first.project.id), true);
+  assert.strictEqual(b.data.has(showKey(first)), false, 'the deleted show is gone');
+  assert.deepStrictEqual(api.listLocalProjects().map((p) => p.id), listedBefore.filter((id) => id !== first.project.id), 'only that show left the list');
+  assert.strictEqual(api.deleteLocalProject('no-such-id'), false, 'an unknown id changes nothing');
+  assert.strictEqual(api.deleteLocalProject(''), false);
+}
+
 // 8. Legacy snapshot timer (app.js): never faster than 20 s, and settings wording is honest.
 {
   const app = fs.readFileSync('app.js', 'utf8');

@@ -290,7 +290,7 @@
       if (!autosaveFailureShown) {
         autosaveFailureShown = true;
         notify(isStorageFull(error)
-          ? 'This show could NOT be saved on this device: browser storage is full. Export it as a .shdo file now, then delete shows you no longer need.'
+          ? 'This show could NOT be saved on this device: browser storage is full. Export it as a .shdo file now, then delete shows you no longer need in the Projects panel.'
           : `This show could not be saved on this device (${error?.message || 'storage error'}). Export it as a .shdo file to keep your work.`, 'ERR');
         window.dispatchEvent(new CustomEvent('showduino:project-autosave-failed', { detail: { reason, storageFull: isStorageFull(error) } }));
       }
@@ -486,6 +486,28 @@
 
   function listLocalProjects() { return readProjectIndex(); }
 
+  /**
+   * Delete a show saved on this device. The show that is open is never deleted, and
+   * cloud copies are not touched.
+   * @param {string} id Local show id.
+   * @returns {boolean} True when a saved show was removed.
+   * @throws {Error} If the id is the open show.
+   */
+  function deleteLocalProject(id) {
+    const projectId = String(id || '').trim();
+    if (!projectId) return false;
+    if (getState()?.project?.project?.id === projectId) {
+      throw new Error('This show is open. Open or create another show before deleting it.');
+    }
+    const key = `${PROJECT_DATA_PREFIX}${projectId}`;
+    const index = readProjectIndex();
+    const existed = localStorage.getItem(key) !== null || index.some((item) => item.id === projectId);
+    localStorage.removeItem(key);
+    writeProjectIndex(index.filter((item) => item.id !== projectId));
+    if (localStorage.getItem(ACTIVE_PROJECT_KEY) === projectId) localStorage.removeItem(ACTIVE_PROJECT_KEY);
+    return existed;
+  }
+
   function initialiseAuth() {
     if (!cloudEnabled()) {
       currentUser = null;
@@ -578,6 +600,7 @@
     exportCurrentProject,
     importProject,
     listLocalProjects,
+    deleteLocalProject,
     renameCurrentProject,
     normaliseProject,
     validatePackage,

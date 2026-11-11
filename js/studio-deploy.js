@@ -193,7 +193,7 @@
     if (clip.durationMs > 0) addCommand(commands, errors, start + clip.durationMs, 'AUDIO:NODE:STOP', `${clip.name} stop`);
   }
 
-  function compilePixel(clip, action, device, segmentSlot, commands, errors, warnings) {
+  function compilePixel(clip, action, device, segmentSlot, commands, errors, warnings, resetDuration) {
     const pixels = window.ShowduinoPixelAuthoring;
     const route = device?.binding?.route || '';
     const prefixBase = pixels?.commandPrefix?.(device) ||
@@ -248,6 +248,8 @@
     addCommand(commands, errors, clip.startMs, `${prefix}:RANDOMNESS:${randomness}`, clip.name);
     addCommand(commands, errors, clip.startMs, `${prefix}:REVERSE:${reverse}`, clip.name);
     if (clip.durationMs > 0) addCommand(commands, errors, clip.startMs, `${prefix}:DURATION:${clip.durationMs}`, clip.name);
+    // The engine keeps a segment's last DURATION; a held cue on a reused segment clears it.
+    else if (resetDuration) addCommand(commands, errors, clip.startMs, `${prefix}:DURATION:0`, clip.name);
     addCommand(commands, errors, clip.startMs, `${prefix}:START`, clip.name);
     if (clip.durationMs > 0 && params.blackoutAtEnd === true) {
       addCommand(commands, errors, clip.startMs + clip.durationMs, `${prefix}:STOP`, `${clip.name} stop`);
@@ -262,29 +264,56 @@
   }
 
   /**
-   * Pick the pixel segment a cue runs on. A segment holds one effect at a time, so a
-   * cue that overlaps an earlier cue on the same output and segment would replace it.
-   * The P4 gives every persisted pixel cue its own segment (protocol/showduino_shdo.h);
-   * here the wanted segment is kept unless it is still busy, then the lowest free one
-   * is used. Cues that do not overlap are unchanged.
-   * @param {Object} busy Per-output list of {slot, endMs} already placed (updated).
-   * @param {string} key Output (logical device) the cue targets.
-   * @param {number} wanted Segment from the cue, or the next unused one.
-   * @param {Object} clip Cue with startMs and durationMs.
-   * @returns {number} Segment to use; PIXEL_SEGMENT_SLOTS when none is free.
+   * The pixel segment a cue asks for, read the way the P4 compiler reads it
+   * (protocol/showduino_shdo.h): only a whole number of 0 or more counts, and anything
+   * above the last segment means the last segment.
+   * @param {Object} params Cue parameters.
+   * @returns {?number} Segment 0-15, or null when the cue does not name one.
    */
-  function freePixelSlot(busy, key, wanted, clip) {
+  function explicitPixelSegment(params) {
+    const raw = params ? params.segment : undefined;
+    if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0) return null;
+    return Math.min(raw, PIXEL_SEGMENT_SLOTS - 1);
+  }
+
+  /**
+   * Pick the pixel segment a cue runs on. The same rule is implemented in the P4
+   * compiler (shdoAllocatePixelSlot), so a live upload and a persisted show address
+   * the same segments. A segment runs one effect at a time.
+   *   1. A cue that names a segment gets it when it is free at the cue's start.
+   *   2. A cue without one gets the next number on its output.
+   *   3. If that segment is still running an earlier cue, the lowest free one is used.
+   *   4. A cue with no duration holds its segment for the rest of the show.
+   * Cues must be visited in start-time order.
+   * @param {Object} outputs Per-output state, updated in place.
+   * @param {string} key Output (logical device) the cue targets.
+   * @param {Object} clip Cue with startMs, durationMs, name and action.params.
+   * @returns {{slot:number, wanted:number, heldBy:?string, resetDuration:boolean}}
+   *   slot is PIXEL_SEGMENT_SLOTS or more when no segment is free; resetDuration is true
+   *   when a held cue reuses a segment whose last cue set a duration.
+   */
+  function allocatePixelSlot(outputs, key, clip) {
+    const state = outputs[key] || (outputs[key] = { running: [], timed: new Set(), next: 0 });
     const start = Math.max(0, Math.round(Number(clip.startMs) || 0));
-    const end = start + Math.max(1, Math.round(Number(clip.durationMs) || 0));
-    const list = (busy[key] = (busy[key] || []).filter((item) => item.endMs > start));
-    const taken = new Set(list.map((item) => item.slot));
+    const duration = Math.max(0, Math.round(Number(clip.durationMs) || 0));
+    const explicit = explicitPixelSegment(clip.action?.params || clip.params || {});
+    let wanted = explicit;
+    if (wanted === null) { wanted = state.next; state.next = wanted + 1; }
+    state.running = state.running.filter((item) => item.endMs > start);
+    const holder = (slot) => state.running.find((item) => item.slot === slot);
     let slot = wanted;
-    if (taken.has(slot)) {
+    const heldBy = slot < PIXEL_SEGMENT_SLOTS && holder(slot) ? holder(slot).name : null;
+    if (heldBy !== null) {
       slot = 0;
-      while (taken.has(slot) && slot < PIXEL_SEGMENT_SLOTS) slot += 1;
+      while (slot < PIXEL_SEGMENT_SLOTS && holder(slot)) slot += 1;
     }
-    list.push({ slot, endMs: end });
-    return slot;
+    let resetDuration = false;
+    if (slot < PIXEL_SEGMENT_SLOTS) {
+      state.running.push({ slot, endMs: duration > 0 ? start + duration : Infinity, name: String(clip.name || 'a cue') });
+      resetDuration = duration === 0 && state.timed.has(slot);
+      if (duration > 0) state.timed.add(slot); else state.timed.delete(slot);
+    }
+    return { slot, wanted, heldBy, resetDuration };
   }
 
   function compileShdoForStage(shdo) {
@@ -292,8 +321,7 @@
     const warnings = [];
     const commands = [];
     const devices = new Map((shdo?.devices || []).map((device) => [String(device.id), device]));
-    const pixelSlots = Object.create(null);
-    const pixelBusy = Object.create(null);
+    const pixelOutputs = Object.create(null);
 
     if (shdo?.schema !== window.ShowduinoPackage?.SCHEMA_NAME) {
       return { ok: false, errors: ['Deployment requires canonical SHDO v2.'], warnings, commands, uploadCommands: [] };
@@ -315,14 +343,12 @@
         if (!device) errors.push(`${clip.name}: no logical pixel target.`);
         else {
           const key = String(device.id || device.binding?.nodeId || 'pixel');
-          const authored = window.ShowduinoPixelAuthoring?.authoredSegment?.(action.params || {}, null);
-          const wanted = Number.isFinite(authored) && authored !== null ? authored : (pixelSlots[key] || 0);
-          if (!(Number.isFinite(authored) && authored !== null)) pixelSlots[key] = wanted + 1;
-          const slot = freePixelSlot(pixelBusy, key, wanted, clip);
-          if (slot !== wanted) {
-            warnings.push(`${clip.name}: overlaps another cue on the same pixel output, so it uses segment ${slot} instead of ${wanted} and both keep running.`);
+          const placed = allocatePixelSlot(pixelOutputs, key, clip);
+          const slot = placed.slot;
+          if (placed.heldBy !== null && slot < PIXEL_SEGMENT_SLOTS) {
+            warnings.push(`${clip.name}: segment ${placed.wanted} on this pixel output is still running "${placed.heldBy}", so this cue uses segment ${slot} and both keep running. Give the cues different segments, or shorten the earlier one, if that is not what you want.`);
           }
-          compilePixel(clip, action, device, slot, commands, errors, warnings);
+          compilePixel(clip, action, device, slot, commands, errors, warnings, placed.resetDuration);
         }
       } else if (type === 'mosfet') {
         const mosfet = window.ShowduinoMosfetAuthoring;

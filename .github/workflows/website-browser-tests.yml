@@ -22,7 +22,9 @@ permissions:
 
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    # Pin to a Playwright-supported runner image. ubuntu-latest resolved to an
+    # incompatible/newer Ubuntu image during Phase 3 and apt dependency setup failed.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

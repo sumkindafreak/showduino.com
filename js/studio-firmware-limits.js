@@ -30,7 +30,7 @@
   });
 
   // Fields the firmware reads as unsigned 32-bit integers (ShdoJson::u32).
-  const U32_PARAMS = new Set(['startPixel', 'length', 'count', 'r', 'g', 'b', 'brightness', 'speed', 'intensity',
+  const U32_PARAMS = new Set(['segment', 'startPixel', 'length', 'count', 'r', 'g', 'b', 'brightness', 'speed', 'intensity',
     'randomness', 'volume', 'duty', 'pulseMs', 'fadeInMs', 'fadeOutMs']);
   // Fields the firmware reads as JSON true/false (ShdoJson::boolean).
   const BOOL_PARAMS = new Set(['reverse', 'loop', 'blackoutAtEnd', 'safeOff']);

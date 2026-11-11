@@ -5,6 +5,11 @@
   const PROJECT_INDEX_KEY = 'showduino_local_projects';
   const PROJECT_DATA_PREFIX = 'showduino_project_';
   const ACTIVE_PROJECT_KEY = 'showduino_active_project_id';
+  // One small record per show: { rev, tab, at, deleted }. It lets a tab see that another
+  // tab of this browser saved or deleted the show it has open. It is kept outside the show
+  // itself so exported .shdo files and stored shows keep their existing format.
+  const PROJECT_REV_PREFIX = 'showduino_rev_';
+  const TAB_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const AUTOSAVE_INTERVAL_MS = 1500; // Preserve the existing 1.5s default for saved shows.
   /**
    * Autosave interval chosen in Settings.
@@ -23,6 +28,9 @@
   let lastAutosavePayload = '';
   let autosaveTimer = 0;
   let autosaveFailureShown = false;
+  let openRevision = { id: '', rev: 0 };   // the revision of the open show this tab last loaded or wrote
+  let saveConflict = null;                 // { type: 'changed' | 'deleted', id } while saving is held back
+  let conflictShownFor = '';
 
   function getState() { return window.state || null; }
 
@@ -187,7 +195,73 @@
 
   function rememberActiveProject(project) {
     const id = String(project?.project?.id || '').trim();
-    if (id) localStorage.setItem(ACTIVE_PROJECT_KEY, id);
+    if (!id) return;
+    localStorage.setItem(ACTIVE_PROJECT_KEY, id);
+    // Each tab also remembers its own show, so reloading a tab reopens the show that tab
+    // had open, not the one most recently opened in another tab.
+    try { window.sessionStorage?.setItem(ACTIVE_PROJECT_KEY, id); } catch (_) {}
+  }
+
+  /**
+   * Read the revision record of a saved show.
+   * @param {string} id Show id.
+   * @returns {{rev:number, tab:string, deleted:boolean}} rev is 0 for shows saved before
+   *   revisions existed.
+   */
+  function readRevision(id) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(`${PROJECT_REV_PREFIX}${id}`) || 'null');
+      if (parsed && typeof parsed === 'object') {
+        return { rev: Number.isInteger(parsed.rev) && parsed.rev >= 0 ? parsed.rev : 0, tab: String(parsed.tab || ''), deleted: parsed.deleted === true };
+      }
+    } catch (_) {}
+    return { rev: 0, tab: '', deleted: false };
+  }
+
+  /**
+   * Record that this tab now holds the stored version of a show (after loading it).
+   * @param {Object} project The show that was just loaded.
+   * @returns {void}
+   */
+  function adoptRevision(project) {
+    const id = String(project?.project?.id || '');
+    openRevision = { id, rev: id ? readRevision(id).rev : 0 };
+    saveConflict = null;
+    conflictShownFor = '';
+  }
+
+  /**
+   * Whether saving the open show now would overwrite work from another tab.
+   * Only covers tabs of this browser on this device. It is a check followed by a write,
+   * not a lock, so two saves in the same instant can still both succeed.
+   * @param {Object} project The open show.
+   * @returns {?string} 'changed', 'deleted' or null.
+   */
+  function detectConflict(project) {
+    const id = String(project?.project?.id || '');
+    if (!id || openRevision.id !== id) return null;   // a show this tab has not saved or loaded yet
+    const stored = readRevision(id);
+    if (stored.deleted) return stored.tab === TAB_ID ? null : 'deleted';
+    if (stored.rev !== openRevision.rev) return 'changed';
+    return null;
+  }
+
+  /**
+   * Tell the user once that saving is held back, and announce it to the page.
+   * @param {string} type 'changed' or 'deleted'.
+   * @param {Object} project The open show.
+   * @returns {void}
+   */
+  function reportConflict(type, project) {
+    const id = String(project?.project?.id || '');
+    saveConflict = { type, id };
+    if (conflictShownFor === `${type}:${id}`) return;
+    conflictShownFor = `${type}:${id}`;
+    const name = project?.project?.name || 'This show';
+    notify(type === 'deleted'
+      ? `"${name}" was deleted in another tab. It is still open here but is no longer being saved. Press Save to keep it.`
+      : `"${name}" was changed in another tab. Changes made in this tab are not being saved, so nothing is overwritten. Press Save to choose what to keep.`, 'WARN');
+    window.dispatchEvent(new CustomEvent('showduino:project-save-conflict', { detail: { type, id } }));
   }
 
   function updateProjectIndex(project) {
@@ -222,11 +296,35 @@
     return state.project;
   }
 
-  function persistLocal(project, touchUpdatedAt = true) {
+  /**
+   * Write the open show to this device.
+   * @param {Object} project The show.
+   * @param {boolean} [touchUpdatedAt=true] Stamp the show with the current time.
+   * @param {boolean} [force=false] Write even though another tab saved or deleted the
+   *   show since this tab loaded it. Only used after the user chose to.
+   * @returns {?Object} The show, or null when it has no id.
+   * @throws {Error} name 'ShowduinoSaveConflict' (with .conflict) when the write is held back.
+   */
+  function persistLocal(project, touchUpdatedAt = true, force = false) {
     if (!project?.project?.id) return null;
+    const id = project.project.id;
+    if (!force) {
+      const conflict = detectConflict(project);
+      if (conflict) {
+        const error = new Error(conflict === 'deleted' ? 'This show was deleted in another tab.' : 'This show was changed in another tab.');
+        error.name = 'ShowduinoSaveConflict';
+        error.conflict = conflict;
+        throw error;
+      }
+    }
     if (touchUpdatedAt) project.project.updatedAt = new Date().toISOString();
     const payload = JSON.stringify(project);
-    localStorage.setItem(`${PROJECT_DATA_PREFIX}${project.project.id}`, payload);
+    localStorage.setItem(`${PROJECT_DATA_PREFIX}${id}`, payload);
+    const next = readRevision(id).rev + 1;
+    localStorage.setItem(`${PROJECT_REV_PREFIX}${id}`, JSON.stringify({ rev: next, tab: TAB_ID, at: Date.now() }));
+    openRevision = { id, rev: next };
+    saveConflict = null;
+    conflictShownFor = '';
     rememberActiveProject(project);
     updateProjectIndex(project);
     lastAutosavePayload = payload;
@@ -286,6 +384,10 @@
       }));
       return true;
     } catch (error) {
+      if (error?.name === 'ShowduinoSaveConflict') {
+        reportConflict(error.conflict, project);
+        return false;
+      }
       console.warn('[Studio Projects] Autosave failed', error);
       if (!autosaveFailureShown) {
         autosaveFailureShown = true;
@@ -308,8 +410,10 @@
       return state.project;
     }
 
+    let tabId = '';
+    try { tabId = String(window.sessionStorage?.getItem(ACTIVE_PROJECT_KEY) || '').trim(); } catch (_) {}
     const activeId = String(localStorage.getItem(ACTIVE_PROJECT_KEY) || '').trim();
-    const candidates = [activeId, ...readProjectIndex().map((item) => String(item.id || '').trim())]
+    const candidates = [tabId, activeId, ...readProjectIndex().map((item) => String(item.id || '').trim())]
       .filter((id, index, all) => id && all.indexOf(id) === index);
 
     for (const projectId of candidates) {
@@ -318,6 +422,7 @@
         if (!raw) continue;
         const project = normaliseProject(JSON.parse(raw));
         state.project = project;
+        adoptRevision(project);
         rememberActiveProject(project);
         updateProjectIndex(project);
         updateStudioTitle(project);
@@ -336,7 +441,33 @@
   async function saveCurrentProject(options) {
     const settings = { cloud: true, ...options };
     const project = ensureProject();
-    persistLocal(project, true);
+    const conflict = detectConflict(project);
+    if (conflict) {
+      reportConflict(conflict, project);
+      const name = project.project.name;
+      if (conflict === 'deleted') {
+        if (!window.confirm(`"${name}" was deleted in another tab.\n\nOK: save it again on this device.\nCancel: do not save.`)) {
+          throw new Error('Not saved. The show is still open in this tab; export it if you want a copy.');
+        }
+        persistLocal(project, true, true);
+      } else if (window.confirm(`"${name}" was changed in another tab after this tab opened it.\n\nOK: keep both. This tab's version is saved as a new show, "${copyName(name)}".\nCancel: see the other choice.`)) {
+        let newId;
+        do { newId = createProjectId(); } while (localProjectIdInUse(newId));
+        project.project.id = newId;
+        project.project.createdAt = new Date().toISOString();
+        project.project.name = copyName(name);
+        openRevision = { id: '', rev: 0 };
+        persistLocal(project, true, true);
+        settings.cloud = false;   // the copy stays on this device until the user saves it again
+        notify(`Kept both versions. This tab now has "${project.project.name}"; the version from the other tab is unchanged.`, 'INFO');
+      } else if (window.confirm(`Replace the newer version of "${name}" with this tab's version?\n\nThe changes saved from the other tab will be lost. This cannot be undone.`)) {
+        persistLocal(project, true, true);
+      } else {
+        throw new Error('Not saved. Your changes are still open in this tab; nothing was overwritten.');
+      }
+    } else {
+      persistLocal(project, true);
+    }
     updateStudioTitle(project);
     notify(`Saved on this device: ${project.project.name}`, 'INFO');
 
@@ -359,6 +490,7 @@
     if (!raw) throw new Error('The local project could not be found.');
     const project = normaliseProject(JSON.parse(raw));
     state.project = project;
+    adoptRevision(project);
     rememberActiveProject(project);
     updateProjectIndex(project);
     updateStudioTitle(project);
@@ -487,8 +619,9 @@
   function listLocalProjects() { return readProjectIndex(); }
 
   /**
-   * Delete a show saved on this device. The show that is open is never deleted, and
-   * cloud copies are not touched.
+   * Delete a show saved on this device. The show that is open in this tab is never
+   * deleted, and cloud copies are not touched. A tab that still has the show open is
+   * told, and keeps its copy until the user decides.
    * @param {string} id Local show id.
    * @returns {boolean} True when a saved show was removed.
    * @throws {Error} If the id is the open show.
@@ -505,6 +638,11 @@
     localStorage.removeItem(key);
     writeProjectIndex(index.filter((item) => item.id !== projectId));
     if (localStorage.getItem(ACTIVE_PROJECT_KEY) === projectId) localStorage.removeItem(ACTIVE_PROJECT_KEY);
+    // Leave a marker so another tab that still has this show open does not save it back
+    // without asking. The marker is tiny and is replaced if the show is saved again.
+    if (existed) {
+      localStorage.setItem(`${PROJECT_REV_PREFIX}${projectId}`, JSON.stringify({ rev: readRevision(projectId).rev + 1, tab: TAB_ID, at: Date.now(), deleted: true }));
+    }
     return existed;
   }
 
@@ -588,6 +726,14 @@
     // Settings saved in another Studio tab apply here too.
     window.addEventListener('storage', (event) => {
       if (event.key === 'showduino_settings' || event.key === null) restartAutosaveTimer();
+      // Another tab saved or deleted the show that is open here: say so straight away
+      // rather than at the next save.
+      const project = getState()?.project;
+      const id = project?.project?.id;
+      if (id && event.key === `${PROJECT_REV_PREFIX}${id}`) {
+        const conflict = detectConflict(project);
+        if (conflict) reportConflict(conflict, project);
+      }
     });
   }
 
@@ -605,7 +751,8 @@
     normaliseProject,
     validatePackage,
     cloudEnabled,
-    getCurrentUser: () => currentUser
+    getCurrentUser: () => currentUser,
+    getSaveConflict: () => (saveConflict ? { ...saveConflict } : null)
   });
 
   document.addEventListener('DOMContentLoaded', initialise);

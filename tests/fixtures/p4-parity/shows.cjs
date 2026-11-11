@@ -64,6 +64,28 @@ const FIXTURES = {
   'dmx-refused': (p) => cue(p, 'dmx', '', 0, 100, 'DMX', {})
 };
 
+/* Phase 3: pixel segment policy. These only have verdicts from a firmware build that
+ * carries the shared allocation rule (firmware-verdicts-unified.json). */
+const px = (p, node, start, dur, label, segment, extra) => {
+  const c = cue(p, 'pixel', node, start, dur, label, Object.assign({ startPixel: 0, length: 4, effect: 'SOLID' }, extra || {}));
+  if (segment === undefined) delete c.params.segment; else c.params.segment = segment;
+  return c;
+};
+const SEGMENT_FIXTURES = {
+  'segments-explicit-distinct': (p) => { px(p, 'p4-local', 0, 5000, 'Two', 2); px(p, 'p4-local', 1000, 5000, 'Five', 5, { startPixel: 4 }); },
+  'segments-explicit-conflict': (p) => { px(p, 'p4-local', 0, 5000, 'First on three', 3); px(p, 'p4-local', 1000, 5000, 'Second on three', 3, { startPixel: 4 }); },
+  'segments-explicit-reuse-after-end': (p) => { px(p, 'p4-local', 0, 1000, 'Early', 4); px(p, 'p4-local', 1000, 1000, 'Back to back', 4); px(p, 'p4-local', 5000, 1000, 'Later', 4); },
+  'segments-hold-then-timed': (p) => { px(p, 'p4-local', 0, 0, 'Held wash', 0); px(p, 'p4-local', 1000, 500, 'Accent', 0, { startPixel: 4 }); px(p, 'p4-local', 3000, 500, 'Accent again', 0, { startPixel: 4 }); },
+  'segments-timed-then-hold': (p) => { px(p, 'p4-local', 0, 1000, 'Timed', 0); px(p, 'p4-local', 2000, 0, 'Held after', 0); },
+  'segments-above-range': (p) => { px(p, 'p4-local', 0, 1000, 'Ninety-nine', 99); },
+  'segments-no-param-sequential': (p) => { px(p, 'p4-local', 0, 1000, 'A', undefined); px(p, 'p4-local', 2000, 1000, 'B', undefined); px(p, 'p4-local', 4000, 1000, 'C', undefined); },
+  'segments-no-param-overlapping': (p) => { px(p, 'p4-local', 0, 5000, 'A', undefined); px(p, 'p4-local', 1000, 5000, 'B', undefined, { startPixel: 4 }); },
+  'segments-independent-outputs': (p) => { px(p, 'p4-local', 0, 5000, 'Line', 0); px(p, 'LED-01', 0, 5000, 'Node', 0); px(p, 'audio-node-pixels', 0, 5000, 'Audio ring', 0); px(p, 'ESTOP-01', 0, 5000, 'Estop ring', 0); },
+  'segments-seventeen-sequential': (p) => { for (let i = 0; i < 17; i++) px(p, 'p4-local', i * 1000, 800, `Step ${i}`, 0); },
+  'segments-sixteen-simultaneous': (p) => { for (let i = 0; i < 16; i++) px(p, 'p4-local', i * 10, 60000, `Layer ${i}`, 0, { startPixel: i, length: 1 }); },
+  'segments-seventeen-simultaneous-refused': (p) => { for (let i = 0; i < 17; i++) px(p, 'p4-local', i * 10, 60000, `Layer ${i}`, 0, { startPixel: i, length: 1 }); }
+};
+
 /**
  * Build one fixture and export it as a canonical SHDO v2 document.
  * @param {string} name Key of FIXTURES.
@@ -74,8 +96,12 @@ function exportShow(name) {
   const project = global.SHDOModel.createProject(name);
   project.id = `parity-${name}`.slice(0, 47);
   project.assets = {}; project.scenes = []; project.globalSettings = {}; project.metadata = {};
-  FIXTURES[name](project);
-  return global.ShowduinoPackage.toShdo(project);
+  (FIXTURES[name] || SEGMENT_FIXTURES[name])(project);
+  const shdo = global.ShowduinoPackage.toShdo(project);
+  // Studio always writes a segment. Files from before that (and hand-written ones) have
+  // none, so the "no-param" shows drop it after export to stand in for those files.
+  if (name.startsWith('segments-no-param')) shdo.clips.forEach((c) => { delete c.action.params.segment; if (c.params) delete c.params.segment; });
+  return shdo;
 }
 
-module.exports = { FIXTURES, exportShow, loadStudio };
+module.exports = { FIXTURES, SEGMENT_FIXTURES, exportShow, loadStudio };

@@ -1377,14 +1377,24 @@ class TimelineEditor {
 
   /* ── Keyboard shortcuts ──────────────────────────────────────── */
 
+  /**
+   * Bind the editor's keyboard shortcuts once. init() runs every time the timeline
+   * panel opens; binding again each time made Space play and pause in one press and
+   * Ctrl+Z undo several steps.
+   * @returns {void}
+   */
   _bindGlobalKeys() {
+    if (this._globalKeysBound) return;
+    this._globalKeysBound = true;
     document.addEventListener('keydown', e => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
-      if (e.code === 'Space')  { e.preventDefault(); this._playing ? this.pause() : this.play(); }
-      if (e.key === 'Delete' && this._selectedClipId) this._deleteClip(this._selectedClipId);
+      // js/timeline-fx-daw.js handles Space, Delete and Ctrl+S when it is loaded.
+      const daw = this._dawOwnsTransportKeys === true;
+      if (!daw && e.code === 'Space')  { e.preventDefault(); this._playing ? this.pause() : this.play(); }
+      if (!daw && e.key === 'Delete' && this._selectedClipId) this._deleteClip(this._selectedClipId);
       if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this._undo(); }
       if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this._redo(); }
-      if (e.ctrlKey && e.key === 's') { e.preventDefault(); this._saveToLocalStorage(); if (window.saveProject) window.saveProject(); }
+      if (!daw && e.ctrlKey && e.key === 's') { e.preventDefault(); this._saveToLocalStorage(); if (window.saveProject) window.saveProject(); }
       if (e.ctrlKey && e.key === '+') { e.preventDefault(); this._zoom(1.5); }
       if (e.ctrlKey && e.key === '-') { e.preventDefault(); this._zoom(1/1.5); }
     });
@@ -1408,26 +1418,58 @@ class TimelineEditor {
     }
   }
 
+  /**
+   * Start the editor's 30-second backup copy, once.
+   * The backup copy is only restored when the project manager (js/studio-projects.js)
+   * is absent. With the manager present it has already opened the right show, and
+   * restoring the shared backup key here replaced the open show with whatever show
+   * last wrote that key, in this tab or another.
+   * @returns {void}
+   */
   _startAutosave() {
-    const saved = localStorage.getItem('showduino_current_project');
-    if (saved) {
-      try {
-        const p = JSON.parse(saved);
-        if (SHDOModel.validate(p)) {
-          this._state.project = SHDOModel.migrate(p);
-          this._log('Restored project from autosave', 'INFO');
-        }
-      } catch (_) {}
+    if (!window.ShowduinoProjects) {
+      const saved = localStorage.getItem('showduino_current_project');
+      if (saved) {
+        try {
+          const p = JSON.parse(saved);
+          if (SHDOModel.validate(p)) {
+            this._state.project = SHDOModel.migrate(p);
+            this._log('Restored project from autosave', 'INFO');
+          }
+        } catch (_) {}
+      }
     }
-    setInterval(() => this._autosave(), 30000);
+    if (this._autosaveTimer) return;
+    this._autosaveTimer = setInterval(() => this._autosave(), 30000);
   }
 
+  /**
+   * Save the open show on this device from the editor's Save button or Ctrl+S.
+   * Goes through the project manager when it is present, so the save is checked against
+   * changes from other tabs and a failure is shown instead of a false "saved".
+   * @returns {void}
+   */
   _saveToLocalStorage() {
     this._autosave();
-    const id = this._project().project.id;
-    localStorage.setItem(`showduino_project_${id}`, JSON.stringify(this._project()));
-    this._log(`Project saved: ${this._project().project.name}`, 'INFO');
-    this._showToast('Project saved ✓');
+    const name = this._project().project.name;
+    const manager = window.ShowduinoProjects;
+    if (manager && typeof manager.saveCurrentProject === 'function') {
+      manager.saveCurrentProject({ cloud: false }).then(() => {
+        this._showToast('Project saved ✓');
+      }).catch((error) => {
+        this._log(`Project not saved: ${error.message}`, 'WARN');
+        this._showToast('Not saved: ' + error.message);
+      });
+      return;
+    }
+    try {
+      localStorage.setItem(`showduino_project_${this._project().project.id}`, JSON.stringify(this._project()));
+      this._log(`Project saved: ${name}`, 'INFO');
+      this._showToast('Project saved ✓');
+    } catch (error) {
+      this._log(`Project not saved: ${error.message}`, 'WARN');
+      this._showToast('Not saved: ' + error.message);
+    }
   }
 
   _exportJSON() {

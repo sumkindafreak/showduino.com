@@ -868,3 +868,14 @@ html.tl-touch-dragging, html.tl-touch-dragging body { overscroll-behavior: none;
 .audio-file-status[data-state="local-only"], .audio-file-status[data-state="unconfirmed"] { color: var(--studio-v4-orange, #ffad5c); }
 .audio-file-status[data-state="invalid"] { color: #ff6b6b; }
 .sounds-cue-row[data-state="on-node"] .sounds-reason { color: var(--studio-v4-muted, #9fb3bc); }
+
+/* WEB-022: optional darker Studio theme, selected from working Settings. */
+body.studio-v4.theme-darker {
+  --studio-v4-bg: #020304;
+  --studio-v4-bg-soft: #030509;
+  --studio-v4-surface: #080c10;
+  --studio-v4-surface-2: #0c1318;
+  --studio-v4-surface-3: #111a21;
+  background: #020406;
+}
+body.studio-v4.theme-darker .sidebar { background: rgba(3, 6, 9, .98); }

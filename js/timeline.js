@@ -15,13 +15,27 @@ function tlEsc(value) {
 }
 
 class TimelineEditor {
+  /**
+   * Create the timeline editor.
+   * The snap interval comes from saved Studio settings (250, 500, 1000 or 2000 ms),
+   * falling back to 1000 ms.
+   * @param {Object} api Showduino API client.
+   * @param {Object} state Shared Studio state.
+   * @param {Function} [log] Logger; defaults to console.log.
+   */
   constructor(api, state, log) {
     this._api      = api;
     this._state    = state;
     this._log      = log || console.log;
     this._el       = null;       // root .timeline-editor element
     this._pxPerMs  = 0.1;        // default zoom
-    this._snapMs   = 1000;
+    // Respect the real Settings panel across reloads; 1000 ms remains the fallback.
+    this._snapMs = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
+        return [250, 500, 1000, 2000].includes(saved.snap) ? saved.snap : 1000;
+      } catch (_) { return 1000; }
+    })();
     this._snapEnabled = true;
     this._gridEnabled = true;
     this._selectedClipId = null;

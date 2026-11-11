@@ -148,10 +148,17 @@
     finally { captcha?.reset?.(); }
   }
   async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await withCaptcha((token) => window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value,token)); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
+  /**
+   * Handle the sign-up form: check password length and the 14+ confirmation, then
+   * register through Supabase with a captcha token. Errors are shown in the status line.
+   * @param {Event} event Form submit event.
+   * @returns {Promise<void>}
+   */
   async function handleRegister(event) {
     event.preventDefault(); setStatus('Creating your Showduino account…');
     try {
       if (elements.registerPassword.value.length < 12) throw Error('Choose a password with at least 12 characters.');
+      if (!byId('register-age-confirmation')?.checked) throw Error('Please confirm you are at least 14 years old before creating an account.');
       const email=elements.registerEmail.value.trim();
       const data=await withCaptcha((token) => window.ShowduinoSupabase.register(email,elements.registerPassword.value,elements.registerName.value.trim(),token));
       sessionStorage.setItem('showduino_pending_confirmation_email',email); elements.registerPassword.value='';

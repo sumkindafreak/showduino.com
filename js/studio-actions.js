@@ -59,6 +59,9 @@
     'test-target': () => call(window._testShowduinoTarget),
 
     // Projects, settings, legacy account panel
+    'studio-projects-refresh': () => call(window.ShowduinoPanelRuntime?.refreshProjects),
+    'studio-project-open-local': (id) => call(window.ShowduinoPanelRuntime?.openProject, id, 'local'),
+    'studio-project-open-cloud': (id) => call(window.ShowduinoPanelRuntime?.openProject, id, 'cloud'),
     'export-shdo': () => window.ShowduinoProjects?.exportCurrentProject(),
     'save-project': () => call(window.saveProject),
     'load-cloud-projects': () => call(window._loadCloudProjects),

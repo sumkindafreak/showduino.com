@@ -60,6 +60,8 @@ const STUB = `window.turnstile = { render(el, o) { el.setAttribute('data-stub', 
     await page.click('#login-form button[type=submit]'); await page.waitForTimeout(800);
     await page.click('#forgot-password-button'); await page.waitForTimeout(800);
     await page.fill('#register-name', 'New Creator'); await page.fill('#register-email', 'new@example.test'); await page.fill('#register-password', 'a-long-test-passphrase');
+    // A real visitor must tick the 14+ confirmation before sign-up is sent.
+    await page.check('#register-age-confirmation');
     await page.click('#register-form button[type=submit]'); await page.waitForTimeout(800);
     const token = (p) => bodies[p]?.gotrue_meta_security?.captcha_token;
     assert.match(token('/auth/v1/token') || '', /^stub-token-\d+$/, 'sign-in sends a captcha token');

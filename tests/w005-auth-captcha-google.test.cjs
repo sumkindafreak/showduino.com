@@ -25,10 +25,16 @@ function serviceWith(calls) {
   return window.ShowduinoSupabase;
 }
 
+/**
+ * Load js/account-page.js against stub DOM nodes and a recording Supabase service.
+ * The 14+ confirmation box starts ticked so sign-up tests reach the service.
+ * @param {Object} config SHOWDUINO_CONFIG to expose to the page.
+ * @param {Object} [captcha] Optional ShowduinoCaptcha stub.
+ */
 function accountPage(config, captcha) {
   const nodes = new Map();
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', listeners: {},
+    if (!nodes.has(id)) nodes.set(id, { id, textContent: '', className: '', hidden: false, disabled: false, value: '', checked: id === 'register-age-confirmation', listeners: {},
       addEventListener(n, cb) { this.listeners[n] = cb; }, querySelectorAll() { return []; }, replaceChildren() {}, focus() {}, reset() {}, appendChild() {} });
     return nodes.get(id);
   };

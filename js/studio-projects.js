@@ -6,6 +6,11 @@
   const PROJECT_DATA_PREFIX = 'showduino_project_';
   const ACTIVE_PROJECT_KEY = 'showduino_active_project_id';
   const AUTOSAVE_INTERVAL_MS = 1500; // Preserve the existing 1.5s default for saved shows.
+  /**
+   * Autosave interval chosen in Settings.
+   * @returns {number} Milliseconds between timed autosaves; 0 means the timer is off.
+   *   Falls back to 1500 when nothing valid is saved.
+   */
   const getAutosaveInterval = () => {
     try {
       const saved = JSON.parse(localStorage.getItem('showduino_settings') || '{}');
@@ -448,10 +453,23 @@
     });
   }
 
-  function startAutosave() {
+  /**
+   * (Re)start the timed autosave using the interval chosen in Settings.
+   * Any running timer is cleared first; an interval of 0 leaves the timer off.
+   * @returns {void}
+   */
+  function restartAutosaveTimer() {
     if (autosaveTimer) window.clearInterval(autosaveTimer);
     const delay = getAutosaveInterval();
     autosaveTimer = delay > 0 ? window.setInterval(() => autosaveCurrentProject('timer'), delay) : 0;
+  }
+
+  /**
+   * Start timed autosave and also save whenever the page is hidden or closed.
+   * @returns {void}
+   */
+  function startAutosave() {
+    restartAutosaveTimer();
 
     window.addEventListener('pagehide', () => autosaveCurrentProject('pagehide'));
     window.addEventListener('beforeunload', () => autosaveCurrentProject('beforeunload'));
@@ -460,6 +478,11 @@
     });
   }
 
+  /**
+   * Wire the save button and show title, restore the last local show, connect
+   * account state and start autosave. Runs once when Studio loads.
+   * @returns {void}
+   */
   function initialise() {
     const saveButton = document.querySelector('.save-icon');
     if (saveButton) {
@@ -493,11 +516,7 @@
 
     initialiseAuth();
     startAutosave();
-    window.addEventListener('showduino:settings-updated', () => {
-      if (autosaveTimer) window.clearInterval(autosaveTimer);
-      const delay = getAutosaveInterval();
-      autosaveTimer = delay > 0 ? window.setInterval(() => autosaveCurrentProject('timer'), delay) : 0;
-    });
+    window.addEventListener('showduino:settings-updated', restartAutosaveTimer);
   }
 
   window.ShowduinoProjects = Object.freeze({

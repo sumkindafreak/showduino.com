@@ -8,11 +8,21 @@
   const SETTINGS_KEY = 'showduino_settings';
   const AUTOSAVE_CHOICES = new Set([0, 1500, 10000, 30000, 60000]);
   const byId = (id) => document.getElementById(id);
+  /**
+   * Write a message to the Studio Log, or the console before the log exists.
+   * @param {string} message Text to record.
+   * @param {string} [level='INFO'] Studio Log level (INFO, WARN, ERR).
+   * @returns {void}
+   */
   const info = (message, level = 'INFO') => {
     if (typeof window.studioLog === 'function') window.studioLog(message, level);
     else console.log('[Studio Panels]', message);
   };
 
+  /**
+   * Read the Studio settings saved in this browser.
+   * @returns {Object} The saved settings, or an empty object when nothing valid is stored.
+   */
   function storedSettings() {
     try {
       const parsed = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -20,6 +30,13 @@
     } catch (_) { return {}; }
   }
 
+  /**
+   * Show a status message in a panel element and copy it to the Studio Log.
+   * @param {string} id Element id of the status line.
+   * @param {string} message Text to show (set as text, never HTML).
+   * @param {boolean} [error=false] True to style and log the message as a warning.
+   * @returns {void}
+   */
   function panelMessage(id, message, error = false) {
     const element = byId(id);
     if (element) {
@@ -29,10 +46,20 @@
     info(message, error ? 'WARN' : 'INFO');
   }
 
+  /**
+   * Apply the chosen Studio theme to the page body.
+   * @param {string} value 'darker' for the darker theme; anything else keeps the default.
+   * @returns {void}
+   */
   function theme(value) {
     document.body.classList.toggle('theme-darker', value === 'darker');
   }
 
+  /**
+   * Fill the Settings panel controls from saved settings after the panel is inserted.
+   * Unsupported saved values fall back to the defaults. Does nothing when the panel is absent.
+   * @returns {void}
+   */
   function initSettings() {
     if (!byId('settings-theme')) return;
     const saved = storedSettings();
@@ -48,6 +75,13 @@
     theme(byId('settings-theme').value);
   }
 
+  /**
+   * Validate the Settings panel and save it on this device.
+   * Writes the settings and Showduino target to localStorage, applies theme and snap
+   * immediately, and dispatches 'showduino:settings-updated' so autosave timers restart.
+   * Nothing is saved if any value is unsupported; the reason is shown in the panel.
+   * @returns {void}
+   */
   function saveSettings() {
     try {
       const themeValue = byId('settings-theme')?.value;
@@ -75,6 +109,12 @@
     }
   }
 
+  /**
+   * Check whether a Showduino answers at the address typed in Settings.
+   * The typed address is used only for this check; the saved target is restored afterwards.
+   * No show or hardware command is sent.
+   * @returns {Promise<void>}
+   */
   async function testTarget() {
     const input = byId('settings-showduino-target');
     if (!input || !window.ShowduinoDeploy) return;
@@ -97,12 +137,21 @@
     }
   }
 
+  /**
+   * Empty the Studio Log in memory and on screen.
+   * @returns {void}
+   */
   function clearLogs() {
     if (window.state) window.state.logs = [];
     document.querySelector('.terminal-output')?.replaceChildren();
     panelMessage('settings-save-status', 'Studio logs cleared.');
   }
 
+  /**
+   * Remove the old-format autosave record ('showduino_current_project').
+   * Saved shows and their drafts are kept.
+   * @returns {void}
+   */
   function clearAutosave() {
     // The modern project manager intentionally saves drafts into the same local
     // records as saved shows. Never delete those records through "Clear Autosave".
@@ -113,6 +162,11 @@
       : 'No old-format autosave exists. Current saved shows were preserved.');
   }
 
+  /**
+   * After confirmation, delete everything this site stored in the browser
+   * (local shows, settings and sign-in sessions) and reload Studio.
+   * @returns {void}
+   */
   function clearAllData() {
     if (!window.confirm('Delete ALL Showduino data saved by this browser, including local shows and sign-in sessions? Export every show you want to keep first. This cannot be undone.')) return;
     localStorage.clear();
@@ -120,6 +174,15 @@
     window.location.reload();
   }
 
+  /**
+   * Append a titled list of shows, each with an Open button, to the Projects panel.
+   * Names and dates are written as text so stored values cannot inject markup.
+   * @param {HTMLElement} root Container to append to.
+   * @param {string} title Section heading.
+   * @param {Array<Object>} records Show records; entries without an id are skipped.
+   * @param {'local'|'cloud'} source Where the shows are stored; selects the open action.
+   * @returns {void}
+   */
   function addProjectSection(root, title, records, source) {
     const heading = document.createElement('h3');
     heading.textContent = title;
@@ -154,6 +217,12 @@
     });
   }
 
+  /**
+   * Rebuild the Projects panel: shows on this device, then private cloud shows
+   * when cloud access is enabled and a user is signed in. A cloud failure is shown
+   * in the panel and leaves the local list in place.
+   * @returns {Promise<void>}
+   */
   async function refreshProjects() {
     const root = byId('studio-project-list');
     if (!root) return;
@@ -187,6 +256,12 @@
     }
   }
 
+  /**
+   * Open a saved show and switch to the timeline editor.
+   * @param {string} id Show id.
+   * @param {'local'|'cloud'} source Where the show is stored.
+   * @returns {Promise<void>} Failures are reported in the panel and log, not thrown.
+   */
   async function openProject(id, source) {
     try {
       if (source === 'cloud') await window.ShowduinoProjects.loadCloudProject(id);

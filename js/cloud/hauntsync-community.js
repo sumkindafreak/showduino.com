@@ -157,8 +157,14 @@
     return { title, content, category, kind, shared_show_id: sharedShowId };
   }
 
-  // Always delete through the Storage API, not SQL. Storage RLS permits an
-  // authenticated member to remove only files in their own user-id folder.
+  /**
+   * Delete one of the signed-in member's own post images.
+   * Always deletes through the Storage API, not SQL. Storage RLS permits an
+   * authenticated member to remove only files in their own user-id folder.
+   * @param {?string} path Storage path of the image; nothing happens when empty.
+   * @returns {Promise<void>}
+   * @throws {Error} If the path is not a valid image path in the caller's own folder, or Storage refuses.
+   */
   async function removeOwnPostImage(path) {
     if (!path) return;
     const me = await currentUserId();
@@ -168,17 +174,31 @@
     check(await db().storage.from(IMAGE_BUCKET).remove([path]));
   }
 
+  /**
+   * Remove an image uploaded for a post whose database write then failed, and re-throw.
+   * @param {?string} path Storage path of the unused upload, if any.
+   * @param {Error} originalError The error from the failed write.
+   * @returns {Promise<never>} Always rejects.
+   * @throws {Error} originalError, or a support message if the cleanup also fails.
+   */
   async function discardUpload(path, originalError) {
     if (!path) throw originalError;
     try {
       await removeOwnPostImage(path);
     } catch (cleanupError) {
-      console.error('[HauntSync] Failed to clean up an unused post image', cleanupError);
+      console.error('[HauntSync] Failed to clean up an unused post image', cleanupError, 'Original error:', originalError);
       throw new Error('Publishing failed and the uploaded image could not be cleaned up. Please contact support.');
     }
     throw originalError;
   }
 
+  /**
+   * Create a community post for the signed-in member.
+   * An image uploaded for the post is removed again if the post cannot be saved.
+   * @param {Object} input Title, content, category, kind, optional sharedShowId and imageFile.
+   * @returns {Promise<string>} The new post id.
+   * @throws {Error} If signed out, the input is invalid, or the save fails.
+   */
   async function createPost(input) {
     const me = await currentUserId();
     if (!me) throw new Error('Sign in to post.');
@@ -196,6 +216,15 @@
     }
   }
 
+  /**
+   * Update one of the member's own posts.
+   * A newly uploaded image is removed if the update fails; a replaced or removed
+   * image is deleted from storage after the update succeeds.
+   * @param {string} id Post id (UUID).
+   * @param {Object} input Same fields as createPost, plus removeImage.
+   * @returns {Promise<boolean>} True when the post was updated.
+   * @throws {Error} If the id is invalid, the post is not the caller's, or the old image cannot be removed.
+   */
   async function updatePost(id, input) {
     if (!isUuid(id)) throw new Error('That post link is not valid.');
     const row = cleanPostInput(input);
@@ -225,6 +254,12 @@
     return true;
   }
 
+  /**
+   * Delete one of the member's own posts and its image.
+   * @param {string} id Post id (UUID).
+   * @returns {Promise<boolean>} True when the post was deleted.
+   * @throws {Error} If the id is invalid, the post is not the caller's, or its image cannot be removed.
+   */
   async function deletePost(id) {
     if (!isUuid(id)) throw new Error('That post link is not valid.');
     const data = check(await db().from('community_posts').delete().eq('id', id).select('id,image_path'));

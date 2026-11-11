@@ -529,6 +529,11 @@ window._refreshDevices();
   }
 
   /* ── HauntSync ────────────────────────────────────────────────── */
+  /**
+   * Markup for the Projects panel. The list itself is filled in by
+   * ShowduinoPanelRuntime.refreshProjects() after insertion.
+   * @returns {string} Panel HTML.
+   */
   hauntsync() {
     // WEB-023: the original embedded scripts never ran after innerHTML insertion.
     // Current project data is rendered by js/studio-panel-runtime.js.
@@ -550,6 +555,11 @@ window._refreshDevices();
   }
 
   /* ── Settings ─────────────────────────────────────────────────── */
+  /**
+   * Markup for the Settings panel. Controls are filled from saved settings by
+   * ShowduinoPanelRuntime.initSettings() and act through data-sd-click actions.
+   * @returns {string} Panel HTML.
+   */
   settings() {
     const sub = this._state.user?.subscription || 'free';
     return `

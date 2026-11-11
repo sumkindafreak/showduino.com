@@ -15,6 +15,14 @@ function tlEsc(value) {
 }
 
 class TimelineEditor {
+  /**
+   * Create the timeline editor.
+   * The snap interval comes from saved Studio settings (250, 500, 1000 or 2000 ms),
+   * falling back to 1000 ms.
+   * @param {Object} api Showduino API client.
+   * @param {Object} state Shared Studio state.
+   * @param {Function} [log] Logger; defaults to console.log.
+   */
   constructor(api, state, log) {
     this._api      = api;
     this._state    = state;

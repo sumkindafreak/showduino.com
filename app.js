@@ -155,6 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
+  /**
+   * Render a Studio panel into the workspace and run its initialisation.
+   * Locked or unknown panels are refused and logged.
+   * @param {string} panelName Panel id from the navigation (for example 'settings').
+   * @returns {Promise<void>}
+   */
   async function loadPanel(panelName) {
       const navItem = document.querySelector(`.sidebar-nav li[data-panel="${panelName}"]`);
       if (navItem && navItem.classList.contains('locked')) {
@@ -363,6 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Autosave system
+  /**
+   * Start the legacy periodic autosave unless it is already running.
+   * Uses the interval saved in Settings (0 disables it); 20 seconds when none is saved.
+   * @returns {void}
+   */
   function startAutosave() {
       if (state.autosaveInterval) return;
       let delay = 20000;

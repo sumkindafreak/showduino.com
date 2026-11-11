@@ -5,6 +5,15 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync('js/account-page.js', 'utf8');
 
+/**
+ * Open js/account-page.js against stub DOM nodes and a stub Supabase service.
+ * @param {string} search URL query string.
+ * @param {string} hash URL fragment.
+ * @param {string} [registerError] Error message the register stub throws.
+ * @param {string} [emailError] Error message the email stubs throw.
+ * @param {Array} [authEvents] Auth events to replay.
+ * @returns {Promise<Function>} Lookup returning the stub node for an element id.
+ */
 async function openAccount(search, hash, registerError, emailError, authEvents) {
   const nodes = new Map();
   const node = (id) => {
@@ -84,6 +93,13 @@ async function openAccount(search, hash, registerError, emailError, authEvents) 
     assert.match(reg('account-status').textContent, /If you already have one/i, `neutral sign-up copy (${registerError || 'new address'})`);
     assert.doesNotMatch(reg('account-status').textContent, /already registered/i);
   }
+  // The sign-up form must keep a real submit button: an unclosed attribute quote once
+  // swallowed it, so nobody could create an account.
+  const accountHtml = fs.readFileSync('account.html', 'utf8');
+  const registerForm = /<form id="register-form"[\s\S]*?<\/form>/.exec(accountHtml);
+  assert.ok(registerForm, 'account.html has the register form');
+  assert.match(registerForm[0], /<button\b[^>]*type="submit"[^>]*>Create account<\/button>/, 'register form has its Create account submit button');
+  assert.doesNotMatch(accountHtml, /\sclass="[^"<>]*></, 'no class attribute is left unclosed before a tag');
   // New 14+ gate must block an unchecked registration before any Auth call.
   const underAge = await openAccount('', '');
   underAge('register-age-confirmation').checked = false;

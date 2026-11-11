@@ -148,6 +148,12 @@
     finally { captcha?.reset?.(); }
   }
   async function handleSignIn(event) { event.preventDefault(); setStatus('Signing in…'); try { await withCaptcha((token) => window.ShowduinoSupabase.signIn(elements.loginEmail.value.trim(),elements.loginPassword.value,token)); } catch(error){ setStatus(friendlyAuthMessage(error,'Sign in failed.'),'error'); } }
+  /**
+   * Handle the sign-up form: check password length and the 14+ confirmation, then
+   * register through Supabase with a captcha token. Errors are shown in the status line.
+   * @param {Event} event Form submit event.
+   * @returns {Promise<void>}
+   */
   async function handleRegister(event) {
     event.preventDefault(); setStatus('Creating your Showduino account…');
     try {

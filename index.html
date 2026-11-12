@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Showduino is a distributed ESP32 show-control system with a dedicated Director, Communications Controller, ESP32-P4 Show Engine and specialist nodes for immersive attractions and practical effects.">
+  <meta name="description" content="Build your first Showduino production in Studio now, with no hardware required. Save and export a portable .shdo show for the future ESP32-P4 Show Engine.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Showduino | Distributed Immersive Show Control">
-  <meta property="og:description" content="Studio creates it. Director operates it. The ESP32-P4 Show Engine runs it locally.">
+  <meta property="og:description" content="Showduino Studio early access: create, preview and export shows now. Hardware comes later.">
   <meta property="og:url" content="https://show-duino.com/">
   <meta property="og:image" content="https://show-duino.com/media/showduino-chosen-main-hero.webp">
   <meta name="twitter:card" content="summary_large_image">
@@ -43,13 +43,13 @@
     <section class="hero">
       <div class="hero-copy">
         <span class="hero-kicker">DISTRIBUTED SHOW CONTROL · ESP32</span>
-        <span class="showduino-stage-note">THE SHOWDUINO FAMILY · IN TESTING</span>
+        <span class="showduino-stage-note">STUDIO EARLY ACCESS · HARDWARE IN TESTING</span>
         <h1>Run the show.<br><span class="accent">Not the browser.</span></h1>
-        <p class="hero-lede">Showduino separates creative control from live runtime. Build a production in Studio, operate from the Director, and let the ESP32-P4 Show Engine remain authoritative when the browser, Wi-Fi or touchscreen are nowhere to be found.</p>
+        <p class="hero-lede">Start building your Showduino production today, even before you own the hardware. Arrange lighting and audio cues, preview ideas in your browser, and export a portable <code>.shdo</code> file for later. The ESP32-P4 Show Engine will run the real show independently when the hardware is ready.</p>
         <div class="hero-actions">
-          <a class="btn" href="system.html">Explore the system</a>
-          <a class="btn secondary" href="studio.html">Open Studio</a>
-          <a class="btn secondary" href="welcome.html">Join HauntSync free</a>
+          <a class="btn" href="studio.html">Create your first show</a>
+          <a class="btn secondary" href="docs.html#studio-early-access">How it works</a>
+          <a class="btn secondary" href="system.html">Explore the system</a>
         </div>
         <div class="product-proof" aria-label="Current Showduino hardware facts">
           <div><strong>PHYSICAL SYSTEM</strong><span>The current enclosure and Director exist as real development hardware.</span></div>
@@ -68,6 +68,23 @@
     </section>
 
     <div class="site-main wide" style="padding-top:0;">
+      <section class="section reveal" id="studio-early-access" aria-labelledby="studio-early-heading">
+        <div class="section-heading">
+          <span class="eyebrow">START NOW · NO HARDWARE REQUIRED</span>
+          <h2 id="studio-early-heading">Your first show can be ready before your Showduino arrives.</h2>
+          <p>Studio is available to explore and use as a creator. A Showduino controller is not needed to design, preview or export your first production.</p>
+        </div>
+        <div class="grid three">
+          <article class="card"><span class="badge">01 · CREATE</span><h3>Build a production</h3><p class="muted">Open Studio without an account, choose your future node outputs and arrange show cues on the timeline.</p></article>
+          <article class="card"><span class="badge">02 · PREVIEW</span><h3>Experiment before hardware</h3><p class="muted">Use the browser preview to explore timing and effects. It is a creative preview, not verification of physical output.</p></article>
+          <article class="card"><span class="badge">03 · KEEP</span><h3>Export your show</h3><p class="muted">Save locally, then export a portable <code>.shdo</code> file for safekeeping and future import. Browser storage alone can be cleared or lost.</p></article>
+        </div>
+        <div class="button-row">
+          <a class="btn" href="studio.html">Open Showduino Studio</a>
+          <a class="btn secondary" href="docs.html#studio-early-access">First-show guide</a>
+        </div>
+        <p class="muted">Early-access productions may need adjustments as hardware and supported cues evolve. Local authoring works without a Showduino ID; optional cloud accounts require separately verified sign-up and backups.</p>
+      </section>
       <section class="section reveal">
         <div class="section-heading">
           <span class="eyebrow">THE CURRENT ARCHITECTURE</span>
@@ -107,7 +124,7 @@
 
       <section class="section reveal"><div class="section-heading"><span class="eyebrow">CURRENT ROLLOUT</span><h2>Finish the useful core first.</h2><p>The current development path concentrates on the systems that already matter to a real attraction.</p></div><div class="grid four"><article class="card"><div class="card-icon">LMP</div><h3>Lamp node</h3><p class="muted">ESP32-S3 practical-lamp effects with node state reporting. It takes over the retired Relay Node role.</p></article><article class="card"><div class="card-icon">MOS</div><h3>MOSFET outputs</h3><p class="muted">Efficient control of compatible low-voltage effects and loads.</p></article><article class="card"><div class="card-icon">PIX</div><h3>NeoPixel lines</h3><p class="muted">Segment-aware effects plus a hard emergency-white override.</p></article><article class="card"><div class="card-icon">AUD</div><h3>Audio node</h3><p class="muted">Dedicated show audio nodes alongside local P4 system sounds.</p></article></div></section>
 
-      <section class="section reveal"><div class="section-heading"><span class="eyebrow">SOFTWARE</span><h2>Create separately. Run locally.</h2></div><div class="grid two"><article class="card"><span class="badge">CREATION</span><h2>Showduino Studio</h2><p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable <code>.shdo</code> project files. Studio is a creator and deployment tool — not the live show engine.</p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div></article><article class="card"><span class="badge">PROJECT HUB</span><h2>HauntSync</h2><p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p><div class="button-row"><a class="btn" href="welcome.html">Join HauntSync</a><a class="btn secondary" href="hauntsync.html">Open my workspace</a></div></article></div></section>
+      <section class="section reveal"><div class="section-heading"><span class="eyebrow">SOFTWARE</span><h2>Create separately. Run locally.</h2></div><div class="grid two"><article class="card"><span class="badge">EARLY ACCESS · CREATE NOW</span><h2>Showduino Studio</h2><p class="muted">Build productions, arrange timeline events, define routing, preview effects and export portable <code>.shdo</code> project files. Studio is a creator and deployment tool — not the live show engine.</p><div class="button-row"><a class="btn" href="studio.html">Open Studio</a></div></article><article class="card"><span class="badge">PROJECT HUB</span><h2>HauntSync</h2><p class="muted">Keep track of projects and the real Showduino hardware roles: Director, Comms Controller, Show Engine and specialist nodes.</p><div class="button-row"><a class="btn" href="hauntsync.html">Explore HauntSync</a><a class="btn secondary" href="studio.html">Create a show first</a></div></article></div></section>
 
       <section class="section compact reveal"><div class="callout"><div><h2>Want the architecture without the marketing?</h2><p>The System page breaks down responsibilities, transports, emergency behaviour and the current hardware scope.</p></div><a class="btn" href="system.html">Open System Guide</a></div></section>
 

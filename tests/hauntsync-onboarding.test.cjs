@@ -5,7 +5,8 @@ const vm = require('node:vm');
 
 const html = file => fs.readFileSync(file, 'utf8');
 for (const [file, required] of [
-  ['index.html',['href="welcome.html"','Join HauntSync']],
+  // Early Access deliberately makes guest Studio the homepage CTA; community still has its own page.
+  ['index.html',['href="hauntsync.html"','Explore HauntSync']],
   ['hauntsync.html',['href="welcome.html"','<option>Emergency Node</option>','<option>Lamp Node</option>']],
   ['welcome.html',['id="hs-onboarding-status"','id="hs-onboarding-join"','js/hauntsync-onboarding.js']],
   ['account.html',['id="register-form"','minlength="12"','id="hauntsync-account-next"']],

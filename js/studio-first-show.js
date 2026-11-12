@@ -12,15 +12,15 @@ let inertTargets=[];
 function clean(v,n=120){return String(v??'').trim().slice(0,n)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function num(v,min,max,fallback){const x=Number(v);return Number.isFinite(x)?Math.min(max,Math.max(min,Math.round(x))):fallback}
-function initial(){return {name:'My Halloween Show',theme:'haunt',p4:false,p4Count:10,pixel:false,pixelNode:'PIXEL-01',pixelCount:10,audio:false,audioNode:'audio-1',audioFile:'',mosfet:false,mosfetNode:'MOSFET-01',mosfetOut:'out1',pulseMs:400,effect:'FLICKER',colour:'#ff7425',duration:15000}}
+function initial(){return {name:'My Halloween Show',theme:'haunt',p4:true,p4Count:10,pixel:false,pixelNode:'PIXEL-01',pixelCount:10,audio:false,audioNode:'audio-1',audioFile:'',mosfet:false,mosfetNode:'MOSFET-01',mosfetOut:'out1',pulseMs:400,effect:'FLICKER',colour:'#ff7425',duration:15000}}
 function selected(d){return Number(!!d.p4)+Number(!!d.audio)+Number(!!d.pixel)+Number(!!d.mosfet)}
 function validate(d,through=3){
   const issues=[];
   if(!clean(d.name,80))issues.push('Give your show a name.');
-  if(through>=1&&!selected(d))issues.push('Choose at least one connected output.');
+  if(through>=1&&!selected(d))issues.push('Choose at least one output you want your show to use.');
   if(through>=2){
     if(d.pixel && (!/^[a-z][a-z0-9_-]{1,11}$/i.test(clean(d.pixelNode)) || !window.ShowduinoPixelAuthoring?.pixelNodeIdOk?.(clean(d.pixelNode))))issues.push('Enter a dedicated Pixel Node ID, for example PIXEL-01. P4, Audio and Emergency IDs are reserved.');
-    if(d.audio&&!/^[a-z0-9][a-z0-9 _/.-]*\.wav$/i.test(clean(d.audioFile)))issues.push('Enter the WAV filename already on your Audio Node, for example scare.wav.');
+    if(d.audio&&!/^[a-z0-9][a-z0-9 _/.-]*\.wav$/i.test(clean(d.audioFile)))issues.push('Enter the WAV filename you plan to use, for example scare.wav.');
     if(d.audio&&!/^[a-z0-9_-]{2,32}$/i.test(clean(d.audioNode)))issues.push('Enter your Audio Node ID, for example audio-1.');
     if(d.mosfet&&!/^MOSFET-0*[1-8]$/i.test(clean(d.mosfetNode)))issues.push('Enter a MOSFET Node ID from MOSFET-01 to MOSFET-08.');
   }
@@ -90,28 +90,28 @@ function check(key,label,detail){
   return `<label class="fsw-pick"><input name="${key}" type="checkbox" ${draft[key]?'checked':''}><span><strong>${esc(label)}</strong><small>${esc(detail)}</small></span></label>`;
 }
 function body(){
-  if(step===0)return `<p>Build a real show in four easy steps. No JSON, programming or complicated timeline required.</p>
+  if(step===0)return `<p>Design your first Showduino production in four easy steps. No hardware, account, programming or complicated timeline required.</p>
     ${field('name','Name your show','text','maxlength="80" required')}
     <fieldset class="fsw-fieldset"><legend>What are you creating?</legend>${Object.entries(THEMES).map(([k,t])=>`<label><input type="radio" name="theme" value="${k}" ${draft.theme===k?'checked':''}> ${esc(t.label)}</label>`).join('')}</fieldset>`;
-  if(step===1)return `<p>Tick what you actually own. Your main Showduino already contains the Director, Comms and P4. This is <strong>planning</strong>, not automatic device discovery.</p>
-    ${check('p4','LED strip on main Showduino','Show pixels on the P4 (GPIO23)')}
+  if(step===1)return `<p>Choose the outputs you want your future Showduino to use. Nothing needs to be connected or purchased yet. These are <strong>planned devices</strong>, not automatically discovered hardware.</p>
+    ${check('p4','LED strip on main Showduino','Plan an LED effect for the future Show Engine pixel line')}
     ${draft.p4?field('p4Count','How many LEDs?','number','min="1" max="1024"'):''}
-    ${check('audio','Show Audio Node','Play a sound already stored as WAV on this node')}
+    ${check('audio','Show Audio Node','Plan a WAV sound to play from your future Audio Node')}
     ${draft.audio?field('audioNode','Audio Node ID','text','maxlength="32"'):''}
-    ${check('pixel','Extra Pixel Node','A separate C3-controlled LED strip')}
+    ${check('pixel','Extra Pixel Node','Plan a second LED strip driven by a Pixel Node')}
     ${draft.pixel?field('pixelNode','Pixel Node ID','text','maxlength="12"')+field('pixelCount','How many LEDs?','number','min="1" max="512"'):''}
     ${check('mosfet','MOSFET prop output','Pulse an appropriately wired low-voltage prop')}
     ${draft.mosfet?field('mosfetNode','MOSFET Node ID','text','maxlength="12"'):''}
     <p class="fsw-tip">Other modules remain available through Advanced Studio. Emergency outputs are never programmable show effects.</p>`;
   if(step===2)return `<p>Choose a couple of actions. We'll create the tracks and time them for you.</p>
     ${(draft.p4||draft.pixel)?`<label class="fsw-field"><span>Lighting effect</span><select name="effect">${EFFECTS.map(f=>`<option value="${f}" ${draft.effect===f?'selected':''}>${f}</option>`).join('')}</select></label>${field('colour','LED colour','color')}`:''}
-    ${draft.audio?`${field('audioFile','WAV filename on Audio Node','text','maxlength="120" placeholder="scare.wav"')}<p class="fsw-tip">Copy this WAV to the Audio Node separately. Studio does not invent or upload sound files.</p>`:''}
+    ${draft.audio?`${field('audioFile','WAV filename on Audio Node','text','maxlength="120" placeholder="scare.wav"')}<p class="fsw-tip">For now, enter the WAV filename you intend to use. Copy the actual audio to the Audio Node after you have hardware; Studio does not invent or upload it.</p>`:''}
     ${draft.mosfet?`<label class="fsw-field"><span>Prop output</span><select name="mosfetOut">${[1,2,3,4].map(n=>`<option value="out${n}" ${draft.mosfetOut==='out'+n?'selected':''}>Output ${n}</option>`).join('')}</select></label>${field('pulseMs','Pulse length (ms)','number','min="100" max="3000"')}`:''}
     ${field('duration','Scene length (milliseconds)','number','min="10000" max="120000" step="1000"')}`;
   return `<p>Here's your show! Create it, then open the standard timeline to preview, fine-tune and export a genuine .shdo file.</p>
     <div class="fsw-summary"><strong>${esc(draft.name)}</strong><small>${(draft.duration/1000)} seconds</small>
       <ol>${events(draft).map(e=>`<li><span>${e.at/1000}s</span><strong>${esc(e.name)}</strong><small>${esc(e.detail)}</small></li>`).join('')}</ol></div>
-    <p class="fsw-tip">Before deploying, check the actual node IDs, SD audio filenames and output wiring. The P4 must confirm deployment. Emergency remains P4-controlled.</p>`;
+    <p class="fsw-tip">Your production can be saved and exported now. When hardware is available, confirm the real node IDs, SD audio filenames and output wiring before deployment. Emergency remains P4-controlled.</p>`;
 }
 function render(){
   if(!root)return;

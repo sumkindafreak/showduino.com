@@ -18,8 +18,10 @@ load('js/studio-package.js');
 load('js/studio-first-show.js');
 
 const wizard = ShowduinoFirstShow;
+// A visitor without any hardware should be able to create their first planned
+// Showduino P4 lighting cue using the defaults. This never probes a device.
 const base = wizard.initial();
-base.p4 = true;
+assert.equal(base.p4, true, 'Starter planning mode includes a future P4 pixel output');
 const starter = wizard.createProject(base);
 assert.equal(starter.project.name, 'My Halloween Show');
 assert.equal(starter.tracks.length, 1);

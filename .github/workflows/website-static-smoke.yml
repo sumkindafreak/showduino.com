@@ -40,4 +40,5 @@ jobs:
           node tests/hauntsync-google-auth.test.cjs
           node tests/site-security-config.test.cjs
           node tests/studio-actions.test.cjs
+          node tests/studio-early-access-launch.test.cjs
           node tests/w005-site-polish.test.cjs

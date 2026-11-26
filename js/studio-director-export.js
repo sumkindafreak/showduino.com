@@ -29,6 +29,7 @@
     if (!validation.valid) fail(validation.errors.join('\n'));
     const p = shdo.project || {};
     const id = safeId(p.id || p.name);
+    if (shdo.metadata?.releaseStatus === 'AUTHORING_ONLY_PLAYBACK_DISABLED') fail('This production is marked authoring-only; resolve its playback restrictions before exporting.');
     const enabled = shdo.clips.filter(c => c.enabled !== false);
     if (!enabled.length) fail('No enabled cues to export.');
     // This first version deliberately uses the proven narrow PIXEL/AUDIO compiler.
@@ -37,6 +38,8 @@
     let duration = checkTime(p.duration ?? 0, 'project duration');
     const audio = [];
     for (const clip of enabled) {
+      if (shdo.tracks.some(t => t.id === clip.trackId && t.enabled === false)) fail(clip.name + ': enabled clip on a disabled track; resolve before export.');
+      if (shdo.devices.some(d => d.id === (clip.action?.targetDeviceId || clip.targetDeviceId) && d.enabled === false)) fail(clip.name + ': target device is disabled.');
       const type = String(clip.action?.type || clip.type || '').toLowerCase();
       if (!supported.has(type)) fail(clip.name + ': unsupported in Director SD export (' + type + '). Disable explicitly or use another verified workflow.');
       const start = checkTime(clip.startMs, clip.name);

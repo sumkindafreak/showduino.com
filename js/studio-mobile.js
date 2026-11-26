@@ -286,6 +286,7 @@
           <button class="sm-btn primary" type="button" data-sm-save>Save</button>
           <button class="sm-btn" type="button" data-sm-rename>Rename</button>
           <button class="sm-btn" type="button" data-sm-export>Export .shdo</button>
+          <button class="sm-btn" type="button" data-sm-director-export>Export Director SD ZIP</button>
           <button class="sm-btn" type="button" data-sm-import>Import</button>
         </div>
       </div>
@@ -882,6 +883,14 @@
     if (event.target.closest('[data-sm-preview-stop]')) { stopPreview(); return; }
     if (event.target.closest('[data-sm-save]')) { saveProjectNow(); return; }
     if (event.target.closest('[data-sm-rename]')) { window.ShowduinoProjects?.renameCurrentProject?.(); window.setTimeout(render,50); return; }
+    if (event.target.closest('[data-sm-director-export]')) {
+      const button = event.target.closest('[data-sm-director-export]');
+      button.disabled = true;
+      Promise.resolve().then(() => window.ShowduinoDirectorExport.exportCurrent())
+        .catch(error => window.alert('Director SD export failed: ' + error.message))
+        .finally(() => { button.disabled = false; });
+      return;
+    }
     if (event.target.closest('[data-sm-export]')) { window.ShowduinoProjects?.exportCurrentProject?.(); return; }
     if (event.target.closest('[data-sm-import]')) { document.getElementById('studio-import-file')?.click(); return; }
     if (event.target.closest('[data-sm-advanced]')) { openAdvancedTimeline(); return; }

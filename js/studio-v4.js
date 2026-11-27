@@ -249,7 +249,7 @@
           <p class="lan-help">In the S3 console: <strong>Productions → Persist SHDO v2 → Choose downloaded file → Persist to SD.</strong> Wait for the P4 confirmation; loading the production and starting it are separate actions. <a href="hauntsync.html#devices">Manage hardware inventory</a>.</p>
         </section>
         <div class="v4-grid two" style="margin-top:.8rem;">
-          <article class="v4-card"><h3>Production package</h3><div id="v4-deploy-summary" class="project-check-list"></div><div class="v4-button-row"><button class="v4-btn primary" data-sd-click="v4-prepare-deploy">Prepare / Send Show</button><button class="v4-btn" data-sd-click="export-shdo">Export .shdo</button></div></article>
+          <article class="v4-card"><h3>Production package</h3><p>For MOSFET cues use Export Director SD Package (.zip) in the Studio menu. The browser live timeline upload does not accept powered outputs.</p><div id="v4-deploy-summary" class="project-check-list"></div><div class="v4-button-row"><button class="v4-btn primary" data-sd-click="v4-prepare-deploy">Prepare / Send Show</button><button class="v4-btn" data-sd-click="export-shdo">Export .shdo</button></div></article>
           <article class="v4-card"><h3>Live path</h3><div class="node-target-list"><div class="node-target"><code>DIRECTOR</code><span>ESP-NOW operator requests</span><strong>→</strong></div><div class="node-target"><code>S3 COMMS</code><span>ESP-NOW ↔ UART transport</span><strong>→</strong></div><div class="node-target"><code>P4</code><span>Runtime + safety + timeline</span><strong>→</strong></div><div class="node-target"><code>NODES</code><span>Relay · MOSFET · Pixel · Audio</span><strong>✓</strong></div></div></article>
         </div>
       </div>`;
@@ -265,6 +265,7 @@
           <article class="node-role-card core"><div class="node-status"><span>P4</span><span>AUTHORITY</span></div><h3>Show Engine</h3><p>Owns timeline, cue state, storage, emergency and completion-driven runtime.</p></article>
           <article class="node-role-card"><div class="node-status"><span>NODES</span><span>ACTION</span></div><h3>Specialist Outputs</h3><p>Relay, MOSFET, pixel and audio nodes perform commanded work.</p></article>
         </div>
+        <article class="v4-card" style="margin-top:.8rem;"><h3>MOSFET Node settings</h3><p>Logical IDs MOSFET-01–MOSFET-08 · four PWM outputs per node (OUT1–OUT4) · 0–100% power · Hold / Pulse / Fade. Set the actual target ID and output in the cue inspector. These are authored settings, not live node configuration. Director SD ZIP supports these cues; physical commissioning is required. Lamp V3 integration is pending.</p></article>
         <section class="v4-card" style="margin-top:.8rem;"><span class="v4-eyebrow">AUTHORED TARGETS</span><div id="v4-node-targets" class="node-target-list"></div></section>
         <div class="v4-rule" style="margin-top:.8rem;"><strong>Addressing rule:</strong> author against logical device IDs, not hard-coded ESP-NOW MAC addresses. The runtime owns the mapping between production targets and physical nodes.</div>
       </div>`;
@@ -337,12 +338,12 @@
   function buildMosfetInspector(clip) {
     const p = ensureMosfetParams(clip.params || (clip.params = {}));
     return `
-      <section class="v4-inspector-section"><h4>Lighting</h4>
+      <section class="v4-inspector-section"><h4>MOSFET powered output</h4>
         <div class="v4-inspector-grid">${inspectorSelect('v4-mosfet-output','Output',p.out || 'out1',['out1','out2','out3','out4'])}${inspectorSelect('v4-mosfet-mode','Mode',(p.mode === 'pwm' ? 'hold' : (p.mode || 'hold')),['hold','pulse','fade'])}</div>
         <div class="v4-inspector-grid">${inspectorField('v4-mosfet-duty','Level %',p.duty,'number','min="0" max="100"')}${inspectorField('v4-mosfet-pulse','Pulse (ms)',p.pulseMs,'number','min="0"')}</div>
         <div class="v4-inspector-grid">${inspectorField('v4-mosfet-fade-in','Fade in (ms)',p.fadeInMs || 0,'number','min="0"')}${inspectorField('v4-mosfet-fade-out','Fade out (ms)',p.fadeOutMs || 0,'number','min="0"')}</div>
         <label class="v4-check"><input id="v4-mosfet-state" type="checkbox" ${p.state !== false ? 'checked' : ''}> Active state</label>
-        <p class="v4-help">Powered outputs always switch OFF when the cue/show stops.</p>
+        <p class="v4-help">Use the commissioned MOSFET-01–MOSFET-08 target ID and OUT1–OUT4. Hold, pulse and fade cues export via Director SD ZIP; browser live upload remains unsupported. Check pulse/fade times fit the cue; avoid overlaps on the same output.</p>
       </section>`;
   }
 
@@ -520,6 +521,16 @@
 
     const duplicateTrackNames = tracks.map((track) => track.name).filter((name, index, all) => all.indexOf(name) !== index);
     checks.push({ level: duplicateTrackNames.length ? 'warn' : 'ok', title: 'Track naming', detail: duplicateTrackNames.length ? 'Some tracks share the same name. Unique names make routing and commissioning easier.' : 'Track names are unambiguous.', code: duplicateTrackNames.length ? 'REVIEW' : 'OK' });
+
+    // Offline export validation is read-only and sends no commands.
+    if (mosfetClips.some(clip => clip.enabled !== false) && window.ShowduinoDirectorExport) {
+      try {
+        window.ShowduinoDirectorExport.build(window.ShowduinoPackage.toShdo(project));
+        checks.push({level:'ok',title:'MOSFET Director SD export',detail:'Offline package validation passed; confirm node IDs, loads and playback on the bench. Browser live upload is unsupported.',code:'SD ZIP'});
+      } catch (error) {
+        checks.push({level:'error',title:'MOSFET Director SD export',detail:error.message,code:'BLOCK'});
+      }
+    }
 
     // W005: what the P4 Show Engine itself would refuse (file size, pixel segment slots,
     // name and label lengths, numbers), checked on the exact document Export writes.

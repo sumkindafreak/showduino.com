@@ -82,6 +82,7 @@
             <div id="studio-header-menu" class="studio-overflow-menu" hidden role="menu">
               <button id="studio-import-button" class="studio-overflow-item" type="button" role="menuitem">Import</button>
               <button id="studio-export-button" class="studio-overflow-item" type="button" role="menuitem">Export .shdo</button>
+              <button id="studio-director-export-button" class="studio-overflow-item" type="button" role="menuitem">Export Director SD Package (.zip)</button>
               <button id="studio-reset-preview-button" class="studio-overflow-item panic" type="button" role="menuitem" title="Reset the browser preview only">Reset Preview</button>
             </div>
           </div>
@@ -156,6 +157,7 @@
   <script src="js/studio-projects.js"></script>
   <script src="js/studio-first-show.js"></script>
   <script src="js/studio-deploy.js"></script>
+  <script src="js/studio-director-export.js"></script>
   <script src="js/studio-sounds.js"></script>
   <script src="js/studio-lan-connection.js"></script>
   <script src="js/studio-creator-bootstrap.js"></script>
@@ -250,6 +252,13 @@
       exportButton?.addEventListener('click', () => {
         try { window.ShowduinoProjects.exportCurrentProject(); }
         catch (error) { window.alert(error.message); }
+      });
+      const directorExportButton = document.getElementById('studio-director-export-button');
+      directorExportButton?.addEventListener('click', async () => {
+        directorExportButton.disabled = true;
+        try { await window.ShowduinoDirectorExport.exportCurrent(); }
+        catch (error) { window.alert('Director SD export failed: ' + error.message); }
+        finally { directorExportButton.disabled = false; }
       });
       importFile?.addEventListener('change', async () => {
         try {

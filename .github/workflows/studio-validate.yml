@@ -105,6 +105,9 @@ jobs:
       - name: Check deploy pre-flight matches the firmware upload policy (W001)
         run: node tests/studio-firmware-upload-policy.test.cjs
 
+      - name: Check four-file Director SD ZIP export
+        run: node tests/studio-director-export.test.cjs
+
       - name: Guard imported .shdo text against HTML injection (W001)
         run: node tests/studio-imported-text-safety.test.cjs
 

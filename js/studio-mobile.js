@@ -286,6 +286,7 @@
           <button class="sm-btn primary" type="button" data-sm-save>Save</button>
           <button class="sm-btn" type="button" data-sm-rename>Rename</button>
           <button class="sm-btn" type="button" data-sm-export>Export .shdo</button>
+          <button class="sm-btn" type="button" data-sm-director-export>Export Director SD ZIP</button>
           <button class="sm-btn" type="button" data-sm-import>Import</button>
         </div>
       </div>
@@ -334,7 +335,7 @@
     if (draft.type === 'trigger') return '';
     const nodes = knownNodes(draft.type);
     const listId = `sm-node-list-${draft.type}`;
-    return `<div class="sm-field"><label>DEVICE</label><input class="sm-input" id="sm-edit-node" list="${listId}" placeholder="e.g. Audio Node 1" value="${esc(draft.routing?.nodeId || '')}"><datalist id="${listId}">${nodes.map((node) => `<option value="${esc(node)}"></option>`).join('')}</datalist></div>`;
+    return `<div class="sm-field"><label>DEVICE</label><input class="sm-input" id="sm-edit-node" list="${listId}" placeholder="${draft.type === 'mosfet' ? 'e.g. MOSFET-01' : 'e.g. Audio Node 1'}" value="${esc(draft.routing?.nodeId || '')}"><datalist id="${listId}">${nodes.map((node) => `<option value="${esc(node)}"></option>`).join('')}</datalist></div>`;
   }
 
   function commonFieldsHtml(draft) {
@@ -378,7 +379,7 @@
         <div class="sm-field"><label>POWER · <span id="sm-mosfet-duty-value">${clamp(p.duty,0,100,100)}</span>%</label><input class="sm-input" id="sm-mosfet-duty" type="range" min="0" max="100" value="${clamp(p.duty,0,100,100)}"></div>
         <div class="sm-field" id="sm-mosfet-pulse-wrap"><label>PULSE LENGTH (MS)</label><input class="sm-input" id="sm-mosfet-pulse" type="number" min="10" step="10" value="${clamp(p.pulseMs || 500,10,600000,500)}"></div>
         <div class="sm-grid"><div class="sm-field"><label>FADE IN (MS)</label><input class="sm-input" id="sm-mosfet-fade-in" type="number" min="0" step="10" value="${clamp(p.fadeInMs || 0,0,600000,0)}"></div><div class="sm-field"><label>FADE OUT (MS)</label><input class="sm-input" id="sm-mosfet-fade-out" type="number" min="0" step="10" value="${clamp(p.fadeOutMs || 0,0,600000,0)}"></div></div>
-        <p class="sm-help">Powered outputs always switch OFF when the cue/show stops.</p>
+        <p class="sm-help">Use the commissioned MOSFET-01–MOSFET-08 ID and OUT1–OUT4. Pulse/fade times must fit the cue; no overlap on the same output. Use Director SD ZIP, not browser live upload.</p>
       </section>`;
     }
 
@@ -422,7 +423,7 @@
       <div class="sm-field"><label>DURATION (SECONDS)</label><input class="sm-input" id="sm-edit-duration" type="number" min="0.01" step="0.01" value="${(Math.max(10,Number(draft.durationMs || 1000))/1000).toFixed(2)}"></div>
       ${draft.type === 'trigger' ? '' : `<div class="sm-field"><label>ROUTING OUTPUT OVERRIDE</label><input class="sm-input" id="sm-edit-output" placeholder="Usually leave blank" value="${esc(draft.routing?.output || '')}"></div>`}
       ${draft.type === 'relay' ? `<label class="sm-checkline"><input id="sm-relay-safe" type="checkbox" ${draft.params?.safeOff !== false ? 'checked' : ''}> Force relay OFF when stopped</label>` : ''}
-      ${draft.type === 'mosfet' ? `<p class="sm-help">Powered outputs always switch OFF when the cue/show stops.</p>` : ''}
+      ${draft.type === 'mosfet' ? `<p class="sm-help">Use the commissioned MOSFET-01–MOSFET-08 ID and OUT1–OUT4. Pulse/fade times must fit the cue; no overlap on the same output. Use Director SD ZIP, not browser live upload.</p>` : ''}
       ${draft.type === 'fx' ? `<label class="sm-checkline"><input id="sm-fx-safe" type="checkbox" ${draft.params?.safeStop !== false ? 'checked' : ''}> Stop this effect during emergency</label>` : ''}
     </div></details>`;
   }
@@ -882,6 +883,14 @@
     if (event.target.closest('[data-sm-preview-stop]')) { stopPreview(); return; }
     if (event.target.closest('[data-sm-save]')) { saveProjectNow(); return; }
     if (event.target.closest('[data-sm-rename]')) { window.ShowduinoProjects?.renameCurrentProject?.(); window.setTimeout(render,50); return; }
+    if (event.target.closest('[data-sm-director-export]')) {
+      const button = event.target.closest('[data-sm-director-export]');
+      button.disabled = true;
+      Promise.resolve().then(() => window.ShowduinoDirectorExport.exportCurrent())
+        .catch(error => window.alert('Director SD export failed: ' + error.message))
+        .finally(() => { button.disabled = false; });
+      return;
+    }
     if (event.target.closest('[data-sm-export]')) { window.ShowduinoProjects?.exportCurrentProject?.(); return; }
     if (event.target.closest('[data-sm-import]')) { document.getElementById('studio-import-file')?.click(); return; }
     if (event.target.closest('[data-sm-advanced]')) { openAdvancedTimeline(); return; }
